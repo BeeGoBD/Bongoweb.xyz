@@ -1,0 +1,6 @@
+{
+  "name": "WebHub",
+  "description": "Interactive onboarding wizard and live website showcase for entrepreneurs.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
