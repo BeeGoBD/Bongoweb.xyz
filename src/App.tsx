@@ -63,11 +63,11 @@ export default function App() {
 
       {/* Full Page Navigation Router */}
       {currentPage === 'wizard' && (
-        <div className="relative z-10 min-h-screen w-full flex flex-col justify-center items-center px-4 pt-3 pb-3 sm:px-6 sm:pt-4 sm:pb-4 overflow-y-auto">
+        <div className="relative z-10 min-h-screen w-full flex flex-col justify-start items-center px-3 pt-0 sm:pt-1 pb-6 sm:px-6 sm:pb-6 overflow-y-auto">
           {/* Centered Presentation Slide Deck Container */}
-          <main className="w-full max-w-xl sm:max-w-2xl my-auto flex flex-col items-center justify-center">
+          <main className="w-full max-w-xl sm:max-w-2xl mt-0 sm:mt-1 flex flex-col items-center">
             {/* Elevated Presentation Slide Card Frame with Top Accent Line */}
-            <div className="w-full bg-white/95 backdrop-blur-2xl rounded-3xl border border-slate-200/90 shadow-[0_20px_50px_rgba(15,23,42,0.07),0_1px_3px_rgba(15,23,42,0.04)] ring-1 ring-black/[0.03] p-5 sm:p-7 pt-4 sm:pt-5 transition-all duration-300 relative overflow-hidden">
+            <div className="w-full bg-white/95 backdrop-blur-2xl rounded-3xl border border-slate-200/90 shadow-[0_20px_50px_rgba(15,23,42,0.07),0_1px_3px_rgba(15,23,42,0.04)] ring-1 ring-black/[0.03] p-5 sm:p-7 pt-2.5 sm:pt-3 transition-all duration-300 relative overflow-hidden">
               {/* Jewel accent bar across top of card */}
               <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-blue-600 via-indigo-600 to-emerald-500 opacity-90" />
 
