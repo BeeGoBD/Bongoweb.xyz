@@ -360,35 +360,35 @@ export default function MainPreviewZone({
                 </div>
 
                 <div className="space-y-2.5 mb-6 text-xs text-[#111111]">
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-[#F5F5F7]/70 border border-[#EDEDEF] shadow-2xs">
-                    <Laptop className="w-4 h-4 text-[#FF9D14] shrink-0" />
+                  <div className="flex items-center gap-3 p-3 rounded-xl bg-[#F5F5F7]/70 border border-[#EDEDEF] shadow-2xs hover:border-[#22C55E]/40 transition-colors">
+                    <Laptop className="w-4 h-4 text-[#22C55E] shrink-0" />
                     <span className="font-semibold text-[#111111] flex-1">৬০+ লাইভ রেসপনসিভ ওয়েবসাইট ডেমো</span>
-                    <span className="text-[10px] text-[#FF9D14] font-bold bg-[#FF9D14]/10 px-2 py-0.5 rounded border border-[#FF9D14]/30 font-mono">Live Browse</span>
+                    <span className="text-[10px] text-[#22C55E] font-bold bg-[#22C55E]/10 px-2 py-0.5 rounded border border-[#22C55E]/30 font-mono">Live Browse</span>
                   </div>
 
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-[#F5F5F7]/70 border border-[#EDEDEF] shadow-2xs">
-                    <Sparkles className="w-4 h-4 text-[#FF9D14] shrink-0" />
+                  <div className="flex items-center gap-3 p-3 rounded-xl bg-[#F5F5F7]/70 border border-[#EDEDEF] shadow-2xs hover:border-[#22C55E]/40 transition-colors">
+                    <Sparkles className="w-4 h-4 text-[#22C55E] shrink-0" />
                     <span className="font-semibold text-[#111111] flex-1">আপনার নাম এবং লোগো সহ সম্পূর্ণ রেডি</span>
-                    <span className="text-[10px] text-[#FF9D14] font-bold bg-[#FF9D14]/10 px-2 py-0.5 rounded border border-[#FF9D14]/30 font-mono">100% Custom</span>
+                    <span className="text-[10px] text-[#22C55E] font-bold bg-[#22C55E]/10 px-2 py-0.5 rounded border border-[#22C55E]/30 font-mono">100% Custom</span>
                   </div>
 
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-[#F5F5F7]/70 border border-[#EDEDEF] shadow-2xs">
+                  <div className="flex items-center gap-3 p-3 rounded-xl bg-[#F5F5F7]/70 border border-[#EDEDEF] shadow-2xs hover:border-[#22C55E]/40 transition-colors">
                     <Clock className="w-4 h-4 text-[#22C55E] shrink-0" />
                     <span className="font-semibold text-[#111111] flex-1">২৪ ঘণ্টার মধ্যে সম্পূর্ণ সাইট লাইভ ডেলিভারি</span>
                     <span className="text-[10px] text-[#22C55E] font-bold bg-[#22C55E]/10 px-2 py-0.5 rounded border border-[#22C55E]/30 font-mono">24h Express</span>
                   </div>
 
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-[#F5F5F7]/70 border border-[#EDEDEF] shadow-2xs">
-                    <Smartphone className="w-4 h-4 text-[#FF9D14] shrink-0" />
+                  <div className="flex items-center gap-3 p-3 rounded-xl bg-[#F5F5F7]/70 border border-[#EDEDEF] shadow-2xs hover:border-[#22C55E]/40 transition-colors">
+                    <Smartphone className="w-4 h-4 text-[#22C55E] shrink-0" />
                     <span className="font-semibold text-[#111111] flex-1">মোবাইল থেকে সহজ ম্যানেজমেন্ট ও পেমেন্ট</span>
-                    <span className="text-[10px] text-[#FF9D14] font-bold bg-[#FF9D14]/10 px-2 py-0.5 rounded border border-[#FF9D14]/30 font-mono">Easy Admin</span>
+                    <span className="text-[10px] text-[#22C55E] font-bold bg-[#22C55E]/10 px-2 py-0.5 rounded border border-[#22C55E]/30 font-mono">Easy Admin</span>
                   </div>
                 </div>
 
                 <button
                   onClick={onOpenLiveBrowser}
                   id="btn-live-web-visit"
-                  className="w-full py-3.5 px-6 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#FF9D14] hover:bg-[#FEB74F] shadow-[0_4px_16px_rgba(255,157,20,0.35)] flex items-center justify-center gap-2.5 cursor-pointer transition-all hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.99]"
+                  className="w-full btn-wave-rtl py-3.5 px-6 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#FF9D14] hover:bg-[#FEB74F] shadow-[0_4px_16px_rgba(255,157,20,0.35)] flex items-center justify-center gap-2.5 cursor-pointer transition-all hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.99]"
                 >
                   <ExternalLink className="w-4 h-4" />
                   <span>লাইভ ক্যাটালগ খুলুন (৬০+ ডেমো)</span>
@@ -459,35 +459,35 @@ export default function MainPreviewZone({
                 </div>
 
                 <div className="space-y-2.5 mb-6 text-xs text-[#111111]">
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-[#F5F5F7]/70 border border-[#EDEDEF] shadow-2xs">
-                    <Laptop className="w-4 h-4 text-[#FF9D14] shrink-0" />
+                  <div className="flex items-center gap-3 p-3 rounded-xl bg-[#F5F5F7]/70 border border-[#EDEDEF] shadow-2xs hover:border-[#22C55E]/40 transition-colors">
+                    <Laptop className="w-4 h-4 text-[#22C55E] shrink-0" />
                     <span className="font-semibold text-[#111111] flex-1">৬০+ কিউরেটেড হাই-রেজ্যুলেশন ডিজাইন</span>
-                    <span className="text-[10px] text-[#FF9D14] font-bold bg-[#FF9D14]/10 px-2 py-0.5 rounded border border-[#FF9D14]/30 font-mono">HD Gallery</span>
+                    <span className="text-[10px] text-[#22C55E] font-bold bg-[#22C55E]/10 px-2 py-0.5 rounded border border-[#22C55E]/30 font-mono">HD Gallery</span>
                   </div>
 
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-[#F5F5F7]/70 border border-[#EDEDEF] shadow-2xs">
-                    <Sparkles className="w-4 h-4 text-[#FF9D14] shrink-0" />
+                  <div className="flex items-center gap-3 p-3 rounded-xl bg-[#F5F5F7]/70 border border-[#EDEDEF] shadow-2xs hover:border-[#22C55E]/40 transition-colors">
+                    <Sparkles className="w-4 h-4 text-[#22C55E] shrink-0" />
                     <span className="font-semibold text-[#111111] flex-1">আপনার ব্র্যান্ড নাম ও লোগোর সাথে সাজানো</span>
-                    <span className="text-[10px] text-[#FF9D14] font-bold bg-[#FF9D14]/10 px-2 py-0.5 rounded border border-[#FF9D14]/30 font-mono">100% Custom</span>
+                    <span className="text-[10px] text-[#22C55E] font-bold bg-[#22C55E]/10 px-2 py-0.5 rounded border border-[#22C55E]/30 font-mono">100% Custom</span>
                   </div>
 
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-[#F5F5F7]/70 border border-[#EDEDEF] shadow-2xs">
+                  <div className="flex items-center gap-3 p-3 rounded-xl bg-[#F5F5F7]/70 border border-[#EDEDEF] shadow-2xs hover:border-[#22C55E]/40 transition-colors">
                     <Clock className="w-4 h-4 text-[#22C55E] shrink-0" />
                     <span className="font-semibold text-[#111111] flex-1">২৪ ঘণ্টার মধ্যে সম্পূর্ণ সাইট ডেলিভারি</span>
                     <span className="text-[10px] text-[#22C55E] font-bold bg-[#22C55E]/10 px-2 py-0.5 rounded border border-[#22C55E]/30 font-mono">24h Express</span>
                   </div>
 
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-[#F5F5F7]/70 border border-[#EDEDEF] shadow-2xs">
-                    <Smartphone className="w-4 h-4 text-[#FF9D14] shrink-0" />
+                  <div className="flex items-center gap-3 p-3 rounded-xl bg-[#F5F5F7]/70 border border-[#EDEDEF] shadow-2xs hover:border-[#22C55E]/40 transition-colors">
+                    <Smartphone className="w-4 h-4 text-[#22C55E] shrink-0" />
                     <span className="font-semibold text-[#111111] flex-1">মোবাইল থেকে সহজ ম্যানেজমেন্ট ও পরিচালনা</span>
-                    <span className="text-[10px] text-[#FF9D14] font-bold bg-[#FF9D14]/10 px-2 py-0.5 rounded border border-[#FF9D14]/30 font-mono">Easy Admin</span>
+                    <span className="text-[10px] text-[#22C55E] font-bold bg-[#22C55E]/10 px-2 py-0.5 rounded border border-[#22C55E]/30 font-mono">Easy Admin</span>
                   </div>
                 </div>
 
                 <button
                   onClick={onOpenPhotoShowcase}
                   id="btn-photo-showcase-view"
-                  className="w-full py-3.5 px-6 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#FF9D14] hover:bg-[#FEB74F] shadow-[0_4px_16px_rgba(255,157,20,0.35)] flex items-center justify-center gap-2.5 cursor-pointer transition-all hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.99]"
+                  className="w-full btn-wave-rtl py-3.5 px-6 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#FF9D14] hover:bg-[#FEB74F] shadow-[0_4px_16px_rgba(255,157,20,0.35)] flex items-center justify-center gap-2.5 cursor-pointer transition-all hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.99]"
                 >
                   <Eye className="w-4 h-4" />
                   <span>ফটো গ্যালারি প্রদর্শনী খুলুন</span>
@@ -524,7 +524,7 @@ export default function MainPreviewZone({
           <button
             onClick={onOpenVideoFaq}
             id="btn-open-video-faq"
-            className="w-full md:w-auto px-6 py-3 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#FF9D14] hover:bg-[#FEB74F] transition-all cursor-pointer shadow-[0_4px_16px_rgba(255,157,20,0.35)] flex items-center justify-center gap-2 shrink-0 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.99]"
+            className="w-full md:w-auto btn-wave-rtl px-6 py-3 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#FF9D14] hover:bg-[#FEB74F] transition-all cursor-pointer shadow-[0_4px_16px_rgba(255,157,20,0.35)] flex items-center justify-center gap-2 shrink-0 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.99]"
           >
             <Play className="w-3.5 h-3.5 fill-white ml-0.5" />
             <span>Watch Videos</span>

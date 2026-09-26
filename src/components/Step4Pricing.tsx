@@ -169,7 +169,7 @@ export default function Step4Pricing({ onBack, onComplete }: Step4PricingProps) 
             onClick={handleCompleteClick}
             id="step-4-finish-btn"
             disabled={isSubmitting}
-            className="flex-2 group inline-flex items-center justify-center gap-2 px-6 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl text-xs sm:text-sm md:text-base font-bold text-white bg-[#FF9D14] hover:bg-[#FEB74F] shadow-md shadow-[#FF9D14]/25 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer disabled:opacity-80"
+            className="flex-2 btn-wave-rtl group inline-flex items-center justify-center gap-2 px-6 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl text-xs sm:text-sm md:text-base font-bold text-white bg-[#FF9D14] hover:bg-[#FEB74F] shadow-md shadow-[#FF9D14]/25 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer disabled:opacity-80"
           >
             {isSubmitting ? (
               <span className="flex items-center gap-2">
