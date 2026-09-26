@@ -296,13 +296,18 @@ export default function MainPreviewZone({
         {/* Dual Choice Cards - Modern Sunny Architecture (Optimized for Mobile, Tablet, and Laptop/Desktop) */}
         <section 
           id="dual-choice-cards" 
-          className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 max-w-4xl lg:max-w-6xl xl:max-w-7xl mx-auto w-full mb-12 relative items-start"
+          className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 max-w-4xl lg:max-w-6xl xl:max-w-7xl mx-auto w-full mb-12 relative items-stretch"
         >
           {/* Left Card: Live Interactive Websites */}
           <div 
             id="choice-card-live-browse"
-            onClick={() => !expandedLiveCard && setExpandedLiveCard(true)}
-            className={`group relative p-7 sm:p-8 lg:p-9 rounded-3xl bg-white border border-[#EDEDEF] hover:border-[#FF9D14] shadow-[0_4px_24px_rgba(0,0,0,0.04)] hover:shadow-[0_16px_40px_rgba(255,157,20,0.14)] transition-all duration-300 flex flex-col justify-between overflow-hidden ${
+            onClick={() => {
+              if (!expandedLiveCard) {
+                setExpandedLiveCard(true);
+                setExpandedPhotoCard(true);
+              }
+            }}
+            className={`group relative p-7 sm:p-8 lg:p-9 rounded-3xl bg-white border border-[#EDEDEF] hover:border-[#FF9D14] shadow-[0_4px_24px_rgba(0,0,0,0.04)] hover:shadow-[0_16px_40px_rgba(255,157,20,0.14)] transition-all duration-300 flex flex-col justify-between overflow-hidden h-full min-h-[380px] sm:min-h-[420px] lg:min-h-[450px] ${
               !expandedLiveCard ? 'cursor-pointer hover:-translate-y-1' : ''
             }`}
           >
@@ -310,24 +315,27 @@ export default function MainPreviewZone({
             <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-[#FF9D14] to-[#FEB74F]" />
 
             {!expandedLiveCard ? (
-              <div className="flex flex-col items-center justify-center text-center py-4 sm:py-6">
+              <div className="flex-1 flex flex-col items-center justify-between text-center py-4 sm:py-6 h-full">
                 <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#FF9D14] to-[#FEB74F] text-white flex items-center justify-center mb-4 transition-transform group-hover:scale-105 shadow-[0_4px_16px_rgba(255,157,20,0.35)]">
                   <Globe className="w-7 h-7 stroke-[2]" />
                 </div>
-                <h2 className="text-xl sm:text-2xl font-bold text-[#111111] tracking-tight">
-                  আমাদের লাইভ ওয়েবসাইটসমূহ
-                </h2>
-                <p className="text-xs sm:text-sm text-[#666666] mt-1 mb-7 max-w-xs">
-                  বাস্তব ব্রাউজার ডেমো, লাইভ কার্ট, এবং কার্যকরী পেমেন্ট সিস্টেম সরাসরি টেস্ট করুন।
-                </p>
+                <div>
+                  <h2 className="text-xl sm:text-2xl font-bold text-[#111111] tracking-tight min-h-[32px] sm:min-h-[36px] flex items-center justify-center">
+                    আমাদের লাইভ ওয়েবসাইটসমূহ
+                  </h2>
+                  <p className="text-xs sm:text-sm text-[#666666] mt-2 mb-7 max-w-xs mx-auto min-h-[40px] sm:min-h-[44px] flex items-center justify-center leading-relaxed">
+                    বাস্তব ব্রাউজার ডেমো, লাইভ কার্ট, এবং কার্যকরী পেমেন্ট সিস্টেম সরাসরি টেস্ট করুন।
+                  </p>
+                </div>
 
                 <button
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
                     setExpandedLiveCard(true);
+                    setExpandedPhotoCard(true);
                   }}
-                  className="group/btn relative inline-flex items-center justify-center gap-3 px-6 py-3 rounded-xl bg-[#1A1A1A] hover:bg-black text-white font-semibold text-xs sm:text-sm cursor-pointer shadow-[0_4px_14px_rgba(0,0,0,0.2)] hover:shadow-[0_6px_22px_rgba(255,157,20,0.25)] ring-1 ring-white/10 transition-all hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.99]"
+                  className="group/btn relative inline-flex items-center justify-center gap-3 px-6 py-3.5 rounded-xl bg-[#1A1A1A] hover:bg-black text-white font-semibold text-xs sm:text-sm cursor-pointer shadow-[0_4px_14px_rgba(0,0,0,0.2)] hover:shadow-[0_6px_22px_rgba(255,157,20,0.25)] ring-1 ring-white/10 transition-all hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.99]"
                 >
                   <span>বিস্তারিত ও স্পেসিফিকেশন দেখুন</span>
                   <span className="relative flex items-center justify-center w-6 h-6 rounded-lg bg-[#FF9D14]/20 border border-[#FF9D14]/40 text-[#FF9D14] shadow-inner group-hover/btn:bg-[#FF9D14] group-hover/btn:text-white transition-colors">
@@ -336,59 +344,62 @@ export default function MainPreviewZone({
                 </button>
               </div>
             ) : (
-              <div className="animate-fadeIn">
-                <div className="flex items-center justify-between gap-2 pb-4 mb-5 border-b border-[#EDEDEF]">
-                  <div>
-                    <h2 className="text-lg sm:text-xl font-bold text-[#111111] tracking-tight">
-                      আমাদের লাইভ ওয়েবসাইটসমূহ
-                    </h2>
-                    <p className="text-xs text-[#FF9D14] font-medium">
-                      লাইভ ওয়েবসাইট ক্যাটালগ
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setExpandedLiveCard(false);
-                    }}
-                    className="px-3 py-1.5 rounded-lg bg-[#F5F5F7] hover:bg-[#EDEDEF] text-[#666666] text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer border border-[#EDEDEF]"
-                  >
-                    <span>সংক্ষিপ্ত করুন</span>
-                    <ChevronUp className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-2.5 mb-6 text-xs text-[#111111]">
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-[#F5F5F7]/70 border border-[#EDEDEF] shadow-2xs hover:border-[#22C55E]/40 transition-colors">
-                    <Laptop className="w-4 h-4 text-[#22C55E] shrink-0" />
-                    <span className="font-semibold text-[#111111] flex-1">৬০+ লাইভ রেসপনসিভ ওয়েবসাইট ডেমো</span>
-                    <span className="text-[10px] text-[#22C55E] font-bold bg-[#22C55E]/10 px-2 py-0.5 rounded border border-[#22C55E]/30 font-mono">Live Browse</span>
+              <div className="animate-fadeIn flex-1 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between gap-2 pb-4 mb-5 border-b border-[#EDEDEF] h-[56px]">
+                    <div>
+                      <h2 className="text-lg sm:text-xl font-bold text-[#111111] tracking-tight">
+                        আমাদের লাইভ ওয়েবসাইটসমূহ
+                      </h2>
+                      <p className="text-xs text-[#FF9D14] font-medium">
+                        লাইভ ওয়েবসাইট ক্যাটালগ
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setExpandedLiveCard(false);
+                        setExpandedPhotoCard(false);
+                      }}
+                      className="px-3 py-1.5 rounded-lg bg-[#F5F5F7] hover:bg-[#EDEDEF] text-[#666666] text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer border border-[#EDEDEF]"
+                    >
+                      <span>সংক্ষিপ্ত করুন</span>
+                      <ChevronUp className="w-3.5 h-3.5" />
+                    </button>
                   </div>
 
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-[#F5F5F7]/70 border border-[#EDEDEF] shadow-2xs hover:border-[#22C55E]/40 transition-colors">
-                    <Sparkles className="w-4 h-4 text-[#22C55E] shrink-0" />
-                    <span className="font-semibold text-[#111111] flex-1">আপনার নাম এবং লোগো সহ সম্পূর্ণ রেডি</span>
-                    <span className="text-[10px] text-[#22C55E] font-bold bg-[#22C55E]/10 px-2 py-0.5 rounded border border-[#22C55E]/30 font-mono">100% Custom</span>
-                  </div>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-2.5 mb-6 text-xs text-[#111111]">
+                    <div className="min-h-[58px] flex items-center gap-3 p-3 rounded-xl bg-[#F5F5F7]/70 border border-[#EDEDEF] shadow-2xs hover:border-[#22C55E]/40 transition-colors">
+                      <Laptop className="w-4 h-4 text-[#22C55E] shrink-0" />
+                      <span className="font-semibold text-[#111111] flex-1">৬০+ লাইভ রেসপনসিভ ওয়েবসাইট ডেমো</span>
+                      <span className="text-[10px] text-[#22C55E] font-bold bg-[#22C55E]/10 px-2 py-0.5 rounded border border-[#22C55E]/30 font-mono">Live Browse</span>
+                    </div>
 
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-[#F5F5F7]/70 border border-[#EDEDEF] shadow-2xs hover:border-[#22C55E]/40 transition-colors">
-                    <Clock className="w-4 h-4 text-[#22C55E] shrink-0" />
-                    <span className="font-semibold text-[#111111] flex-1">২৪ ঘণ্টার মধ্যে সম্পূর্ণ সাইট লাইভ ডেলিভারি</span>
-                    <span className="text-[10px] text-[#22C55E] font-bold bg-[#22C55E]/10 px-2 py-0.5 rounded border border-[#22C55E]/30 font-mono">24h Express</span>
-                  </div>
+                    <div className="min-h-[58px] flex items-center gap-3 p-3 rounded-xl bg-[#F5F5F7]/70 border border-[#EDEDEF] shadow-2xs hover:border-[#22C55E]/40 transition-colors">
+                      <Sparkles className="w-4 h-4 text-[#22C55E] shrink-0" />
+                      <span className="font-semibold text-[#111111] flex-1">আপনার নাম এবং লোগো সহ সম্পূর্ণ রেডি</span>
+                      <span className="text-[10px] text-[#22C55E] font-bold bg-[#22C55E]/10 px-2 py-0.5 rounded border border-[#22C55E]/30 font-mono">100% Custom</span>
+                    </div>
 
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-[#F5F5F7]/70 border border-[#EDEDEF] shadow-2xs hover:border-[#22C55E]/40 transition-colors">
-                    <Smartphone className="w-4 h-4 text-[#22C55E] shrink-0" />
-                    <span className="font-semibold text-[#111111] flex-1">মোবাইল থেকে সহজ ম্যানেজমেন্ট ও পেমেন্ট</span>
-                    <span className="text-[10px] text-[#22C55E] font-bold bg-[#22C55E]/10 px-2 py-0.5 rounded border border-[#22C55E]/30 font-mono">Easy Admin</span>
+                    <div className="min-h-[58px] flex items-center gap-3 p-3 rounded-xl bg-[#F5F5F7]/70 border border-[#EDEDEF] shadow-2xs hover:border-[#22C55E]/40 transition-colors">
+                      <Clock className="w-4 h-4 text-[#22C55E] shrink-0" />
+                      <span className="font-semibold text-[#111111] flex-1">২৪ ঘণ্টার মধ্যে সম্পূর্ণ সাইট লাইভ ডেলিভারি</span>
+                      <span className="text-[10px] text-[#22C55E] font-bold bg-[#22C55E]/10 px-2 py-0.5 rounded border border-[#22C55E]/30 font-mono">24h Express</span>
+                    </div>
+
+                    <div className="min-h-[58px] flex items-center gap-3 p-3 rounded-xl bg-[#F5F5F7]/70 border border-[#EDEDEF] shadow-2xs hover:border-[#22C55E]/40 transition-colors">
+                      <Smartphone className="w-4 h-4 text-[#22C55E] shrink-0" />
+                      <span className="font-semibold text-[#111111] flex-1">মোবাইল থেকে সহজ ম্যানেজমেন্ট ও পেমেন্ট</span>
+                      <span className="text-[10px] text-[#22C55E] font-bold bg-[#22C55E]/10 px-2 py-0.5 rounded border border-[#22C55E]/30 font-mono">Easy Admin</span>
+                    </div>
                   </div>
                 </div>
 
                 <button
                   onClick={onOpenLiveBrowser}
                   id="btn-live-web-visit"
-                  className="w-full btn-wave-rtl py-3.5 px-6 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#FF9D14] hover:bg-[#FEB74F] shadow-[0_4px_16px_rgba(255,157,20,0.35)] flex items-center justify-center gap-2.5 cursor-pointer transition-all hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.99]"
+                  className="w-full btn-wave-ltr min-h-[50px] py-3.5 px-6 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#FF9D14] hover:bg-[#FEB74F] shadow-[0_4px_16px_rgba(255,157,20,0.35)] flex items-center justify-center gap-2.5 cursor-pointer transition-all hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.99]"
                 >
                   <ExternalLink className="w-4 h-4" />
                   <span>লাইভ ক্যাটালগ খুলুন (৬০+ ডেমো)</span>
@@ -400,8 +411,13 @@ export default function MainPreviewZone({
           {/* Right Card: Design Photo Gallery */}
           <div 
             id="choice-card-photo-showcase"
-            onClick={() => !expandedPhotoCard && setExpandedPhotoCard(true)}
-            className={`group relative p-7 sm:p-8 rounded-3xl bg-white border border-[#EDEDEF] hover:border-[#FF9D14] shadow-[0_4px_24px_rgba(0,0,0,0.04)] hover:shadow-[0_16px_40px_rgba(255,157,20,0.14)] transition-all duration-300 flex flex-col justify-between overflow-hidden ${
+            onClick={() => {
+              if (!expandedPhotoCard) {
+                setExpandedLiveCard(true);
+                setExpandedPhotoCard(true);
+              }
+            }}
+            className={`group relative p-7 sm:p-8 lg:p-9 rounded-3xl bg-white border border-[#EDEDEF] hover:border-[#FF9D14] shadow-[0_4px_24px_rgba(0,0,0,0.04)] hover:shadow-[0_16px_40px_rgba(255,157,20,0.14)] transition-all duration-300 flex flex-col justify-between overflow-hidden h-full min-h-[380px] sm:min-h-[420px] lg:min-h-[450px] ${
               !expandedPhotoCard ? 'cursor-pointer hover:-translate-y-1' : ''
             }`}
           >
@@ -409,24 +425,27 @@ export default function MainPreviewZone({
             <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-[#FF9D14] via-[#FEB74F] to-[#E91311]" />
 
             {!expandedPhotoCard ? (
-              <div className="flex flex-col items-center justify-center text-center py-4 sm:py-6">
+              <div className="flex-1 flex flex-col items-center justify-between text-center py-4 sm:py-6 h-full">
                 <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#FF9D14] to-[#E91311] text-white flex items-center justify-center mb-4 transition-transform group-hover:scale-105 shadow-[0_4px_16px_rgba(233,19,17,0.25)]">
                   <Image className="w-7 h-7 stroke-[2]" />
                 </div>
-                <h2 className="text-xl sm:text-2xl font-bold text-[#111111] tracking-tight">
-                  আমাদের ওয়েবসাইট ফটো গ্যালারি
-                </h2>
-                <p className="text-xs sm:text-sm text-[#666666] mt-1 mb-7 max-w-xs">
-                  হাই-রেজ্যুলেশন ফটো মকআপ, জুম ভিউ এবং স্পষ্ট ডিজাইন স্পেসিফিকেশন।
-                </p>
+                <div>
+                  <h2 className="text-xl sm:text-2xl font-bold text-[#111111] tracking-tight min-h-[32px] sm:min-h-[36px] flex items-center justify-center">
+                    আমাদের ওয়েবসাইট ফটো গ্যালারি
+                  </h2>
+                  <p className="text-xs sm:text-sm text-[#666666] mt-2 mb-7 max-w-xs mx-auto min-h-[40px] sm:min-h-[44px] flex items-center justify-center leading-relaxed">
+                    হাই-রেজ্যুলেশন ফটো মকআপ, জুম ভিউ এবং স্পষ্ট ডিজাইন স্পেসিফিকেশন।
+                  </p>
+                </div>
 
                 <button
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
+                    setExpandedLiveCard(true);
                     setExpandedPhotoCard(true);
                   }}
-                  className="group/btn relative inline-flex items-center justify-center gap-3 px-6 py-3 rounded-xl bg-[#1A1A1A] hover:bg-black text-white font-semibold text-xs sm:text-sm cursor-pointer shadow-[0_4px_14px_rgba(0,0,0,0.2)] hover:shadow-[0_6px_22px_rgba(255,157,20,0.25)] ring-1 ring-white/10 transition-all hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.99]"
+                  className="group/btn relative inline-flex items-center justify-center gap-3 px-6 py-3.5 rounded-xl bg-[#1A1A1A] hover:bg-black text-white font-semibold text-xs sm:text-sm cursor-pointer shadow-[0_4px_14px_rgba(0,0,0,0.2)] hover:shadow-[0_6px_22px_rgba(255,157,20,0.25)] ring-1 ring-white/10 transition-all hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.99]"
                 >
                   <span>বিস্তারিত ও স্পেসিফিকেশন দেখুন</span>
                   <span className="relative flex items-center justify-center w-6 h-6 rounded-lg bg-[#FF9D14]/20 border border-[#FF9D14]/40 text-[#FF9D14] shadow-inner group-hover/btn:bg-[#FF9D14] group-hover/btn:text-white transition-colors">
@@ -435,59 +454,62 @@ export default function MainPreviewZone({
                 </button>
               </div>
             ) : (
-              <div className="animate-fadeIn">
-                <div className="flex items-center justify-between gap-2 pb-4 mb-5 border-b border-[#EDEDEF]">
-                  <div>
-                    <h2 className="text-lg sm:text-xl font-bold text-[#111111] tracking-tight">
-                      আমাদের ওয়েবসাইট ফটো গ্যালারি
-                    </h2>
-                    <p className="text-xs text-[#FF9D14] font-medium">
-                      হাই-রেজ্যুলেশন ডিজাইন মকআপ গ্যালারি
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setExpandedPhotoCard(false);
-                    }}
-                    className="px-3 py-1.5 rounded-lg bg-[#F5F5F7] hover:bg-[#EDEDEF] text-[#666666] text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer border border-[#EDEDEF]"
-                  >
-                    <span>সংক্ষিপ্ত করুন</span>
-                    <ChevronUp className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-2.5 mb-6 text-xs text-[#111111]">
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-[#F5F5F7]/70 border border-[#EDEDEF] shadow-2xs hover:border-[#22C55E]/40 transition-colors">
-                    <Laptop className="w-4 h-4 text-[#22C55E] shrink-0" />
-                    <span className="font-semibold text-[#111111] flex-1">৬০+ কিউরেটেড হাই-রেজ্যুলেশন ডিজাইন</span>
-                    <span className="text-[10px] text-[#22C55E] font-bold bg-[#22C55E]/10 px-2 py-0.5 rounded border border-[#22C55E]/30 font-mono">HD Gallery</span>
+              <div className="animate-fadeIn flex-1 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between gap-2 pb-4 mb-5 border-b border-[#EDEDEF] h-[56px]">
+                    <div>
+                      <h2 className="text-lg sm:text-xl font-bold text-[#111111] tracking-tight">
+                        আমাদের ওয়েবসাইট ফটো গ্যালারি
+                      </h2>
+                      <p className="text-xs text-[#FF9D14] font-medium">
+                        হাই-রেজ্যুলেশন ডিজাইন মকআপ গ্যালারি
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setExpandedLiveCard(false);
+                        setExpandedPhotoCard(false);
+                      }}
+                      className="px-3 py-1.5 rounded-lg bg-[#F5F5F7] hover:bg-[#EDEDEF] text-[#666666] text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer border border-[#EDEDEF]"
+                    >
+                      <span>সংক্ষিপ্ত করুন</span>
+                      <ChevronUp className="w-3.5 h-3.5" />
+                    </button>
                   </div>
 
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-[#F5F5F7]/70 border border-[#EDEDEF] shadow-2xs hover:border-[#22C55E]/40 transition-colors">
-                    <Sparkles className="w-4 h-4 text-[#22C55E] shrink-0" />
-                    <span className="font-semibold text-[#111111] flex-1">আপনার ব্র্যান্ড নাম ও লোগোর সাথে সাজানো</span>
-                    <span className="text-[10px] text-[#22C55E] font-bold bg-[#22C55E]/10 px-2 py-0.5 rounded border border-[#22C55E]/30 font-mono">100% Custom</span>
-                  </div>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-2.5 mb-6 text-xs text-[#111111]">
+                    <div className="min-h-[58px] flex items-center gap-3 p-3 rounded-xl bg-[#F5F5F7]/70 border border-[#EDEDEF] shadow-2xs hover:border-[#22C55E]/40 transition-colors">
+                      <Laptop className="w-4 h-4 text-[#22C55E] shrink-0" />
+                      <span className="font-semibold text-[#111111] flex-1">৬০+ কিউরেটেড হাই-রেজ্যুলেশন ডিজাইন</span>
+                      <span className="text-[10px] text-[#22C55E] font-bold bg-[#22C55E]/10 px-2 py-0.5 rounded border border-[#22C55E]/30 font-mono">HD Gallery</span>
+                    </div>
 
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-[#F5F5F7]/70 border border-[#EDEDEF] shadow-2xs hover:border-[#22C55E]/40 transition-colors">
-                    <Clock className="w-4 h-4 text-[#22C55E] shrink-0" />
-                    <span className="font-semibold text-[#111111] flex-1">২৪ ঘণ্টার মধ্যে সম্পূর্ণ সাইট ডেলিভারি</span>
-                    <span className="text-[10px] text-[#22C55E] font-bold bg-[#22C55E]/10 px-2 py-0.5 rounded border border-[#22C55E]/30 font-mono">24h Express</span>
-                  </div>
+                    <div className="min-h-[58px] flex items-center gap-3 p-3 rounded-xl bg-[#F5F5F7]/70 border border-[#EDEDEF] shadow-2xs hover:border-[#22C55E]/40 transition-colors">
+                      <Sparkles className="w-4 h-4 text-[#22C55E] shrink-0" />
+                      <span className="font-semibold text-[#111111] flex-1">আপনার ব্র্যান্ড নাম ও লোগোর সাথে সাজানো</span>
+                      <span className="text-[10px] text-[#22C55E] font-bold bg-[#22C55E]/10 px-2 py-0.5 rounded border border-[#22C55E]/30 font-mono">100% Custom</span>
+                    </div>
 
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-[#F5F5F7]/70 border border-[#EDEDEF] shadow-2xs hover:border-[#22C55E]/40 transition-colors">
-                    <Smartphone className="w-4 h-4 text-[#22C55E] shrink-0" />
-                    <span className="font-semibold text-[#111111] flex-1">মোবাইল থেকে সহজ ম্যানেজমেন্ট ও পরিচালনা</span>
-                    <span className="text-[10px] text-[#22C55E] font-bold bg-[#22C55E]/10 px-2 py-0.5 rounded border border-[#22C55E]/30 font-mono">Easy Admin</span>
+                    <div className="min-h-[58px] flex items-center gap-3 p-3 rounded-xl bg-[#F5F5F7]/70 border border-[#EDEDEF] shadow-2xs hover:border-[#22C55E]/40 transition-colors">
+                      <Clock className="w-4 h-4 text-[#22C55E] shrink-0" />
+                      <span className="font-semibold text-[#111111] flex-1">২৪ ঘণ্টার মধ্যে সম্পূর্ণ সাইট ডেলিভারি</span>
+                      <span className="text-[10px] text-[#22C55E] font-bold bg-[#22C55E]/10 px-2 py-0.5 rounded border border-[#22C55E]/30 font-mono">24h Express</span>
+                    </div>
+
+                    <div className="min-h-[58px] flex items-center gap-3 p-3 rounded-xl bg-[#F5F5F7]/70 border border-[#EDEDEF] shadow-2xs hover:border-[#22C55E]/40 transition-colors">
+                      <Smartphone className="w-4 h-4 text-[#22C55E] shrink-0" />
+                      <span className="font-semibold text-[#111111] flex-1">মোবাইল থেকে সহজ ম্যানেজমেন্ট ও পরিচালনা</span>
+                      <span className="text-[10px] text-[#22C55E] font-bold bg-[#22C55E]/10 px-2 py-0.5 rounded border border-[#22C55E]/30 font-mono">Easy Admin</span>
+                    </div>
                   </div>
                 </div>
 
                 <button
                   onClick={onOpenPhotoShowcase}
                   id="btn-photo-showcase-view"
-                  className="w-full btn-wave-rtl py-3.5 px-6 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#FF9D14] hover:bg-[#FEB74F] shadow-[0_4px_16px_rgba(255,157,20,0.35)] flex items-center justify-center gap-2.5 cursor-pointer transition-all hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.99]"
+                  className="w-full btn-wave-ltr min-h-[50px] py-3.5 px-6 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#FF9D14] hover:bg-[#FEB74F] shadow-[0_4px_16px_rgba(255,157,20,0.35)] flex items-center justify-center gap-2.5 cursor-pointer transition-all hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.99]"
                 >
                   <Eye className="w-4 h-4" />
                   <span>ফটো গ্যালারি প্রদর্শনী খুলুন</span>

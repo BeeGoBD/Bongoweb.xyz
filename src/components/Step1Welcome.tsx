@@ -77,12 +77,12 @@ export default function Step1Welcome({ onNext }: Step1WelcomeProps) {
           </div>
         </div>
 
-        {/* High-Intent Next Slide Button (Solid Primary Orange #FF9D14 with Right-to-Left Wave) */}
+        {/* High-Intent Next Slide Button (Solid Primary Orange #FF9D14 with Left-to-Right Wave) */}
         <div className="w-full pt-2 sm:pt-3 flex justify-center shrink-0">
           <button
             onClick={onNext}
             id="step-1-primary-cta"
-            className="w-full btn-wave-rtl group relative inline-flex items-center justify-center gap-2.5 px-8 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl text-xs sm:text-sm md:text-base font-bold text-white bg-[#FF9D14] hover:bg-[#FEB74F] shadow-md shadow-[#FF9D14]/25 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.99] transition-all duration-200 cursor-pointer"
+            className="w-full btn-wave-ltr group relative inline-flex items-center justify-center gap-2.5 px-8 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl text-xs sm:text-sm md:text-base font-bold text-white bg-[#FF9D14] hover:bg-[#FEB74F] shadow-md shadow-[#FF9D14]/25 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.99] transition-all duration-200 cursor-pointer"
           >
             <span>পরবর্তী পেজে যান</span>
             <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5 text-white" />
