@@ -34,7 +34,7 @@ export default function Step3Management({ onBack, onNext }: Step3ManagementProps
             className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#111111] tracking-tight leading-[1.18] mb-2 sm:mb-2.5 text-balance"
           >
             আমরা আপনাকে পণ্য এবং{' '}
-            <span className="text-[#FF9D14]">
+            <span className="text-[#E91311]">
               অর্ডার ম্যানেজ করা শিখিয়ে দেব
             </span>
           </h1>

@@ -41,7 +41,7 @@ export default function MainPreviewZone({
         id="main-header"
         className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-xl border-b border-[#EDEDEF] shadow-[0_1px_3px_rgba(0,0,0,0.03)] transition-all"
       >
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 sm:h-[68px] flex items-center justify-between gap-4 relative">
+        <div className="max-w-6xl lg:max-w-7xl xl:max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-[68px] flex items-center justify-between gap-4 relative">
           {/* Top Left: Pure Designer Text Logo for BongoWeb with Accent Red #E91311 */}
           <div 
             onClick={onBackToWizard}
@@ -270,9 +270,9 @@ export default function MainPreviewZone({
         </div>
       </header>
       {/* Main Container */}
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12 flex flex-col justify-start">
+      <main className="flex-1 max-w-6xl lg:max-w-7xl xl:max-w-[1360px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16 flex flex-col justify-start">
         {/* Editorial Section Intro */}
-        <div className="text-center max-w-2xl mx-auto mb-10">
+        <div className="text-center max-w-2xl lg:max-w-4xl mx-auto mb-10 lg:mb-14">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold text-[#111111] bg-white border border-[#FF9D14]/30 shadow-xs mb-3">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#22C55E] opacity-75"></span>
@@ -282,27 +282,27 @@ export default function MainPreviewZone({
             <span className="text-[#888888]">·</span>
             <span className="text-[#FF9D14] font-bold">60+ Live Designs</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#111111] tracking-tight leading-tight">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#111111] tracking-tight leading-tight lg:leading-[1.16]">
             ২৪ ঘণ্টার মধ্যে আপনার নামে, আপনার লোগো দিয়ে{' '}
-            <span className="text-[#FF9D14]">
+            <span className="text-[#E91311]">
               আপনার কাস্টমাইজেশনে ওয়েবসাইট বুঝে নিন
             </span>
           </h1>
-          <p className="text-sm sm:text-base text-[#666666] mt-2">
+          <p className="text-sm sm:text-base lg:text-lg text-[#666666] mt-2 lg:mt-3 max-w-2xl mx-auto">
             আপনাকে দেখানোর জন্য আমাদের ১০০+ রেডিমেড ওয়েবসাইট প্রস্তুত রয়েছে।
           </p>
         </div>
 
-        {/* Dual Choice Cards - Modern Sunny Architecture */}
+        {/* Dual Choice Cards - Modern Sunny Architecture (Optimized for Mobile, Tablet, and Laptop/Desktop) */}
         <section 
           id="dual-choice-cards" 
-          className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto w-full mb-12 relative items-start"
+          className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 max-w-4xl lg:max-w-6xl xl:max-w-7xl mx-auto w-full mb-12 relative items-start"
         >
           {/* Left Card: Live Interactive Websites */}
           <div 
             id="choice-card-live-browse"
             onClick={() => !expandedLiveCard && setExpandedLiveCard(true)}
-            className={`group relative p-7 sm:p-8 rounded-3xl bg-white border border-[#EDEDEF] hover:border-[#FF9D14] shadow-[0_4px_24px_rgba(0,0,0,0.04)] hover:shadow-[0_16px_40px_rgba(255,157,20,0.14)] transition-all duration-300 flex flex-col justify-between overflow-hidden ${
+            className={`group relative p-7 sm:p-8 lg:p-9 rounded-3xl bg-white border border-[#EDEDEF] hover:border-[#FF9D14] shadow-[0_4px_24px_rgba(0,0,0,0.04)] hover:shadow-[0_16px_40px_rgba(255,157,20,0.14)] transition-all duration-300 flex flex-col justify-between overflow-hidden ${
               !expandedLiveCard ? 'cursor-pointer hover:-translate-y-1' : ''
             }`}
           >
@@ -359,7 +359,7 @@ export default function MainPreviewZone({
                   </button>
                 </div>
 
-                <div className="space-y-2.5 mb-6 text-xs text-[#111111]">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-2.5 mb-6 text-xs text-[#111111]">
                   <div className="flex items-center gap-3 p-3 rounded-xl bg-[#F5F5F7]/70 border border-[#EDEDEF] shadow-2xs hover:border-[#22C55E]/40 transition-colors">
                     <Laptop className="w-4 h-4 text-[#22C55E] shrink-0" />
                     <span className="font-semibold text-[#111111] flex-1">৬০+ লাইভ রেসপনসিভ ওয়েবসাইট ডেমো</span>
@@ -458,7 +458,7 @@ export default function MainPreviewZone({
                   </button>
                 </div>
 
-                <div className="space-y-2.5 mb-6 text-xs text-[#111111]">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-2.5 mb-6 text-xs text-[#111111]">
                   <div className="flex items-center gap-3 p-3 rounded-xl bg-[#F5F5F7]/70 border border-[#EDEDEF] shadow-2xs hover:border-[#22C55E]/40 transition-colors">
                     <Laptop className="w-4 h-4 text-[#22C55E] shrink-0" />
                     <span className="font-semibold text-[#111111] flex-1">৬০+ কিউরেটেড হাই-রেজ্যুলেশন ডিজাইন</span>
@@ -500,7 +500,7 @@ export default function MainPreviewZone({
         {/* Video FAQ Spotlight Banner - Deep Charcoal with Warm Gold/Orange Accent */}
         <section 
           id="project-video-faq-banner"
-          className="max-w-4xl mx-auto w-full mb-12 p-6 sm:p-7 rounded-3xl bg-[#111111] text-white shadow-[0_16px_40px_rgba(0,0,0,0.25)] border border-[#FF9D14]/30 ring-1 ring-white/10 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6"
+          className="max-w-4xl lg:max-w-6xl xl:max-w-7xl mx-auto w-full mb-12 p-6 sm:p-7 lg:p-8 rounded-3xl bg-[#111111] text-white shadow-[0_16px_40px_rgba(0,0,0,0.25)] border border-[#FF9D14]/30 ring-1 ring-white/10 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6"
         >
           <div className="flex items-start gap-4">
             <div className="w-12 h-12 rounded-2xl bg-[#FF9D14]/15 text-[#FF9D14] flex items-center justify-center shrink-0 border border-[#FF9D14]/30 shadow-inner">
@@ -531,7 +531,7 @@ export default function MainPreviewZone({
           </button>
         </section>
         {/* Supported Payment Gateways */}
-        <section id="payment-gateways" className="max-w-4xl mx-auto w-full mb-14">
+        <section id="payment-gateways" className="max-w-4xl lg:max-w-6xl xl:max-w-7xl mx-auto w-full mb-14">
           <div className="text-center mb-8">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#22C55E]/10 text-[#22C55E] border border-[#22C55E]/30 mb-2 shadow-2xs">
               <ShieldCheck className="w-3.5 h-3.5 text-[#22C55E]" />
@@ -785,8 +785,8 @@ export default function MainPreviewZone({
       </main>
 
       {/* Footer: Quiet, Modern Deep Charcoal & Vibrant Accent */}
-      <footer id="main-footer" className="w-full bg-[#111111] text-[#888888] border-t border-white/10 pt-12 pb-10 px-4 sm:px-6">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 mb-10 text-xs">
+      <footer id="main-footer" className="w-full bg-[#111111] text-[#888888] border-t border-white/10 pt-12 pb-10 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-6xl lg:max-w-7xl xl:max-w-[1360px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 mb-10 text-xs">
           {/* Col 1 */}
           <div>
             <div className="flex items-baseline text-white font-black text-xl mb-3 select-none">
@@ -881,7 +881,7 @@ export default function MainPreviewZone({
         </div>
 
         {/* Bottom bar */}
-        <div className="max-w-6xl mx-auto pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left text-xs text-[#888888]">
+        <div className="max-w-6xl lg:max-w-7xl xl:max-w-[1360px] mx-auto pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left text-xs text-[#888888]">
           <div>
             © {new Date().getFullYear()} BongoWeb Inc. All rights reserved.
           </div>

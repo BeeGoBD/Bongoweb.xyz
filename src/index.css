@@ -141,31 +141,33 @@ body:has(#preview-simulator-active) #live-support-floating-wrapper {
   background: rgba(0, 0, 0, 0.3);
 }
 
-/* Animated radiant wave moving continuously from right to left across primary action buttons */
-@keyframes waveRTL {
+/* Animated radiant wave moving continuously from left to right across primary action buttons */
+@keyframes waveLTR {
   0% {
-    transform: translateX(180%) skewX(-24deg);
+    transform: translateX(-180%) skewX(-24deg);
     opacity: 0;
   }
   15% {
-    opacity: 0.9;
+    opacity: 0.95;
   }
   80% {
-    opacity: 0.9;
+    opacity: 0.95;
   }
   100% {
-    transform: translateX(-180%) skewX(-24deg);
+    transform: translateX(180%) skewX(-24deg);
     opacity: 0;
   }
 }
 
-.btn-wave-rtl {
+.btn-wave-rtl,
+.btn-wave-ltr {
   position: relative;
   overflow: hidden;
   isolation: isolate;
 }
 
-.btn-wave-rtl::after {
+.btn-wave-rtl::after,
+.btn-wave-ltr::after {
   content: '';
   position: absolute;
   top: -15%;
@@ -180,13 +182,14 @@ body:has(#preview-simulator-active) #live-support-floating-wrapper {
     rgba(255, 255, 255, 0.08) 80%,
     transparent 100%
   );
-  transform: translateX(180%) skewX(-24deg);
-  animation: waveRTL 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  transform: translateX(-180%) skewX(-24deg);
+  animation: waveLTR 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
   pointer-events: none;
   z-index: 1;
 }
 
-.btn-wave-rtl:hover::after {
+.btn-wave-rtl:hover::after,
+.btn-wave-ltr:hover::after {
   animation-duration: 1.8s;
   background: linear-gradient(
     90deg,
@@ -198,7 +201,8 @@ body:has(#preview-simulator-active) #live-support-floating-wrapper {
   );
 }
 
-.btn-wave-rtl > * {
+.btn-wave-rtl > *,
+.btn-wave-ltr > * {
   position: relative;
   z-index: 2;
 }

@@ -34,7 +34,7 @@ export default function Step2Guarantee({ onBack, onNext }: Step2GuaranteeProps) 
             className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#111111] tracking-tight leading-[1.18] mb-2 sm:mb-2.5 text-balance"
           >
             আপনি যে ওয়েবসাইটটি পছন্দ করবেন,{' '}
-            <span className="text-[#FF9D14]">
+            <span className="text-[#E91311]">
               ঠিক হুবহু সেই ওয়েবসাইটটিই
             </span>{' '}
             পাবেন।
