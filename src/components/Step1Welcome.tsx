@@ -7,16 +7,21 @@ interface Step1WelcomeProps {
 export default function Step1Welcome({ onNext }: Step1WelcomeProps) {
   return (
     <div id="step-1-welcome" className="w-full h-full flex flex-col justify-between animate-fadeIn">
-      {/* Top Slide Header: Pure BongoWeb Text Logo with Accent Red */}
+      {/* Top Slide Header: Pure BongoWeb Text Logo: Bongo in Maroon (#800000), Web in Orange (#FF9D14) */}
       <div className="flex items-center justify-between pb-2 border-b border-[#EDEDEF] shrink-0">
         <div className="flex items-baseline select-none">
-          <span className="font-black text-xl text-[#111111] tracking-tight">
+          <span className="font-black text-xl text-[#800000] tracking-tight">
             Bongo
           </span>
-          <span className="font-black text-xl text-[#E91311] tracking-tight">
+          <span 
+            className="font-black text-xl text-[#FF9D14] tracking-tight [-webkit-text-stroke:0.5px_#000000]"
+            style={{ WebkitTextStroke: '0.5px #000000' }}
+          >
             Web
           </span>
-          <span className="w-1.5 h-1.5 rounded-full bg-[#E91311] ml-0.5 mb-0.5 shrink-0 animate-pulse" />
+          <span 
+            className="w-1.5 h-1.5 rounded-full bg-[#FF9D14] ml-0.5 mb-0.5 shrink-0 animate-pulse ring-1 ring-black"
+          />
         </div>
 
         <div className="flex items-center gap-1.5 text-xs font-mono">

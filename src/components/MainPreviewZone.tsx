@@ -42,19 +42,65 @@ export default function MainPreviewZone({
         className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-xl border-b border-[#EDEDEF] shadow-[0_1px_3px_rgba(0,0,0,0.03)] transition-all"
       >
         <div className="max-w-6xl lg:max-w-7xl xl:max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-[68px] flex items-center justify-between gap-4 relative">
-          {/* Top Left: Pure Designer Text Logo for BongoWeb with Accent Red #E91311 */}
+          {/* Top Left: Upgraded Designer Logo for BongoWeb (Bongo in Maroon #800000, Web in Orange #FF9D14) */}
           <div 
             onClick={onBackToWizard}
-            className="flex items-baseline cursor-pointer select-none group py-1"
+            id="bongo-web-logo"
+            className="flex items-center gap-2.5 sm:gap-3 cursor-pointer select-none group py-1"
             title="BongoWeb — Home"
           >
-            <span className="text-xl sm:text-2xl font-black tracking-tight text-[#111111] group-hover:text-black transition-colors">
-              Bongo
-            </span>
-            <span className="text-xl sm:text-2xl font-black tracking-tight text-[#E91311] group-hover:opacity-90 transition-opacity">
-              Web
-            </span>
-            <span className="w-1.5 h-1.5 rounded-full bg-[#E91311] ml-0.5 mb-1 shrink-0 animate-pulse" />
+            {/* Upgraded Modern Tech Emblem */}
+            <div className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-[#8B1515] via-[#800000] to-[#550809] p-[1.5px] shadow-sm shadow-[#800000]/25 group-hover:shadow-md group-hover:shadow-[#800000]/35 group-hover:scale-105 transition-all duration-200 shrink-0 flex items-center justify-center">
+              <div className="w-full h-full rounded-[10px] bg-gradient-to-br from-[#800000] to-[#500607] flex items-center justify-center relative overflow-hidden">
+                {/* Subtle top light sheen */}
+                <div className="absolute inset-0 bg-gradient-to-b from-white/15 via-transparent to-transparent pointer-events-none" />
+                <svg 
+                  viewBox="0 0 28 28" 
+                  className="w-5 h-5 sm:w-5.5 sm:h-5.5 transition-transform duration-300 group-hover:rotate-[-3deg]" 
+                  fill="none" 
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <defs>
+                    <linearGradient id="bwOrangeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#FF9D14" />
+                      <stop offset="100%" stopColor="#FF7A00" />
+                    </linearGradient>
+                  </defs>
+                  {/* Modern 'B' Architecture */}
+                  <rect x="4.5" y="4" width="4" height="20" rx="2" fill="#FFFFFF" />
+                  {/* Upper Loop in Pure White */}
+                  <path 
+                    d="M8.5 4H15C17.76 4 20 6.24 20 9C20 11.76 17.76 14 15 14H8.5V4Z" 
+                    fill="#FFFFFF" 
+                    fillOpacity="0.95"
+                  />
+                  {/* Lower Loop in Radiant Orange */}
+                  <path 
+                    d="M8.5 13H16.5C19.54 13 22 15.46 22 18.5C22 21.54 19.54 24 16.5 24H8.5V13Z" 
+                    fill="url(#bwOrangeGrad)" 
+                  />
+                  {/* Precision Center Nodes */}
+                  <circle cx="14" cy="9" r="1.6" fill="#800000" />
+                  <circle cx="15.2" cy="18.5" r="1.8" fill="#FFFFFF" />
+                </svg>
+              </div>
+            </div>
+
+            {/* Typographic Wordmark */}
+            <div className="flex flex-col justify-center">
+              <div className="flex items-baseline leading-none">
+                <span className="text-xl sm:text-2xl font-black tracking-tight text-[#800000] group-hover:text-[#680000] transition-colors">
+                  Bongo
+                </span>
+                <span className="text-xl sm:text-2xl font-black tracking-tight text-[#FF9D14] group-hover:text-[#FEB74F] transition-colors ml-0.5">
+                  Web
+                </span>
+                <span className="w-1.5 h-1.5 rounded-full bg-[#FF9D14] ml-1 mb-0.5 shrink-0 animate-pulse shadow-xs shadow-[#FF9D14]" />
+              </div>
+              <span className="text-[8.5px] font-bold tracking-widest text-[#888888] uppercase -mt-0.5 hidden sm:block font-mono">
+                Website Platform
+              </span>
+            </div>
           </div>
 
           {/* Desktop Center Navigation Links (>= 1024px) */}
@@ -811,10 +857,10 @@ export default function MainPreviewZone({
         <div className="max-w-6xl lg:max-w-7xl xl:max-w-[1360px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 mb-10 text-xs">
           {/* Col 1 */}
           <div>
-            <div className="flex items-baseline text-white font-black text-xl mb-3 select-none">
-              <span className="text-white">Bongo</span>
-              <span className="text-[#E91311]">Web</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-[#E91311] ml-0.5 mb-0.5 shrink-0" />
+            <div className="flex items-baseline font-black text-xl mb-3 select-none">
+              <span className="text-[#A51D24] dark:text-[#B91C1C]">Bongo</span>
+              <span className="text-[#FF9D14]">Web</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-[#FF9D14] ml-0.5 mb-0.5 shrink-0" />
             </div>
             <p className="text-[#888888] leading-relaxed text-xs mb-3">
               Affordable, reliable, turnkey website infrastructure engineered for modern businesses.

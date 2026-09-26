@@ -66,13 +66,13 @@ export default function LiveSupportWidget() {
             <div className="flex items-center justify-between">
               <div>
                 <div className="flex items-baseline select-none">
-                  <span className="font-black text-sm text-white tracking-tight">
+                  <span className="font-black text-sm text-[#A51D24] tracking-tight">
                     Bongo
                   </span>
-                  <span className="font-black text-sm text-[#E91311] tracking-tight">
+                  <span className="font-black text-sm text-[#FF9D14] tracking-tight">
                     Web
                   </span>
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#E91311] ml-0.5 mb-0.5 shrink-0" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#FF9D14] ml-0.5 mb-0.5 shrink-0" />
                   <span className="text-[10px] font-semibold text-[#888888] ml-1.5">Live Assistance</span>
                 </div>
                 <div className="flex items-center gap-1.5 text-[11px] text-[#888888] mt-0.5">
