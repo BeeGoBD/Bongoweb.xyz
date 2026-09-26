@@ -9,19 +9,19 @@ export default function Step2Guarantee({ onBack, onNext }: Step2GuaranteeProps) 
   return (
     <div id="step-2-guarantee" className="w-full h-full flex flex-col justify-between animate-fadeIn">
       {/* Top Slide Header: Back Button on Left (NO logo!), Slide Counter on Right */}
-      <div className="flex items-center justify-between pb-2 border-b border-slate-100 shrink-0">
+      <div className="flex items-center justify-between pb-2.5 border-b border-blue-200/60 shrink-0">
         <button
           onClick={onBack}
           id="step-2-top-back-btn"
-          className="text-xs font-semibold text-slate-500 hover:text-slate-900 flex items-center gap-1.5 transition-colors cursor-pointer py-1 px-2.5 -ml-2 rounded-lg hover:bg-slate-100"
+          className="text-xs font-semibold text-slate-600 hover:text-blue-900 flex items-center gap-1.5 transition-colors cursor-pointer py-1 px-2.5 -ml-2 rounded-lg hover:bg-blue-100/60"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Back</span>
+          <span>পেছনে যান</span>
         </button>
 
         <div className="flex items-center gap-1.5 text-xs font-mono">
-          <span className="font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-100/60">02</span>
-          <span className="text-slate-300">/</span>
+          <span className="font-bold text-blue-700 bg-blue-100/70 px-2 py-0.5 rounded-md border border-blue-200/70">02</span>
+          <span className="text-blue-300">/</span>
           <span className="text-slate-400 font-medium">04</span>
         </div>
       </div>

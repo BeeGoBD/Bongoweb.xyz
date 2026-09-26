@@ -82,15 +82,17 @@ export default function App() {
       {currentPage === 'wizard' && (
         <div 
           id="slides-hover-backdrop"
-          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/50 backdrop-blur-md animate-fadeIn"
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-gradient-to-br from-sky-200/60 via-blue-100/50 to-indigo-100/60 backdrop-blur-md animate-fadeIn"
         >
-          {/* Ambient Chroma Light Orb behind the Slide Card */}
+          {/* Ambient Chroma Light Orb behind the Slide Card with Luminous Light Blue Glow */}
           <div className="absolute inset-0 pointer-events-none flex items-center justify-center overflow-hidden">
-            <div className="w-[680px] h-[460px] bg-gradient-to-tr from-indigo-600/20 via-blue-500/15 to-emerald-400/15 rounded-full blur-3xl opacity-80" />
+            <div className="w-[780px] h-[520px] bg-gradient-to-tr from-sky-400/35 via-blue-400/25 to-cyan-300/30 rounded-full blur-3xl opacity-90" />
+            <div className="absolute top-1/4 -left-20 w-96 h-96 bg-blue-300/30 rounded-full blur-3xl" />
+            <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-sky-300/30 rounded-full blur-3xl" />
           </div>
 
           {/* Elevated Presentation Slide Card Coming Up */}
-          <div className="relative w-full max-w-2xl sm:max-w-3xl lg:max-w-[820px] bg-gradient-to-b from-white via-[#FCFDFE] to-[#F8FAFC] backdrop-blur-2xl rounded-3xl sm:rounded-[2rem] border border-white/80 shadow-[0_25px_70px_-10px_rgba(15,23,42,0.32),0_0_0_1px_rgba(255,255,255,0.9)_inset,0_0_40px_rgba(99,102,241,0.08)] ring-1 ring-slate-900/[0.08] p-5 sm:p-7 md:p-8 animate-slideUpModal overflow-hidden flex flex-col justify-between max-h-[92vh] sm:max-h-[88vh]">
+          <div className="relative w-full max-w-2xl sm:max-w-3xl lg:max-w-[820px] bg-gradient-to-b from-white via-[#FCFDFE] to-[#F8FAFC] backdrop-blur-2xl rounded-3xl sm:rounded-[2rem] border border-white/90 shadow-[0_25px_70px_-10px_rgba(14,116,144,0.18),0_12px_36px_rgba(30,58,138,0.12),0_0_0_1px_rgba(255,255,255,0.9)_inset,0_0_50px_rgba(56,189,248,0.15)] ring-1 ring-sky-900/[0.06] p-5 sm:p-7 md:p-8 animate-slideUpModal overflow-hidden flex flex-col justify-between max-h-[92vh] sm:max-h-[88vh]">
             {/* Jewel accent bar across top of card */}
             <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 via-indigo-600 to-emerald-500" />
 

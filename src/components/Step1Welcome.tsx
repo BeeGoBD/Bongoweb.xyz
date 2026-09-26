@@ -8,7 +8,7 @@ export default function Step1Welcome({ onNext }: Step1WelcomeProps) {
   return (
     <div id="step-1-welcome" className="w-full h-full flex flex-col justify-between animate-fadeIn">
       {/* Top Slide Header: Pure BongoWeb Text Logo */}
-      <div className="flex items-center justify-between pb-2 border-b border-slate-100 shrink-0">
+      <div className="flex items-center justify-between pb-2.5 border-b border-blue-200/60 shrink-0">
         <div className="flex items-baseline select-none">
           <span className="font-black text-xl text-slate-900 tracking-tight">
             Bongo
@@ -20,8 +20,8 @@ export default function Step1Welcome({ onNext }: Step1WelcomeProps) {
         </div>
 
         <div className="flex items-center gap-1.5 text-xs font-mono">
-          <span className="font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-100/60">01</span>
-          <span className="text-slate-300">/</span>
+          <span className="font-bold text-blue-700 bg-blue-100/70 px-2 py-0.5 rounded-md border border-blue-200/70">01</span>
+          <span className="text-blue-300">/</span>
           <span className="text-slate-400 font-medium">04</span>
         </div>
       </div>
