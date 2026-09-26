@@ -37,11 +37,11 @@ export default function Step4Pricing({ onBack, onComplete }: Step4PricingProps) 
       </div>
 
       {/* Main Slide Content */}
-      <div className="flex-1 flex flex-col justify-between py-2 text-center sm:text-left min-h-0">
+      <div className="flex-1 flex flex-col justify-between py-3 sm:py-4 text-center sm:text-left min-h-0">
         <div>
           <h1 
             id="step-4-heading"
-            className="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight leading-[1.18] mb-1 sm:mb-2 text-balance"
+            className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight leading-[1.18] mb-2 sm:mb-2.5 text-balance"
           >
             একটি মাত্র সেটআপ ফি,{' '}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 via-teal-600 to-indigo-600">
@@ -51,7 +51,7 @@ export default function Step4Pricing({ onBack, onComplete }: Step4PricingProps) 
 
           <p 
             id="step-4-subtext"
-            className="text-[11px] sm:text-xs md:text-sm text-slate-600 font-normal leading-relaxed max-w-lg mb-2 sm:mb-3 text-balance mx-auto sm:mx-0"
+            className="text-xs sm:text-sm md:text-base text-slate-600 font-normal leading-relaxed max-w-xl mb-3 sm:mb-4 text-balance mx-auto sm:mx-0"
           >
             আপনার ওয়েবসাইটের শতভাগ মালিকানা, সাথে নিরবচ্ছিন্ন সার্ভার ও নিয়মিত ব্যাকআপ সুবিধা।
           </p>
@@ -59,94 +59,94 @@ export default function Step4Pricing({ onBack, onComplete }: Step4PricingProps) 
 
         {/* Dual Financial Breakdown Cards */}
         <div className="w-full my-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-2.5 mb-2 text-left">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-3 text-left">
             {/* Card 1: Setup Fee */}
-            <div className="p-2.5 sm:p-3 rounded-2xl bg-gradient-to-b from-white to-slate-50 border border-slate-200/90 shadow-[0_2px_8px_rgba(15,23,42,0.03)] flex flex-col justify-between">
+            <div className="p-3.5 sm:p-4 md:p-5 rounded-2xl bg-gradient-to-b from-white to-slate-50 border border-slate-200/90 shadow-[0_2px_10px_rgba(15,23,42,0.04)] flex flex-col justify-between">
               <div>
-                <div className="flex items-center justify-between text-xs font-medium text-slate-500 mb-0.5">
-                  <span className="font-semibold text-slate-700 text-xs">এককালীন সেটআপ ফি</span>
-                  <span className="text-[9px] font-bold text-indigo-700 bg-indigo-50 px-1.5 py-0.2 rounded-full border border-indigo-200/60 font-mono">
+                <div className="flex items-center justify-between text-xs font-medium text-slate-500 mb-1">
+                  <span className="font-semibold text-slate-700 text-xs sm:text-sm">এককালীন সেটআপ ফি</span>
+                  <span className="text-[10px] font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-200/60 font-mono">
                     শুরু মাত্র
                   </span>
                 </div>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight font-mono">
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-mono">
                     ৳৯৯৯
                   </span>
-                  <span className="text-[11px] text-slate-500 font-bold font-mono">টাকা</span>
+                  <span className="text-xs text-slate-500 font-bold font-mono">টাকা</span>
                 </div>
-                <p className="text-[10px] sm:text-[11px] text-slate-500 mt-0.5 leading-snug">
+                <p className="text-[11px] sm:text-xs text-slate-500 mt-1 leading-snug">
                   সম্পূর্ণ কাস্টম ডিজাইন, ব্র্যান্ডিং ও প্রোডাক্ট আপলোড
                 </p>
               </div>
 
-              <div className="pt-1.5 mt-1.5 border-t border-slate-200/60 flex items-center gap-1.5 text-[11px] font-semibold text-emerald-700">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+              <div className="pt-2 mt-2 border-t border-slate-200/60 flex items-center gap-1.5 text-xs font-semibold text-emerald-700">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                 <span>১০০% লাইফটাইম ওয়েবসাইট মালিকানা</span>
               </div>
             </div>
 
             {/* Card 2: Server Upkeep */}
-            <div className="p-2.5 sm:p-3 rounded-2xl bg-gradient-to-b from-white to-slate-50 border border-slate-200/90 shadow-[0_2px_8px_rgba(15,23,42,0.03)] flex flex-col justify-between">
+            <div className="p-3.5 sm:p-4 md:p-5 rounded-2xl bg-gradient-to-b from-white to-slate-50 border border-slate-200/90 shadow-[0_2px_10px_rgba(15,23,42,0.04)] flex flex-col justify-between">
               <div>
-                <div className="flex items-center justify-between text-xs font-medium text-slate-500 mb-0.5">
-                  <span className="font-semibold text-slate-700 text-xs">মাসিক সার্ভার খরচ</span>
-                  <span className="text-[9px] font-bold text-indigo-700 bg-indigo-50 px-1.5 py-0.2 rounded-full border border-indigo-200/60 font-mono">
+                <div className="flex items-center justify-between text-xs font-medium text-slate-500 mb-1">
+                  <span className="font-semibold text-slate-700 text-xs sm:text-sm">মাসিক সার্ভার খরচ</span>
+                  <span className="text-[10px] font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-200/60 font-mono">
                     শুরু মাত্র
                   </span>
                 </div>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight font-mono">
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-mono">
                     ৳১২০
                   </span>
-                  <span className="text-[11px] text-slate-500 font-bold font-mono">টাকা / মাস</span>
+                  <span className="text-xs text-slate-500 font-bold font-mono">টাকা / মাস</span>
                 </div>
-                <p className="text-[10px] sm:text-[11px] text-slate-500 mt-0.5 leading-snug">
+                <p className="text-[11px] sm:text-xs text-slate-500 mt-1 leading-snug">
                   ৯৯.৯% সার্ভার আপটাইম, ফ্রি SSL ও অটো ব্যাকআপ
                 </p>
               </div>
 
-              <div className="pt-1.5 mt-1.5 border-t border-slate-200/60 flex items-center gap-1.5 text-[11px] font-semibold text-emerald-700">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+              <div className="pt-2 mt-2 border-t border-slate-200/60 flex items-center gap-1.5 text-xs font-semibold text-emerald-700">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                 <span>যেকোনো সময় বন্ধ বা পরিবর্তনযোগ্য</span>
               </div>
             </div>
           </div>
 
           {/* 4 Distinct Payment Boxes */}
-          <div className="grid grid-cols-4 gap-1.5 w-full">
-            <div className="py-1 px-1.5 rounded-xl bg-white border border-pink-200/90 shadow-2xs flex items-center justify-center gap-1">
-              <span className="font-mono text-[8px] font-bold text-pink-700 bg-pink-50 border border-pink-200/60 px-1 py-0.2 rounded">
+          <div className="grid grid-cols-4 gap-2 w-full">
+            <div className="py-1.5 px-2 rounded-xl bg-white border border-pink-200/90 shadow-2xs flex items-center justify-center gap-1.5">
+              <span className="font-mono text-[9px] font-bold text-pink-700 bg-pink-50 border border-pink-200/60 px-1.5 py-0.2 rounded">
                 01
               </span>
-              <span className="text-[11px] font-bold text-slate-800 tracking-tight">
+              <span className="text-xs font-bold text-slate-800 tracking-tight">
                 Bkash
               </span>
             </div>
 
-            <div className="py-1 px-1.5 rounded-xl bg-white border border-amber-200/90 shadow-2xs flex items-center justify-center gap-1">
-              <span className="font-mono text-[8px] font-bold text-amber-700 bg-amber-50 border border-amber-200/60 px-1 py-0.2 rounded">
+            <div className="py-1.5 px-2 rounded-xl bg-white border border-amber-200/90 shadow-2xs flex items-center justify-center gap-1.5">
+              <span className="font-mono text-[9px] font-bold text-amber-700 bg-amber-50 border border-amber-200/60 px-1.5 py-0.2 rounded">
                 02
               </span>
-              <span className="text-[11px] font-bold text-slate-800 tracking-tight">
+              <span className="text-xs font-bold text-slate-800 tracking-tight">
                 Nagad
               </span>
             </div>
 
-            <div className="py-1 px-1.5 rounded-xl bg-white border border-purple-200/90 shadow-2xs flex items-center justify-center gap-1">
-              <span className="font-mono text-[8px] font-bold text-purple-700 bg-purple-50 border border-purple-200/60 px-1 py-0.2 rounded">
+            <div className="py-1.5 px-2 rounded-xl bg-white border border-purple-200/90 shadow-2xs flex items-center justify-center gap-1.5">
+              <span className="font-mono text-[9px] font-bold text-purple-700 bg-purple-50 border border-purple-200/60 px-1.5 py-0.2 rounded">
                 03
               </span>
-              <span className="text-[11px] font-bold text-slate-800 tracking-tight">
+              <span className="text-xs font-bold text-slate-800 tracking-tight">
                 Rocket
               </span>
             </div>
 
-            <div className="py-1 px-1.5 rounded-xl bg-white border border-blue-200/90 shadow-2xs flex items-center justify-center gap-1">
-              <span className="font-mono text-[8px] font-bold text-blue-700 bg-blue-50 border border-blue-200/60 px-1 py-0.2 rounded">
+            <div className="py-1.5 px-2 rounded-xl bg-white border border-blue-200/90 shadow-2xs flex items-center justify-center gap-1.5">
+              <span className="font-mono text-[9px] font-bold text-blue-700 bg-blue-50 border border-blue-200/60 px-1.5 py-0.2 rounded">
                 04
               </span>
-              <span className="text-[11px] font-bold text-slate-800 tracking-tight">
+              <span className="text-xs font-bold text-slate-800 tracking-tight">
                 Upay
               </span>
             </div>
@@ -154,12 +154,12 @@ export default function Step4Pricing({ onBack, onComplete }: Step4PricingProps) 
         </div>
 
         {/* Conversion Action Buttons */}
-        <div className="flex items-center gap-3 w-full pt-2 shrink-0">
+        <div className="flex items-center gap-3 w-full pt-2 sm:pt-3 shrink-0">
           <button
             onClick={onBack}
             id="step-4-back-btn"
             disabled={isSubmitting}
-            className="flex-1 inline-flex items-center justify-center gap-1.5 px-4 py-3 sm:py-3.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-all duration-200 cursor-pointer shadow-xs active:scale-[0.99] disabled:opacity-60"
+            className="flex-1 inline-flex items-center justify-center gap-1.5 px-5 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl text-xs sm:text-sm md:text-base font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-all duration-200 cursor-pointer shadow-xs active:scale-[0.99] disabled:opacity-60"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>পেছনে যান</span>
@@ -169,7 +169,7 @@ export default function Step4Pricing({ onBack, onComplete }: Step4PricingProps) 
             onClick={handleCompleteClick}
             id="step-4-finish-btn"
             disabled={isSubmitting}
-            className="flex-2 group inline-flex items-center justify-center gap-2 px-6 py-3 sm:py-3.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-emerald-600 via-teal-600 to-indigo-600 hover:from-emerald-500 hover:via-teal-500 hover:to-indigo-500 shadow-[0_4px_18px_rgba(5,150,105,0.28)] hover:shadow-[0_8px_26px_rgba(5,150,105,0.36)] ring-1 ring-emerald-400/30 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer disabled:opacity-80"
+            className="flex-2 group inline-flex items-center justify-center gap-2 px-6 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl text-xs sm:text-sm md:text-base font-bold text-white bg-gradient-to-r from-emerald-600 via-teal-600 to-indigo-600 hover:from-emerald-500 hover:via-teal-500 hover:to-indigo-500 shadow-[0_4px_18px_rgba(5,150,105,0.28)] hover:shadow-[0_8px_26px_rgba(5,150,105,0.36)] ring-1 ring-emerald-400/30 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer disabled:opacity-80"
           >
             {isSubmitting ? (
               <span className="flex items-center gap-2">
