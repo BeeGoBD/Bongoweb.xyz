@@ -50,34 +50,34 @@ export default function Step3Management({ onBack, onNext }: Step3ManagementProps
         {/* 3 Bento Feature Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 w-full text-left my-auto">
           {/* Card 1: Blue Cloud Updates */}
-          <div className="p-3.5 sm:p-4 md:p-5 rounded-2xl bg-gradient-to-b from-white to-blue-50/40 border border-blue-200/80 shadow-[0_2px_10px_rgba(59,130,246,0.06)] transition-all hover:border-blue-300">
-            <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center mb-2 shadow-[0_2px_6px_rgba(59,130,246,0.25)]">
-              <CloudUpload className="w-4 h-4 stroke-[2]" />
+          <div className="p-3.5 sm:p-4 md:p-5 rounded-2xl bg-white/85 backdrop-blur-sm border border-slate-200/80 shadow-[0_4px_18px_rgba(59,130,246,0.05)] transition-all hover:border-blue-300 hover:shadow-[0_8px_24px_rgba(59,130,246,0.1)] hover:-translate-y-0.5">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center mb-2.5 shadow-[0_4px_12px_rgba(59,130,246,0.25)]">
+              <CloudUpload className="w-4.5 h-4.5 stroke-[2]" />
             </div>
             <h3 className="text-xs sm:text-sm font-bold text-slate-900">প্রোডাক্ট ও ছবি আপলোড</h3>
-            <p className="text-[11px] sm:text-xs text-blue-700 font-medium mt-0.5 leading-snug">
+            <p className="text-[11px] sm:text-xs text-slate-500 font-medium mt-0.5 leading-snug">
               সহজেই নতুন পণ্য যুক্ত করুন ও বিবরণ বদলান।
             </p>
           </div>
 
           {/* Card 2: Amber Promotions */}
-          <div className="p-3.5 sm:p-4 md:p-5 rounded-2xl bg-gradient-to-b from-white to-amber-50/40 border border-amber-200/80 shadow-[0_2px_10px_rgba(245,158,11,0.06)] transition-all hover:border-amber-300">
-            <div className="w-8 h-8 rounded-xl bg-amber-500 text-white flex items-center justify-center mb-2 shadow-[0_2px_6px_rgba(245,158,11,0.25)]">
-              <Tag className="w-4 h-4 stroke-[2]" />
+          <div className="p-3.5 sm:p-4 md:p-5 rounded-2xl bg-white/85 backdrop-blur-sm border border-slate-200/80 shadow-[0_4px_18px_rgba(245,158,11,0.05)] transition-all hover:border-amber-300 hover:shadow-[0_8px_24px_rgba(245,158,11,0.1)] hover:-translate-y-0.5">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 text-white flex items-center justify-center mb-2.5 shadow-[0_4px_12px_rgba(245,158,11,0.25)]">
+              <Tag className="w-4.5 h-4.5 stroke-[2]" />
             </div>
             <h3 className="text-xs sm:text-sm font-bold text-slate-900">দাম ও ডিসকাউন্ট অফার</h3>
-            <p className="text-[11px] sm:text-xs text-amber-700 font-medium mt-0.5 leading-snug">
+            <p className="text-[11px] sm:text-xs text-slate-500 font-medium mt-0.5 leading-snug">
               এক ক্লিকেই যেকোনো প্রডাক্টের দাম আপডেট করুন।
             </p>
           </div>
 
           {/* Card 3: Emerald Live Inventory */}
-          <div className="p-3.5 sm:p-4 md:p-5 rounded-2xl bg-gradient-to-b from-white to-emerald-50/40 border border-emerald-200/80 shadow-[0_2px_10px_rgba(16,185,129,0.06)] transition-all hover:border-emerald-300">
-            <div className="w-8 h-8 rounded-xl bg-emerald-500 text-white flex items-center justify-center mb-2 shadow-[0_2px_6px_rgba(16,185,129,0.25)]">
-              <Edit3 className="w-4 h-4 stroke-[2]" />
+          <div className="p-3.5 sm:p-4 md:p-5 rounded-2xl bg-white/85 backdrop-blur-sm border border-slate-200/80 shadow-[0_4px_18px_rgba(16,185,129,0.05)] transition-all hover:border-emerald-300 hover:shadow-[0_8px_24px_rgba(16,185,129,0.1)] hover:-translate-y-0.5">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center mb-2.5 shadow-[0_4px_12px_rgba(16,185,129,0.25)]">
+              <Edit3 className="w-4.5 h-4.5 stroke-[2]" />
             </div>
             <h3 className="text-xs sm:text-sm font-bold text-slate-900">অর্ডার ট্র্যাকিং</h3>
-            <p className="text-[11px] sm:text-xs text-emerald-700 font-medium mt-0.5 leading-snug">
+            <p className="text-[11px] sm:text-xs text-slate-500 font-medium mt-0.5 leading-snug">
               কাস্টমারদের আসা নতুন অর্ডার দেখুন ও নিয়ন্ত্রণ করুন।
             </p>
           </div>

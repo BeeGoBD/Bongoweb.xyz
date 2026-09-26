@@ -82,12 +82,21 @@ export default function App() {
       {currentPage === 'wizard' && (
         <div 
           id="slides-hover-backdrop"
-          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/45 backdrop-blur-[6px] animate-fadeIn"
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/50 backdrop-blur-md animate-fadeIn"
         >
+          {/* Ambient Chroma Light Orb behind the Slide Card */}
+          <div className="absolute inset-0 pointer-events-none flex items-center justify-center overflow-hidden">
+            <div className="w-[680px] h-[460px] bg-gradient-to-tr from-indigo-600/20 via-blue-500/15 to-emerald-400/15 rounded-full blur-3xl opacity-80" />
+          </div>
+
           {/* Elevated Presentation Slide Card Coming Up */}
-          <div className="relative w-full max-w-2xl sm:max-w-3xl lg:max-w-[820px] bg-white/98 backdrop-blur-2xl rounded-3xl sm:rounded-[2rem] border border-slate-200/90 shadow-[0_25px_70px_rgba(15,23,42,0.3),0_10px_30px_rgba(15,23,42,0.15)] ring-1 ring-black/[0.04] p-5 sm:p-7 md:p-8 animate-slideUpModal overflow-hidden flex flex-col justify-between max-h-[92vh] sm:max-h-[88vh]">
+          <div className="relative w-full max-w-2xl sm:max-w-3xl lg:max-w-[820px] bg-gradient-to-b from-white via-[#FCFDFE] to-[#F8FAFC] backdrop-blur-2xl rounded-3xl sm:rounded-[2rem] border border-white/80 shadow-[0_25px_70px_-10px_rgba(15,23,42,0.32),0_0_0_1px_rgba(255,255,255,0.9)_inset,0_0_40px_rgba(99,102,241,0.08)] ring-1 ring-slate-900/[0.08] p-5 sm:p-7 md:p-8 animate-slideUpModal overflow-hidden flex flex-col justify-between max-h-[92vh] sm:max-h-[88vh]">
             {/* Jewel accent bar across top of card */}
-            <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-blue-600 via-indigo-600 to-emerald-500 opacity-90" />
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 via-indigo-600 to-emerald-500" />
+
+            {/* Subtle inner ambient light reflections */}
+            <div className="absolute -top-20 -left-20 w-52 h-52 bg-indigo-500/6 rounded-full blur-2xl pointer-events-none" />
+            <div className="absolute -bottom-20 -right-20 w-52 h-52 bg-emerald-500/6 rounded-full blur-2xl pointer-events-none" />
 
             {/* Quick Skip to Website button in top corner */}
             <button
@@ -95,7 +104,7 @@ export default function App() {
                 setCurrentStep(5);
                 navigateTo('dashboard');
               }}
-              className="absolute top-3 right-4 text-[11px] font-semibold text-slate-400 hover:text-slate-800 transition-colors flex items-center gap-1 cursor-pointer py-1 px-2.5 rounded-lg hover:bg-slate-100 z-10"
+              className="absolute top-3.5 right-4 text-[11px] font-semibold text-slate-400 hover:text-slate-800 transition-colors flex items-center gap-1 cursor-pointer py-1 px-2.5 rounded-lg hover:bg-slate-100 z-10"
               title="Skip directly to website"
             >
               <span>ক্যাটালগে যান</span>

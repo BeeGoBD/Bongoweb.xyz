@@ -61,11 +61,11 @@ export default function Step4Pricing({ onBack, onComplete }: Step4PricingProps) 
         <div className="w-full my-auto">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-3 text-left">
             {/* Card 1: Setup Fee */}
-            <div className="p-3.5 sm:p-4 md:p-5 rounded-2xl bg-gradient-to-b from-white to-slate-50 border border-slate-200/90 shadow-[0_2px_10px_rgba(15,23,42,0.04)] flex flex-col justify-between">
+            <div className="p-3.5 sm:p-4 md:p-5 rounded-2xl bg-white/85 backdrop-blur-sm border border-slate-200/80 shadow-[0_4px_18px_rgba(15,23,42,0.04)] flex flex-col justify-between transition-all hover:border-indigo-300">
               <div>
                 <div className="flex items-center justify-between text-xs font-medium text-slate-500 mb-1">
-                  <span className="font-semibold text-slate-700 text-xs sm:text-sm">এককালীন সেটআপ ফি</span>
-                  <span className="text-[10px] font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-200/60 font-mono">
+                  <span className="font-semibold text-slate-800 text-xs sm:text-sm">এককালীন সেটআপ ফি</span>
+                  <span className="text-[10px] font-bold text-indigo-700 bg-indigo-50/80 px-2.5 py-0.5 rounded-full border border-indigo-200/60 font-mono">
                     শুরু মাত্র
                   </span>
                 </div>
@@ -87,11 +87,11 @@ export default function Step4Pricing({ onBack, onComplete }: Step4PricingProps) 
             </div>
 
             {/* Card 2: Server Upkeep */}
-            <div className="p-3.5 sm:p-4 md:p-5 rounded-2xl bg-gradient-to-b from-white to-slate-50 border border-slate-200/90 shadow-[0_2px_10px_rgba(15,23,42,0.04)] flex flex-col justify-between">
+            <div className="p-3.5 sm:p-4 md:p-5 rounded-2xl bg-white/85 backdrop-blur-sm border border-slate-200/80 shadow-[0_4px_18px_rgba(15,23,42,0.04)] flex flex-col justify-between transition-all hover:border-indigo-300">
               <div>
                 <div className="flex items-center justify-between text-xs font-medium text-slate-500 mb-1">
-                  <span className="font-semibold text-slate-700 text-xs sm:text-sm">মাসিক সার্ভার খরচ</span>
-                  <span className="text-[10px] font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-200/60 font-mono">
+                  <span className="font-semibold text-slate-800 text-xs sm:text-sm">মাসিক সার্ভার খরচ</span>
+                  <span className="text-[10px] font-bold text-indigo-700 bg-indigo-50/80 px-2.5 py-0.5 rounded-full border border-indigo-200/60 font-mono">
                     শুরু মাত্র
                   </span>
                 </div>
@@ -115,7 +115,7 @@ export default function Step4Pricing({ onBack, onComplete }: Step4PricingProps) 
 
           {/* 4 Distinct Payment Boxes */}
           <div className="grid grid-cols-4 gap-2 w-full">
-            <div className="py-1.5 px-2 rounded-xl bg-white border border-pink-200/90 shadow-2xs flex items-center justify-center gap-1.5">
+            <div className="py-1.5 px-2 rounded-xl bg-white/90 border border-slate-200/80 shadow-2xs flex items-center justify-center gap-1.5">
               <span className="font-mono text-[9px] font-bold text-pink-700 bg-pink-50 border border-pink-200/60 px-1.5 py-0.2 rounded">
                 01
               </span>
@@ -124,7 +124,7 @@ export default function Step4Pricing({ onBack, onComplete }: Step4PricingProps) 
               </span>
             </div>
 
-            <div className="py-1.5 px-2 rounded-xl bg-white border border-amber-200/90 shadow-2xs flex items-center justify-center gap-1.5">
+            <div className="py-1.5 px-2 rounded-xl bg-white/90 border border-slate-200/80 shadow-2xs flex items-center justify-center gap-1.5">
               <span className="font-mono text-[9px] font-bold text-amber-700 bg-amber-50 border border-amber-200/60 px-1.5 py-0.2 rounded">
                 02
               </span>
@@ -133,7 +133,7 @@ export default function Step4Pricing({ onBack, onComplete }: Step4PricingProps) 
               </span>
             </div>
 
-            <div className="py-1.5 px-2 rounded-xl bg-white border border-purple-200/90 shadow-2xs flex items-center justify-center gap-1.5">
+            <div className="py-1.5 px-2 rounded-xl bg-white/90 border border-slate-200/80 shadow-2xs flex items-center justify-center gap-1.5">
               <span className="font-mono text-[9px] font-bold text-purple-700 bg-purple-50 border border-purple-200/60 px-1.5 py-0.2 rounded">
                 03
               </span>
@@ -142,7 +142,7 @@ export default function Step4Pricing({ onBack, onComplete }: Step4PricingProps) 
               </span>
             </div>
 
-            <div className="py-1.5 px-2 rounded-xl bg-white border border-blue-200/90 shadow-2xs flex items-center justify-center gap-1.5">
+            <div className="py-1.5 px-2 rounded-xl bg-white/90 border border-slate-200/80 shadow-2xs flex items-center justify-center gap-1.5">
               <span className="font-mono text-[9px] font-bold text-blue-700 bg-blue-50 border border-blue-200/60 px-1.5 py-0.2 rounded">
                 04
               </span>

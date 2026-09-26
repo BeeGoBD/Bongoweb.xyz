@@ -51,30 +51,30 @@ export default function Step2Guarantee({ onBack, onNext }: Step2GuaranteeProps) 
         {/* 3 Proof Bento Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 w-full text-left my-auto">
           {/* Card 1: Emerald Match */}
-          <div className="p-3.5 sm:p-4 md:p-5 rounded-2xl bg-gradient-to-b from-white to-emerald-50/40 border border-emerald-200/80 shadow-[0_2px_10px_rgba(16,185,129,0.06)] transition-all hover:border-emerald-300">
-            <div className="w-8 h-8 rounded-xl bg-emerald-500 text-white flex items-center justify-center mb-2 shadow-[0_2px_6px_rgba(16,185,129,0.25)]">
-              <CheckCircle2 className="w-4 h-4 stroke-[2.5]" />
+          <div className="p-3.5 sm:p-4 md:p-5 rounded-2xl bg-white/85 backdrop-blur-sm border border-slate-200/80 shadow-[0_4px_18px_rgba(16,185,129,0.05)] transition-all hover:border-emerald-300 hover:shadow-[0_8px_24px_rgba(16,185,129,0.1)] hover:-translate-y-0.5">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center mb-2.5 shadow-[0_4px_12px_rgba(16,185,129,0.25)]">
+              <CheckCircle2 className="w-4.5 h-4.5 stroke-[2.5]" />
             </div>
             <div className="text-xs sm:text-sm font-bold text-slate-900">হুবহু ডিজাইন ম্যাচ</div>
-            <div className="text-[11px] sm:text-xs text-emerald-700 font-medium mt-0.5 leading-snug">ডেমোর সাথে ১০০% মিল</div>
+            <div className="text-[11px] sm:text-xs text-slate-500 font-medium mt-0.5 leading-snug">ডেমোর সাথে ১০০% মিল</div>
           </div>
 
           {/* Card 2: Indigo Branding */}
-          <div className="p-3.5 sm:p-4 md:p-5 rounded-2xl bg-gradient-to-b from-white to-indigo-50/40 border border-indigo-200/80 shadow-[0_2px_10px_rgba(99,102,241,0.06)] transition-all hover:border-indigo-300">
-            <div className="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center mb-2 shadow-[0_2px_6px_rgba(99,102,241,0.25)]">
-              <Sparkles className="w-4 h-4 stroke-[2.5]" />
+          <div className="p-3.5 sm:p-4 md:p-5 rounded-2xl bg-white/85 backdrop-blur-sm border border-slate-200/80 shadow-[0_4px_18px_rgba(99,102,241,0.05)] transition-all hover:border-indigo-300 hover:shadow-[0_8px_24px_rgba(99,102,241,0.1)] hover:-translate-y-0.5">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white flex items-center justify-center mb-2.5 shadow-[0_4px_12px_rgba(99,102,241,0.25)]">
+              <Sparkles className="w-4.5 h-4.5 stroke-[2.5]" />
             </div>
             <div className="text-xs sm:text-sm font-bold text-slate-900">আপনার নিজস্ব ব্র্যান্ডিং</div>
-            <div className="text-[11px] sm:text-xs text-indigo-700 font-medium mt-0.5 leading-snug">আপনার নাম ও লোগো যুক্ত</div>
+            <div className="text-[11px] sm:text-xs text-slate-500 font-medium mt-0.5 leading-snug">আপনার নাম ও লোগো যুক্ত</div>
           </div>
 
           {/* Card 3: Sapphire Zero Effort */}
-          <div className="p-3.5 sm:p-4 md:p-5 rounded-2xl bg-gradient-to-b from-white to-sky-50/40 border border-sky-200/80 shadow-[0_2px_10px_rgba(14,165,233,0.06)] transition-all hover:border-sky-300">
-            <div className="w-8 h-8 rounded-xl bg-sky-600 text-white flex items-center justify-center mb-2 shadow-[0_2px_6px_rgba(14,165,233,0.25)]">
-              <Layers className="w-4 h-4 stroke-[2.5]" />
+          <div className="p-3.5 sm:p-4 md:p-5 rounded-2xl bg-white/85 backdrop-blur-sm border border-slate-200/80 shadow-[0_4px_18px_rgba(14,165,233,0.05)] transition-all hover:border-sky-300 hover:shadow-[0_8px_24px_rgba(14,165,233,0.1)] hover:-translate-y-0.5">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-sky-500 to-blue-600 text-white flex items-center justify-center mb-2.5 shadow-[0_4px_12px_rgba(14,165,233,0.25)]">
+              <Layers className="w-4.5 h-4.5 stroke-[2.5]" />
             </div>
             <div className="text-xs sm:text-sm font-bold text-slate-900">সম্পূর্ণ রেডিমেড সেটআপ</div>
-            <div className="text-[11px] sm:text-xs text-sky-700 font-medium mt-0.5 leading-snug">কোনো টেকনিক্যাল ঝামেলা নেই</div>
+            <div className="text-[11px] sm:text-xs text-slate-500 font-medium mt-0.5 leading-snug">কোনো টেকনিক্যাল ঝামেলা নেই</div>
           </div>
         </div>
 
