@@ -26,7 +26,7 @@ export default function Step4Pricing({ onBack, onComplete }: Step4PricingProps) 
           className="text-xs font-semibold text-slate-500 hover:text-slate-900 flex items-center gap-1.5 transition-colors cursor-pointer py-1 px-2.5 -ml-2 rounded-lg hover:bg-slate-100"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Back</span>
+          <span>পেছনে যান</span>
         </button>
 
         <div className="flex items-center gap-1.5 text-xs font-mono">

@@ -63,52 +63,46 @@ export default function App() {
 
       {/* Full Page Navigation Router */}
       {currentPage === 'wizard' && (
-        <div className="fixed inset-0 h-screen h-dvh w-screen max-w-full overflow-hidden select-none touch-none overscroll-none flex flex-col justify-between items-center px-3 sm:px-6 z-20">
-          {/* Top Header Space Gap */}
-          <div className="h-[10vh] sm:h-[12vh] w-full shrink-0 pointer-events-none" aria-hidden="true" />
+        <div className="fixed inset-0 h-screen h-dvh w-screen max-w-full overflow-hidden bg-white z-30 flex flex-col justify-between">
+          {/* Subtle jewel accent line at the very top edge */}
+          <div className="w-full h-1 bg-gradient-to-r from-blue-600 via-indigo-600 to-emerald-500 shrink-0" />
 
-          {/* Middle Presentation Slide Deck Container (Expanded Perfect Size) */}
-          <main className="w-full max-w-2xl sm:max-w-3xl lg:max-w-4xl h-[76vh] h-[76dvh] max-h-[760px] flex flex-col items-center justify-center shrink-0 my-auto overflow-hidden">
-            {/* Elevated Presentation Slide Card Frame with Top Accent Line */}
-            <div className="w-full h-full bg-white/95 backdrop-blur-2xl rounded-3xl sm:rounded-[2rem] border border-slate-200/90 shadow-[0_25px_60px_rgba(15,23,42,0.08),0_1px_3px_rgba(15,23,42,0.04)] ring-1 ring-black/[0.03] p-5 sm:p-8 md:p-9 transition-all duration-300 relative overflow-hidden flex flex-col justify-between">
-              {/* Jewel accent bar across top of card */}
-              <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-blue-600 via-indigo-600 to-emerald-500 opacity-90" />
+          {/* Full Page Slide Content Viewport */}
+          <main className="flex-1 w-full max-w-4xl mx-auto px-4 sm:px-8 py-4 sm:py-6 flex flex-col justify-between min-h-0 overflow-y-auto sm:overflow-hidden">
+            {currentStep === 1 && (
+              <Step1Welcome 
+                onNext={handleNextStep}
+              />
+            )}
 
-              {currentStep === 1 && (
-                <Step1Welcome 
-                  onNext={handleNextStep}
-                />
-              )}
+            {currentStep === 2 && (
+              <Step2Guarantee 
+                onBack={handlePrevStep}
+                onNext={handleNextStep}
+              />
+            )}
 
-              {currentStep === 2 && (
-                <Step2Guarantee 
-                  onBack={handlePrevStep}
-                  onNext={handleNextStep}
-                />
-              )}
+            {currentStep === 3 && (
+              <Step3Management 
+                onBack={handlePrevStep}
+                onNext={handleNextStep}
+              />
+            )}
 
-              {currentStep === 3 && (
-                <Step3Management 
-                  onBack={handlePrevStep}
-                  onNext={handleNextStep}
-                />
-              )}
-
-              {currentStep === 4 && (
-                <Step4Pricing 
-                  onBack={handlePrevStep}
-                  onComplete={() => {
-                    setCurrentStep(5);
-                    navigateTo('dashboard');
-                  }}
-                />
-              )}
-            </div>
+            {currentStep === 4 && (
+              <Step4Pricing 
+                onBack={handlePrevStep}
+                onComplete={() => {
+                  setCurrentStep(5);
+                  navigateTo('dashboard');
+                }}
+              />
+            )}
           </main>
 
-          {/* Bottom Footer Space Gap with Navigation Indicators (Fixed) */}
-          <footer className="h-[12vh] sm:h-[12vh] w-full shrink-0 flex flex-col items-center justify-start pt-2 sm:pt-3 pointer-events-auto">
-            {/* Micro Slide Deck Indicators - Sleek 4 Dots directly under card */}
+          {/* Bottom Integrated Indicator Bar */}
+          <footer className="w-full py-3 sm:py-4 border-t border-slate-100 bg-white/95 backdrop-blur-md flex items-center justify-center shrink-0">
+            {/* Micro Slide Deck Indicators - Sleek 4 Dots */}
             <div className="flex items-center gap-2 select-none">
               {[1, 2, 3, 4].map((stepNum) => (
                 <button
@@ -117,7 +111,7 @@ export default function App() {
                   className={`rounded-full transition-all duration-300 cursor-pointer ${
                     currentStep === stepNum 
                       ? 'w-7 h-2 bg-gradient-to-r from-indigo-600 to-blue-600 shadow-[0_2px_8px_rgba(79,70,229,0.35)]' 
-                      : 'w-2 h-2 bg-slate-300 hover:bg-slate-400'
+                      : 'w-2 h-2 bg-slate-200 hover:bg-slate-300'
                   }`}
                   aria-label={`Go to slide ${stepNum}`}
                 />
