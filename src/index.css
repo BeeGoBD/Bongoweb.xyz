@@ -3,6 +3,15 @@
 @layer base {
   * {
     border-color: rgba(0, 0, 0, 0.08);
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    background-color: #FFFFFF;
+    overflow-x: hidden;
+    width: 100%;
+    font-size: 16px;
   }
 
   body {
@@ -11,19 +20,47 @@
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     -webkit-tap-highlight-color: transparent;
-    background-color: #F8FAFC;
-    color: #0F172A;
-    scroll-behavior: smooth;
+    background-color: #FFFFFF;
+    color: #111111;
+    overflow-x: hidden;
+    width: 100%;
+    min-width: 320px;
+    font-size: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+    line-height: 1.6;
   }
 
-  html {
-    scroll-behavior: smooth;
+  /* Responsive media defaults */
+  img, video, canvas, svg {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* High performance touch interaction for Android / mobile devices */
+  button, a, input, select, textarea {
+    touch-action: manipulation;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  input, textarea {
+    -webkit-user-select: auto;
+    user-select: auto;
   }
 
   ::selection {
-    background-color: #4F46E5;
+    background-color: #FF9D14;
     color: #FFFFFF;
   }
+}
+
+/* Fluid responsive grid & line-length typography classes */
+.readable-line {
+  max-width: min(68ch, 100%);
+}
+
+.touch-target-48 {
+  min-height: 48px;
+  min-width: 48px;
 }
 
 /* Subtle micro-animations */
@@ -106,6 +143,6 @@ body:has(#preview-simulator-active) #live-support-floating-wrapper {
 
 /* Interactive focus ring discipline */
 button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible {
-  outline: 2px solid #0F172A;
+  outline: 2px solid #FF9D14;
   outline-offset: 2px;
 }

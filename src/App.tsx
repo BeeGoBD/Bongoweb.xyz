@@ -54,7 +54,7 @@ export default function App() {
   };
 
   return (
-    <div className="relative min-h-screen bg-[#F8FAFC] text-slate-900 antialiased font-sans selection:bg-indigo-600 selection:text-white flex flex-col justify-between">
+    <div className="relative min-h-screen bg-white text-[#111111] antialiased font-sans selection:bg-[#FF9D14] selection:text-white flex flex-col justify-between">
       {/* Quiet Luxury Ambient Lighting */}
       <BackgroundGlows />
 
@@ -63,7 +63,7 @@ export default function App() {
 
       {/* Background Website Dashboard Screen */}
       {(currentPage === 'dashboard' || currentPage === 'wizard') && (
-        <div className={currentPage === 'wizard' ? 'filter blur-[2.5px] brightness-90 pointer-events-none select-none transition-all duration-300' : ''}>
+        <div className={currentPage === 'wizard' ? 'pointer-events-none select-none' : ''}>
           <MainPreviewZone 
             onBackToWizard={() => {
               setCurrentStep(1);
@@ -78,40 +78,34 @@ export default function App() {
         </div>
       )}
 
-      {/* Floating Hover Screen for Slides (Coming Up from Background) */}
+      {/* Floating Hover Screen for Slides (Solid Gallery Off-White Canvas) */}
       {currentPage === 'wizard' && (
         <div 
           id="slides-hover-backdrop"
-          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-gradient-to-br from-sky-200/60 via-blue-100/50 to-indigo-100/60 backdrop-blur-md animate-fadeIn"
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-[#F5F6F9] animate-fadeIn"
         >
-          {/* Ambient Chroma Light Orb behind the Slide Card with Luminous Light Blue Glow */}
-          <div className="absolute inset-0 pointer-events-none flex items-center justify-center overflow-hidden">
-            <div className="w-[780px] h-[520px] bg-gradient-to-tr from-sky-400/35 via-blue-400/25 to-cyan-300/30 rounded-full blur-3xl opacity-90" />
-            <div className="absolute top-1/4 -left-20 w-96 h-96 bg-blue-300/30 rounded-full blur-3xl" />
-            <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-sky-300/30 rounded-full blur-3xl" />
+          {/* Subtle architectural depth accents on the solid white canvas */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+            {/* Soft architectural grid pattern in subtle warm tone */}
+            <div 
+              className="absolute inset-0 opacity-[0.4]" 
+              style={{
+                backgroundImage: 'radial-gradient(#D6D7DC 0.75px, transparent 0.75px)',
+                backgroundSize: '24px 24px'
+              }} 
+            />
+            {/* Subtle warm sunny halo centered behind the pure white slide */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[760px] h-[540px] bg-gradient-to-tr from-[#FF9D14]/6 via-[#FEB74F]/4 to-transparent rounded-full blur-3xl" />
           </div>
 
-          {/* Elevated Presentation Slide Card Coming Up */}
-          <div className="relative w-full max-w-2xl sm:max-w-3xl lg:max-w-[820px] bg-gradient-to-b from-white via-[#FCFDFE] to-[#F8FAFC] backdrop-blur-2xl rounded-3xl sm:rounded-[2rem] border border-white/90 shadow-[0_25px_70px_-10px_rgba(14,116,144,0.18),0_12px_36px_rgba(30,58,138,0.12),0_0_0_1px_rgba(255,255,255,0.9)_inset,0_0_50px_rgba(56,189,248,0.15)] ring-1 ring-sky-900/[0.06] p-5 sm:p-7 md:p-8 animate-slideUpModal overflow-hidden flex flex-col justify-between max-h-[92vh] sm:max-h-[88vh]">
+          {/* Elevated Pure Snow-White Presentation Slide Card (#FFFFFF) */}
+          <div className="relative w-full max-w-2xl sm:max-w-3xl lg:max-w-[820px] bg-white rounded-3xl sm:rounded-[2rem] border border-[#EDEDEF] shadow-[0_25px_65px_-12px_rgba(0,0,0,0.08),0_8px_24px_-6px_rgba(0,0,0,0.04),0_0_0_1px_rgba(255,255,255,1)_inset] ring-1 ring-black/[0.04] p-5 sm:p-7 md:p-8 animate-slideUpModal overflow-hidden flex flex-col justify-between max-h-[92vh] sm:max-h-[88vh] z-10">
             {/* Jewel accent bar across top of card */}
-            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 via-indigo-600 to-emerald-500" />
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#FF9D14] via-[#FEB74F] to-[#E91311]" />
 
             {/* Subtle inner ambient light reflections */}
-            <div className="absolute -top-20 -left-20 w-52 h-52 bg-indigo-500/6 rounded-full blur-2xl pointer-events-none" />
-            <div className="absolute -bottom-20 -right-20 w-52 h-52 bg-emerald-500/6 rounded-full blur-2xl pointer-events-none" />
-
-            {/* Quick Skip to Website button in top corner */}
-            <button
-              onClick={() => {
-                setCurrentStep(5);
-                navigateTo('dashboard');
-              }}
-              className="absolute top-3.5 right-4 text-[11px] font-semibold text-slate-400 hover:text-slate-800 transition-colors flex items-center gap-1 cursor-pointer py-1 px-2.5 rounded-lg hover:bg-slate-100 z-10"
-              title="Skip directly to website"
-            >
-              <span>ক্যাটালগে যান</span>
-              <span className="text-sm leading-none">×</span>
-            </button>
+            <div className="absolute -top-20 -left-20 w-52 h-52 bg-[#FF9D14]/5 rounded-full blur-2xl pointer-events-none" />
+            <div className="absolute -bottom-20 -right-20 w-52 h-52 bg-[#FEB74F]/5 rounded-full blur-2xl pointer-events-none" />
 
             <div className="w-full flex-1 flex flex-col justify-between pt-1">
               {currentStep === 1 && (
@@ -146,15 +140,15 @@ export default function App() {
             </div>
 
             {/* Micro Slide Deck Indicators - Sleek 4 Dots */}
-            <div className="w-full flex items-center justify-center gap-2 pt-3 border-t border-slate-100/80 mt-2 select-none shrink-0">
+            <div className="w-full flex items-center justify-center gap-2 pt-3 border-t border-[#EDEDEF] mt-2 select-none shrink-0">
               {[1, 2, 3, 4].map((stepNum) => (
                 <button
                   key={stepNum}
                   onClick={() => setCurrentStep(stepNum as WizardStep)}
                   className={`rounded-full transition-all duration-300 cursor-pointer ${
                     currentStep === stepNum 
-                      ? 'w-7 h-2 bg-gradient-to-r from-indigo-600 to-blue-600 shadow-[0_2px_8px_rgba(79,70,229,0.35)]' 
-                      : 'w-2 h-2 bg-slate-200 hover:bg-slate-300'
+                      ? 'w-7 h-2 bg-gradient-to-r from-[#FF9D14] to-[#FEB74F] shadow-[0_2px_8px_rgba(255,157,20,0.4)]' 
+                      : 'w-2 h-2 bg-[#EDEDEF] hover:bg-[#888888]/40'
                   }`}
                   aria-label={`Go to slide ${stepNum}`}
                 />

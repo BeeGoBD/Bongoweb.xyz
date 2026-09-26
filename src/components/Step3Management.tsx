@@ -9,20 +9,20 @@ export default function Step3Management({ onBack, onNext }: Step3ManagementProps
   return (
     <div id="step-3-management" className="w-full h-full flex flex-col justify-between animate-fadeIn">
       {/* Top Slide Header: Back button on Left (NO logo!), Slide Counter on Right */}
-      <div className="flex items-center justify-between pb-2.5 border-b border-blue-200/60 shrink-0">
+      <div className="flex items-center justify-between pb-2 border-b border-[#EDEDEF] shrink-0">
         <button
           onClick={onBack}
           id="step-3-top-back-btn"
-          className="text-xs font-semibold text-slate-600 hover:text-blue-900 flex items-center gap-1.5 transition-colors cursor-pointer py-1 px-2.5 -ml-2 rounded-lg hover:bg-blue-100/60"
+          className="text-xs font-semibold text-[#666666] hover:text-[#111111] flex items-center gap-1.5 transition-colors cursor-pointer py-1 px-2.5 -ml-2 rounded-lg hover:bg-[#F5F5F7]"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>পেছনে যান</span>
         </button>
 
         <div className="flex items-center gap-1.5 text-xs font-mono">
-          <span className="font-bold text-blue-700 bg-blue-100/70 px-2 py-0.5 rounded-md border border-blue-200/70">03</span>
-          <span className="text-blue-300">/</span>
-          <span className="text-slate-400 font-medium">04</span>
+          <span className="font-bold text-[#FF9D14] bg-[#FF9D14]/10 px-2.5 py-0.5 rounded-md border border-[#FF9D14]/25">03</span>
+          <span className="text-[#888888]/40">/</span>
+          <span className="text-[#888888] font-medium">04</span>
         </div>
       </div>
 
@@ -31,17 +31,17 @@ export default function Step3Management({ onBack, onNext }: Step3ManagementProps
         <div>
           <h1 
             id="step-3-heading"
-            className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight leading-[1.18] mb-2 sm:mb-2.5 text-balance"
+            className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#111111] tracking-tight leading-[1.18] mb-2 sm:mb-2.5 text-balance"
           >
             আমরা আপনাকে পণ্য এবং{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-800">
+            <span className="text-[#FF9D14]">
               অর্ডার ম্যানেজ করা শিখিয়ে দেব
             </span>
           </h1>
 
           <p 
             id="step-3-subtext"
-            className="text-xs sm:text-sm md:text-base text-slate-600 font-normal leading-relaxed max-w-xl mb-3 sm:mb-4 text-balance mx-auto sm:mx-0"
+            className="text-xs sm:text-sm md:text-base text-[#666666] font-normal leading-relaxed max-w-xl mb-3 sm:mb-4 text-balance mx-auto sm:mx-0"
           >
             আপনার সুবিধার জন্য আমাদের কাছে রয়েছে বিস্তারিত ভিডিও টিউটোরিয়াল।
           </p>
@@ -49,35 +49,35 @@ export default function Step3Management({ onBack, onNext }: Step3ManagementProps
 
         {/* 3 Bento Feature Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 w-full text-left my-auto">
-          {/* Card 1: Blue Cloud Updates */}
-          <div className="p-3.5 sm:p-4 md:p-5 rounded-2xl bg-white/85 backdrop-blur-sm border border-slate-200/80 shadow-[0_4px_18px_rgba(59,130,246,0.05)] transition-all hover:border-blue-300 hover:shadow-[0_8px_24px_rgba(59,130,246,0.1)] hover:-translate-y-0.5">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center mb-2.5 shadow-[0_4px_12px_rgba(59,130,246,0.25)]">
+          {/* Card 1: Orange Uploads */}
+          <div className="p-3.5 sm:p-4 md:p-5 rounded-2xl bg-white border border-[#EDEDEF] shadow-sm transition-all hover:border-[#FF9D14]/50 hover:shadow-md hover:-translate-y-0.5">
+            <div className="w-9 h-9 rounded-xl bg-[#FF9D14] text-white flex items-center justify-center mb-2.5 shadow-sm shadow-[#FF9D14]/30">
               <CloudUpload className="w-4.5 h-4.5 stroke-[2]" />
             </div>
-            <h3 className="text-xs sm:text-sm font-bold text-slate-900">প্রোডাক্ট ও ছবি আপলোড</h3>
-            <p className="text-[11px] sm:text-xs text-slate-500 font-medium mt-0.5 leading-snug">
+            <h3 className="text-xs sm:text-sm font-bold text-[#111111]">প্রোডাক্ট ও ছবি আপলোড</h3>
+            <p className="text-[11px] sm:text-xs text-[#666666] font-medium mt-0.5 leading-snug">
               সহজেই নতুন পণ্য যুক্ত করুন ও বিবরণ বদলান।
             </p>
           </div>
 
-          {/* Card 2: Amber Promotions */}
-          <div className="p-3.5 sm:p-4 md:p-5 rounded-2xl bg-white/85 backdrop-blur-sm border border-slate-200/80 shadow-[0_4px_18px_rgba(245,158,11,0.05)] transition-all hover:border-amber-300 hover:shadow-[0_8px_24px_rgba(245,158,11,0.1)] hover:-translate-y-0.5">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 text-white flex items-center justify-center mb-2.5 shadow-[0_4px_12px_rgba(245,158,11,0.25)]">
+          {/* Card 2: Warm Amber Promotions */}
+          <div className="p-3.5 sm:p-4 md:p-5 rounded-2xl bg-white border border-[#EDEDEF] shadow-sm transition-all hover:border-[#FEB74F] hover:shadow-md hover:-translate-y-0.5">
+            <div className="w-9 h-9 rounded-xl bg-[#FEB74F] text-white flex items-center justify-center mb-2.5 shadow-sm shadow-[#FEB74F]/30">
               <Tag className="w-4.5 h-4.5 stroke-[2]" />
             </div>
-            <h3 className="text-xs sm:text-sm font-bold text-slate-900">দাম ও ডিসকাউন্ট অফার</h3>
-            <p className="text-[11px] sm:text-xs text-slate-500 font-medium mt-0.5 leading-snug">
+            <h3 className="text-xs sm:text-sm font-bold text-[#111111]">দাম ও ডিসকাউন্ট অফার</h3>
+            <p className="text-[11px] sm:text-xs text-[#666666] font-medium mt-0.5 leading-snug">
               এক ক্লিকেই যেকোনো প্রডাক্টের দাম আপডেট করুন।
             </p>
           </div>
 
-          {/* Card 3: Emerald Live Inventory */}
-          <div className="p-3.5 sm:p-4 md:p-5 rounded-2xl bg-white/85 backdrop-blur-sm border border-slate-200/80 shadow-[0_4px_18px_rgba(16,185,129,0.05)] transition-all hover:border-emerald-300 hover:shadow-[0_8px_24px_rgba(16,185,129,0.1)] hover:-translate-y-0.5">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center mb-2.5 shadow-[0_4px_12px_rgba(16,185,129,0.25)]">
+          {/* Card 3: Green Live Order Tracking */}
+          <div className="p-3.5 sm:p-4 md:p-5 rounded-2xl bg-white border border-[#EDEDEF] shadow-sm transition-all hover:border-[#22C55E]/50 hover:shadow-md hover:-translate-y-0.5">
+            <div className="w-9 h-9 rounded-xl bg-[#22C55E] text-white flex items-center justify-center mb-2.5 shadow-sm shadow-[#22C55E]/30">
               <Edit3 className="w-4.5 h-4.5 stroke-[2]" />
             </div>
-            <h3 className="text-xs sm:text-sm font-bold text-slate-900">অর্ডার ট্র্যাকিং</h3>
-            <p className="text-[11px] sm:text-xs text-slate-500 font-medium mt-0.5 leading-snug">
+            <h3 className="text-xs sm:text-sm font-bold text-[#111111]">অর্ডার ট্র্যাকিং</h3>
+            <p className="text-[11px] sm:text-xs text-[#666666] font-medium mt-0.5 leading-snug">
               কাস্টমারদের আসা নতুন অর্ডার দেখুন ও নিয়ন্ত্রণ করুন।
             </p>
           </div>
@@ -88,7 +88,7 @@ export default function Step3Management({ onBack, onNext }: Step3ManagementProps
           <button
             onClick={onBack}
             id="step-3-back-btn"
-            className="flex-1 inline-flex items-center justify-center gap-1.5 px-5 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl text-xs sm:text-sm md:text-base font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-all duration-200 cursor-pointer shadow-xs active:scale-[0.99]"
+            className="flex-1 inline-flex items-center justify-center gap-1.5 px-5 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl text-xs sm:text-sm md:text-base font-semibold text-[#111111] bg-white border border-[#EDEDEF] hover:border-[#FF9D14] hover:text-[#FF9D14] hover:bg-[#FF9D14]/5 transition-all duration-200 cursor-pointer shadow-xs active:scale-[0.99]"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>পেছনে যান</span>
@@ -97,10 +97,10 @@ export default function Step3Management({ onBack, onNext }: Step3ManagementProps
           <button
             onClick={onNext}
             id="step-3-next-btn"
-            className="flex-2 group inline-flex items-center justify-center gap-2 px-6 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl text-xs sm:text-sm md:text-base font-semibold text-white bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 hover:from-slate-800 hover:via-indigo-900 hover:to-slate-800 shadow-[0_4px_16px_rgba(15,23,42,0.18)] hover:shadow-[0_8px_24px_rgba(79,70,229,0.24)] ring-1 ring-white/10 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer"
+            className="flex-2 group inline-flex items-center justify-center gap-2 px-6 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl text-xs sm:text-sm md:text-base font-bold text-white bg-[#FF9D14] hover:bg-[#FEB74F] shadow-md shadow-[#FF9D14]/25 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer"
           >
             <span>পরবর্তী পেজে যান</span>
-            <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5 text-indigo-300" />
+            <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5 text-white" />
           </button>
         </div>
       </div>
