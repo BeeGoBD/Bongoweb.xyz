@@ -32,17 +32,17 @@ export default function Step3Management({ onBack, onNext }: Step3ManagementProps
           id="step-3-heading"
           className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-[1.18] mb-2 text-balance"
         >
-          Effortless store management with{' '}
+          আমরা আপনাকে পণ্য এবং{' '}
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-800">
-            zero technical learning curve
-          </span>.
+            অর্ডার ম্যানেজ করা শিখিয়ে দেব
+          </span>
         </h1>
 
         <p 
           id="step-3-subtext"
           className="text-xs sm:text-sm text-slate-600 font-normal leading-relaxed max-w-lg mb-4 text-balance"
         >
-          Manage your entire catalog, orders, and promotions right from your smartphone or laptop in plain language.
+          আপনার সুবিধার জন্য আমাদের কাছে রয়েছে বিস্তারিত ভিডিও টিউটোরিয়াল।
         </p>
 
         {/* 3 Bento Feature Cards */}
@@ -52,9 +52,9 @@ export default function Step3Management({ onBack, onNext }: Step3ManagementProps
             <div className="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center mb-2 shadow-[0_2px_6px_rgba(59,130,246,0.25)]">
               <CloudUpload className="w-4 h-4 stroke-[2]" />
             </div>
-            <h3 className="text-xs font-bold text-slate-900">Catalog Updates</h3>
+            <h3 className="text-xs font-bold text-slate-900">প্রোডাক্ট ও ছবি আপলোড</h3>
             <p className="text-[11px] text-blue-700 font-medium mt-0.5 leading-snug">
-              Add products, upload photos, and update details.
+              সহজেই নতুন পণ্য যুক্ত করুন ও বিবরণ বদলান।
             </p>
           </div>
 
@@ -63,9 +63,9 @@ export default function Step3Management({ onBack, onNext }: Step3ManagementProps
             <div className="w-7 h-7 rounded-lg bg-amber-500 text-white flex items-center justify-center mb-2 shadow-[0_2px_6px_rgba(245,158,11,0.25)]">
               <Tag className="w-4 h-4 stroke-[2]" />
             </div>
-            <h3 className="text-xs font-bold text-slate-900">Promotions & Pricing</h3>
+            <h3 className="text-xs font-bold text-slate-900">দাম ও ডিসকাউন্ট অফার</h3>
             <p className="text-[11px] text-amber-700 font-medium mt-0.5 leading-snug">
-              Adjust prices on the fly and create discount codes.
+              এক ক্লিকেই যেকোনো প্রডাক্টের দাম আপডেট করুন।
             </p>
           </div>
 
@@ -74,9 +74,9 @@ export default function Step3Management({ onBack, onNext }: Step3ManagementProps
             <div className="w-7 h-7 rounded-lg bg-emerald-500 text-white flex items-center justify-center mb-2 shadow-[0_2px_6px_rgba(16,185,129,0.25)]">
               <Edit3 className="w-4 h-4 stroke-[2]" />
             </div>
-            <h3 className="text-xs font-bold text-slate-900">Live Inventory</h3>
+            <h3 className="text-xs font-bold text-slate-900">অর্ডার ট্র্যাকিং</h3>
             <p className="text-[11px] text-emerald-700 font-medium mt-0.5 leading-snug">
-              Track stock levels and view incoming customer orders.
+              কাস্টমারদের আসা নতুন অর্ডার দেখুন ও নিয়ন্ত্রণ করুন।
             </p>
           </div>
         </div>
@@ -89,7 +89,7 @@ export default function Step3Management({ onBack, onNext }: Step3ManagementProps
             className="flex-1 inline-flex items-center justify-center gap-1.5 px-4 py-3.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-all duration-200 cursor-pointer shadow-xs active:scale-[0.99]"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span>Back</span>
+            <span>পেছনে যান</span>
           </button>
 
           <button
@@ -97,7 +97,7 @@ export default function Step3Management({ onBack, onNext }: Step3ManagementProps
             id="step-3-next-btn"
             className="flex-2 group inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 hover:from-slate-800 hover:via-indigo-900 hover:to-slate-800 shadow-[0_4px_16px_rgba(15,23,42,0.18)] hover:shadow-[0_8px_24px_rgba(79,70,229,0.24)] ring-1 ring-white/10 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer"
           >
-            <span>Continue to Pricing</span>
+            <span>পরবর্তী পেজে যান</span>
             <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5 text-indigo-300" />
           </button>
         </div>

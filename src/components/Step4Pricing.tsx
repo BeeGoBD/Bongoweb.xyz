@@ -42,9 +42,9 @@ export default function Step4Pricing({ onBack, onComplete }: Step4PricingProps) 
           id="step-4-heading"
           className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-[1.18] mb-2 text-balance"
         >
-          One flat setup fee.{' '}
+          একটি মাত্র সেটআপ ফি,{' '}
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 via-teal-600 to-indigo-600">
-            Predictable monthly upkeep.
+            সাশ্রয়ী মাসিক মেইনটেন্যান্স
           </span>
         </h1>
 
@@ -52,7 +52,7 @@ export default function Step4Pricing({ onBack, onComplete }: Step4PricingProps) 
           id="step-4-subtext"
           className="text-xs sm:text-sm text-slate-600 font-normal leading-relaxed max-w-lg mb-4 text-balance"
         >
-          Own your digital presence outright with guaranteed uptime, automatic daily backups, and free technical maintenance.
+          আপনার ওয়েবসাইটের শতভাগ মালিকানা, সাথে নিরবচ্ছিন্ন সার্ভার ও নিয়মিত ব্যাকআপ সুবিধা।
         </p>
 
         {/* Dual Financial Breakdown Cards - Built for Subscription Confidence */}
@@ -62,51 +62,51 @@ export default function Step4Pricing({ onBack, onComplete }: Step4PricingProps) 
             <div className="p-3.5 rounded-2xl bg-gradient-to-b from-white to-slate-50 border border-slate-200/90 shadow-[0_2px_8px_rgba(15,23,42,0.03)] flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between text-xs font-medium text-slate-500 mb-1">
-                  <span className="font-semibold text-slate-700">One-Time Setup</span>
+                  <span className="font-semibold text-slate-700">এককালীন সেটআপ ফি</span>
                   <span className="text-[10px] font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-200/60 font-mono">
-                    Starts From
+                    শুরু মাত্র
                   </span>
                 </div>
                 <div className="flex items-baseline gap-1.5">
                   <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-mono">
-                    ৳999
+                    ৳৯৯৯
                   </span>
-                  <span className="text-xs text-slate-500 font-bold font-mono">BDT</span>
+                  <span className="text-xs text-slate-500 font-bold font-mono">টাকা</span>
                 </div>
                 <p className="text-[11px] text-slate-500 mt-1 leading-snug">
-                  Complete custom design, branding & catalog upload
+                  সম্পূর্ণ কাস্টম ডিজাইন, ব্র্যান্ডিং ও প্রোডাক্ট আপলোড
                 </p>
               </div>
 
               <div className="pt-2 mt-2.5 border-t border-slate-200/60 flex items-center gap-1.5 text-xs font-semibold text-emerald-700">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                <span>100% Lifetime Website Ownership</span>
+                <span>১০০% লাইফটাইম ওয়েবসাইট মালিকানা</span>
               </div>
             </div>
 
-            {/* Card 2: Server Upkeep (Matches Card 1 Border & Background Exactly) */}
+            {/* Card 2: Server Upkeep */}
             <div className="p-3.5 rounded-2xl bg-gradient-to-b from-white to-slate-50 border border-slate-200/90 shadow-[0_2px_8px_rgba(15,23,42,0.03)] flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between text-xs font-medium text-slate-500 mb-1">
-                  <span className="font-semibold text-slate-700">Monthly Upkeep</span>
+                  <span className="font-semibold text-slate-700">মাসিক সার্ভার খরচ</span>
                   <span className="text-[10px] font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-200/60 font-mono">
-                    Starts From
+                    শুরু মাত্র
                   </span>
                 </div>
                 <div className="flex items-baseline gap-1.5">
                   <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-mono">
-                    ৳120
+                    ৳১২০
                   </span>
-                  <span className="text-xs text-slate-500 font-bold font-mono">BDT / month</span>
+                  <span className="text-xs text-slate-500 font-bold font-mono">টাকা / মাস</span>
                 </div>
                 <p className="text-[11px] text-slate-500 mt-1 leading-snug">
-                  Guaranteed 99.9% uptime, SSL, & automatic daily backups
+                  ৯৯.৯% সার্ভার আপটাইম, ফ্রি SSL ও অটো ব্যাকআপ
                 </p>
               </div>
 
               <div className="pt-2 mt-2.5 border-t border-slate-200/60 flex items-center gap-1.5 text-xs font-semibold text-emerald-700">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                <span>Cancel or pause subscription anytime</span>
+                <span>যেকোনো সময় বন্ধ বা পরিবর্তনযোগ্য</span>
               </div>
             </div>
           </div>
@@ -164,7 +164,7 @@ export default function Step4Pricing({ onBack, onComplete }: Step4PricingProps) 
             className="flex-1 inline-flex items-center justify-center gap-1.5 px-4 py-3.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-all duration-200 cursor-pointer shadow-xs active:scale-[0.99] disabled:opacity-60"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span>Back</span>
+            <span>পেছনে যান</span>
           </button>
 
           <button
@@ -176,11 +176,11 @@ export default function Step4Pricing({ onBack, onComplete }: Step4PricingProps) 
             {isSubmitting ? (
               <span className="flex items-center gap-2">
                 <Sparkles className="w-3.5 h-3.5 animate-spin" />
-                <span>Entering Showcase...</span>
+                <span>প্রবেশ করা হচ্ছে...</span>
               </span>
             ) : (
               <>
-                <span>Enter Showcase & Catalog</span>
+                <span>ওয়েবসাইট ক্যাটালগে প্রবেশ করুন</span>
                 <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" />
               </>
             )}

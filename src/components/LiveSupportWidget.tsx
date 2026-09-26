@@ -39,11 +39,11 @@ export default function LiveSupportWidget() {
           onClick={() => setIsOpen(!isOpen)}
           id="live-support-btn"
           aria-label="Live Support"
-          className="group relative flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white shadow-[0_8px_24px_rgba(15,23,42,0.25)] hover:shadow-[0_12px_32px_rgba(79,70,229,0.35)] hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer border border-indigo-500/30"
+          className="group relative flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-r from-red-600 via-rose-600 to-indigo-600 text-white shadow-[0_8px_24px_rgba(225,29,72,0.4)] hover:shadow-[0_12px_32px_rgba(225,29,72,0.55)] hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer border border-rose-300/40"
         >
           <span className="absolute top-0 right-0 flex h-3 w-3">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500 border-2 border-slate-900"></span>
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-white border-2 border-red-600"></span>
           </span>
 
           {isOpen ? (
@@ -62,7 +62,7 @@ export default function LiveSupportWidget() {
           role="dialog"
         >
           {/* Header */}
-          <div className="bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 p-4 text-white border-b border-indigo-500/20">
+          <div className="bg-gradient-to-br from-slate-950 via-rose-950 to-slate-900 p-4 text-white border-b border-rose-500/20">
             <div className="flex items-center justify-between">
               <div>
                 <div className="flex items-baseline select-none">
@@ -143,13 +143,13 @@ export default function LiveSupportWidget() {
                       value={callbackPhone}
                       onChange={(e) => setCallbackPhone(e.target.value)}
                       placeholder="Mobile or WhatsApp number"
-                      className="flex-1 px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs placeholder-slate-400 focus:outline-none focus:border-indigo-500 font-mono transition-all"
+                      className="flex-1 px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs placeholder-slate-400 focus:outline-none focus:border-rose-500 font-mono transition-all"
                     />
                     <button
                       type="submit"
-                      className="px-4 py-2 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 hover:from-slate-800 text-white text-xs font-semibold rounded-xl cursor-pointer transition-colors flex items-center gap-1 shrink-0 shadow-2xs"
+                      className="px-4 py-2 bg-gradient-to-r from-red-600 via-rose-600 to-indigo-600 hover:from-red-500 hover:via-rose-500 hover:to-indigo-500 text-white text-xs font-semibold rounded-xl cursor-pointer transition-colors flex items-center gap-1 shrink-0 shadow-xs"
                     >
-                      <Send className="w-3 h-3 text-indigo-300" />
+                      <Send className="w-3 h-3 text-rose-200" />
                       <span>Request</span>
                     </button>
                   </div>
@@ -191,7 +191,7 @@ export default function LiveSupportWidget() {
 
           {/* Drawer Footer */}
           <div className="p-2.5 bg-slate-50 border-t border-slate-200/80 text-center text-[10px] text-slate-500 flex items-center justify-center gap-1.5 font-medium">
-            <Clock className="w-3 h-3 text-indigo-600" />
+            <Clock className="w-3 h-3 text-rose-600" />
             <span>Dedicated developer support active 7 days a week</span>
           </div>
         </div>

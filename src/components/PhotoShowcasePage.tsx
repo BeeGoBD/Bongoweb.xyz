@@ -667,61 +667,58 @@ export default function PhotoShowcasePage({
       {/* 4. PREVIEW FULLSCREEN PHOTO MOCKUP */}
       {viewState === 'preview' && (
         <div id="preview-simulator-active" className="flex-1 flex flex-col relative pb-28 animate-fadeIn">
-          {/* Top Sticky Bar: Red Stroke Border, Dashboard Symbol (Left), Zoom & Red Checkout Button (Right) */}
-          <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-xl border-b-2 border-red-500 shadow-[0_4px_20px_rgba(239,68,68,0.14)]">
+          {/* Top Sticky Bar: Black Background, White Indicator (Left), Zoom & White Checkout Button (Right) */}
+          <header className="sticky top-0 z-50 w-full bg-black border-b border-slate-800 shadow-[0_4px_24px_rgba(0,0,0,0.4)]">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-3">
-              {/* Left Side: Return to Dashboard (Clean Symbol Only) */}
+              {/* Left Side: Return to Dashboard (Clean White Symbol Only) */}
               <button
                 onClick={onBack}
                 id="photo-return-to-dashboard-btn"
-                className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-slate-100 hover:bg-red-50 text-slate-800 hover:text-red-600 transition-all cursor-pointer border border-slate-200/90 hover:border-red-300 shadow-xs flex items-center justify-center hover:-translate-x-0.5 active:translate-x-0 shrink-0"
+                className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-white/10 hover:bg-white text-white hover:text-black transition-all cursor-pointer border border-white/20 shadow-xs flex items-center justify-center hover:-translate-x-0.5 active:translate-x-0 shrink-0"
                 title="Return to Dashboard"
                 aria-label="Return to Dashboard"
               >
                 <ArrowLeft className="w-5 h-5 text-current shrink-0" />
               </button>
 
-              {/* Right Side: Zoom and Checkout Button */}
+              {/* Right Side: Zoom and White Checkout Button */}
               <div className="flex items-center gap-2 sm:gap-3">
                 <button
                   onClick={() => setIsZoomed(!isZoomed)}
-                  className="hidden md:inline-flex px-3.5 py-2.5 rounded-2xl border border-slate-200/90 bg-white hover:bg-slate-50 text-slate-800 text-xs font-semibold items-center gap-1.5 cursor-pointer shadow-xs"
+                  className="hidden md:inline-flex px-3.5 py-2.5 rounded-2xl border border-white/20 bg-white/10 hover:bg-white text-white hover:text-black text-xs font-semibold items-center gap-1.5 cursor-pointer shadow-xs transition-colors"
                   title="Toggle Zoom"
                 >
-                  {isZoomed ? <ZoomOut className="w-4 h-4 text-slate-700" /> : <ZoomIn className="w-4 h-4 text-slate-700" />}
-                  <span>{isZoomed ? 'Reset Zoom' : 'Zoom 100%'}</span>
+                  {isZoomed ? <ZoomOut className="w-4 h-4 text-current" /> : <ZoomIn className="w-4 h-4 text-current" />}
+                  <span>{isZoomed ? 'রিসেট জুম' : 'জুম ১০০%'}</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => onSelectForOrder(selectedMockup.title)}
                   id="photo-header-checkout-btn"
-                  className="group relative inline-flex items-center gap-2 sm:gap-2.5 px-3.5 sm:px-5 py-2.5 sm:py-3 rounded-2xl bg-gradient-to-r from-red-600 via-rose-600 to-red-700 hover:from-red-500 hover:via-rose-500 hover:to-red-600 text-white text-xs sm:text-sm font-black transition-all duration-200 cursor-pointer border border-rose-300/50 shadow-[0_4px_22px_rgba(225,29,72,0.45),inset_0_1px_1px_rgba(255,255,255,0.4)] hover:shadow-[0_8px_32px_rgba(225,29,72,0.65),inset_0_1px_1px_rgba(255,255,255,0.6)] ring-1 ring-white/30 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] shrink-0 overflow-hidden"
-                  title={`Buy website ${selectedMockup.fourDigitCode}`}
+                  className="group relative inline-flex items-center gap-2 sm:gap-2.5 px-4 sm:px-6 py-2.5 sm:py-3 rounded-2xl bg-white hover:bg-slate-100 text-slate-900 text-xs sm:text-sm font-black transition-all duration-200 cursor-pointer border border-white/80 shadow-[0_4px_20px_rgba(255,255,255,0.2)] hover:shadow-[0_8px_30px_rgba(255,255,255,0.35)] hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] shrink-0 overflow-hidden"
+                  title={`ওয়েবসাইট কিনুন ${selectedMockup.fourDigitCode}`}
                 >
-                  {/* Subtle animated gloss sweep on hover */}
-                  <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out pointer-events-none" />
-
                   {/* Live pulsing radar beacon */}
                   <span className="relative flex h-2 w-2 shrink-0">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-85"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-200"></span>
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-85"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-600"></span>
                   </span>
 
-                  {/* Shopping Bag Icon */}
-                  <ShoppingBag className="w-4 h-4 text-white shrink-0" />
+                  {/* Shopping Bag Icon in Black/Dark */}
+                  <ShoppingBag className="w-4 h-4 text-slate-900 shrink-0" />
 
-                  {/* Action Title with Hashtag Code */}
-                  <span className="tracking-tight font-black whitespace-nowrap">
-                    <span className="hidden sm:inline">Buy This Website </span>
-                    <span className="sm:hidden">Buy Website </span>
-                    <span className="font-mono text-xs font-black bg-black/25 px-1.5 py-0.5 rounded-md border border-white/20 shadow-inner ml-1 text-white">
+                  {/* Action Title with Hashtag Code in Bangla */}
+                  <span className="tracking-tight font-black whitespace-nowrap text-slate-900">
+                    <span className="hidden sm:inline">এই ওয়েবসাইটটি কিনুন </span>
+                    <span className="sm:hidden">ওয়েবসাইট কিনুন </span>
+                    <span className="font-mono text-xs font-black bg-slate-100 text-slate-900 px-1.5 py-0.5 rounded-md border border-slate-300 shadow-inner ml-1">
                       {selectedMockup.fourDigitCode}
                     </span>
                   </span>
 
                   {/* Forward Arrow with glide animation */}
-                  <ArrowRight className="w-4 h-4 text-white group-hover:translate-x-1 transition-transform shrink-0" />
+                  <ArrowRight className="w-4 h-4 text-slate-900 group-hover:translate-x-1 transition-transform shrink-0" />
                 </button>
               </div>
             </div>

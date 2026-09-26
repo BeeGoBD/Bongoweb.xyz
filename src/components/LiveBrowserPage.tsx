@@ -50,35 +50,35 @@ export default function LiveBrowserPage({
   const PRIMARY_CATEGORIES = [
     {
       id: 'ecommerce' as WebsiteCategory,
-      title: 'E-commerce & Stores',
+      title: 'ই-কমার্স ও অনলাইন শপ',
       icon: ShoppingBasket,
-      tag: 'Most Popular',
+      tag: 'জনপ্রিয়',
       color: 'blue',
-      desc: 'Online shopping, carts, inventory, and automated delivery tracking.'
+      desc: 'অনলাইন শপিং, কার্ট, ইনভেন্টরি ও স্বয়ংক্রিয় কুরিয়ার ট্র্যাকিং।'
     },
     {
       id: 'restaurant' as WebsiteCategory,
-      title: 'Restaurant & Dining',
+      title: 'রেস্তোরাঁ ও ক্যাফে',
       icon: UtensilsCrossed,
-      tag: 'Food & Cafe',
+      tag: 'ফুড ও ডাইনিং',
       color: 'amber',
-      desc: 'Digital menus, table reservations, chef specials, and takeaway orders.'
+      desc: 'ডিজিটাল ফুড মেনু, টেবিল বুকিং ও অনলাইন পার্সেল অর্ডার।'
     },
     {
       id: 'blogging' as WebsiteCategory,
-      title: 'Blogging & Media',
+      title: 'ব্লগ ও অনলাইন মিডিয়া',
       icon: Newspaper,
-      tag: 'Editorial',
+      tag: 'সংবাদ ও ম্যাগাজিন',
       color: 'purple',
-      desc: 'Articles, news publication, magazines, podcasts, and content creators.'
+      desc: 'নিউজ পোর্টাল, আর্টিকেল প্রকাশনা ও কন্টেন্ট পাবলিশিং।'
     },
     {
       id: 'grocery' as WebsiteCategory,
-      title: 'Grocery & Supermarket',
+      title: 'মুদি ও সুপারশপ',
       icon: Store,
-      tag: 'Daily Needs',
+      tag: 'নিত্যপ্রয়োজনীয়',
       color: 'emerald',
-      desc: 'High-volume product lists, category filters, and rapid 1-click orders.'
+      desc: 'দ্রুত পণ্য ফিল্টারিং, কাঁচাবাজার ও নিত্যপ্রয়োজনীয় শপিং।'
     }
   ];
 
@@ -256,16 +256,16 @@ export default function LiveBrowserPage({
             <div className="text-center max-w-xl mx-auto mb-8">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-800 border border-indigo-200/80 mb-3 shadow-2xs">
                 <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
-                <span>Step 1: Choose Your Industry</span>
+                <span>ধাপ ১: আপনার ক্যাটাগরি বেছে নিন</span>
               </span>
               <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-tight">
-                What type of website are you{' '}
+                আপনার ব্যবসার ধরণ{' '}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-blue-600 to-indigo-700">
-                  building?
+                  নির্বাচন করুন
                 </span>
               </h2>
               <p className="text-xs sm:text-sm text-slate-600 mt-2">
-                Select your industry to load tailored live demos with industry-standard features and real test checkouts.
+                সঠিক ক্যাটাগরি বেছে নিয়ে সংশ্লিষ্ট লাইভ ডেমো ওয়েবসাইটগুলো সরাসরি টেস্ট করুন।
               </p>
             </div>
 
@@ -346,16 +346,16 @@ export default function LiveBrowserPage({
             <div className="text-center max-w-xl mx-auto mb-8">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200/80 mb-3 shadow-2xs">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Step 2: Choose Your Launch Package</span>
+                <span>ধাপ ২: আপনার সুবিধাজনক প্যাকেজ বেছে নিন</span>
               </span>
               <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-tight">
-                One flat setup fee.{' '}
+                এখনই কেনার প্রয়োজন নেই,{' '}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 via-teal-600 to-indigo-600">
-                  Predictable monthly upkeep.
+                  শুধু আপনার বাজেট পছন্দ করুন
                 </span>
               </h2>
               <p className="text-xs sm:text-sm text-slate-600 mt-2">
-                Zero advance payment required to browse and test all 60+ live website demos.
+                ডেমো ওয়েবসাইটগুলো দেখতে ও পরীক্ষা করতে কোনো অগ্রিম পেমেন্টের প্রয়োজন নেই।
               </p>
             </div>
 
@@ -562,7 +562,7 @@ export default function LiveBrowserPage({
                     <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
                   </span>
                   <span className="text-xs sm:text-sm md:text-base font-bold tracking-tight text-white select-none">
-                    What we do after your order, after your website order
+                    অর্ডার করার পর আমরা আপনার জন্য কী কী করব
                   </span>
                 </div>
 
@@ -595,7 +595,7 @@ export default function LiveBrowserPage({
                     <div className="flex items-center gap-2">
                       <PhoneCall className="w-4 h-4 text-indigo-600 shrink-0" />
                       <span className="text-xs sm:text-sm font-semibold text-slate-900 leading-snug">
-                        Direct phone call or WhatsApp connection to discuss and confirm your plan (Work begins only after speaking with you)
+                        সরাসরি ফোন কল বা হোয়াটসঅ্যাপে কথা বলে আপনার প্ল্যান চূড়ান্ত করা হবে (আপনার সাথে কথা বলেই কাজ শুরু হবে)
                       </span>
                     </div>
                   </div>
@@ -608,7 +608,7 @@ export default function LiveBrowserPage({
                     <div className="flex items-center gap-2">
                       <Sparkles className="w-4 h-4 text-purple-600 shrink-0" />
                       <span className="text-xs sm:text-sm font-semibold text-slate-900 leading-snug">
-                        Collecting your brand logo, website tagline, site title, and custom domain details
+                        আপনার ব্র্যান্ডের লোগো, স্লোগান, নাম এবং ডোমেন সংগ্রহ করা হবে
                       </span>
                     </div>
                   </div>
@@ -621,7 +621,7 @@ export default function LiveBrowserPage({
                     <div className="flex items-center gap-2">
                       <Rocket className="w-4 h-4 text-blue-600 shrink-0" />
                       <span className="text-xs sm:text-sm font-semibold text-slate-900 leading-snug">
-                        Domain connection and rapid setup with live website delivery within 24 hours
+                        ডোমেন কানেকশন করে মাত্র ২৪ ঘণ্টার মধ্যে সম্পূর্ণ লাইভ ওয়েবসাইট ডেলিভারি
                       </span>
                     </div>
                   </div>
@@ -634,7 +634,7 @@ export default function LiveBrowserPage({
                     <div className="flex items-center gap-2">
                       <MessageCircle className="w-4 h-4 text-emerald-600 shrink-0" />
                       <span className="text-xs sm:text-sm font-semibold text-slate-900 leading-snug">
-                        Lifetime uninterrupted technical support via official WhatsApp for any assistance
+                        যেকোনো প্রয়োজনে আমাদের অফিসিয়াল হোয়াটসঅ্যাপে আজীবন নিরবচ্ছিন্ন সাপোর্ট
                       </span>
                     </div>
                   </div>
@@ -766,51 +766,48 @@ export default function LiveBrowserPage({
       {/* ========================================================================= */}
       {viewState === 'preview' && (
         <div id="preview-simulator-active" className="flex-1 flex flex-col relative w-full bg-white animate-fadeIn min-h-screen">
-          {/* Top Sticky Bar: Red Stroke Border, Dashboard Symbol (Left), High-Attraction Red Checkout (Right) */}
-          <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-xl border-b-2 border-red-500 shadow-[0_4px_20px_rgba(239,68,68,0.14)]">
+          {/* Top Sticky Bar: Black Background, White Indicator (Left), White Buy Button with Black Text (Right) */}
+          <header className="sticky top-0 z-50 w-full bg-black border-b border-slate-800 shadow-[0_4px_24px_rgba(0,0,0,0.4)]">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-3">
-              {/* Left Side: Return to Dashboard (Clean Symbol Only) */}
+              {/* Left Side: Return to Dashboard (White Clean Indicator on Black Bar) */}
               <button
                 onClick={onBack}
                 id="simulator-return-to-dashboard-btn"
-                className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-slate-100 hover:bg-red-50 text-slate-800 hover:text-red-600 transition-all cursor-pointer border border-slate-200/90 hover:border-red-300 shadow-xs flex items-center justify-center hover:-translate-x-0.5 active:translate-x-0 shrink-0"
+                className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-white/10 hover:bg-white text-white hover:text-black transition-all cursor-pointer border border-white/20 shadow-xs flex items-center justify-center hover:-translate-x-0.5 active:translate-x-0 shrink-0"
                 title="Return to Dashboard"
                 aria-label="Return to Dashboard"
               >
                 <ArrowLeft className="w-5 h-5 text-current shrink-0" />
               </button>
 
-              {/* Right Side: Ultra-Attractive High-Conversion Red Checkout Button */}
+              {/* Right Side: White Colored Buy Website Button with Black Text & Icons */}
               <button
                 type="button"
                 onClick={() => onSelectForOrder(activeDemo)}
                 id="header-checkout-this-website-btn"
-                className="group relative inline-flex items-center gap-2 sm:gap-2.5 px-3.5 sm:px-5 py-2.5 sm:py-3 rounded-2xl bg-gradient-to-r from-red-600 via-rose-600 to-red-700 hover:from-red-500 hover:via-rose-500 hover:to-red-600 text-white text-xs sm:text-sm font-black transition-all duration-200 cursor-pointer border border-rose-300/50 shadow-[0_4px_22px_rgba(225,29,72,0.45),inset_0_1px_1px_rgba(255,255,255,0.4)] hover:shadow-[0_8px_32px_rgba(225,29,72,0.65),inset_0_1px_1px_rgba(255,255,255,0.6)] ring-1 ring-white/30 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] shrink-0 overflow-hidden"
-                title={`Buy website ${activeDemo.fourDigitCode}`}
+                className="group relative inline-flex items-center gap-2 sm:gap-2.5 px-4 sm:px-6 py-2.5 sm:py-3 rounded-2xl bg-white hover:bg-slate-100 text-slate-900 text-xs sm:text-sm font-black transition-all duration-200 cursor-pointer border border-white/80 shadow-[0_4px_20px_rgba(255,255,255,0.2)] hover:shadow-[0_8px_30px_rgba(255,255,255,0.35)] hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] shrink-0 overflow-hidden"
+                title={`ওয়েবসাইট কিনুন ${activeDemo.fourDigitCode}`}
               >
-                {/* Subtle animated gloss sweep on hover */}
-                <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out pointer-events-none" />
-
                 {/* Live pulsing radar beacon */}
                 <span className="relative flex h-2 w-2 shrink-0">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-85"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-200"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-85"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-600"></span>
                 </span>
 
-                {/* Shopping Bag Icon */}
-                <ShoppingBag className="w-4 h-4 text-white shrink-0" />
+                {/* Shopping Bag Icon in Black/Dark */}
+                <ShoppingBag className="w-4 h-4 text-slate-900 shrink-0" />
 
-                {/* Action Title with Hashtag Code */}
-                <span className="tracking-tight font-black whitespace-nowrap">
-                  <span className="hidden sm:inline">Buy This Website </span>
-                  <span className="sm:hidden">Buy Website </span>
-                  <span className="font-mono text-xs font-black bg-black/25 px-1.5 py-0.5 rounded-md border border-white/20 shadow-inner ml-1 text-white">
+                {/* Action Title in Bangla with Hashtag Code */}
+                <span className="tracking-tight font-black whitespace-nowrap text-slate-900">
+                  <span className="hidden sm:inline">এই ওয়েবসাইটটি কিনুন </span>
+                  <span className="sm:hidden">ওয়েবসাইট কিনুন </span>
+                  <span className="font-mono text-xs font-black bg-slate-100 text-slate-900 px-1.5 py-0.5 rounded-md border border-slate-300 shadow-inner ml-1">
                     {activeDemo.fourDigitCode}
                   </span>
                 </span>
 
                 {/* Forward Arrow with glide animation */}
-                <ArrowRight className="w-4 h-4 text-white group-hover:translate-x-1 transition-transform shrink-0" />
+                <ArrowRight className="w-4 h-4 text-slate-900 group-hover:translate-x-1 transition-transform shrink-0" />
               </button>
             </div>
           </header>

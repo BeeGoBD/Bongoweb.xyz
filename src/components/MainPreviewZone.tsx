@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { 
-  Globe, Image, ArrowRight, ShieldCheck, Star, 
+  Globe, Image, ArrowRight, ArrowDown, ShieldCheck, Star, 
   ExternalLink, Sparkles, Layers, RotateCcw, 
   CreditCard, CheckCircle2, Lock, FileText, Server, 
   Menu, X, PhoneCall, ChevronRight, ChevronDown, ChevronUp, Zap, Eye, Laptop, Clock, Smartphone, MessageCircle, User,
@@ -283,13 +283,13 @@ export default function MainPreviewZone({
             <span className="text-indigo-600 font-bold">60+ Live Designs</span>
           </div>
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
-            Explore ready-made websites built for{' '}
+            ২৪ ঘণ্টার মধ্যে আপনার নামে, আপনার লোগো দিয়ে{' '}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-blue-600 to-indigo-700">
-              immediate revenue
-            </span>.
+              আপনার কাস্টমাইজেশনে ওয়েবসাইট বুঝে নিন
+            </span>
           </h1>
           <p className="text-sm sm:text-base text-slate-600 mt-2">
-            Test interactive live browsers or view high-resolution photo mockups. Choose your design and launch within 24 hours.
+            আপনাকে দেখানোর জন্য আমাদের ১০০+ রেডিমেড ওয়েবসাইট প্রস্তুত রয়েছে।
           </p>
         </div>
 
@@ -315,10 +315,10 @@ export default function MainPreviewZone({
                   <Globe className="w-7 h-7 stroke-[2]" />
                 </div>
                 <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
-                  Our Live Websites
+                  আমাদের লাইভ ওয়েবসাইটসমূহ
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-600 mt-1 mb-7 max-w-xs">
-                  Interactive live browser demos with working carts, responsive viewports, and live checkouts.
+                  বাস্তব ব্রাউজার ডেমো, লাইভ কার্ট, এবং কার্যকরী পেমেন্ট সিস্টেম সরাসরি টেস্ট করুন।
                 </p>
 
                 <button
@@ -327,10 +327,12 @@ export default function MainPreviewZone({
                     e.stopPropagation();
                     setExpandedLiveCard(true);
                   }}
-                  className="inline-flex items-center justify-center gap-2.5 px-6 py-3 rounded-xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 hover:from-slate-800 hover:via-indigo-900 hover:to-slate-800 text-white font-semibold text-xs sm:text-sm cursor-pointer shadow-[0_4px_14px_rgba(15,23,42,0.18)] hover:shadow-[0_6px_20px_rgba(79,70,229,0.22)] ring-1 ring-white/10 transition-all hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.99]"
+                  className="group/btn relative inline-flex items-center justify-center gap-3 px-6 py-3 rounded-xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 hover:from-slate-800 hover:via-indigo-900 hover:to-slate-800 text-white font-semibold text-xs sm:text-sm cursor-pointer shadow-[0_4px_14px_rgba(15,23,42,0.18)] hover:shadow-[0_6px_22px_rgba(79,70,229,0.3)] ring-1 ring-white/10 transition-all hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.99]"
                 >
-                  <span>View Details & Specifications</span>
-                  <ChevronDown className="w-4 h-4 stroke-[2.5] text-indigo-300" />
+                  <span>বিস্তারিত ও স্পেসিফিকেশন দেখুন</span>
+                  <span className="relative flex items-center justify-center w-6 h-6 rounded-lg bg-indigo-500/25 border border-indigo-400/40 text-indigo-300 shadow-inner group-hover/btn:bg-indigo-500/40 group-hover/btn:text-white transition-colors">
+                    <ArrowDown className="w-3.5 h-3.5 stroke-[3] animate-bounce" />
+                  </span>
                 </button>
               </div>
             ) : (
@@ -338,10 +340,10 @@ export default function MainPreviewZone({
                 <div className="flex items-center justify-between gap-2 pb-4 mb-5 border-b border-blue-100">
                   <div>
                     <h2 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
-                      Our Live Websites
+                      আমাদের লাইভ ওয়েবসাইটসমূহ
                     </h2>
                     <p className="text-xs text-blue-600 font-medium">
-                      Interactive Live Browser Catalog
+                      লাইভ ওয়েবসাইট ক্যাটালগ
                     </p>
                   </div>
                   <button
@@ -352,7 +354,7 @@ export default function MainPreviewZone({
                     }}
                     className="px-3 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-800 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer border border-blue-200/60"
                   >
-                    <span>Collapse</span>
+                    <span>সংক্ষিপ্ত করুন</span>
                     <ChevronUp className="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -360,25 +362,25 @@ export default function MainPreviewZone({
                 <div className="space-y-2.5 mb-6 text-xs text-slate-700">
                   <div className="flex items-center gap-3 p-3 rounded-xl bg-white border border-blue-200/70 shadow-2xs">
                     <Laptop className="w-4 h-4 text-blue-600 shrink-0" />
-                    <span className="font-semibold text-slate-900 flex-1">60+ Live responsive website demos</span>
+                    <span className="font-semibold text-slate-900 flex-1">৬০+ লাইভ রেসপনসিভ ওয়েবসাইট ডেমো</span>
                     <span className="text-[10px] text-blue-700 font-bold bg-blue-50 px-2 py-0.5 rounded border border-blue-200/60 font-mono">Live Browse</span>
                   </div>
 
                   <div className="flex items-center gap-3 p-3 rounded-xl bg-white border border-indigo-200/70 shadow-2xs">
                     <Sparkles className="w-4 h-4 text-indigo-600 shrink-0" />
-                    <span className="font-semibold text-slate-900 flex-1">Delivered under your brand name and logo</span>
+                    <span className="font-semibold text-slate-900 flex-1">আপনার নাম এবং লোগো সহ সম্পূর্ণ রেডি</span>
                     <span className="text-[10px] text-indigo-700 font-bold bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200/60 font-mono">100% Custom</span>
                   </div>
 
                   <div className="flex items-center gap-3 p-3 rounded-xl bg-white border border-emerald-200/70 shadow-2xs">
                     <Clock className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span className="font-semibold text-slate-900 flex-1">Complete turnkey delivery within 24 hours</span>
+                    <span className="font-semibold text-slate-900 flex-1">২৪ ঘণ্টার মধ্যে সম্পূর্ণ সাইট লাইভ ডেলিভারি</span>
                     <span className="text-[10px] text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200/60 font-mono">24h Express</span>
                   </div>
 
                   <div className="flex items-center gap-3 p-3 rounded-xl bg-white border border-blue-200/70 shadow-2xs">
                     <Smartphone className="w-4 h-4 text-blue-600 shrink-0" />
-                    <span className="font-semibold text-slate-900 flex-1">Mobile management & automated payments</span>
+                    <span className="font-semibold text-slate-900 flex-1">মোবাইল থেকে সহজ ম্যানেজমেন্ট ও পেমেন্ট</span>
                     <span className="text-[10px] text-blue-700 font-bold bg-blue-50 px-2 py-0.5 rounded border border-blue-200/60 font-mono">Easy Admin</span>
                   </div>
                 </div>
@@ -389,7 +391,7 @@ export default function MainPreviewZone({
                   className="w-full py-3.5 px-6 rounded-xl text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-500 hover:via-indigo-500 hover:to-blue-600 shadow-[0_4px_16px_rgba(59,130,246,0.25)] flex items-center justify-center gap-2.5 cursor-pointer transition-all hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.99]"
                 >
                   <ExternalLink className="w-4 h-4" />
-                  <span>Open Live Catalog (60+ Demos)</span>
+                  <span>লাইভ ক্যাটালগ খুলুন (৬০+ ডেমো)</span>
                 </button>
               </div>
             )}
@@ -412,10 +414,10 @@ export default function MainPreviewZone({
                   <Image className="w-7 h-7 stroke-[2]" />
                 </div>
                 <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
-                  Our Websites in Photos
+                  আমাদের ওয়েবসাইট ফটো গ্যালারি
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-600 mt-1 mb-7 max-w-xs">
-                  High-resolution photo mockups with clean zoom, visual specs, and design breakdowns.
+                  হাই-রেজ্যুলেশন ফটো মকআপ, জুম ভিউ এবং স্পষ্ট ডিজাইন স্পেসিফিকেশন।
                 </p>
 
                 <button
@@ -424,10 +426,12 @@ export default function MainPreviewZone({
                     e.stopPropagation();
                     setExpandedPhotoCard(true);
                   }}
-                  className="inline-flex items-center justify-center gap-2.5 px-6 py-3 rounded-xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 hover:from-slate-800 hover:via-indigo-900 hover:to-slate-800 text-white font-semibold text-xs sm:text-sm cursor-pointer shadow-[0_4px_14px_rgba(15,23,42,0.18)] hover:shadow-[0_6px_20px_rgba(79,70,229,0.22)] ring-1 ring-white/10 transition-all hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.99]"
+                  className="group/btn relative inline-flex items-center justify-center gap-3 px-6 py-3 rounded-xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 hover:from-slate-800 hover:via-indigo-900 hover:to-slate-800 text-white font-semibold text-xs sm:text-sm cursor-pointer shadow-[0_4px_14px_rgba(15,23,42,0.18)] hover:shadow-[0_6px_22px_rgba(79,70,229,0.3)] ring-1 ring-white/10 transition-all hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.99]"
                 >
-                  <span>View Details & Specifications</span>
-                  <ChevronDown className="w-4 h-4 stroke-[2.5] text-indigo-300" />
+                  <span>বিস্তারিত ও স্পেসিফিকেশন দেখুন</span>
+                  <span className="relative flex items-center justify-center w-6 h-6 rounded-lg bg-indigo-500/25 border border-indigo-400/40 text-indigo-300 shadow-inner group-hover/btn:bg-indigo-500/40 group-hover/btn:text-white transition-colors">
+                    <ArrowDown className="w-3.5 h-3.5 stroke-[3] animate-bounce" />
+                  </span>
                 </button>
               </div>
             ) : (
@@ -435,10 +439,10 @@ export default function MainPreviewZone({
                 <div className="flex items-center justify-between gap-2 pb-4 mb-5 border-b border-indigo-100">
                   <div>
                     <h2 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
-                      Our Websites in Photos
+                      আমাদের ওয়েবসাইট ফটো গ্যালারি
                     </h2>
                     <p className="text-xs text-indigo-600 font-medium">
-                      High-Resolution Mockup Gallery
+                      হাই-রেজ্যুলেশন ডিজাইন মকআপ গ্যালারি
                     </p>
                   </div>
                   <button
@@ -449,7 +453,7 @@ export default function MainPreviewZone({
                     }}
                     className="px-3 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-800 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer border border-indigo-200/60"
                   >
-                    <span>Collapse</span>
+                    <span>সংক্ষিপ্ত করুন</span>
                     <ChevronUp className="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -457,25 +461,25 @@ export default function MainPreviewZone({
                 <div className="space-y-2.5 mb-6 text-xs text-slate-700">
                   <div className="flex items-center gap-3 p-3 rounded-xl bg-white border border-indigo-200/70 shadow-2xs">
                     <Laptop className="w-4 h-4 text-indigo-600 shrink-0" />
-                    <span className="font-semibold text-slate-900 flex-1">60+ Curated high-res design mockups</span>
+                    <span className="font-semibold text-slate-900 flex-1">৬০+ কিউরেটেড হাই-রেজ্যুলেশন ডিজাইন</span>
                     <span className="text-[10px] text-indigo-700 font-bold bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200/60 font-mono">HD Gallery</span>
                   </div>
 
                   <div className="flex items-center gap-3 p-3 rounded-xl bg-white border border-purple-200/70 shadow-2xs">
                     <Sparkles className="w-4 h-4 text-purple-600 shrink-0" />
-                    <span className="font-semibold text-slate-900 flex-1">Delivered under your brand name and logo</span>
+                    <span className="font-semibold text-slate-900 flex-1">আপনার ব্র্যান্ড নাম ও লোগোর সাথে সাজানো</span>
                     <span className="text-[10px] text-purple-700 font-bold bg-purple-50 px-2 py-0.5 rounded border border-purple-200/60 font-mono">100% Custom</span>
                   </div>
 
                   <div className="flex items-center gap-3 p-3 rounded-xl bg-white border border-emerald-200/70 shadow-2xs">
                     <Clock className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span className="font-semibold text-slate-900 flex-1">Complete turnkey delivery within 24 hours</span>
+                    <span className="font-semibold text-slate-900 flex-1">২৪ ঘণ্টার মধ্যে সম্পূর্ণ সাইট ডেলিভারি</span>
                     <span className="text-[10px] text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200/60 font-mono">24h Express</span>
                   </div>
 
                   <div className="flex items-center gap-3 p-3 rounded-xl bg-white border border-indigo-200/70 shadow-2xs">
                     <Smartphone className="w-4 h-4 text-indigo-600 shrink-0" />
-                    <span className="font-semibold text-slate-900 flex-1">Mobile management & automated payments</span>
+                    <span className="font-semibold text-slate-900 flex-1">মোবাইল থেকে সহজ ম্যানেজমেন্ট ও পরিচালনা</span>
                     <span className="text-[10px] text-indigo-700 font-bold bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200/60 font-mono">Easy Admin</span>
                   </div>
                 </div>
@@ -486,7 +490,7 @@ export default function MainPreviewZone({
                   className="w-full py-3.5 px-6 rounded-xl text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 hover:from-indigo-500 hover:via-purple-500 hover:to-indigo-600 shadow-[0_4px_16px_rgba(99,102,241,0.25)] flex items-center justify-center gap-2.5 cursor-pointer transition-all hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.99]"
                 >
                   <Eye className="w-4 h-4" />
-                  <span>Open Photo Gallery Showcase</span>
+                  <span>ফটো গ্যালারি প্রদর্শনী খুলুন</span>
                 </button>
               </div>
             )}
@@ -509,10 +513,10 @@ export default function MainPreviewZone({
                 <span className="text-emerald-400 font-bold bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-500/30">Self-Paced Guide</span>
               </div>
               <h3 className="text-lg sm:text-xl font-bold tracking-tight text-white">
-                Watch the Project Walkthrough & Frequently Asked Questions
+                প্রজেক্ট ভিডিও গাইড এবং সচরাচর জিজ্ঞাসিত প্রশ্নাবলী
               </h3>
               <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-lg leading-relaxed">
-                See exactly how our 24-hour setup works, how domain connections happen, and how you manage your store.
+                আমাদের ২৪ ঘণ্টার ডেলিভারি, ডোমেন সংযোগ এবং স্টোর ম্যানেজমেন্ট কীভাবে কাজ করে তা দেখে নিন।
               </p>
             </div>
           </div>
@@ -523,7 +527,7 @@ export default function MainPreviewZone({
             className="w-full md:w-auto px-6 py-3 rounded-xl text-xs sm:text-sm font-bold text-slate-900 bg-white hover:bg-slate-100 transition-all cursor-pointer shadow-[0_4px_16px_rgba(255,255,255,0.2)] flex items-center justify-center gap-2 shrink-0 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.99]"
           >
             <Play className="w-3.5 h-3.5 fill-slate-900 ml-0.5" />
-            <span>Watch Video FAQs</span>
+            <span>Watch Videos</span>
           </button>
         </section>
         {/* Supported Payment Gateways */}

@@ -32,18 +32,18 @@ export default function Step2Guarantee({ onBack, onNext }: Step2GuaranteeProps) 
           id="step-2-heading"
           className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-[1.18] mb-2 text-balance"
         >
-          The exact demo you select is the{' '}
+          আপনি যে ওয়েবসাইটটি পছন্দ করবেন,{' '}
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-600">
-            exact website we launch
+            ঠিক হুবহু সেই ওয়েবসাইটটিই
           </span>{' '}
-          for you.
+          পাবেন।
         </h1>
 
         <p 
           id="step-2-subtext"
           className="text-xs sm:text-sm text-slate-600 font-normal leading-relaxed max-w-lg mb-4 text-balance"
         >
-          Personalized seamlessly with your custom brand name, logo, typography, color palette, and initial product catalog.
+          ২৪ ঘণ্টার মধ্যে আপনার ওয়েবসাইট, আপনার লোগো এবং আপনার মতো করে কাস্টমাইজেশন করে ডেলিভারি দেওয়া হবে।
         </p>
 
         {/* 3 Proof Bento Cards */}
@@ -53,8 +53,8 @@ export default function Step2Guarantee({ onBack, onNext }: Step2GuaranteeProps) 
             <div className="w-7 h-7 rounded-lg bg-emerald-500 text-white flex items-center justify-center mb-2 shadow-[0_2px_6px_rgba(16,185,129,0.25)]">
               <CheckCircle2 className="w-4 h-4 stroke-[2.5]" />
             </div>
-            <div className="text-xs font-bold text-slate-900">Pixel-Perfect Match</div>
-            <div className="text-[11px] text-emerald-700 font-medium mt-0.5 leading-snug">Identical layout & mechanics</div>
+            <div className="text-xs font-bold text-slate-900">হুবহু ডিজাইন ম্যাচ</div>
+            <div className="text-[11px] text-emerald-700 font-medium mt-0.5 leading-snug">ডেমোর সাথে ১০০% মিল</div>
           </div>
 
           {/* Card 2: Indigo Branding */}
@@ -62,8 +62,8 @@ export default function Step2Guarantee({ onBack, onNext }: Step2GuaranteeProps) 
             <div className="w-7 h-7 rounded-lg bg-indigo-600 text-white flex items-center justify-center mb-2 shadow-[0_2px_6px_rgba(99,102,241,0.25)]">
               <Sparkles className="w-4 h-4 stroke-[2.5]" />
             </div>
-            <div className="text-xs font-bold text-slate-900">Bespoke Branding</div>
-            <div className="text-[11px] text-indigo-700 font-medium mt-0.5 leading-snug">Your logo & color assets</div>
+            <div className="text-xs font-bold text-slate-900">আপনার নিজস্ব ব্র্যান্ডিং</div>
+            <div className="text-[11px] text-indigo-700 font-medium mt-0.5 leading-snug">আপনার নাম ও লোগো যুক্ত</div>
           </div>
 
           {/* Card 3: Sapphire Zero Effort */}
@@ -71,8 +71,8 @@ export default function Step2Guarantee({ onBack, onNext }: Step2GuaranteeProps) 
             <div className="w-7 h-7 rounded-lg bg-sky-600 text-white flex items-center justify-center mb-2 shadow-[0_2px_6px_rgba(14,165,233,0.25)]">
               <Layers className="w-4 h-4 stroke-[2.5]" />
             </div>
-            <div className="text-xs font-bold text-slate-900">Zero Technical Effort</div>
-            <div className="text-[11px] text-sky-700 font-medium mt-0.5 leading-snug">Hosting and setup handled</div>
+            <div className="text-xs font-bold text-slate-900">সম্পূর্ণ রেডিমেড সেটআপ</div>
+            <div className="text-[11px] text-sky-700 font-medium mt-0.5 leading-snug">কোনো টেকনিক্যাল ঝামেলা নেই</div>
           </div>
         </div>
 
@@ -84,7 +84,7 @@ export default function Step2Guarantee({ onBack, onNext }: Step2GuaranteeProps) 
             className="flex-1 inline-flex items-center justify-center gap-1.5 px-4 py-3.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-all duration-200 cursor-pointer shadow-xs active:scale-[0.99]"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span>Back</span>
+            <span>পেছনে যান</span>
           </button>
 
           <button
@@ -92,7 +92,7 @@ export default function Step2Guarantee({ onBack, onNext }: Step2GuaranteeProps) 
             id="step-2-next-btn"
             className="flex-2 group inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 hover:from-slate-800 hover:via-indigo-900 hover:to-slate-800 shadow-[0_4px_16px_rgba(15,23,42,0.18)] hover:shadow-[0_8px_24px_rgba(79,70,229,0.24)] ring-1 ring-white/10 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer"
           >
-            <span>Continue to Training</span>
+            <span>পরবর্তী পেজে যান</span>
             <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5 text-indigo-300" />
           </button>
         </div>
