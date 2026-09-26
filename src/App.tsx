@@ -63,11 +63,14 @@ export default function App() {
 
       {/* Full Page Navigation Router */}
       {currentPage === 'wizard' && (
-        <div className="relative z-10 min-h-screen w-full flex flex-col justify-start items-center px-3 pt-0 sm:pt-1 pb-6 sm:px-6 sm:pb-6 overflow-y-auto">
-          {/* Centered Presentation Slide Deck Container */}
-          <main className="w-full max-w-xl sm:max-w-2xl mt-0 sm:mt-1 flex flex-col items-center">
+        <div className="relative z-10 min-h-screen h-dvh w-full flex flex-col justify-between items-center px-3 sm:px-6 overflow-y-auto">
+          {/* Top 20% Header Space Gap */}
+          <div className="h-[20vh] w-full shrink-0 flex items-center justify-center pointer-events-none" aria-hidden="true" />
+
+          {/* Center 60% Presentation Slide Deck Container */}
+          <main className="w-full max-w-xl sm:max-w-2xl min-h-[60vh] flex flex-col items-center justify-center shrink-0 my-auto">
             {/* Elevated Presentation Slide Card Frame with Top Accent Line */}
-            <div className="w-full bg-white/95 backdrop-blur-2xl rounded-3xl border border-slate-200/90 shadow-[0_20px_50px_rgba(15,23,42,0.07),0_1px_3px_rgba(15,23,42,0.04)] ring-1 ring-black/[0.03] p-5 sm:p-7 pt-2.5 sm:pt-3 transition-all duration-300 relative overflow-hidden">
+            <div className="w-full bg-white/95 backdrop-blur-2xl rounded-3xl border border-slate-200/90 shadow-[0_20px_50px_rgba(15,23,42,0.07),0_1px_3px_rgba(15,23,42,0.04)] ring-1 ring-black/[0.03] p-5 sm:p-7 pt-4 sm:pt-5 transition-all duration-300 relative overflow-hidden">
               {/* Jewel accent bar across top of card */}
               <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-blue-600 via-indigo-600 to-emerald-500 opacity-90" />
 
@@ -101,9 +104,12 @@ export default function App() {
                 />
               )}
             </div>
+          </main>
 
+          {/* Bottom 20% Footer Space with Slide Dots */}
+          <footer className="h-[20vh] w-full shrink-0 flex flex-col items-center justify-start pt-3 sm:pt-4">
             {/* Micro Slide Deck Indicators - Sleek 4 Dots */}
-            <div className="flex items-center gap-2 mt-4 select-none">
+            <div className="flex items-center gap-2 select-none">
               {[1, 2, 3, 4].map((stepNum) => (
                 <button
                   key={stepNum}
@@ -117,7 +123,7 @@ export default function App() {
                 />
               ))}
             </div>
-          </main>
+          </footer>
         </div>
       )}
 
