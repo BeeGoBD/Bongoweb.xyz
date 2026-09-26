@@ -61,49 +61,81 @@ export default function App() {
       {/* Floating Live Support Widget - Visible on Every Screen */}
       <LiveSupportWidget />
 
-      {/* Full Page Navigation Router */}
+      {/* Background Website Dashboard Screen */}
+      {(currentPage === 'dashboard' || currentPage === 'wizard') && (
+        <div className={currentPage === 'wizard' ? 'filter blur-[2.5px] brightness-90 pointer-events-none select-none transition-all duration-300' : ''}>
+          <MainPreviewZone 
+            onBackToWizard={() => {
+              setCurrentStep(1);
+              navigateTo('wizard');
+            }}
+            onOpenLiveBrowser={() => navigateTo('live-browser')}
+            onOpenPhotoShowcase={() => navigateTo('photo-showcase')}
+            onOpenPackages={() => navigateTo('packages')}
+            onOpenVideoFaq={() => navigateTo('video-faq')}
+            onOpenOrderModal={handleOpenOrderWithDemo}
+          />
+        </div>
+      )}
+
+      {/* Floating Hover Screen for Slides (Coming Up from Background) */}
       {currentPage === 'wizard' && (
-        <div className="fixed inset-0 h-screen h-dvh w-screen max-w-full overflow-hidden bg-white z-30 flex flex-col justify-between">
-          {/* Subtle jewel accent line at the very top edge */}
-          <div className="w-full h-1 bg-gradient-to-r from-blue-600 via-indigo-600 to-emerald-500 shrink-0" />
+        <div 
+          id="slides-hover-backdrop"
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/45 backdrop-blur-[6px] animate-fadeIn"
+        >
+          {/* Elevated Presentation Slide Card Coming Up */}
+          <div className="relative w-full max-w-2xl sm:max-w-3xl lg:max-w-[820px] bg-white/98 backdrop-blur-2xl rounded-3xl sm:rounded-[2rem] border border-slate-200/90 shadow-[0_25px_70px_rgba(15,23,42,0.3),0_10px_30px_rgba(15,23,42,0.15)] ring-1 ring-black/[0.04] p-5 sm:p-7 md:p-8 animate-slideUpModal overflow-hidden flex flex-col justify-between max-h-[92vh] sm:max-h-[88vh]">
+            {/* Jewel accent bar across top of card */}
+            <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-blue-600 via-indigo-600 to-emerald-500 opacity-90" />
 
-          {/* Full Page Slide Content Viewport */}
-          <main className="flex-1 w-full max-w-4xl mx-auto px-4 sm:px-8 py-4 sm:py-6 flex flex-col justify-between min-h-0 overflow-y-auto sm:overflow-hidden">
-            {currentStep === 1 && (
-              <Step1Welcome 
-                onNext={handleNextStep}
-              />
-            )}
+            {/* Quick Skip to Website button in top corner */}
+            <button
+              onClick={() => {
+                setCurrentStep(5);
+                navigateTo('dashboard');
+              }}
+              className="absolute top-3 right-4 text-[11px] font-semibold text-slate-400 hover:text-slate-800 transition-colors flex items-center gap-1 cursor-pointer py-1 px-2.5 rounded-lg hover:bg-slate-100 z-10"
+              title="Skip directly to website"
+            >
+              <span>ক্যাটালগে যান</span>
+              <span className="text-sm leading-none">×</span>
+            </button>
 
-            {currentStep === 2 && (
-              <Step2Guarantee 
-                onBack={handlePrevStep}
-                onNext={handleNextStep}
-              />
-            )}
+            <div className="w-full flex-1 flex flex-col justify-between pt-1">
+              {currentStep === 1 && (
+                <Step1Welcome 
+                  onNext={handleNextStep}
+                />
+              )}
 
-            {currentStep === 3 && (
-              <Step3Management 
-                onBack={handlePrevStep}
-                onNext={handleNextStep}
-              />
-            )}
+              {currentStep === 2 && (
+                <Step2Guarantee 
+                  onBack={handlePrevStep}
+                  onNext={handleNextStep}
+                />
+              )}
 
-            {currentStep === 4 && (
-              <Step4Pricing 
-                onBack={handlePrevStep}
-                onComplete={() => {
-                  setCurrentStep(5);
-                  navigateTo('dashboard');
-                }}
-              />
-            )}
-          </main>
+              {currentStep === 3 && (
+                <Step3Management 
+                  onBack={handlePrevStep}
+                  onNext={handleNextStep}
+                />
+              )}
 
-          {/* Bottom Integrated Indicator Bar */}
-          <footer className="w-full py-3 sm:py-4 border-t border-slate-100 bg-white/95 backdrop-blur-md flex items-center justify-center shrink-0">
+              {currentStep === 4 && (
+                <Step4Pricing 
+                  onBack={handlePrevStep}
+                  onComplete={() => {
+                    setCurrentStep(5);
+                    navigateTo('dashboard');
+                  }}
+                />
+              )}
+            </div>
+
             {/* Micro Slide Deck Indicators - Sleek 4 Dots */}
-            <div className="flex items-center gap-2 select-none">
+            <div className="w-full flex items-center justify-center gap-2 pt-3 border-t border-slate-100/80 mt-2 select-none shrink-0">
               {[1, 2, 3, 4].map((stepNum) => (
                 <button
                   key={stepNum}
@@ -117,23 +149,8 @@ export default function App() {
                 />
               ))}
             </div>
-          </footer>
+          </div>
         </div>
-      )}
-
-      {/* Page 2: Unified Main Preview Zone (Dashboard) */}
-      {currentPage === 'dashboard' && (
-        <MainPreviewZone 
-          onBackToWizard={() => {
-            setCurrentStep(1);
-            navigateTo('wizard');
-          }}
-          onOpenLiveBrowser={() => navigateTo('live-browser')}
-          onOpenPhotoShowcase={() => navigateTo('photo-showcase')}
-          onOpenPackages={() => navigateTo('packages')}
-          onOpenVideoFaq={() => navigateTo('video-faq')}
-          onOpenOrderModal={handleOpenOrderWithDemo}
-        />
       )}
 
       {/* Page 3: Full Standalone Live Browser Page */}
