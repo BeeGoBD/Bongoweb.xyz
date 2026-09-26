@@ -9,7 +9,7 @@ export default function Step3Management({ onBack, onNext }: Step3ManagementProps
   return (
     <div id="step-3-management" className="w-full flex flex-col justify-between animate-fadeIn">
       {/* Top Slide Header: Back button on Left (NO logo!), Slide Counter on Right */}
-      <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+      <div className="flex items-center justify-between pb-2.5 border-b border-slate-100">
         <button
           onClick={onBack}
           id="step-3-top-back-btn"
