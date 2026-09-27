@@ -20,13 +20,13 @@ export default function StepProgress({ currentStep, onStepClick }: StepProgressP
     <nav aria-label="Onboarding Steps" className="w-full flex justify-center mb-6 sm:mb-8">
       <div 
         id="wizard-step-progress"
-        className="inline-flex items-center gap-1 sm:gap-1.5 p-1.5 bg-white/90 backdrop-blur-md rounded-2xl border border-slate-200/90 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.05),0_1px_2px_rgba(0,0,0,0.03)]"
+        className="inline-flex items-center gap-1 sm:gap-1.5 p-1.5 bg-[#FFFFFF]/90 backdrop-blur-md rounded-2xl border border-[#E7E0D6] shadow-[0_4px_20px_rgba(0,0,0,0.06)]"
       >
-        <span className="text-[11px] font-semibold text-slate-400 pl-2.5 pr-1.5 hidden sm:inline tabular-nums">
+        <span className="text-[11px] font-semibold text-[#7A6A66] pl-2.5 pr-1.5 hidden sm:inline tabular-nums">
           Step {currentStep} of 4
         </span>
 
-        <div className="h-4 w-px bg-slate-200 hidden sm:block mx-1" />
+        <div className="h-4 w-px bg-[#E7E0D6] hidden sm:block mx-1" />
 
         {STEPS.map((s) => {
           const isActive = currentStep === s.step;
@@ -39,19 +39,19 @@ export default function StepProgress({ currentStep, onStepClick }: StepProgressP
               id={`step-indicator-${s.step}`}
               className={`group relative flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 cursor-pointer focus:outline-hidden ${
                 isActive
-                  ? 'bg-slate-900 text-white shadow-sm'
+                  ? 'bg-[#800020] text-white shadow-[0_2px_10px_rgba(128,0,32,0.3)]'
                   : isCompleted
-                  ? 'text-slate-700 hover:text-slate-900 hover:bg-slate-100/80'
-                  : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'
+                  ? 'text-[#800020] hover:bg-[#800020]/10'
+                  : 'text-[#7A6A66] hover:text-[#1C1614] hover:bg-[#800020]/5'
               }`}
               title={`Step ${s.step}: ${s.label}`}
             >
               <span className={`w-4 h-4 rounded-md flex items-center justify-center text-[10px] font-bold transition-colors ${
                 isActive
-                  ? 'bg-white/20 text-white'
+                  ? 'bg-white text-[#800020]'
                   : isCompleted
-                  ? 'bg-emerald-100 text-emerald-700'
-                  : 'bg-slate-100 text-slate-500'
+                  ? 'bg-[#800020] text-white'
+                  : 'bg-[#800020]/10 text-[#800020]'
               }`}>
                 {isCompleted ? <Check className="w-3 h-3 stroke-[2.5]" /> : s.short}
               </span>

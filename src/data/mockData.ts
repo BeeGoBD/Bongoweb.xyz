@@ -12,7 +12,7 @@ export const WEBSITE_DEMOS: WebsiteDemo[] = [
     priceTag: 'Starts at 999 BDT',
     demoUrl: 'sultandine.bongoweb.site',
     badge: 'Popular Bestseller',
-    accentColor: 'from-amber-500 to-orange-600',
+    accentColor: 'from-white/20 to-white/5',
     rating: 4.9,
     ordersCount: '120+ orders/day',
     previewImage: 'https://images.unsplash.com/photo-1589302168068-964664d93dc0?auto=format&fit=crop&w=800&q=80',
@@ -39,7 +39,7 @@ export const WEBSITE_DEMOS: WebsiteDemo[] = [
     priceTag: 'Starts at 999 BDT',
     demoUrl: 'gadgetzone.bongoweb.site',
     badge: 'High Converting',
-    accentColor: 'from-blue-600 to-indigo-600',
+    accentColor: 'from-white/20 to-white/5',
     rating: 4.8,
     ordersCount: '210+ sales/week',
     previewImage: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80',
@@ -65,7 +65,7 @@ export const WEBSITE_DEMOS: WebsiteDemo[] = [
     priceTag: 'Starts at 999 BDT',
     demoUrl: 'techvibe.bongoweb.site',
     badge: 'Trending Media',
-    accentColor: 'from-indigo-600 to-violet-700',
+    accentColor: 'from-white/20 to-white/5',
     rating: 4.9,
     ordersCount: '45k readers/mo',
     previewImage: 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=800&q=80',
@@ -91,7 +91,7 @@ export const WEBSITE_DEMOS: WebsiteDemo[] = [
     priceTag: 'Starts at 999 BDT',
     demoUrl: 'purevalley.bongoweb.site',
     badge: '100% Organic',
-    accentColor: 'from-emerald-600 to-teal-700',
+    accentColor: 'from-white/20 to-white/5',
     rating: 4.9,
     ordersCount: '150+ jars/week',
     previewImage: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=800&q=80',
@@ -117,7 +117,7 @@ export const WEBSITE_DEMOS: WebsiteDemo[] = [
     priceTag: 'Starts at 999 BDT',
     demoUrl: 'auraheritage.bongoweb.site',
     badge: 'Trending Choice',
-    accentColor: 'from-pink-500 to-rose-600',
+    accentColor: 'from-white/20 to-white/5',
     rating: 5.0,
     ordersCount: '85+ orders/day',
     previewImage: 'https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?auto=format&fit=crop&w=800&q=80',
@@ -143,7 +143,7 @@ export const WEBSITE_DEMOS: WebsiteDemo[] = [
     priceTag: 'Starts at 999 BDT',
     demoUrl: 'chairoast.bongoweb.site',
     badge: 'Popular Spot',
-    accentColor: 'from-amber-700 to-yellow-800',
+    accentColor: 'from-white/20 to-white/5',
     rating: 4.7,
     ordersCount: '70+ orders/day',
     previewImage: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=800&q=80',
@@ -169,7 +169,7 @@ export const WEBSITE_DEMOS: WebsiteDemo[] = [
     priceTag: 'Starts at 999 BDT',
     demoUrl: 'perspective.bongoweb.site',
     badge: 'Editors Choice',
-    accentColor: 'from-blue-700 to-indigo-800',
+    accentColor: 'from-white/20 to-white/5',
     rating: 4.8,
     ordersCount: '28k readers',
     previewImage: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=800&q=80',
@@ -194,7 +194,7 @@ export const WEBSITE_DEMOS: WebsiteDemo[] = [
     priceTag: 'Starts at 999 BDT',
     demoUrl: 'freshdaily.bongoweb.site',
     badge: 'Fast Delivery',
-    accentColor: 'from-green-600 to-emerald-700',
+    accentColor: 'from-white/20 to-white/5',
     rating: 4.9,
     ordersCount: '300+ daily parcels',
     previewImage: 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=800&q=80',
@@ -221,7 +221,7 @@ export const PHOTO_MOCKUPS: PhotoMockup[] = [
     imageUrl: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&q=80',
     ratio: '16:9',
     features: ['High-Resolution Food Hero', '1-Click Menu Browsing', 'Mobile Optimized UI'],
-    colorTheme: '#D97706'
+    colorTheme: '#FFFFFF'
   },
   {
     id: 'mock-2',
@@ -233,7 +233,7 @@ export const PHOTO_MOCKUPS: PhotoMockup[] = [
     imageUrl: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1200&q=80',
     ratio: '16:9',
     features: ['Digital Food Menu', 'Table Reservations', 'Online Order Slots'],
-    colorTheme: '#EA580C'
+    colorTheme: '#FFFFFF'
   },
   {
     id: 'mock-3',
@@ -245,7 +245,7 @@ export const PHOTO_MOCKUPS: PhotoMockup[] = [
     imageUrl: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1200&q=80',
     ratio: '16:9',
     features: ['Instagram Grid Feed', 'Size & Color Filters', 'Fast Checkout Flow'],
-    colorTheme: '#E11D48'
+    colorTheme: '#FFFFFF'
   },
   {
     id: 'mock-4',
@@ -257,7 +257,7 @@ export const PHOTO_MOCKUPS: PhotoMockup[] = [
     imageUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80',
     ratio: '16:9',
     features: ['Specification Tables', 'Slide-Out Cart Drawer', 'Cash on Delivery Option'],
-    colorTheme: '#2563EB'
+    colorTheme: '#FFFFFF'
   },
   {
     id: 'mock-5',
@@ -269,7 +269,7 @@ export const PHOTO_MOCKUPS: PhotoMockup[] = [
     imageUrl: 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=1200&q=80',
     ratio: '16:9',
     features: ['Categorized Articles', 'Dark & Light Mode', 'Newsletter Subscription'],
-    colorTheme: '#9333EA'
+    colorTheme: '#FFFFFF'
   },
   {
     id: 'mock-6',
@@ -281,7 +281,7 @@ export const PHOTO_MOCKUPS: PhotoMockup[] = [
     imageUrl: 'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&fit=crop&w=1200&q=80',
     ratio: '16:9',
     features: ['Photo Gallery Highlights', 'Reading Time Estimator', 'Social Share Buttons'],
-    colorTheme: '#7C3AED'
+    colorTheme: '#FFFFFF'
   },
   {
     id: 'mock-7',
@@ -293,7 +293,7 @@ export const PHOTO_MOCKUPS: PhotoMockup[] = [
     imageUrl: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=1200&q=80',
     ratio: '16:9',
     features: ['Ingredient Transparency', 'Lab Test Certificates', '1-Click Buy Now'],
-    colorTheme: '#059669'
+    colorTheme: '#FFFFFF'
   },
   {
     id: 'mock-8',
@@ -305,7 +305,7 @@ export const PHOTO_MOCKUPS: PhotoMockup[] = [
     imageUrl: 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=1200&q=80',
     ratio: '16:9',
     features: ['Live Stock Counters', 'Dynamic Weight Cart', 'Fast Delivery Tracker'],
-    colorTheme: '#10B981'
+    colorTheme: '#FFFFFF'
   }
 ];
 
@@ -371,8 +371,8 @@ export const PAYMENT_METHODS: PaymentMethod[] = [
     bengaliName: 'bKash',
     tagline: 'Merchant & Personal Direct Payment',
     type: 'Mobile Wallet',
-    color: '#E2136E',
-    gradient: 'from-[#E2136E]/10 to-[#E2136E]/5',
+    color: '#FFFFFF',
+    gradient: 'from-white/10 to-white/5',
     accountType: 'Merchant Payment & Send Money',
     accountNumber: '01700-000000',
     feeInfo: 'Instant verification • 0% platform fee',
@@ -384,8 +384,8 @@ export const PAYMENT_METHODS: PaymentMethod[] = [
     bengaliName: 'Nagad',
     tagline: 'Fast Mobile Payment & Monthly Recharge',
     type: 'Mobile Banking',
-    color: '#F7941D',
-    gradient: 'from-[#F7941D]/10 to-[#F7941D]/5',
+    color: '#FFFFFF',
+    gradient: 'from-white/10 to-white/5',
     accountType: 'Merchant & Instant QR Pay',
     accountNumber: '01800-000000',
     feeInfo: 'Instant receipt & automated tracking',
@@ -397,8 +397,8 @@ export const PAYMENT_METHODS: PaymentMethod[] = [
     bengaliName: 'Rocket',
     tagline: 'DBBL Secure Digital Wallet',
     type: 'Bank Wallet',
-    color: '#8C3494',
-    gradient: 'from-[#8C3494]/10 to-[#8C3494]/5',
+    color: '#FFFFFF',
+    gradient: 'from-white/10 to-white/5',
     accountType: 'Dutch-Bangla Rocket Account',
     accountNumber: '01900-000000-7',
     feeInfo: 'Secure regulated banking channel',
@@ -410,8 +410,8 @@ export const PAYMENT_METHODS: PaymentMethod[] = [
     bengaliName: 'Upay',
     tagline: 'UCB Digital Financial Service',
     type: 'Mobile Wallet',
-    color: '#002E6E',
-    gradient: 'from-[#002E6E]/10 to-[#002E6E]/5',
+    color: '#FFFFFF',
+    gradient: 'from-white/10 to-white/5',
     accountType: 'UCB Upay Business Pay',
     accountNumber: '01600-000000',
     feeInfo: 'Easy monthly server billing',
@@ -423,8 +423,8 @@ export const PAYMENT_METHODS: PaymentMethod[] = [
     bengaliName: 'Cards',
     tagline: 'Visa, Mastercard & AMEX',
     type: 'Debit / Credit Card',
-    color: '#2563EB',
-    gradient: 'from-blue-600/10 to-blue-600/5',
+    color: '#FFFFFF',
+    gradient: 'from-white/10 to-white/5',
     accountType: 'Any Local or International Card',
     accountNumber: 'SSL Secure Gateway',
     feeInfo: '256-bit encrypted checkout gateway',
@@ -436,8 +436,8 @@ export const PAYMENT_METHODS: PaymentMethod[] = [
     bengaliName: 'Bank Transfer',
     tagline: 'Direct Electronic Wire Transfer',
     type: 'Bank Account',
-    color: '#059669',
-    gradient: 'from-emerald-600/10 to-emerald-600/5',
+    color: '#FFFFFF',
+    gradient: 'from-white/10 to-white/5',
     accountType: 'Corporate Bank Account',
     accountNumber: 'BongoWeb Technologies Ltd.',
     feeInfo: 'Official electronic invoice receipt',
@@ -454,7 +454,7 @@ export const PRICING_PACKAGES = [
     monthlyRenew: '120 BDT',
     popular: true,
     badge: 'Most Popular',
-    color: 'from-blue-600 to-indigo-600',
+    color: 'from-white/20 to-white/5',
     features: [
       'Choice of any 1 ready responsive website demo',
       'Full setup with your brand name, logo, and colors',
@@ -475,7 +475,7 @@ export const PRICING_PACKAGES = [
     monthlyRenew: '250 BDT',
     popular: false,
     badge: 'High Conversion',
-    color: 'from-purple-600 to-pink-600',
+    color: 'from-white/20 to-white/5',
     features: [
       'All Starter Package features included',
       'Custom domain (.com / .net) connection included',
@@ -495,7 +495,7 @@ export const PRICING_PACKAGES = [
     monthlyRenew: '399 BDT',
     popular: false,
     badge: 'All-In-One',
-    color: 'from-emerald-600 to-teal-700',
+    color: 'from-white/20 to-white/5',
     features: [
       'All Business Pro features included',
       'Custom bespoke UI and tailor-made layout design',

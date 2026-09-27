@@ -2,13 +2,14 @@
 
 @layer base {
   * {
-    border-color: rgba(0, 0, 0, 0.08);
+    border-color: #E7E0D6;
     box-sizing: border-box;
   }
 
   html {
     scroll-behavior: smooth;
-    background-color: #FFFFFF;
+    background-color: #FBF9F5;
+    color: #1C1614;
     overflow-x: hidden;
     width: 100%;
     font-size: 16px;
@@ -20,8 +21,8 @@
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     -webkit-tap-highlight-color: transparent;
-    background-color: #FFFFFF;
-    color: #111111;
+    background-color: #FBF9F5;
+    color: #1C1614;
     overflow-x: hidden;
     width: 100%;
     min-width: 320px;
@@ -35,7 +36,7 @@
     height: auto;
   }
 
-  /* High performance touch interaction for Android / mobile devices */
+  /* High performance touch interaction for mobile devices */
   button, a, input, select, textarea {
     touch-action: manipulation;
     -webkit-user-select: none;
@@ -48,7 +49,7 @@
   }
 
   ::selection {
-    background-color: #FF9D14;
+    background-color: #800020;
     color: #FFFFFF;
   }
 }
@@ -100,7 +101,7 @@
 @keyframes slideUpModal {
   from {
     opacity: 0;
-    transform: translateY(32px) scale(0.96);
+    transform: translateY(24px) scale(0.98);
   }
   to {
     opacity: 1;
@@ -125,33 +126,33 @@ body:has(#preview-simulator-active) #live-support-floating-wrapper {
   animation: slideInLeft 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Refined luxury scrollbar */
+/* Refined luxury warm scrollbar */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.15);
+  background: rgba(128, 0, 32, 0.2);
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(128, 0, 32, 0.4);
 }
 
-/* Animated radiant wave moving continuously from left to right across primary action buttons */
+/* Animated subtle wave moving smoothly across primary action buttons */
 @keyframes waveLTR {
   0% {
     transform: translateX(-180%) skewX(-24deg);
     opacity: 0;
   }
   15% {
-    opacity: 0.95;
+    opacity: 0.75;
   }
   80% {
-    opacity: 0.95;
+    opacity: 0.75;
   }
   100% {
     transform: translateX(180%) skewX(-24deg);
@@ -178,27 +179,19 @@ body:has(#preview-simulator-active) #live-support-floating-wrapper {
     90deg,
     transparent 0%,
     rgba(255, 255, 255, 0.08) 20%,
-    rgba(255, 255, 255, 0.45) 50%,
+    rgba(255, 255, 255, 0.4) 50%,
     rgba(255, 255, 255, 0.08) 80%,
     transparent 100%
   );
   transform: translateX(-180%) skewX(-24deg);
-  animation: waveLTR 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  animation: waveLTR 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
   pointer-events: none;
   z-index: 1;
 }
 
 .btn-wave-rtl:hover::after,
 .btn-wave-ltr:hover::after {
-  animation-duration: 1.8s;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.15) 20%,
-    rgba(255, 255, 255, 0.6) 50%,
-    rgba(255, 255, 255, 0.15) 80%,
-    transparent 100%
-  );
+  animation-duration: 2s;
 }
 
 .btn-wave-rtl > *,
@@ -209,6 +202,124 @@ body:has(#preview-simulator-active) #live-support-floating-wrapper {
 
 /* Interactive focus ring discipline */
 button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible {
-  outline: 2px solid #FF9D14;
+  outline: 2px solid #800020;
   outline-offset: 2px;
+}
+
+/* ========================================================================== */
+/* CREAM WHITE & MAROON COLOR SYSTEM                                          */
+/* Cream White is main color (#FBF9F5); Maroon (#800020) is second color     */
+/* ========================================================================== */
+
+@keyframes maroonShimmer {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Primary Maroon Action Button */
+.btn-maroon,
+.btn-rgb {
+  background: linear-gradient(135deg, #7A1224 0%, #8F1830 50%, #680E1E 100%);
+  background-size: 200% 200%;
+  color: #FFFFFF !important;
+  font-weight: 700;
+  position: relative;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 16px rgba(128, 0, 32, 0.25), 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.btn-maroon:hover,
+.btn-rgb:hover {
+  transform: translateY(-1px) scale(1.015);
+  box-shadow: 0 6px 24px rgba(128, 0, 32, 0.38), 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.btn-maroon:active,
+.btn-rgb:active {
+  transform: translateY(0) scale(0.99);
+}
+
+/* Outline Maroon Button with Cream Background */
+.btn-maroon-outline,
+.btn-rgb-outline {
+  position: relative;
+  background: #FFFFFF;
+  color: #800020 !important;
+  border: 1.5px solid #800020;
+  font-weight: 600;
+  transition: all 0.25s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.btn-maroon-outline:hover,
+.btn-rgb-outline:hover {
+  background: rgba(128, 0, 32, 0.06);
+  color: #680E1E !important;
+  border-color: #680E1E;
+  box-shadow: 0 3px 12px rgba(128, 0, 32, 0.15);
+}
+
+/* Glowing Maroon Button */
+.btn-maroon-glow,
+.btn-rgb-glow {
+  position: relative;
+  background: #800020;
+  color: #FFFFFF !important;
+  border-radius: 9999px;
+  z-index: 1;
+  transition: all 0.25s ease;
+}
+
+.btn-maroon-glow::before,
+.btn-rgb-glow::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #5C0615, #800020, #A62138, #5C0615);
+  background-size: 300% 300%;
+  animation: maroonShimmer 3.5s linear infinite;
+  z-index: -1;
+  opacity: 0.85;
+  transition: opacity 0.3s ease;
+}
+
+.btn-maroon-glow:hover::before,
+.btn-rgb-glow:hover::before {
+  opacity: 1;
+  box-shadow: 0 0 25px rgba(128, 0, 32, 0.5);
+}
+
+/* Maroon Gradient Text Accent */
+.text-maroon-gradient,
+.text-rgb {
+  background: linear-gradient(135deg, #800020 0%, #A62138 50%, #5C0615 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Maroon Bar for Headers and Accents */
+.bar-maroon,
+.bar-rgb {
+  background: linear-gradient(90deg, #5C0615 0%, #800020 50%, #A62138 100%);
+  background-size: 200% auto;
+}
+
+/* Maroon Instruction & Information System */
+.text-instruction {
+  color: #800020;
+}
+
+.bg-instruction-badge {
+  background-color: rgba(128, 0, 32, 0.08);
+  border: 1px solid rgba(128, 0, 32, 0.22);
+  color: #800020;
 }

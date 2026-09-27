@@ -123,7 +123,7 @@ export default function App() {
   };
 
   return (
-    <div className="relative min-h-screen bg-white text-[#111111] antialiased font-sans selection:bg-[#FF9D14] selection:text-white flex flex-col justify-between">
+    <div className="relative min-h-screen bg-[#FBF9F5] text-[#1C1614] antialiased font-sans selection:bg-[#800020] selection:text-white flex flex-col justify-between">
       {/* Quiet Luxury Ambient Lighting */}
       <BackgroundGlows />
 
@@ -146,34 +146,29 @@ export default function App() {
         </div>
       )}
 
-      {/* Floating Hover Screen for Slides (Solid Gallery Off-White Canvas) */}
+      {/* Floating Hover Screen for Slides (Warm Ivory Cream Backdrop with Subtle Depth) */}
       {currentPage === 'wizard' && (
         <div 
           id="slides-hover-backdrop"
-          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 lg:p-10 bg-[#F5F6F9] animate-fadeIn"
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 lg:p-10 bg-[#1C1614]/60 backdrop-blur-md animate-fadeIn"
         >
-          {/* Subtle architectural depth accents on the solid white canvas */}
+          {/* Subtle architectural depth accents */}
           <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
-            {/* Soft architectural grid pattern in subtle warm tone */}
             <div 
-              className="absolute inset-0 opacity-[0.4]" 
+              className="absolute inset-0 opacity-[0.3]" 
               style={{
-                backgroundImage: 'radial-gradient(#D6D7DC 0.75px, transparent 0.75px)',
+                backgroundImage: 'radial-gradient(rgba(128, 0, 32, 0.12) 1px, transparent 1px)',
                 backgroundSize: '24px 24px'
               }} 
             />
-            {/* Subtle warm sunny halo centered behind the pure white slide */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[760px] lg:w-[1000px] h-[540px] lg:h-[700px] bg-gradient-to-tr from-[#FF9D14]/6 via-[#FEB74F]/4 to-transparent rounded-full blur-3xl" />
+            {/* Very soft warm maroon halo centered behind the presentation card */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[720px] lg:w-[960px] h-[500px] lg:h-[660px] bg-gradient-to-tr from-[#800020]/[0.08] to-transparent rounded-full blur-3xl pointer-events-none" />
           </div>
 
-          {/* Elevated Pure Snow-White Presentation Slide Card (#FFFFFF) - Tailored for Mobile, Tablet, & Laptop/MacBook */}
-          <div className="relative w-full max-w-2xl sm:max-w-3xl lg:max-w-5xl xl:max-w-6xl bg-white rounded-3xl sm:rounded-[2rem] lg:rounded-[2.25rem] border border-[#EDEDEF] shadow-[0_25px_65px_-12px_rgba(0,0,0,0.08),0_8px_24px_-6px_rgba(0,0,0,0.04),0_0_0_1px_rgba(255,255,255,1)_inset] ring-1 ring-black/[0.04] p-5 sm:p-7 md:p-8 lg:p-10 xl:p-12 animate-slideUpModal overflow-hidden flex flex-col justify-between max-h-[94vh] sm:max-h-[90vh] lg:min-h-[580px] xl:min-h-[620px] z-10 transition-all duration-300">
-            {/* Jewel accent bar across top of card */}
-            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#FF9D14] via-[#FEB74F] to-[#E91311]" />
-
-            {/* Subtle inner ambient light reflections */}
-            <div className="absolute -top-20 -left-20 w-52 h-52 bg-[#FF9D14]/5 rounded-full blur-2xl pointer-events-none" />
-            <div className="absolute -bottom-20 -right-20 w-52 h-52 bg-[#FEB74F]/5 rounded-full blur-2xl pointer-events-none" />
+          {/* Elevated Luxury Cream White Presentation Slide Card with Rich Maroon Accents */}
+          <div className="relative w-full max-w-2xl sm:max-w-3xl lg:max-w-5xl xl:max-w-6xl bg-[#FFFFFF] text-[#1C1614] rounded-3xl sm:rounded-[2rem] lg:rounded-[2.25rem] border border-[#E7E0D6] shadow-[0_30px_90px_rgba(80,10,25,0.18),0_4px_20px_rgba(0,0,0,0.04)] p-5 sm:p-7 md:p-8 lg:p-10 xl:p-12 animate-slideUpModal overflow-hidden flex flex-col justify-between max-h-[94vh] sm:max-h-[90vh] lg:min-h-[580px] xl:min-h-[620px] z-10 transition-all duration-300">
+            {/* Rich Maroon Top Accent Line */}
+            <div className="absolute top-0 left-0 right-0 h-[3px] bar-maroon shadow-[0_1px_8px_rgba(128,0,32,0.3)]" />
 
             <div className="w-full flex-1 flex flex-col justify-between pt-1">
               {currentStep === 1 && (
@@ -208,11 +203,11 @@ export default function App() {
             </div>
 
             {/* Micro Slide Deck Indicators - Sleek 4 Dots + Desktop Keyboard hints */}
-            <div className="w-full flex items-center justify-between pt-3 border-t border-[#EDEDEF] mt-2 select-none shrink-0">
-              <div className="hidden lg:flex items-center gap-1.5 text-[11px] text-[#888888] font-mono">
-                <span>কীবোর্ড দিয়ে চালান:</span>
-                <kbd className="px-1.5 py-0.5 bg-[#F5F5F7] border border-[#EDEDEF] rounded font-semibold text-[#111111] shadow-2xs">←</kbd>
-                <kbd className="px-1.5 py-0.5 bg-[#F5F5F7] border border-[#EDEDEF] rounded font-semibold text-[#111111] shadow-2xs">→</kbd>
+            <div className="w-full flex items-center justify-between pt-3 border-t border-[#E7E0D6] mt-2 select-none shrink-0">
+              <div className="hidden lg:flex items-center gap-1.5 text-[11px] text-[#800020] font-mono font-medium">
+                <span>💡 কীবোর্ড দিয়ে চালান:</span>
+                <kbd className="px-1.5 py-0.5 bg-[#FBF9F5] border border-[#800020]/25 rounded font-semibold text-[#800020] shadow-2xs">←</kbd>
+                <kbd className="px-1.5 py-0.5 bg-[#FBF9F5] border border-[#800020]/25 rounded font-semibold text-[#800020] shadow-2xs">→</kbd>
               </div>
 
               <div className="flex items-center justify-center gap-2 mx-auto lg:mx-0">
@@ -222,17 +217,17 @@ export default function App() {
                     onClick={() => navigateTo('wizard', stepNum as WizardStep)}
                     className={`rounded-full transition-all duration-300 cursor-pointer ${
                       currentStep === stepNum 
-                        ? 'w-7 h-2 bg-gradient-to-r from-[#FF9D14] to-[#FEB74F] shadow-[0_2px_8px_rgba(255,157,20,0.4)]' 
-                        : 'w-2 h-2 bg-[#EDEDEF] hover:bg-[#888888]/40'
+                        ? 'w-8 h-1.5 bg-[#800020] shadow-[0_0_10px_rgba(128,0,32,0.4)]' 
+                        : 'w-2 h-1.5 bg-[#800020]/20 hover:bg-[#800020]/45'
                     }`}
                     aria-label={`Go to slide ${stepNum}`}
                   />
                 ))}
               </div>
 
-              <div className="hidden lg:flex items-center gap-2 text-[11px] text-[#888888]">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#22C55E]"></span>
-                <span className="font-medium">Laptop Mode</span>
+              <div className="hidden lg:flex items-center gap-2 text-[11px] text-[#800020] font-medium">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#800020] animate-pulse"></span>
+                <span>Laptop Mode</span>
               </div>
             </div>
           </div>
