@@ -5,6 +5,7 @@ import {
   FileText, Download, Printer, AlertCircle, Sparkles
 } from 'lucide-react';
 import { WebsiteDemo, ClientOrder, UserAccount } from '../types';
+import { apiCreateOrder, apiRegisterUser } from '../utils/api';
 
 interface OrderPageViewProps {
   demo: WebsiteDemo | string | null;
@@ -88,13 +89,16 @@ export default function OrderPageView({
       return;
     }
 
-    // Automatically create and persist user account
+    // Automatically create and persist user account to backend and local storage
     const userAccount: UserAccount = {
       name: name.trim(),
       phone: phone.trim(),
       email: email.trim(),
+      password: password.trim(),
       registeredAt: new Date().toLocaleDateString('bn-BD')
     };
+
+    apiRegisterUser(userAccount).catch(console.error);
 
     localStorage.setItem('bongoweb_user', JSON.stringify(userAccount));
     sessionStorage.setItem('bongoweb_user', JSON.stringify(userAccount));
@@ -109,7 +113,7 @@ export default function OrderPageView({
   };
 
   // Step 2 Submission: Main Order & Payment
-  const handleStep2Submit = (e: React.FormEvent) => {
+  const handleStep2Submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStep2Error('');
 
@@ -149,11 +153,12 @@ export default function OrderPageView({
       screenshotName: screenshotName || undefined
     };
 
-    // Store in localStorage & sessionStorage
-    const existingOrders: ClientOrder[] = JSON.parse(localStorage.getItem('bongoweb_orders') || '[]');
-    existingOrders.unshift(newOrder);
-    localStorage.setItem('bongoweb_orders', JSON.stringify(existingOrders));
-    localStorage.setItem('bongoweb_active_pending_order', JSON.stringify(newOrder));
+    // Store in backend and local cache
+    try {
+      await apiCreateOrder(newOrder);
+    } catch (err) {
+      console.error(err);
+    }
 
     setCreatedOrder(newOrder);
     setCurrentStep(3);

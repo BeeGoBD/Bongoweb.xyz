@@ -140,10 +140,14 @@ export interface SupportChatThread {
   userPhone: string;
   userName: string;
   userEmail?: string;
+  language?: 'bn' | 'en';
   lastMessage: string;
   lastUpdated: string;
   unreadAdminCount: number;
   unreadClientCount: number;
+  expiresAt?: number; // timestamp in ms when 5-min inactivity expires
+  isClosed?: boolean;
+  additionalMinutesAdded?: number;
   messages: SupportChatMessage[];
 }
 

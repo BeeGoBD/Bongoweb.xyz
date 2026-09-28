@@ -1,0 +1,72 @@
+{
+  "adminConfig": {
+    "adminId": "admin",
+    "adminEntryPassword": "admin123",
+    "adminActionPassword": "confirm786",
+    "masterKey": "MASTER-BONGO-2026"
+  },
+  "users": [
+    {
+      "name": "Demo Client",
+      "phone": "01711223344",
+      "email": "demo@bongoweb.xyz",
+      "password": "demo",
+      "registeredAt": "২৮/৯/২০২৬"
+    },
+    {
+      "name": "Mobile Customer",
+      "phone": "01987654321",
+      "email": "customer@test.com",
+      "registeredAt": "২৮/৯/২০২৬"
+    }
+  ],
+  "orders": [
+    {
+      "orderId": "#BW-99999",
+      "demoCode": "#1042",
+      "demoTitle": "Sultan Dine",
+      "clientName": "Mobile Customer",
+      "phone": "01987654321",
+      "email": "customer@test.com",
+      "companyName": "Royal Biryani",
+      "domainOption": "no_domain",
+      "paymentMethod": "bkash",
+      "transactionId": "TRX998877",
+      "makingCharge": 1990,
+      "monthlyCost": 120,
+      "status": "pending",
+      "createdAt": "২৮/৯/২০২৬, ৮:৪৯:৩৪ PM"
+    }
+  ],
+  "supportChats": [
+    {
+      "userPhone": "01811223344",
+      "userName": "Test User",
+      "language": "bn",
+      "lastMessage": "Hello from phone!",
+      "lastUpdated": "এখনই",
+      "unreadAdminCount": 2,
+      "unreadClientCount": 0,
+      "expiresAt": 1790629165111,
+      "isClosed": false,
+      "additionalMinutesAdded": 5,
+      "messages": [
+        {
+          "id": "init-1790628560454",
+          "sender": "admin",
+          "text": "স্বাগতম Test User! BongoWeb লাইভ সাপোর্ট টিম আপনার সাথে যুক্ত হয়েছেন। আপনার যেকোনো জিজ্ঞাসা এখানে লিখুন:",
+          "timestamp": "08:49 PM"
+        },
+        {
+          "id": "client-1790628565111",
+          "sender": "client",
+          "text": "Hello from phone!",
+          "timestamp": "08:49 PM"
+        }
+      ]
+    }
+  ],
+  "customWebsites": [],
+  "deliveredCredentials": [],
+  "resetRequests": []
+}

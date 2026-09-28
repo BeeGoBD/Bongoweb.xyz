@@ -6,6 +6,7 @@ import {
   LogOut, PhoneCall, Sparkles, Check, Server
 } from 'lucide-react';
 import { ClientOrder, UserAccount, WebsiteDeliveryCredentials, PasswordResetRequest } from '../types';
+import { apiRegisterUser, apiRequestPasswordReset, apiGetOrders, apiGetUsers, apiGetCredentials } from '../utils/api';
 
 interface AccountViewProps {
   onGoToDashboard?: () => void;
@@ -44,30 +45,24 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
     loadUserData();
   }, []);
 
-  const loadUserData = () => {
+  const loadUserData = async () => {
     try {
       const storedUser = localStorage.getItem('bongoweb_user');
       if (storedUser) {
         const parsed: UserAccount = JSON.parse(storedUser);
         setCurrentUser(parsed);
 
-        // Check delivered credentials for this user
-        const storedCreds = localStorage.getItem('bongoweb_delivered_credentials');
-        if (storedCreds) {
-          const credsList: WebsiteDeliveryCredentials[] = JSON.parse(storedCreds);
-          const found = credsList.find((c) => c.userPhone === parsed.phone);
-          if (found) setUserCredentials(found);
-          else setUserCredentials(null);
-        }
+        // Check delivered credentials
+        const credsList = await apiGetCredentials();
+        const found = credsList.find((c) => c.userPhone === parsed.phone);
+        setUserCredentials(found || null);
       } else {
         setCurrentUser(null);
         setUserCredentials(null);
       }
 
-      const storedOrders = localStorage.getItem('bongoweb_orders');
-      if (storedOrders) {
-        setOrders(JSON.parse(storedOrders));
-      }
+      const allOrders = await apiGetOrders();
+      setOrders(allOrders);
     } catch (e) {
       console.error(e);
     }
@@ -82,7 +77,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
   };
 
   // Handle Client Login (or Secret Admin Login)
-  const handleLoginSubmit = (e: React.FormEvent) => {
+  const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoginError('');
 
@@ -120,8 +115,8 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
       return;
     }
 
-    // 2. Client Login Check
-    const storedUsers: UserAccount[] = JSON.parse(localStorage.getItem('bongoweb_registered_users') || '[]');
+    // 2. Client Login Check (API + local)
+    const storedUsers = await apiGetUsers();
     const matchingUser = storedUsers.find(
       (u) => (u.phone === cleanId || u.email.toLowerCase() === cleanId) && u.password === cleanPass
     );
@@ -137,7 +132,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
   };
 
   // Handle Client Registration
-  const handleRegisterSubmit = (e: React.FormEvent) => {
+  const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setRegError('');
 
@@ -162,17 +157,6 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
       return;
     }
 
-    // Check Duplicate Phone or Email
-    const storedUsers: UserAccount[] = JSON.parse(localStorage.getItem('bongoweb_registered_users') || '[]');
-    const isDuplicate = storedUsers.some(
-      (u) => u.phone === regPhone.trim() || u.email.toLowerCase() === regEmail.trim().toLowerCase()
-    );
-
-    if (isDuplicate) {
-      setRegError('এই মোবাইল নম্বর বা ইমেইল দিয়ে ইতিমধ্যে একটি অ্যাকাউন্ট তৈরি করা হয়েছে!');
-      return;
-    }
-
     const newUser: UserAccount = {
       name: regName.trim(),
       phone: regPhone.trim(),
@@ -181,31 +165,22 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
       registeredAt: new Date().toLocaleDateString('bn-BD')
     };
 
-    storedUsers.push(newUser);
-    localStorage.setItem('bongoweb_registered_users', JSON.stringify(storedUsers));
-    localStorage.setItem('bongoweb_user', JSON.stringify(newUser));
-    sessionStorage.setItem('bongoweb_user', JSON.stringify(newUser));
+    const result = await apiRegisterUser(newUser);
+    if (!result.success) {
+      setRegError(result.error || 'নিবন্ধন করা সম্ভব হয়নি!');
+      return;
+    }
 
     setCurrentUser(newUser);
     loadUserData();
   };
 
   // Handle Forgot Password Request Call
-  const handleRequestPasswordCall = (e: React.FormEvent) => {
+  const handleRequestPasswordCall = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!forgotPhone.trim() || forgotPhone.length < 10) return;
 
-    const newRequest: PasswordResetRequest = {
-      id: `RST-${Date.now()}`,
-      phone: forgotPhone.trim(),
-      requestedAt: new Date().toLocaleString('bn-BD'),
-      status: 'pending'
-    };
-
-    const existingResets: PasswordResetRequest[] = JSON.parse(localStorage.getItem('bongoweb_reset_requests') || '[]');
-    existingResets.unshift(newRequest);
-    localStorage.setItem('bongoweb_reset_requests', JSON.stringify(existingResets));
-
+    await apiRequestPasswordReset(forgotPhone.trim());
     setForgotSubmitted(true);
   };
 

@@ -5,13 +5,21 @@ import {
   Download, Upload, Lock, Eye, EyeOff, Search, Plus, Trash2, 
   RefreshCw, MessageSquare, ArrowRight, Check, X, FileText, Globe,
   Send, Sparkles, Clock, CheckCheck, User, Zap, Terminal, Activity,
-  Sliders, ChevronRight, CornerDownLeft, MessageCircle
+  Sliders, ChevronRight, Edit3, Save, Power, LogOut
 } from 'lucide-react';
 import { 
   UserAccount, ClientOrder, WebsiteDeliveryCredentials, 
   PasswordResetRequest, AdminConfig, WebsiteDemo, SupportChatThread, SupportChatMessage 
 } from '../types';
 import { WEBSITE_DEMOS } from '../data/mockData';
+import { 
+  apiGetOrders, apiUpdateOrderStatus, apiGetUsers,
+  apiGetChatThreads, apiSendChatMessage, apiExtendChatTime, apiEndChat,
+  apiGetWebsites, apiAddWebsite, apiUpdateWebsite, apiDeleteWebsite,
+  apiGetCredentials, apiDeliverCredentials, apiDeleteCredential,
+  apiGetResetRequests, apiResolveResetRequest,
+  apiExportCompleteBackup, apiRestoreCompleteBackup
+} from '../utils/api';
 
 interface AdminPanelViewProps {
   onBackToApp: () => void;
@@ -31,6 +39,9 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
   const [newAdminPassInput, setNewAdminPassInput] = useState('');
   const [masterSuccessMsg, setMasterSuccessMsg] = useState('');
 
+  // Single Header Backup Modal
+  const [showBackupVaultModal, setShowBackupVaultModal] = useState(false);
+
   // Config State
   const [adminConfig, setAdminConfig] = useState<AdminConfig>({
     adminId: 'admin',
@@ -39,10 +50,10 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
     masterKey: 'MASTER-BONGO-2026'
   });
 
-  // Active Admin Tab
-  const [activeTab, setActiveTab] = useState<'overview' | 'chat' | 'orders' | 'users' | 'resets' | 'catalog' | 'backup'>('overview');
+  // Active Admin Tab (Backup tab removed, moved to single header button)
+  const [activeTab, setActiveTab] = useState<'overview' | 'chat' | 'orders' | 'users' | 'resets' | 'catalog'>('overview');
 
-  // Real Database Collections from localStorage
+  // Real Database Collections
   const [users, setUsers] = useState<UserAccount[]>([]);
   const [orders, setOrders] = useState<ClientOrder[]>([]);
   const [deliveredCreds, setDeliveredCreds] = useState<WebsiteDeliveryCredentials[]>([]);
@@ -56,20 +67,16 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
   const [chatSearch, setChatSearch] = useState('');
   const chatMessagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Modal / Action Prompts
-  const [selectedUserForDelivery, setSelectedUserForDelivery] = useState<UserAccount | null>(null);
-  const [deliveryAdminId, setDeliveryAdminId] = useState('');
-  const [deliveryAdminPass, setDeliveryAdminPass] = useState('');
-  const [deliveryNotes, setDeliveryNotes] = useState('');
-  const [deliverySuccess, setDeliverySuccess] = useState(false);
+  // Website Edit Modal State (Non-hover inline editor)
+  const [editingSite, setEditingSite] = useState<WebsiteDemo | null>(null);
+  const [editTitle, setEditTitle] = useState('');
+  const [editDesc, setEditDesc] = useState('');
+  const [editCategory, setEditCategory] = useState<'ecommerce' | 'restaurant' | 'blogging' | 'grocery'>('ecommerce');
+  const [editThumbnail, setEditThumbnail] = useState('');
+  const [editSecretUrl, setEditSecretUrl] = useState('');
+  const [editPriceTag, setEditPriceTag] = useState('১,৯৯০ ৳');
 
-  // Action Password Prompt for Confirming Orders & Backups
-  const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
-  const [actionPasswordInput, setActionPasswordInput] = useState('');
-  const [actionPasswordError, setActionPasswordError] = useState('');
-  const [showActionPasswordModal, setShowActionPasswordModal] = useState(false);
-
-  // New Website Upload State
+  // New Website Upload Modal State (Non-hover)
   const [showAddWebsiteModal, setShowAddWebsiteModal] = useState(false);
   const [newSiteTitle, setNewSiteTitle] = useState('');
   const [newSiteDesc, setNewSiteDesc] = useState('');
@@ -81,8 +88,18 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
   const [activeResetRequest, setActiveResetRequest] = useState<PasswordResetRequest | null>(null);
   const [manualNewPassword, setManualNewPassword] = useState('');
 
-  // Search Filter for General Sections
-  const [globalSearch, setGlobalSearch] = useState('');
+  // Modal / Action Prompts
+  const [selectedUserForDelivery, setSelectedUserForDelivery] = useState<UserAccount | null>(null);
+  const [deliveryAdminId, setDeliveryAdminId] = useState('');
+  const [deliveryAdminPass, setDeliveryAdminPass] = useState('');
+  const [deliveryNotes, setDeliveryNotes] = useState('');
+  const [deliverySuccess, setDeliverySuccess] = useState(false);
+
+  // Action Password Prompt
+  const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
+  const [actionPasswordInput, setActionPasswordInput] = useState('');
+  const [actionPasswordError, setActionPasswordError] = useState('');
+  const [showActionPasswordModal, setShowActionPasswordModal] = useState(false);
 
   // Load Real Data on Mount
   useEffect(() => {
@@ -99,133 +116,97 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
         setIsAdminLoggedIn(true);
       }
 
-      // Load Users
-      const storedUsers = localStorage.getItem('bongoweb_registered_users');
-      let loadedUsers: UserAccount[] = [];
-      if (storedUsers) {
-        loadedUsers = JSON.parse(storedUsers);
-        setUsers(loadedUsers);
-      } else {
-        const singleUser = localStorage.getItem('bongoweb_user');
-        if (singleUser) {
-          loadedUsers = [JSON.parse(singleUser)];
-          setUsers(loadedUsers);
-          localStorage.setItem('bongoweb_registered_users', JSON.stringify(loadedUsers));
-        }
-      }
-
-      // Load Orders
-      const storedOrders = localStorage.getItem('bongoweb_orders');
-      if (storedOrders) {
-        setOrders(JSON.parse(storedOrders));
-      }
-
-      // Load Delivered Credentials
-      const storedCreds = localStorage.getItem('bongoweb_delivered_credentials');
-      if (storedCreds) {
-        setDeliveredCreds(JSON.parse(storedCreds));
-      }
-
-      // Load Reset Requests
-      const storedResets = localStorage.getItem('bongoweb_reset_requests');
-      if (storedResets) {
-        setResetRequests(JSON.parse(storedResets));
-      }
-
-      // Load Custom Catalog
-      const storedCatalog = localStorage.getItem('bongoweb_custom_catalog');
-      if (storedCatalog) {
-        setCustomWebsites(JSON.parse(storedCatalog));
-      }
-
-      // Initialize / Load Support Chat Threads
-      loadOrInitChatThreads(loadedUsers);
+      loadAllDatabaseCollections();
     } catch (err) {
       console.error(err);
     }
   }, []);
 
-  // Initialize or Load Chat Threads
-  const loadOrInitChatThreads = (currentUsersList: UserAccount[]) => {
+  const loadAllDatabaseCollections = async () => {
     try {
-      const storedThreads = localStorage.getItem('bongoweb_support_chats');
-      if (storedThreads) {
-        const parsed: SupportChatThread[] = JSON.parse(storedThreads);
+      // 1. Fetch from real shared API
+      const res = await fetch('/api/data');
+      if (res.ok) {
+        const db = await res.json();
+        if (Array.isArray(db.users)) {
+          setUsers(db.users);
+          localStorage.setItem('bongoweb_registered_users', JSON.stringify(db.users));
+        }
+        if (Array.isArray(db.orders)) {
+          setOrders(db.orders);
+          localStorage.setItem('bongoweb_orders', JSON.stringify(db.orders));
+        }
+        if (Array.isArray(db.deliveredCredentials)) {
+          setDeliveredCreds(db.deliveredCredentials);
+          localStorage.setItem('bongoweb_delivered_credentials', JSON.stringify(db.deliveredCredentials));
+        }
+        if (Array.isArray(db.resetRequests)) {
+          setResetRequests(db.resetRequests);
+          localStorage.setItem('bongoweb_reset_requests', JSON.stringify(db.resetRequests));
+        }
+        if (Array.isArray(db.customWebsites) && db.customWebsites.length > 0) {
+          setCustomWebsites(db.customWebsites);
+          localStorage.setItem('bongoweb_custom_catalog', JSON.stringify(db.customWebsites));
+        }
+        if (Array.isArray(db.supportChats)) {
+          setChatThreads(db.supportChats);
+          localStorage.setItem('bongoweb_support_chats', JSON.stringify(db.supportChats));
+          if (db.supportChats.length > 0 && !selectedThreadPhone) {
+            setSelectedThreadPhone(db.supportChats[0].userPhone);
+          }
+        }
+        if (db.adminConfig) {
+          setAdminConfig(db.adminConfig);
+          localStorage.setItem('bongoweb_admin_config', JSON.stringify(db.adminConfig));
+        }
+        return;
+      }
+    } catch (_) {}
+
+    // Fallback to local storage
+    try {
+      const storedUsers = localStorage.getItem('bongoweb_registered_users');
+      if (storedUsers) setUsers(JSON.parse(storedUsers));
+
+      const storedOrders = localStorage.getItem('bongoweb_orders');
+      if (storedOrders) setOrders(JSON.parse(storedOrders));
+
+      const storedCreds = localStorage.getItem('bongoweb_delivered_credentials');
+      if (storedCreds) setDeliveredCreds(JSON.parse(storedCreds));
+
+      const storedResets = localStorage.getItem('bongoweb_reset_requests');
+      if (storedResets) setResetRequests(JSON.parse(storedResets));
+
+      const storedCatalog = localStorage.getItem('bongoweb_custom_catalog');
+      if (storedCatalog) setCustomWebsites(JSON.parse(storedCatalog));
+
+      const storedChats = localStorage.getItem('bongoweb_support_chats');
+      if (storedChats) {
+        const parsed: SupportChatThread[] = JSON.parse(storedChats);
         setChatThreads(parsed);
         if (parsed.length > 0 && !selectedThreadPhone) {
           setSelectedThreadPhone(parsed[0].userPhone);
         }
-      } else {
-        // Seed initial high-fidelity real conversations from existing users or demo client
-        const defaultThreads: SupportChatThread[] = [
-          {
-            userPhone: currentUsersList[0]?.phone || '01711223344',
-            userName: currentUsersList[0]?.name || 'সাকিব আল হাসান',
-            userEmail: currentUsersList[0]?.email || 'sakib@example.com',
-            lastMessage: 'আমার পেমেন্ট কি ভেরিফাই হয়েছে?',
-            lastUpdated: '১০ মিনিট আগে',
-            unreadAdminCount: 1,
-            unreadClientCount: 0,
-            messages: [
-              {
-                id: '1',
-                sender: 'client',
-                text: 'আসসালামু আলাইকুম! আমি ১,৯৯০ টাকার ই-কমার্স ওয়েবসাইট প্যাকেজের পেমেন্ট পাঠিয়েছি।',
-                timestamp: '11:40 AM'
-              },
-              {
-                id: '2',
-                sender: 'admin',
-                text: 'ওয়ালাইকুম আসসালাম! আপনার অর্ডার ও TrxID আমরা পেয়েছি। ভেরিফিকেশন চলছে।',
-                timestamp: '11:42 AM'
-              },
-              {
-                id: '3',
-                sender: 'client',
-                text: 'আমার পেমেন্ট কি ভেরিফাই হয়েছে?',
-                timestamp: '11:50 AM'
-              }
-            ]
-          },
-          {
-            userPhone: '01855667788',
-            userName: 'তানভীর আহমেদ (রেস্টুরেন্ট শপ)',
-            userEmail: 'tanvir.food@gmail.com',
-            lastMessage: 'ডোমেইনটি কখন লাইভ হবে?',
-            lastUpdated: '১ ঘণ্টা আগে',
-            unreadAdminCount: 0,
-            unreadClientCount: 0,
-            messages: [
-              {
-                id: '10',
-                sender: 'client',
-                text: 'হ্যালো ভাইয়া, সুলতান ডাইন স্টাইলের রেস্তোরাঁ সাইটটি ২৪ ঘণ্টার মধ্যে কি ডেলিভারি পাওয়া যাবে?',
-                timestamp: '10:15 AM'
-              },
-              {
-                id: '11',
-                sender: 'admin',
-                text: 'হ্যাঁ অবশ্যই! আমাদের ফুল ক্লাউড প্যাকেজ ২৪ ঘণ্টা এক্সপ্রেস ডেলিভারি গ্যারান্টি যুক্ত।',
-                timestamp: '10:20 AM'
-              },
-              {
-                id: '12',
-                sender: 'client',
-                text: 'ডোমেইনটি কখন লাইভ হবে?',
-                timestamp: '10:45 AM'
-              }
-            ]
-          }
-        ];
-
-        setChatThreads(defaultThreads);
-        localStorage.setItem('bongoweb_support_chats', JSON.stringify(defaultThreads));
-        setSelectedThreadPhone(defaultThreads[0].userPhone);
       }
     } catch (e) {
       console.error(e);
     }
   };
+
+  // Real-Time Polling & Storage Sync every 800ms (Ensures orders & chats from mobile appear instantly!)
+  useEffect(() => {
+    const syncData = () => {
+      loadAllDatabaseCollections();
+    };
+
+    const interval = setInterval(syncData, 800);
+    window.addEventListener('storage', syncData);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('storage', syncData);
+    };
+  }, [selectedThreadPhone]);
 
   // Auto scroll chat
   useEffect(() => {
@@ -259,6 +240,11 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
   const saveResetRequests = (newResets: PasswordResetRequest[]) => {
     setResetRequests(newResets);
     localStorage.setItem('bongoweb_reset_requests', JSON.stringify(newResets));
+  };
+
+  const saveCatalog = (updated: WebsiteDemo[]) => {
+    setCustomWebsites(updated);
+    localStorage.setItem('bongoweb_custom_catalog', JSON.stringify(updated));
   };
 
   // Handle Admin Login
@@ -309,27 +295,27 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
 
   // Orders: Confirm & Cancel
   const handleConfirmOrder = (orderId: string) => {
-    requestProtectedAction(() => {
-      const updated = orders.map((o) => 
-        o.orderId === orderId ? { ...o, status: 'verified' as const } : o
-      );
-      saveOrders(updated);
+    requestProtectedAction(async () => {
+      const updated = await apiUpdateOrderStatus(orderId, 'verified');
+      setOrders(updated);
+      loadAllDatabaseCollections();
     });
   };
 
   const handleCancelOrder = (orderId: string) => {
-    requestProtectedAction(() => {
-      const updated = orders.map((o) => 
-        o.orderId === orderId ? { ...o, status: 'cancelled' as const } : o
-      );
-      saveOrders(updated);
+    requestProtectedAction(async () => {
+      const updated = await apiUpdateOrderStatus(orderId, 'cancelled');
+      setOrders(updated);
+      loadAllDatabaseCollections();
     });
   };
 
   // Admin Send Chat Reply
-  const handleSendAdminReply = (textToSend?: string) => {
+  const handleSendAdminReply = async (textToSend?: string) => {
     const text = (textToSend || adminReplyText).trim();
     if (!text || !selectedThreadPhone) return;
+
+    setAdminReplyText('');
 
     const newMsg: SupportChatMessage = {
       id: `msg-${Date.now()}`,
@@ -338,22 +324,56 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
 
-    const updatedThreads = chatThreads.map((th) => {
-      if (th.userPhone === selectedThreadPhone) {
-        return {
-          ...th,
-          lastMessage: text,
-          lastUpdated: 'এখনই',
-          unreadAdminCount: 0,
-          unreadClientCount: th.unreadClientCount + 1,
-          messages: [...th.messages, newMsg]
-        };
-      }
-      return th;
-    });
+    setChatThreads((prev) =>
+      prev.map((th) => {
+        if (th.userPhone === selectedThreadPhone) {
+          return {
+            ...th,
+            lastMessage: text,
+            lastUpdated: 'এখনই',
+            unreadAdminCount: 0,
+            unreadClientCount: (th.unreadClientCount || 0) + 1,
+            messages: [...th.messages, newMsg]
+          };
+        }
+        return th;
+      })
+    );
 
-    saveChatThreads(updatedThreads);
-    setAdminReplyText('');
+    try {
+      await apiSendChatMessage({
+        phone: selectedThreadPhone,
+        sender: 'admin',
+        text
+      });
+      loadAllDatabaseCollections();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // Admin Extend Chat Inactivity Timer for Client (+5 Min, etc.)
+  const handleExtendChatTime = async (minutes: number = 5) => {
+    if (!selectedThreadPhone) return;
+    try {
+      await apiExtendChatTime(selectedThreadPhone, minutes);
+      loadAllDatabaseCollections();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // Admin End / Close Chat
+  const handleEndChatThread = async (phone: string) => {
+    try {
+      await apiEndChat(phone);
+      loadAllDatabaseCollections();
+      if (selectedThreadPhone === phone) {
+        setSelectedThreadPhone('');
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   // Deliver Website Credentials
@@ -375,11 +395,10 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
     const updated = [newCred, ...deliveredCreds.filter((c) => c.userPhone !== selectedUserForDelivery.phone)];
     saveDeliveredCreds(updated);
 
-    // Also auto-notify via Live Chat
+    // Auto-send Live Chat notification
     const threadExists = chatThreads.find((t) => t.userPhone === selectedUserForDelivery.phone);
-    const deliveryNotice = `🎉 অভিনন্দন! আপনার ওয়েবসাইটের অ্যাডমিন আইডি ও পাসওয়ার্ড ডেলিভারি করা হয়েছে। ইউজারনেম: ${deliveryAdminId.trim()} | পাসওয়ার্ড: ${deliveryAdminPass.trim()}`;
     if (threadExists) {
-      handleSendAdminReply(deliveryNotice);
+      handleSendAdminReply(`🎉 অভিনন্দন! আপনার ওয়েবসাইটের অ্যাডমিন আইডি ও পাসওয়ার্ড ডেলিভারি করা হয়েছে। ইউজারনেম: ${deliveryAdminId.trim()} | পাসওয়ার্ড: ${deliveryAdminPass.trim()}`);
     }
 
     setDeliverySuccess(true);
@@ -393,9 +412,9 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
   };
 
   const handleDeleteCredentials = (credId: string) => {
-    requestProtectedAction(() => {
-      const updated = deliveredCreds.filter((c) => c.id !== credId);
-      saveDeliveredCreds(updated);
+    requestProtectedAction(async () => {
+      const updated = await apiDeleteCredential(credId);
+      setDeliveredCreds(updated);
     });
   };
 
@@ -407,106 +426,64 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
       return;
     }
 
-    const updated = resetRequests.map((r) => {
-      if (r.id === activeResetRequest.id) {
-        return {
-          ...r,
-          status,
-          resolvedAt: new Date().toLocaleString('bn-BD'),
-          newPasswordAssigned: status === 'reset' ? manualNewPassword.trim() : undefined
-        };
+    const currentReq = activeResetRequest;
+    const assignedPass = manualNewPassword.trim();
+
+    requestProtectedAction(async () => {
+      const updated = await apiResolveResetRequest(currentReq.id, status, status === 'reset' ? assignedPass : undefined);
+      setResetRequests(updated);
+
+      if (status === 'reset') {
+        const updatedUsers = users.map((u) => {
+          if (u.phone === currentReq.phone) {
+            return { ...u, password: assignedPass };
+          }
+          return u;
+        });
+        setUsers(updatedUsers);
+        localStorage.setItem('bongoweb_registered_users', JSON.stringify(updatedUsers));
       }
-      return r;
-    });
-    saveResetRequests(updated);
 
-    if (status === 'reset') {
-      const updatedUsers = users.map((u) => {
-        if (u.phone === activeResetRequest.phone) {
-          return { ...u, password: manualNewPassword.trim() };
-        }
-        return u;
-      });
-      setUsers(updatedUsers);
-      localStorage.setItem('bongoweb_registered_users', JSON.stringify(updatedUsers));
-    }
-
-    setActiveResetRequest(null);
-    setManualNewPassword('');
-  };
-
-  // Backup & Restore
-  const handleDownloadBackup = () => {
-    requestProtectedAction(() => {
-      const backupData = {
-        platform: 'BongoWeb.xyz Super Core',
-        exportDate: new Date().toISOString(),
-        version: '2026.Enterprise',
-        users,
-        orders,
-        deliveredCredentials: deliveredCreds,
-        resetRequests,
-        supportChats: chatThreads,
-        customCatalog: customWebsites,
-        adminConfig
-      };
-
-      const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(backupData, null, 2));
-      const downloadAnchor = document.createElement('a');
-      downloadAnchor.setAttribute('href', dataStr);
-      downloadAnchor.setAttribute('download', `bongoweb_enterprise_backup_${new Date().toISOString().slice(0, 10)}.json`);
-      document.body.appendChild(downloadAnchor);
-      downloadAnchor.click();
-      downloadAnchor.remove();
+      setActiveResetRequest(null);
+      setManualNewPassword('');
+      loadAllDatabaseCollections();
     });
   };
 
-  const handleRestoreBackupFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  // Edit Existing Website Stock / Details
+  const handleOpenEditSite = (site: WebsiteDemo) => {
+    setEditingSite(site);
+    setEditTitle(site.title);
+    setEditDesc(site.description);
+    setEditCategory(site.category as any);
+    setEditThumbnail(site.previewImage);
+    setEditSecretUrl(site.demoUrl);
+    setEditPriceTag(site.priceTag);
+  };
 
-    requestProtectedAction(() => {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        try {
-          const content = event.target?.result as string;
-          const parsed = JSON.parse(content);
+  const handleSaveEditedWebsite = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingSite) return;
 
-          if (parsed.users) {
-            setUsers(parsed.users);
-            localStorage.setItem('bongoweb_registered_users', JSON.stringify(parsed.users));
-          }
-          if (parsed.orders) {
-            setOrders(parsed.orders);
-            localStorage.setItem('bongoweb_orders', JSON.stringify(parsed.orders));
-          }
-          if (parsed.deliveredCredentials) {
-            setDeliveredCreds(parsed.deliveredCredentials);
-            localStorage.setItem('bongoweb_delivered_credentials', JSON.stringify(parsed.deliveredCredentials));
-          }
-          if (parsed.resetRequests) {
-            setResetRequests(parsed.resetRequests);
-            localStorage.setItem('bongoweb_reset_requests', JSON.stringify(parsed.resetRequests));
-          }
-          if (parsed.supportChats) {
-            setChatThreads(parsed.supportChats);
-            localStorage.setItem('bongoweb_support_chats', JSON.stringify(parsed.supportChats));
-          }
-          if (parsed.customCatalog) {
-            setCustomWebsites(parsed.customCatalog);
-            localStorage.setItem('bongoweb_custom_catalog', JSON.stringify(parsed.customCatalog));
-          }
-          alert('সফলভাবে সমস্ত ব্যাকআপ ডেটা ওয়েবসাইটে রিস্টোর করা হয়েছে!');
-        } catch (err) {
-          alert('ব্যাকআপ ফাইলটি ত্রুটিযুক্ত!');
-        }
-      };
-      reader.readAsText(file);
-    });
+    const updateData = {
+      title: editTitle.trim(),
+      banglaTitle: editTitle.trim(),
+      description: editDesc.trim(),
+      category: editCategory,
+      categoryLabel: editCategory.toUpperCase(),
+      previewImage: editThumbnail.trim(),
+      demoUrl: editSecretUrl.trim(),
+      priceTag: editPriceTag.trim()
+    };
+
+    const updated = await apiUpdateWebsite(editingSite.fourDigitCode, updateData);
+    setCustomWebsites(updated);
+    setEditingSite(null);
+    loadAllDatabaseCollections();
   };
 
   // Add New Website to Inventory
-  const handleCreateNewWebsite = (e: React.FormEvent) => {
+  const handleCreateNewWebsite = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newSiteTitle.trim() || !newSiteThumbnail.trim()) return;
 
@@ -533,14 +510,51 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
       }
     };
 
-    const updated = [newDemo, ...customWebsites];
+    const updated = await apiAddWebsite(newDemo);
     setCustomWebsites(updated);
-    localStorage.setItem('bongoweb_custom_catalog', JSON.stringify(updated));
     setShowAddWebsiteModal(false);
     setNewSiteTitle('');
     setNewSiteDesc('');
     setNewSiteThumbnail('');
     setNewSiteSecretUrl('');
+    loadAllDatabaseCollections();
+  };
+
+  // Single Complete Website Backup (100% Data Preservation Across All Devices)
+  const handleDownloadFullSystemBackup = () => {
+    requestProtectedAction(async () => {
+      const fullSystemBackup = await apiExportCompleteBackup();
+      const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(fullSystemBackup, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute('href', dataStr);
+      downloadAnchor.setAttribute('download', `bongoweb_complete_system_backup_${new Date().toISOString().slice(0, 10)}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+      setShowBackupVaultModal(false);
+    });
+  };
+
+  const handleRestoreFullSystemBackup = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    requestProtectedAction(() => {
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        try {
+          const content = event.target?.result as string;
+          const parsed = JSON.parse(content);
+          const res = await apiRestoreCompleteBackup(parsed);
+          alert(res.message || 'সফলভাবে সমস্ত ডেটা এই সার্ভার ও ডিভাইসে রিস্টোর করা হয়েছে!');
+          loadAllDatabaseCollections();
+          setShowBackupVaultModal(false);
+        } catch (err) {
+          alert('ব্যাকআপ ফাইলটি ত্রুটিযুক্ত!');
+        }
+      };
+      reader.readAsText(file);
+    });
   };
 
   // Master Key Password Reset Logic
@@ -581,12 +595,11 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
     '🔑 অ্যাডমিন আইডি ও পাসওয়ার্ড ডেলিভারি করা হয়েছে।'
   ];
 
-  // Active chat thread object
+  // Active chat thread
   const activeThread = chatThreads.find((t) => t.userPhone === selectedThreadPhone) || chatThreads[0];
   const activeThreadUser = users.find((u) => u.phone === activeThread?.userPhone);
   const activeThreadOrders = orders.filter((o) => o.phone === activeThread?.userPhone);
 
-  // Filtered threads for sidebar search
   const filteredThreads = chatThreads.filter((t) => 
     t.userName.toLowerCase().includes(chatSearch.toLowerCase()) || 
     t.userPhone.includes(chatSearch)
@@ -598,7 +611,6 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
   if (!isAdminLoggedIn) {
     return (
       <div className="min-h-screen w-full bg-[#05110A] text-[#FFFFFF] flex flex-col items-center justify-center p-4 font-sans select-none relative overflow-hidden">
-        {/* Glow orb */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#008A4B]/15 rounded-full blur-[120px] pointer-events-none" />
 
         <div className="w-full max-w-md bg-[#0B1E13]/90 backdrop-blur-xl border border-[#173826] rounded-3xl p-6 sm:p-9 shadow-[0_20px_60px_rgba(0,0,0,0.6)] relative z-10">
@@ -683,103 +695,6 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
             </button>
           </div>
         </div>
-
-        {/* Master Key Emergency Modal */}
-        {showMasterKeyModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
-            <div className="w-full max-w-md bg-[#0B1E13] border border-[#00B261]/60 rounded-3xl p-6 sm:p-8 shadow-2xl relative">
-              <button
-                onClick={() => setShowMasterKeyModal(false)}
-                className="absolute top-5 right-5 text-[#8BB99F] hover:text-white"
-              >
-                <X className="w-5 h-5" />
-              </button>
-
-              <div className="flex items-center gap-2 mb-2">
-                <Terminal className="w-5 h-5 text-[#4EEDB0]" />
-                <h3 className="text-lg font-black text-white">
-                  মাস্টার কি পাসওয়ার্ড রিকভারি
-                </h3>
-              </div>
-              <p className="text-xs text-[#8BB99F] mb-4">
-                অপরিবর্তনযোগ্য মাস্টার কি ইনপুট দিয়ে অ্যাডমিনের যেকোনো পাসওয়ার্ড পুনর্নির্ধারণ করুন।
-              </p>
-
-              {masterSuccessMsg && (
-                <div className="mb-4 p-3 rounded-xl bg-[#00B261]/20 text-[#4EEDB0] text-xs font-bold border border-[#00B261]/40">
-                  {masterSuccessMsg}
-                </div>
-              )}
-
-              <form onSubmit={handleMasterKeyReset} className="space-y-3.5">
-                <div>
-                  <label className="block text-[11px] font-bold text-[#A8D7BD] mb-1">
-                    মাস্টার কি (Master Key)
-                  </label>
-                  <input
-                    type="password"
-                    required
-                    placeholder="MASTER-BONGO-2026"
-                    value={masterKeyInput}
-                    onChange={(e) => setMasterKeyInput(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#06140D] border border-[#173826] text-white font-mono text-xs focus:outline-none focus:border-[#00B261]"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-bold text-[#A8D7BD] mb-1">
-                    কোন পাসওয়ার্ড পরিবর্তন করতে চান?
-                  </label>
-                  <div className="grid grid-cols-2 gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setResetTarget('entry')}
-                      className={`p-2.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
-                        resetTarget === 'entry' 
-                          ? 'bg-[#008A4B] text-white border-[#00B261]' 
-                          : 'bg-[#06140D] text-[#8BB99F] border-[#173826]'
-                      }`}
-                    >
-                      লগইন এন্ট্রি পাসওয়ার্ড
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setResetTarget('action')}
-                      className={`p-2.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
-                        resetTarget === 'action' 
-                          ? 'bg-[#008A4B] text-white border-[#00B261]' 
-                          : 'bg-[#06140D] text-[#8BB99F] border-[#173826]'
-                      }`}
-                    >
-                      অ্যাকশন কনফার্মেশন পাসওয়ার্ড
-                    </button>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-bold text-[#A8D7BD] mb-1">
-                    নতুন পাসওয়ার্ড
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="নতুন পাসওয়ার্ড লিখুন"
-                    value={newAdminPassInput}
-                    onChange={(e) => setNewAdminPassInput(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#06140D] border border-[#173826] text-white text-xs font-mono focus:outline-none focus:border-[#00B261]"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  className="w-full py-2.5 rounded-xl bg-[#008A4B] text-white text-xs font-bold hover:bg-[#009E56] cursor-pointer shadow-md transition-all"
-                >
-                  পাসওয়ার্ড হালনাগাদ করুন
-                </button>
-              </form>
-            </div>
-          </div>
-        )}
       </div>
     );
   }
@@ -789,7 +704,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
   // ==========================================
   return (
     <div className="min-h-screen w-full bg-[#05110A] text-[#FFFFFF] font-sans flex flex-col selection:bg-[#00B261]/30 selection:text-[#4EEDB0]">
-      {/* 1. Ultra-Clean Executive Header */}
+      {/* 1. Header with Single Backup Vault Button Next to Logout */}
       <header className="sticky top-0 z-40 w-full bg-[#091A11]/95 backdrop-blur-md border-b border-[#173826] shadow-sm select-none">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
           {/* Brand Left */}
@@ -820,21 +735,21 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                 </div>
                 <span className="text-[10px] text-[#69977E] font-medium mt-0.5 flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#00B261] animate-pulse" />
-                  Live System • 99.99% Uptime
+                  Live Sync Active • 99.99% Uptime
                 </span>
               </div>
             </div>
           </div>
 
-          {/* Quick Actions Right */}
+          {/* Right: ONLY Single Complete Backup Vault Button + Logout */}
           <div className="flex items-center gap-2 sm:gap-3">
             <button
-              onClick={handleDownloadBackup}
-              className="px-3.5 py-2 rounded-xl bg-[#05110A] hover:bg-[#122A1E] text-[#4EEDB0] border border-[#173826] hover:border-[#00B261]/40 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
-              title="সম্পূর্ণ ব্যাকআপ ডাউনলোড"
+              onClick={() => setShowBackupVaultModal(true)}
+              className="px-3.5 py-2 rounded-xl bg-[#008A4B] hover:bg-[#009E56] text-white border border-[#00B261]/40 text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
+              title="সম্পূর্ণ ওয়েবসাইট ব্যাকআপ ভল্ট"
             >
-              <Download className="w-3.5 h-3.5" />
-              <span className="hidden md:inline">ব্যাকআপ নিন</span>
+              <Database className="w-3.5 h-3.5" />
+              <span>সম্পূর্ণ ওয়েবসাইট ব্যাকআপ</span>
             </button>
 
             <button
@@ -846,7 +761,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
           </div>
         </div>
 
-        {/* Executive Tab Navigation Bar */}
+        {/* Executive Tab Navigation Bar (Backup Tab Removed) */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center gap-1.5 overflow-x-auto py-2 border-t border-[#173826]/70 scrollbar-none">
           <button
             onClick={() => setActiveTab('overview')}
@@ -860,7 +775,6 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
             <span>ওভারভিউ</span>
           </button>
 
-          {/* Dedicated Live Chat Hub Tab with Unread Pulse */}
           <button
             onClick={() => setActiveTab('chat')}
             className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
@@ -872,7 +786,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
             <MessageSquare className="w-3.5 h-3.5" />
             <span>লাইভ চ্যাট হাব</span>
             <span className="px-1.5 py-0.2 rounded-full bg-[#00B261] text-black text-[10px] font-black">
-              {chatThreads.reduce((acc, t) => acc + t.unreadAdminCount, 0) || 'Active'}
+              {chatThreads.length}
             </span>
           </button>
 
@@ -930,32 +844,19 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
             }`}
           >
             <Globe className="w-3.5 h-3.5" />
-            <span>ওয়েবসাইট স্টক ও আপলোড</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('backup')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
-              activeTab === 'backup'
-                ? 'bg-[#008A4B] text-white shadow-xs'
-                : 'text-[#8BB99F] hover:bg-[#0E2417] hover:text-white'
-            }`}
-          >
-            <Database className="w-3.5 h-3.5" />
-            <span>ক্লাউড ব্যাকআপ ভল্ট</span>
+            <span>ওয়েবসাইট স্টক ও এডিট ({customWebsites.length})</span>
           </button>
         </div>
       </header>
 
-      {/* Main Executive Content */}
+      {/* Main Content Area */}
       <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6">
 
-        {/* ================= TAB 1: EXECUTIVE OVERVIEW ================= */}
+        {/* ================= TAB 1: OVERVIEW ================= */}
         {activeTab === 'overview' && (
           <div className="space-y-6 animate-fadeIn">
-            {/* Top 4 Metrics Cards */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              <div className="p-5 rounded-2xl bg-[#091A11] border border-[#173826] hover:border-[#00B261]/40 transition-all shadow-sm">
+              <div className="p-5 rounded-2xl bg-[#091A11] border border-[#173826] shadow-sm">
                 <div className="flex items-center justify-between text-[#8BB99F]">
                   <span className="text-[11px] font-bold uppercase tracking-wider">মোট ক্লায়েন্ট</span>
                   <Users className="w-4 h-4 text-[#4EEDB0]" />
@@ -964,7 +865,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                 <span className="text-[11px] text-[#4EEDB0] mt-1 block">নিবন্ধিত ও সক্রিয়</span>
               </div>
 
-              <div className="p-5 rounded-2xl bg-[#091A11] border border-[#173826] hover:border-[#00B261]/40 transition-all shadow-sm">
+              <div className="p-5 rounded-2xl bg-[#091A11] border border-[#173826] shadow-sm">
                 <div className="flex items-center justify-between text-[#8BB99F]">
                   <span className="text-[11px] font-bold uppercase tracking-wider">পেন্ডিং অর্ডারসমূহ</span>
                   <Clock className="w-4 h-4 text-[#FFD552]" />
@@ -975,9 +876,9 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                 <span className="text-[11px] text-[#8BB99F] mt-1 block">যাচাইয়ের অপেক্ষায়</span>
               </div>
 
-              <div className="p-5 rounded-2xl bg-[#091A11] border border-[#173826] hover:border-[#00B261]/40 transition-all shadow-sm">
+              <div className="p-5 rounded-2xl bg-[#091A11] border border-[#173826] shadow-sm">
                 <div className="flex items-center justify-between text-[#8BB99F]">
-                  <span className="text-[11px] font-bold uppercase tracking-wider">মোট সফল অর্ডার</span>
+                  <span className="text-[11px] font-bold uppercase tracking-wider">মোট অর্ডার</span>
                   <ShoppingBag className="w-4 h-4 text-[#00B261]" />
                 </div>
                 <div className="text-3xl font-black text-white mt-2 font-mono">
@@ -986,19 +887,18 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                 <span className="text-[11px] text-[#4EEDB0] mt-1 block">১,৯৯০ ৳ প্যাকেজ রেট</span>
               </div>
 
-              <div className="p-5 rounded-2xl bg-[#091A11] border border-[#173826] hover:border-[#00B261]/40 transition-all shadow-sm">
+              <div className="p-5 rounded-2xl bg-[#091A11] border border-[#173826] shadow-sm">
                 <div className="flex items-center justify-between text-[#8BB99F]">
-                  <span className="text-[11px] font-bold uppercase tracking-wider">লাইভ চ্যাট থ্রেড</span>
+                  <span className="text-[11px] font-bold uppercase tracking-wider">সক্রিয় চ্যাট থ্রেড</span>
                   <MessageSquare className="w-4 h-4 text-[#4EEDB0]" />
                 </div>
                 <div className="text-3xl font-black text-[#4EEDB0] mt-2 font-mono">
                   {chatThreads.length}
                 </div>
-                <span className="text-[11px] text-[#8BB99F] mt-1 block">সরাসরি রিয়েল-টাইম</span>
+                <span className="text-[11px] text-[#8BB99F] mt-1 block">রিয়েল-টাইম সিঙ্ক</span>
               </div>
             </div>
 
-            {/* Quick Live Chat Preview Widget */}
             <div className="p-6 rounded-3xl bg-[#091A11] border border-[#173826] shadow-sm flex flex-col md:flex-row items-center justify-between gap-5">
               <div className="space-y-1 text-center md:text-left">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0F2A1B] text-[#4EEDB0] text-xs font-bold">
@@ -1006,16 +906,16 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                   <span>রিয়েল-টাইম কাস্টমার লাইভ চ্যাট কনসোল</span>
                 </div>
                 <h3 className="text-xl font-black text-white">
-                  ক্লায়েন্টদের সাথে সরাসরি অ্যাডমিন চ্যাট হাব
+                  গ্রাহকদের সাথে সরাসরি লাইভ চ্যাটে যুক্ত হন
                 </h3>
                 <p className="text-xs text-[#8BB99F] max-w-xl">
-                  যেকোনো গ্রাহকের সাথে আলাদা আলাদা থ্রেডে কথোপকথন করুন, পেমেন্ট ট্র্যাকিং ও ওয়েবসাইট ডেলিভারি সম্পর্কিত তথ্য জানান।
+                  যে গ্রাহকই মেসেজ পাঠাবে, তৎক্ষণাৎ তার নাম ও ফোন নম্বর সহ আলাদা থ্রেড তৈরি হয়ে যাবে।
                 </p>
               </div>
 
               <button
                 onClick={() => setActiveTab('chat')}
-                className="px-5 py-3 rounded-2xl bg-[#008A4B] hover:bg-[#009E56] active:bg-[#007A43] text-white text-xs sm:text-sm font-bold shadow-md transition-all flex items-center gap-2 cursor-pointer shrink-0"
+                className="px-5 py-3 rounded-2xl bg-[#008A4B] hover:bg-[#009E56] text-white text-xs sm:text-sm font-bold shadow-md transition-all flex items-center gap-2 cursor-pointer shrink-0"
               >
                 <MessageSquare className="w-4 h-4" />
                 <span>লাইভ চ্যাট কনসোলে যান</span>
@@ -1025,7 +925,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
           </div>
         )}
 
-        {/* ================= TAB 2: LIVE CHAT SUPPORT HUB (INTERCOM/ZENDESK TIER) ================= */}
+        {/* ================= TAB 2: LIVE CHAT HUB ================= */}
         {activeTab === 'chat' && (
           <div className="bg-[#091A11] border border-[#173826] rounded-3xl overflow-hidden shadow-xl animate-fadeIn flex flex-col md:flex-row h-[680px]">
             {/* Left Column: Conversations List */}
@@ -1055,56 +955,61 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
 
               {/* Thread list */}
               <div className="flex-1 overflow-y-auto divide-y divide-[#173826]/50">
-                {filteredThreads.map((thread) => {
-                  const isSelected = thread.userPhone === selectedThreadPhone;
-                  return (
-                    <div
-                      key={thread.userPhone}
-                      onClick={() => setSelectedThreadPhone(thread.userPhone)}
-                      className={`p-3.5 transition-all cursor-pointer flex items-start gap-3 ${
-                        isSelected
-                          ? 'bg-[#0E2417] border-l-4 border-l-[#00B261]'
-                          : 'hover:bg-[#0B1E13]'
-                      }`}
-                    >
-                      <div className="relative shrink-0">
-                        <div className="w-10 h-10 rounded-xl bg-[#122A1E] text-[#4EEDB0] flex items-center justify-center font-bold text-xs border border-[#173826]">
-                          {thread.userName.charAt(0)}
+                {filteredThreads.length === 0 ? (
+                  <div className="p-6 text-center text-xs text-[#69977E]">
+                    কোনো সক্রিয় কথোপকথন নেই
+                  </div>
+                ) : (
+                  filteredThreads.map((thread) => {
+                    const isSelected = thread.userPhone === selectedThreadPhone;
+                    return (
+                      <div
+                        key={thread.userPhone}
+                        onClick={() => setSelectedThreadPhone(thread.userPhone)}
+                        className={`p-3.5 transition-all cursor-pointer flex items-start gap-3 ${
+                          isSelected
+                            ? 'bg-[#0E2417] border-l-4 border-l-[#00B261]'
+                            : 'hover:bg-[#0B1E13]'
+                        }`}
+                      >
+                        <div className="relative shrink-0">
+                          <div className="w-10 h-10 rounded-xl bg-[#122A1E] text-[#4EEDB0] flex items-center justify-center font-bold text-xs border border-[#173826]">
+                            {thread.userName.charAt(0)}
+                          </div>
+                          <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#00B261] border-2 border-[#07160D]" />
                         </div>
-                        <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#00B261] border-2 border-[#07160D]" />
-                      </div>
 
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between">
-                          <h4 className="text-xs font-bold text-white truncate">
-                            {thread.userName}
-                          </h4>
-                          <span className="text-[9px] text-[#69977E] font-mono shrink-0">
-                            {thread.lastUpdated}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between">
+                            <h4 className="text-xs font-bold text-white truncate">
+                              {thread.userName}
+                            </h4>
+                            <span className="text-[9px] text-[#69977E] font-mono shrink-0">
+                              {thread.lastUpdated}
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-[#69977E] font-mono mt-0.5 truncate">
+                            {thread.userPhone}
+                          </p>
+                          <p className="text-[11px] text-[#8BB99F] mt-1 truncate">
+                            {thread.lastMessage}
+                          </p>
+                        </div>
+
+                        {thread.unreadAdminCount > 0 && (
+                          <span className="w-4 h-4 rounded-full bg-[#00B261] text-black text-[9px] font-black flex items-center justify-center shrink-0">
+                            {thread.unreadAdminCount}
                           </span>
-                        </div>
-                        <p className="text-[11px] text-[#69977E] font-mono mt-0.5 truncate">
-                          {thread.userPhone}
-                        </p>
-                        <p className="text-[11px] text-[#8BB99F] mt-1 truncate">
-                          {thread.lastMessage}
-                        </p>
+                        )}
                       </div>
-
-                      {thread.unreadAdminCount > 0 && (
-                        <span className="w-4 h-4 rounded-full bg-[#00B261] text-black text-[9px] font-black flex items-center justify-center shrink-0">
-                          {thread.unreadAdminCount}
-                        </span>
-                      )}
-                    </div>
-                  );
-                })}
+                    );
+                  })
+                )}
               </div>
             </div>
 
             {/* Center Column: Active Chat Stream */}
             <div className="flex-1 flex flex-col bg-[#091A11]">
-              {/* Chat Header */}
               <div className="p-4 border-b border-[#173826] flex items-center justify-between bg-[#07160D]">
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-xl bg-[#008A4B] text-white flex items-center justify-center font-bold text-xs">
@@ -1112,19 +1017,56 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                   </div>
                   <div>
                     <h3 className="text-xs sm:text-sm font-black text-white">
-                      {activeThread?.userName || 'গ্রাহক'}
+                      {activeThread?.userName || 'গ্রাহক নির্বাচন করুন'}
                     </h3>
                     <p className="text-[10px] text-[#4EEDB0] font-mono flex items-center gap-1">
                       <span className="w-1.5 h-1.5 rounded-full bg-[#00B261]" />
-                      <span>{activeThread?.userPhone} • লাইভ কানেক্টেড</span>
+                      <span>{activeThread?.userPhone || 'সরাসরি রিয়েল-টাইম'}</span>
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <span className="px-2.5 py-1 rounded-full bg-[#0F2A1B] text-[#4EEDB0] text-[10px] font-mono border border-[#00B261]/30">
-                    BongoWeb Verified Customer
-                  </span>
+                <div className="flex items-center gap-2 flex-wrap justify-end">
+                  {/* Client Inactivity Timer remaining */}
+                  {activeThread?.expiresAt && (
+                    <div 
+                      className="px-2.5 py-1 rounded-lg bg-[#0F2A1B] border border-[#00B261]/30 text-[#4EEDB0] text-[11px] font-mono font-bold flex items-center gap-1.5" 
+                      title="ক্লায়েন্ট ইনঅ্যাক্টিভিটি টাইমার (৫ মিনিট নিষ্ক্রিয় থাকলে চ্যাট বন্ধ হবে)"
+                    >
+                      <Clock className="w-3.5 h-3.5 text-[#00B261]" />
+                      <span>
+                        {Math.max(0, Math.floor((activeThread.expiresAt - Date.now()) / 1000 / 60))} মিনিট অবশিষ্ট
+                      </span>
+                    </div>
+                  )}
+
+                  {/* +5 Min Extension Button as requested */}
+                  {activeThread && (
+                    <button
+                      onClick={() => handleExtendChatTime(5)}
+                      className="px-2.5 py-1 rounded-lg bg-[#008A4B] hover:bg-[#009E56] text-white text-[11px] font-bold flex items-center gap-1 transition-all cursor-pointer shadow-xs"
+                      title="ক্লায়েন্ট অফলাইন থাকলে চ্যাটের মেয়াদ আরও ৫ মিনিট বাড়ান"
+                    >
+                      <Plus className="w-3 h-3" />
+                      <span>+৫ মি. বৃদ্ধি</span>
+                    </button>
+                  )}
+
+                  {/* End Chat Button */}
+                  {activeThread && (
+                    <button
+                      onClick={() => {
+                        if (confirm(`${activeThread.userName} এর সাথে চ্যাট সেশন সমাপ্ত করতে চান?`)) {
+                          handleEndChatThread(activeThread.userPhone);
+                        }
+                      }}
+                      className="px-2.5 py-1 rounded-lg bg-[#E53935]/20 hover:bg-[#E53935] text-[#FF8A80] hover:text-white border border-[#E53935]/30 text-[11px] font-bold transition-all cursor-pointer"
+                      title="চ্যাট সেশন সমাপ্ত করুন"
+                    >
+                      <X className="w-3 h-3" />
+                      <span className="hidden sm:inline">চ্যাট ক্লোজ</span>
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -1197,7 +1139,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
               </div>
             </div>
 
-            {/* Right Column: Customer Intelligence Info */}
+            {/* Right Column: Customer Details */}
             <div className="hidden lg:flex w-72 border-l border-[#173826] bg-[#07160D] flex-col p-4 space-y-4">
               <div className="text-center pb-4 border-b border-[#173826]">
                 <div className="w-14 h-14 rounded-2xl bg-[#0F2A1B] text-[#4EEDB0] flex items-center justify-center font-black text-xl mx-auto mb-2 border border-[#00B261]/30">
@@ -1205,19 +1147,15 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                 </div>
                 <h4 className="text-xs font-black text-white">{activeThread?.userName}</h4>
                 <p className="text-[11px] font-mono text-[#69977E]">{activeThread?.userPhone}</p>
-                <span className="mt-1 px-2.5 py-0.5 rounded-full bg-[#008A4B]/20 text-[#4EEDB0] text-[9px] font-bold inline-block">
-                  সক্রিয় ক্লায়েন্ট
-                </span>
               </div>
 
-              {/* Order history summary for this user */}
               <div className="space-y-2">
                 <span className="text-[10px] text-[#69977E] uppercase font-bold tracking-wider block">
-                  অর্ডার সংক্রান্ত তথ্য
+                  গ্রাহকের অর্ডারসমূহ
                 </span>
                 {activeThreadOrders.length === 0 ? (
                   <div className="p-3 rounded-xl bg-[#05110A] text-[11px] text-[#69977E] border border-[#173826]">
-                    কোনো অর্ডার করা হয়নি
+                    কোনো অর্ডার পাওয়া যায়নি
                   </div>
                 ) : (
                   <div className="space-y-1.5">
@@ -1239,7 +1177,6 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                 )}
               </div>
 
-              {/* Quick Handover Action */}
               {activeThreadUser && (
                 <div className="pt-2">
                   <button
@@ -1265,17 +1202,14 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
           <div className="space-y-4 animate-fadeIn">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-black text-white">অর্ডারসমূহ (Order Management)</h2>
-                <p className="text-xs text-[#8BB99F]">গ্রাহকদের করা প্রতিটি অর্ডারের ট্রানজেকশন যাচাই করে নিশ্চিত করুন।</p>
+                <h2 className="text-lg font-black text-white">অর্ডারসমূহ ({orders.length})</h2>
+                <p className="text-xs text-[#8BB99F]">রিয়েল-টাইমে প্রতিটি নতুন অর্ডারের TrxID যাচাই করে কনফার্ম করুন।</p>
               </div>
-              <span className="px-3 py-1 rounded-full bg-[#0E2417] text-[#4EEDB0] text-xs font-bold border border-[#173826]">
-                {orders.length} টি মোট অর্ডার
-              </span>
             </div>
 
             {orders.length === 0 ? (
               <div className="p-10 rounded-2xl bg-[#091A11] border border-[#173826] text-center text-xs text-[#8BB99F]">
-                কোনো অর্ডার পাওয়া যায়নি।
+                কোনো অর্ডার পাওয়া যায়নি। গ্রাহক চেকআউট করলে এখানে লাইভ দৃশ্যমান হবে।
               </div>
             ) : (
               <div className="space-y-3">
@@ -1331,15 +1265,8 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                         <span>তারিখ: </span>
                         <span className="text-white">{ord.createdAt}</span>
                       </div>
-                      {ord.screenshotName && (
-                        <div>
-                          <span>স্ক্রিনশট: </span>
-                          <span className="text-[#4EEDB0] underline">{ord.screenshotName}</span>
-                        </div>
-                      )}
                     </div>
 
-                    {/* Order Action Buttons */}
                     {ord.status === 'pending' && (
                       <div className="pt-2 border-t border-[#173826] flex items-center justify-end gap-2">
                         <button
@@ -1369,8 +1296,8 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
           <div className="space-y-4 animate-fadeIn">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-black text-white">ব্যবহারকারী তালিকা ও ক্রিডেনশিয়াল ({users.length})</h2>
-                <p className="text-xs text-[#8BB99F]">প্রত্যেক ক্লায়েন্টকে তাদের তৈরি ওয়েবসাইটের অ্যাডমিন আইডি ও পাসওয়ার্ড হস্তান্তর করুন।</p>
+                <h2 className="text-lg font-black text-white">নিবন্ধিত ব্যবহারকারী তালিকা ({users.length})</h2>
+                <p className="text-xs text-[#8BB99F]">ক্লায়েন্টদের ওয়েবসাইটের অ্যাডমিন আইডি ও পাসওয়ার্ড ডেলিভারি করুন।</p>
               </div>
             </div>
 
@@ -1443,7 +1370,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                           }}
                           className="w-full py-2 px-3 rounded-xl bg-[#008A4B] hover:bg-[#009E56] text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                         >
-                          <Plus className="w-3.5 h-3.5" />
+                          <Key className="w-3.5 h-3.5" />
                           <span>আইডি-পাসওয়ার্ড হস্তান্তর করুন</span>
                         </button>
                       </div>
@@ -1455,95 +1382,13 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
           </div>
         )}
 
-        {/* Modal: Deliver Website Credentials */}
-        {selectedUserForDelivery && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
-            <div className="w-full max-w-md bg-[#091A11] border border-[#00B261] rounded-3xl p-6 sm:p-8 shadow-2xl relative space-y-4">
-              <button
-                onClick={() => setSelectedUserForDelivery(null)}
-                className="absolute top-5 right-5 text-[#8BB99F] hover:text-white"
-              >
-                <X className="w-5 h-5" />
-              </button>
-
-              <div>
-                <span className="px-2.5 py-0.5 rounded-full bg-[#008A4B] text-white text-xs font-bold">
-                  ওয়েবসাইট হস্তান্তর
-                </span>
-                <h3 className="text-lg font-black text-white mt-1">
-                  {selectedUserForDelivery.name} কে ক্রিডেনশিয়াল পাঠান
-                </h3>
-                <p className="text-xs text-[#8BB99F]">
-                  মোবাইল নম্বর: {selectedUserForDelivery.phone}
-                </p>
-              </div>
-
-              {deliverySuccess && (
-                <div className="p-3 rounded-xl bg-[#00B261]/20 border border-[#00B261] text-[#4EEDB0] text-xs font-bold">
-                  ✓ সফলভাবে গ্রাহকের প্রোফাইলে অ্যাক্সেস পাঠানো হয়েছে!
-                </div>
-              )}
-
-              <form onSubmit={handleDeliverCredentials} className="space-y-3.5">
-                <div>
-                  <label className="block text-xs font-bold text-[#A8D7BD] mb-1">
-                    ওয়েবসাইট অ্যাডমিন আইডি / ইউজারনেম
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="যেমন: admin বা user@store.com"
-                    value={deliveryAdminId}
-                    onChange={(e) => setDeliveryAdminId(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#05110A] border border-[#173826] text-white text-xs font-mono focus:outline-none focus:border-[#00B261]"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-[#A8D7BD] mb-1">
-                    ওয়েবসাইট অ্যাডমিন পাসওয়ার্ড
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="যেমন: pass@2026#"
-                    value={deliveryAdminPass}
-                    onChange={(e) => setDeliveryAdminPass(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#05110A] border border-[#173826] text-white text-xs font-mono focus:outline-none focus:border-[#00B261]"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-[#A8D7BD] mb-1">
-                    ইঞ্জিনিয়ার নোট (ঐচ্ছিক)
-                  </label>
-                  <textarea
-                    rows={2}
-                    placeholder="ওয়েবসাইটের অ্যাডমিন লিংক বা নির্দেশনা..."
-                    value={deliveryNotes}
-                    onChange={(e) => setDeliveryNotes(e.target.value)}
-                    className="w-full px-3.5 py-2 rounded-xl bg-[#05110A] border border-[#173826] text-xs text-white resize-none focus:outline-none focus:border-[#00B261]"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  className="w-full py-2.5 rounded-xl bg-[#008A4B] text-white text-xs font-bold hover:bg-[#009E56] cursor-pointer"
-                >
-                  গ্রাহকের অ্যাকাউন্টে পাঠান
-                </button>
-              </form>
-            </div>
-          </div>
-        )}
-
         {/* ================= TAB 5: PASSWORD RESET CALL DESK ================= */}
         {activeTab === 'resets' && (
           <div className="space-y-4 animate-fadeIn">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-lg font-black text-white">পাসওয়ার্ড রিসেট ডেস্ক</h2>
-                <p className="text-xs text-[#8BB99F]">গ্রাহকদের পাঠানো কল অনুরোধে ফোন দিয়ে পাসওয়ার্ড পরিবর্তন করুন।</p>
+                <p className="text-xs text-[#8BB99F]">গ্রাহকদের কল অনুরোধের ভিত্তিতে পাসওয়ার্ড আপডেট করুন।</p>
               </div>
               <span className="px-3 py-1 rounded-full bg-[#0E2417] text-[#4EEDB0] text-xs font-bold border border-[#173826]">
                 {resetRequests.filter((r) => r.status === 'pending').length} টি অপেক্ষমান
@@ -1566,18 +1411,12 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                         <PhoneCall className="w-4 h-4 text-[#4EEDB0]" />
                         <h4 className="text-sm font-bold text-white font-mono">{req.phone}</h4>
                         <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                          req.status === 'reset'
-                            ? 'bg-[#00B261]/20 text-[#4EEDB0]'
-                            : req.status === 'rejected'
-                            ? 'bg-[#E53935]/20 text-[#FF8A80]'
-                            : req.status === 'call_not_received'
-                            ? 'bg-[#FFD552]/20 text-[#FFD552]'
-                            : 'bg-[#FFD552]/20 text-[#FFD552]'
+                          req.status === 'reset' ? 'bg-[#00B261]/20 text-[#4EEDB0]' : 'bg-[#FFD552]/20 text-[#FFD552]'
                         }`}>
-                          {req.status === 'reset' ? '✓ রিসেট সম্পন্ন' : req.status === 'rejected' ? 'বাতিল' : req.status === 'call_not_received' ? 'কল রিসিভ হয়নি' : 'অপেক্ষমান'}
+                          {req.status === 'reset' ? '✓ রিসেট সম্পন্ন' : req.status === 'rejected' ? 'বাতিল' : 'অপেক্ষমান'}
                         </span>
                       </div>
-                      <p className="text-xs text-[#8BB99F] mt-1">অনুরোধের সময়: {req.requestedAt}</p>
+                      <p className="text-xs text-[#8BB99F] mt-1">সময়: {req.requestedAt}</p>
                     </div>
 
                     {req.status === 'pending' && (
@@ -1615,49 +1454,16 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                 ))}
               </div>
             )}
-
-            {/* Modal: Set New Password for Request */}
-            {activeResetRequest && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
-                <div className="w-full max-w-sm bg-[#091A11] border border-[#00B261] rounded-3xl p-6 shadow-2xl space-y-4">
-                  <h3 className="text-base font-black text-white">
-                    {activeResetRequest.phone} এর নতুন পাসওয়ার্ড নির্ধারণ
-                  </h3>
-                  <input
-                    type="text"
-                    required
-                    placeholder="যেমন: newpass2026"
-                    value={manualNewPassword}
-                    onChange={(e) => setManualNewPassword(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#05110A] border border-[#173826] text-white text-xs font-mono focus:outline-none focus:border-[#00B261]"
-                  />
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handleResolvePasswordReset('reset')}
-                      className="flex-1 py-2 rounded-xl bg-[#008A4B] text-white text-xs font-bold"
-                    >
-                      নিশ্চিত করুন
-                    </button>
-                    <button
-                      onClick={() => setActiveResetRequest(null)}
-                      className="px-4 py-2 rounded-xl bg-[#05110A] text-xs text-[#8BB99F]"
-                    >
-                      বাতিল
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
         )}
 
-        {/* ================= TAB 6: CATALOG & STOCK ================= */}
+        {/* ================= TAB 6: CATALOG & EDIT STOCK ================= */}
         {activeTab === 'catalog' && (
           <div className="space-y-4 animate-fadeIn">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-black text-white">ওয়েবসাইট ক্যাটালগ ও স্টক</h2>
-                <p className="text-xs text-[#8BB99F]">নতুন ওয়েবসাইট যোগ করুন এবং গোপন লাইভ ডেমো URL কনফিগার করুন।</p>
+                <h2 className="text-lg font-black text-white">ওয়েবসাইট স্টক ও এডিট ({customWebsites.length})</h2>
+                <p className="text-xs text-[#8BB99F]">বিদ্যমান যেকোনো ওয়েবসাইটের তথ্য, ডেসক্রিপশন ও থাম্বনেইল সরাসরি এডিট করুন।</p>
               </div>
 
               <button
@@ -1669,6 +1475,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
               </button>
             </div>
 
+            {/* Non-hover explicit cards with clear "এডিট করুন" button on each */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {customWebsites.map((site) => (
                 <div
@@ -1693,18 +1500,121 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                     <p className="text-[11px] text-[#8BB99F] line-clamp-2 mt-1">{site.description}</p>
                   </div>
 
-                  <div className="pt-2 border-t border-[#173826] flex items-center justify-between text-xs">
-                    <span className="font-mono text-white font-bold">{site.priceTag}</span>
-                    <span className="text-[10px] text-[#00B261] font-semibold">স্টকে আছে</span>
+                  <div className="pt-2 border-t border-[#173826] flex items-center justify-between gap-2">
+                    <span className="font-mono text-white text-xs font-bold">{site.priceTag}</span>
+                    
+                    {/* Clear Edit Button */}
+                    <button
+                      onClick={() => handleOpenEditSite(site)}
+                      className="px-3 py-1.5 rounded-xl bg-[#122A1E] hover:bg-[#008A4B] text-[#4EEDB0] hover:text-white border border-[#00B261]/30 text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
+                    >
+                      <Edit3 className="w-3.5 h-3.5" />
+                      <span>এডিট করুন</span>
+                    </button>
                   </div>
                 </div>
               ))}
             </div>
 
-            {/* Modal: Upload Website */}
+            {/* Modal: Edit Existing Website */}
+            {editingSite && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
+                <div className="w-full max-w-lg bg-[#091A11] border-2 border-[#00B261] rounded-3xl p-6 sm:p-8 shadow-2xl relative space-y-4">
+                  <button
+                    onClick={() => setEditingSite(null)}
+                    className="absolute top-5 right-5 text-[#8BB99F] hover:text-white"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+
+                  <div className="flex items-center gap-2">
+                    <Edit3 className="w-5 h-5 text-[#4EEDB0]" />
+                    <h3 className="text-base font-black text-white">
+                      ওয়েবসাইট এডিট করুন ({editingSite.fourDigitCode})
+                    </h3>
+                  </div>
+
+                  <form onSubmit={handleSaveEditedWebsite} className="space-y-3">
+                    <div>
+                      <label className="block text-xs font-bold text-[#A8D7BD] mb-1">ওয়েবসাইট শিরোনাম (Title)</label>
+                      <input
+                        type="text"
+                        required
+                        value={editTitle}
+                        onChange={(e) => setEditTitle(e.target.value)}
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#05110A] border border-[#173826] text-white text-xs focus:outline-none focus:border-[#00B261]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-[#A8D7BD] mb-1">ক্যাটাগরি</label>
+                      <select
+                        value={editCategory}
+                        onChange={(e) => setEditCategory(e.target.value as any)}
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#05110A] border border-[#173826] text-white text-xs focus:outline-none focus:border-[#00B261]"
+                      >
+                        <option value="ecommerce">E-Commerce</option>
+                        <option value="restaurant">Restaurant</option>
+                        <option value="blogging">Blogs & Media</option>
+                        <option value="grocery">Groceries</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-[#A8D7BD] mb-1">থাম্বনেইল ইমেজ URL</label>
+                      <input
+                        type="url"
+                        required
+                        value={editThumbnail}
+                        onChange={(e) => setEditThumbnail(e.target.value)}
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#05110A] border border-[#173826] text-white text-xs focus:outline-none focus:border-[#00B261]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-[#A8D7BD] mb-1">মূল্য ট্যাগ (Price Tag)</label>
+                      <input
+                        type="text"
+                        value={editPriceTag}
+                        onChange={(e) => setEditPriceTag(e.target.value)}
+                        className="w-full px-3.5 py-2 rounded-xl bg-[#05110A] border border-[#173826] text-white text-xs focus:outline-none focus:border-[#00B261]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-[#A8D7BD] mb-1">বর্ণনা / সাবটেক্সট (Description)</label>
+                      <textarea
+                        rows={2}
+                        value={editDesc}
+                        onChange={(e) => setEditDesc(e.target.value)}
+                        className="w-full px-3.5 py-2 rounded-xl bg-[#05110A] border border-[#173826] text-xs text-white resize-none focus:outline-none focus:border-[#00B261]"
+                      />
+                    </div>
+
+                    <div className="flex gap-2 pt-2">
+                      <button
+                        type="submit"
+                        className="flex-1 py-2.5 rounded-xl bg-[#008A4B] text-white text-xs font-bold hover:bg-[#009E56] cursor-pointer"
+                      >
+                        পরিবর্তন সংরক্ষণ করুন
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setEditingSite(null)}
+                        className="px-4 py-2.5 rounded-xl bg-[#05110A] text-xs text-[#8BB99F]"
+                      >
+                        বাতিল
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
+
+            {/* Modal: Upload New Website (Non-hover explicit modal) */}
             {showAddWebsiteModal && (
               <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
-                <div className="w-full max-w-lg bg-[#091A11] border border-[#00B261] rounded-3xl p-6 sm:p-8 shadow-2xl relative space-y-4">
+                <div className="w-full max-w-lg bg-[#091A11] border-2 border-[#00B261] rounded-3xl p-6 sm:p-8 shadow-2xl relative space-y-4">
                   <button
                     onClick={() => setShowAddWebsiteModal(false)}
                     className="absolute top-5 right-5 text-[#8BB99F] hover:text-white"
@@ -1777,7 +1687,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
 
                     <button
                       type="submit"
-                      className="w-full py-2.5 rounded-xl bg-[#008A4B] text-white text-xs font-bold hover:bg-[#009E56]"
+                      className="w-full py-2.5 rounded-xl bg-[#008A4B] text-white text-xs font-bold hover:bg-[#009E56] cursor-pointer"
                     >
                       ক্যাটালগে যুক্ত করুন
                     </button>
@@ -1788,69 +1698,82 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
           </div>
         )}
 
-        {/* ================= TAB 7: BACKUP & RESTORE ================= */}
-        {activeTab === 'backup' && (
-          <div className="space-y-6 animate-fadeIn">
-            <div className="p-6 rounded-3xl bg-[#091A11] border border-[#173826] space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-[#0F2A1B] text-[#4EEDB0] flex items-center justify-center">
-                  <Database className="w-6 h-6" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-black text-white">রিয়েল ব্যাকআপ ও রিস্টোর সিস্টেম</h3>
-                  <p className="text-xs text-[#8BB99F]">
-                    প্রতিদিন রাত ১২:০০ টায় স্বয়ংক্রিয় ব্যাকআপ তৈরি হয়। এছাড়াও যেকোনো সময় ম্যানুয়াল ব্যাকআপ ডাউনলোড করতে পারেন।
-                  </p>
-                </div>
+      </main>
+
+      {/* SINGLE COMPLETE SYSTEM BACKUP VAULT MODAL (Triggered only from header next to logout) */}
+      {showBackupVaultModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
+          <div className="w-full max-w-lg bg-[#091A11] border-2 border-[#00B261] rounded-3xl p-6 sm:p-8 shadow-2xl relative space-y-4">
+            <button
+              onClick={() => setShowBackupVaultModal(false)}
+              className="absolute top-5 right-5 text-[#8BB99F] hover:text-white"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-[#0F2A1B] text-[#4EEDB0] flex items-center justify-center">
+                <Database className="w-6 h-6" />
               </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-                <div className="p-5 rounded-2xl bg-[#05110A] border border-[#173826] flex flex-col justify-between space-y-3">
-                  <div>
-                    <h4 className="text-sm font-bold text-white flex items-center gap-2">
-                      <Download className="w-4 h-4 text-[#4EEDB0]" />
-                      <span>ব্যাকআপ ডাউনলোড</span>
-                    </h4>
-                    <p className="text-xs text-[#8BB99F] mt-1">
-                      সমস্ত ব্যবহারকারী, অর্ডার, চ্যাট মেসেজ ও ডেলিভারি হিস্ট্রি সম্বলিত `.json` ফাইল ডাউনলোড করুন।
-                    </p>
-                  </div>
-                  <button
-                    onClick={handleDownloadBackup}
-                    className="w-full py-2.5 rounded-xl bg-[#008A4B] hover:bg-[#009E56] text-white text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer"
-                  >
-                    <Download className="w-4 h-4" />
-                    <span>কনফার্মেশন পাসওয়ার্ড দিয়ে ডাউনলোড করুন</span>
-                  </button>
-                </div>
-
-                <div className="p-5 rounded-2xl bg-[#05110A] border border-[#173826] flex flex-col justify-between space-y-3">
-                  <div>
-                    <h4 className="text-sm font-bold text-white flex items-center gap-2">
-                      <Upload className="w-4 h-4 text-[#4EEDB0]" />
-                      <span>ব্যাকআপ ফাইল থেকে রিস্টোর</span>
-                    </h4>
-                    <p className="text-xs text-[#8BB99F] mt-1">
-                      পূর্বের যেকোনো ডিভাইসে ডাউনলোড করা `.json` ব্যাকআপ আপলোড করে সম্পূর্ণ ওয়েবসাইট পুনরুজ্জীবিত করুন।
-                    </p>
-                  </div>
-                  <label className="w-full py-2.5 rounded-xl bg-[#0E2417] hover:bg-[#122A1E] text-[#4EEDB0] text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer border border-[#173826]">
-                    <Upload className="w-4 h-4" />
-                    <span>ব্যাকআপ ফাইল আপলোড করুন</span>
-                    <input
-                      type="file"
-                      accept=".json"
-                      onChange={handleRestoreBackupFile}
-                      className="hidden"
-                    />
-                  </label>
-                </div>
+              <div>
+                <h3 className="text-lg font-black text-white">সম্পূর্ণ ওয়েবসাইট ব্যাকআপ ভল্ট</h3>
+                <p className="text-xs text-[#8BB99F]">
+                  ১০০% ডেটা গ্যারান্টি: সমস্ত ক্লায়েন্ট অ্যাকাউন্ট, অর্ডার, চ্যাট ও ক্যাটালগ সুরক্ষিত।
+                </p>
               </div>
             </div>
-          </div>
-        )}
 
-      </main>
+            {/* Live Database Metrics Grid */}
+            <div className="grid grid-cols-3 gap-2 py-2">
+              <div className="p-2.5 rounded-xl bg-[#05110A] border border-[#173826] text-center">
+                <span className="text-[10px] text-[#69977E] block">মোট ইউজার</span>
+                <span className="text-sm font-black text-[#4EEDB0] font-mono">{users.length}</span>
+              </div>
+              <div className="p-2.5 rounded-xl bg-[#05110A] border border-[#173826] text-center">
+                <span className="text-[10px] text-[#69977E] block">মোট অর্ডার</span>
+                <span className="text-sm font-black text-[#4EEDB0] font-mono">{orders.length}</span>
+              </div>
+              <div className="p-2.5 rounded-xl bg-[#05110A] border border-[#173826] text-center">
+                <span className="text-[10px] text-[#69977E] block">ওয়েবসাইট স্টক</span>
+                <span className="text-sm font-black text-[#4EEDB0] font-mono">{customWebsites.length}</span>
+              </div>
+              <div className="p-2.5 rounded-xl bg-[#05110A] border border-[#173826] text-center">
+                <span className="text-[10px] text-[#69977E] block">সাপোর্ট চ্যাট</span>
+                <span className="text-sm font-black text-[#4EEDB0] font-mono">{chatThreads.length}</span>
+              </div>
+              <div className="p-2.5 rounded-xl bg-[#05110A] border border-[#173826] text-center">
+                <span className="text-[10px] text-[#69977E] block">হস্তান্তরিত সাইট</span>
+                <span className="text-sm font-black text-[#4EEDB0] font-mono">{deliveredCreds.length}</span>
+              </div>
+              <div className="p-2.5 rounded-xl bg-[#05110A] border border-[#173826] text-center">
+                <span className="text-[10px] text-[#69977E] block">রিসেট রিকোয়েস্ট</span>
+                <span className="text-sm font-black text-[#4EEDB0] font-mono">{resetRequests.length}</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+              <button
+                onClick={handleDownloadFullSystemBackup}
+                className="p-4 rounded-2xl bg-[#008A4B] hover:bg-[#009E56] text-white text-xs font-bold flex flex-col items-center justify-center gap-2 cursor-pointer shadow-md text-center"
+              >
+                <Download className="w-5 h-5" />
+                <span>সম্পূর্ণ ব্যাকআপ ডাউনলোড (JSON)</span>
+              </button>
+
+              <label className="p-4 rounded-2xl bg-[#05110A] hover:bg-[#122A1E] text-[#4EEDB0] border border-[#173826] text-xs font-bold flex flex-col items-center justify-center gap-2 cursor-pointer text-center">
+                <Upload className="w-5 h-5" />
+                <span>অন্য ডিভাইসে ব্যাকআপ রিস্টোর</span>
+                <input
+                  type="file"
+                  accept=".json"
+                  onChange={handleRestoreFullSystemBackup}
+                  className="hidden"
+                />
+              </label>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Action Password Modal */}
       {showActionPasswordModal && (
@@ -1861,7 +1784,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
               <h3 className="text-base font-black text-white">অ্যাকশন সিকিউরিটি পাসওয়ার্ড</h3>
             </div>
             <p className="text-xs text-[#8BB99F]">
-              এই সংবেদনশীল কাজটি সম্পন্ন করতে অ্যাডমিন অ্যাকশন কনফার্মেশন পাসওয়ার্ড লিখুন।
+              এই সংবেদনশীল কাজটি সম্পন্ন করতে অ্যাডমিন কনফার্মেশন পাসওয়ার্ড দিন।
             </p>
 
             {actionPasswordError && (
@@ -1895,6 +1818,121 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Deliver Website Credentials Modal */}
+      {selectedUserForDelivery && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
+          <div className="w-full max-w-md bg-[#091A11] border border-[#00B261] rounded-3xl p-6 sm:p-8 shadow-2xl relative space-y-4">
+            <button
+              onClick={() => setSelectedUserForDelivery(null)}
+              className="absolute top-5 right-5 text-[#8BB99F] hover:text-white"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div>
+              <span className="px-2.5 py-0.5 rounded-full bg-[#008A4B] text-white text-xs font-bold">
+                ওয়েবসাইট হস্তান্তর
+              </span>
+              <h3 className="text-lg font-black text-white mt-1">
+                {selectedUserForDelivery.name} কে ক্রিডেনশিয়াল পাঠান
+              </h3>
+              <p className="text-xs text-[#8BB99F]">
+                মোবাইল নম্বর: {selectedUserForDelivery.phone}
+              </p>
+            </div>
+
+            {deliverySuccess && (
+              <div className="p-3 rounded-xl bg-[#00B261]/20 border border-[#00B261] text-[#4EEDB0] text-xs font-bold">
+                ✓ সফলভাবে গ্রাহকের প্রোফাইলে অ্যাক্সেস পাঠানো হয়েছে!
+              </div>
+            )}
+
+            <form onSubmit={handleDeliverCredentials} className="space-y-3.5">
+              <div>
+                <label className="block text-xs font-bold text-[#A8D7BD] mb-1">
+                  ওয়েবসাইট অ্যাডমিন আইডি / ইউজারনেম
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="যেমন: admin বা user@store.com"
+                  value={deliveryAdminId}
+                  onChange={(e) => setDeliveryAdminId(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#05110A] border border-[#173826] text-white text-xs font-mono focus:outline-none focus:border-[#00B261]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#A8D7BD] mb-1">
+                  ওয়েবসাইট অ্যাডমিন পাসওয়ার্ড
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="যেমন: pass@2026#"
+                  value={deliveryAdminPass}
+                  onChange={(e) => setDeliveryAdminPass(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#05110A] border border-[#173826] text-white text-xs font-mono focus:outline-none focus:border-[#00B261]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#A8D7BD] mb-1">
+                  ইঞ্জিনিয়ার নোট (ঐচ্ছিক)
+                </label>
+                <textarea
+                  rows={2}
+                  placeholder="ওয়েবসাইটের অ্যাডমিন লিংক বা নির্দেশনা..."
+                  value={deliveryNotes}
+                  onChange={(e) => setDeliveryNotes(e.target.value)}
+                  className="w-full px-3.5 py-2 rounded-xl bg-[#05110A] border border-[#173826] text-xs text-white resize-none focus:outline-none focus:border-[#00B261]"
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="w-full py-2.5 rounded-xl bg-[#008A4B] text-white text-xs font-bold hover:bg-[#009E56] cursor-pointer"
+              >
+                গ্রাহকের অ্যাকাউন্টে পাঠান
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Password Reset Modal */}
+      {activeResetRequest && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
+          <div className="w-full max-w-sm bg-[#091A11] border border-[#00B261] rounded-3xl p-6 shadow-2xl space-y-4">
+            <h3 className="text-base font-black text-white">
+              {activeResetRequest.phone} এর নতুন পাসওয়ার্ড নির্ধারণ
+            </h3>
+            <input
+              type="text"
+              required
+              placeholder="যেমন: newpass2026"
+              value={manualNewPassword}
+              onChange={(e) => setManualNewPassword(e.target.value)}
+              className="w-full px-3.5 py-2.5 rounded-xl bg-[#05110A] border border-[#173826] text-white text-xs font-mono focus:outline-none focus:border-[#00B261]"
+            />
+            <div className="flex gap-2">
+              <button
+                onClick={() => handleResolvePasswordReset('reset')}
+                className="flex-1 py-2 rounded-xl bg-[#008A4B] text-white text-xs font-bold"
+              >
+                নিশ্চিত করুন
+              </button>
+              <button
+                onClick={() => setActiveResetRequest(null)}
+                className="px-4 py-2 rounded-xl bg-[#05110A] text-xs text-[#8BB99F]"
+              >
+                বাতিল
+              </button>
+            </div>
           </div>
         </div>
       )}
