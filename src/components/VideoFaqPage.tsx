@@ -242,8 +242,8 @@ export default function VideoFaqPage({ onBack, onOpenOrder, onOpenPackages }: Vi
                     {item.keyPoints && item.keyPoints.length > 0 && (
                       <ul className="space-y-1.5 pt-2 border-t border-white/10">
                         {item.keyPoints.map((pt, idx) => (
-                          <li key={idx} className="flex items-start gap-2 text-white">
-                            <CheckCircle2 className="w-3.5 h-3.5 text-white shrink-0 mt-0.5" />
+                          <li key={idx} className="flex items-start gap-2 text-[#00FF88]">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-[#00FF88] shrink-0 mt-0.5" />
                             <span>{pt}</span>
                           </li>
                         ))}
@@ -265,7 +265,7 @@ export default function VideoFaqPage({ onBack, onOpenOrder, onOpenPackages }: Vi
         <div className="p-6 rounded-3xl bg-[#141414] border border-white/10 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
           <div>
             <h3 className="text-sm font-bold text-white">Ready to launch your website?</h3>
-            <p className="text-xs text-neutral-400 mt-0.5">Explore our packages starting from ৳999 BDT or order directly.</p>
+            <p className="text-xs text-[#00FF88] font-medium mt-0.5">Explore our packages starting from ৳999 BDT or order directly.</p>
           </div>
 
           <div className="flex items-center gap-2.5 w-full sm:w-auto">
@@ -281,10 +281,10 @@ export default function VideoFaqPage({ onBack, onOpenOrder, onOpenPackages }: Vi
             {onOpenOrder && (
               <button
                 onClick={() => onOpenOrder('Standard Starter Website')}
-                className="flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-white hover:bg-neutral-200 text-black text-xs font-bold shadow-md cursor-pointer transition-all flex items-center justify-center gap-1.5 hover:-translate-y-0.5 active:translate-y-0"
+                className="flex-1 sm:flex-initial px-5 py-2.5 rounded-xl btn-rgb text-black text-xs font-extrabold shadow-md cursor-pointer transition-all flex items-center justify-center gap-1.5 hover:scale-[1.02] active:scale-[0.99]"
               >
                 <span>Order Website</span>
-                <ArrowRight className="w-3.5 h-3.5 text-black" />
+                <ArrowRight className="w-3.5 h-3.5 text-black stroke-[2.5]" />
               </button>
             )}
           </div>

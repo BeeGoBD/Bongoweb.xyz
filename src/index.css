@@ -1,15 +1,44 @@
 @import "tailwindcss";
 
 @layer base {
+  :root {
+    /* Exact Stripe Live Design System (2026) Tokens */
+    --color-primary: #533AFD;
+    --color-primary-hover: #665EFD;
+    --color-primary-active: #4032C8;
+    --color-primary-dark: #2E2B8C;
+    --color-brand-deep: #1C1E54;
+    
+    --color-text-primary: #0D253D;
+    --color-text-secondary: #273951;
+    --color-text-muted: #64748D;
+    --color-text-quiet: #7D8BA4;
+    --color-text-on-primary: #FFFFFF;
+    
+    --color-bg-main: #FFFFFF;
+    --color-bg-quiet: #F8FAFD;
+    --color-bg-subdued: #E5EDF5;
+    --color-bg-accent-subdued: #E2E4FF;
+    --color-bg-soft-neutral: #D4DEE9;
+    
+    --color-success: #00B261;
+    --color-error: #D8351E;
+    --color-warning: #FF6118;
+
+    --gradient-primary: linear-gradient(135deg, #533AFD 0%, #7F7DFC 50%, #BDB4FF 100%);
+    --gradient-accent-magenta: linear-gradient(135deg, #F44BCC 0%, #F96BEE 100%);
+    --gradient-accent-orange: linear-gradient(135deg, #FF6118 0%, #FFD552 100%);
+  }
+
   * {
-    border-color: #2A2A2A;
+    border-color: #E5EDF5;
     box-sizing: border-box;
   }
 
   html {
     scroll-behavior: smooth;
-    background-color: #0A0A0A;
-    color: #F5F5F5;
+    background-color: #FFFFFF;
+    color: #0D253D;
     overflow-x: hidden;
     width: 100%;
     font-size: 16px;
@@ -21,8 +50,8 @@
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     -webkit-tap-highlight-color: transparent;
-    background-color: #0A0A0A;
-    color: #F5F5F5;
+    background-color: #FFFFFF;
+    color: #0D253D;
     overflow-x: hidden;
     width: 100%;
     min-width: 320px;
@@ -36,22 +65,49 @@
     height: auto;
   }
 
-  /* High performance touch interaction for Android / mobile devices */
+  /* High performance touch interaction */
   button, a, input, select, textarea {
     touch-action: manipulation;
-    -webkit-user-select: none;
-    user-select: none;
-  }
-
-  input, textarea {
-    -webkit-user-select: auto;
-    user-select: auto;
   }
 
   ::selection {
-    background-color: #FFFFFF;
-    color: #000000;
+    background-color: #E2E4FF;
+    color: #533AFD;
   }
+}
+
+/* Stripe Button & Gradient Classes */
+.bg-stripe-primary {
+  background-color: #533AFD;
+}
+.bg-stripe-primary:hover {
+  background-color: #665EFD;
+}
+.bg-stripe-primary:active {
+  background-color: #4032C8;
+}
+
+.text-stripe-primary {
+  color: #533AFD;
+}
+.text-stripe-primary:hover {
+  color: #665EFD;
+}
+
+.bg-stripe-gradient {
+  background: linear-gradient(135deg, #533AFD 0%, #7F7DFC 50%, #BDB4FF 100%);
+}
+
+.bg-stripe-gradient-subtle {
+  background: linear-gradient(180deg, #F8FAFD 0%, #FFFFFF 100%);
+}
+
+.bg-stripe-accent-orange {
+  background: linear-gradient(135deg, #FF6118 0%, #FFD552 100%);
+}
+
+.bg-stripe-accent-magenta {
+  background: linear-gradient(135deg, #F44BCC 0%, #F96BEE 100%);
 }
 
 /* Fluid responsive grid & line-length typography classes */
@@ -64,7 +120,7 @@
   min-width: 48px;
 }
 
-/* Subtle micro-animations */
+/* Stripe-like micro animations */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -76,32 +132,10 @@
   }
 }
 
-@keyframes pulseGlow {
-  0%, 100% {
-    opacity: 0.4;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.7;
-    transform: scale(1.04);
-  }
-}
-
-@keyframes slideInLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-40px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
 @keyframes slideUpModal {
   from {
     opacity: 0;
-    transform: translateY(28px) scale(0.97);
+    transform: translateY(20px) scale(0.98);
   }
   to {
     opacity: 1;
@@ -109,107 +143,47 @@
   }
 }
 
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
 .animate-slideUpModal {
-  animation: slideUpModal 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: slideUpModal 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .animate-fadeIn {
-  animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: fadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Hide global support widget during live website demo preview */
-body:has(#preview-simulator-active) #live-support-floating-wrapper {
-  display: none !important;
+.animate-slideInRight {
+  animation: slideInRight 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-.animate-slideInLeft {
-  animation: slideInLeft 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-/* Refined luxury scrollbar */
+/* Refined Stripe scrollbar */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: #F8FAFD;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.12);
+  background: #D4DEE9;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.25);
-}
-
-/* Animated radiant wave moving smoothly across primary action buttons */
-@keyframes waveLTR {
-  0% {
-    transform: translateX(-180%) skewX(-24deg);
-    opacity: 0;
-  }
-  15% {
-    opacity: 0.85;
-  }
-  80% {
-    opacity: 0.85;
-  }
-  100% {
-    transform: translateX(180%) skewX(-24deg);
-    opacity: 0;
-  }
-}
-
-.btn-wave-rtl,
-.btn-wave-ltr {
-  position: relative;
-  overflow: hidden;
-  isolation: isolate;
-}
-
-.btn-wave-rtl::after,
-.btn-wave-ltr::after {
-  content: '';
-  position: absolute;
-  top: -15%;
-  left: 0;
-  width: 100%;
-  height: 130%;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.06) 20%,
-    rgba(255, 255, 255, 0.35) 50%,
-    rgba(255, 255, 255, 0.06) 80%,
-    transparent 100%
-  );
-  transform: translateX(-180%) skewX(-24deg);
-  animation: waveLTR 2.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-  pointer-events: none;
-  z-index: 1;
-}
-
-.btn-wave-rtl:hover::after,
-.btn-wave-ltr:hover::after {
-  animation-duration: 2s;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.1) 20%,
-    rgba(255, 255, 255, 0.45) 50%,
-    rgba(255, 255, 255, 0.1) 80%,
-    transparent 100%
-  );
-}
-
-.btn-wave-rtl > *,
-.btn-wave-ltr > * {
-  position: relative;
-  z-index: 2;
+  background: #7D8BA4;
 }
 
 /* Interactive focus ring discipline */
 button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible {
-  outline: 2px solid #FFFFFF;
+  outline: 2px solid #533AFD;
   outline-offset: 2px;
 }

@@ -154,15 +154,15 @@ export default function OrderConsultPage({
               >
                 <div className="flex items-center gap-3">
                   <span className="relative flex h-2.5 w-2.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-white"></span>
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00FF88] opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#00FF88]"></span>
                   </span>
-                  <span className="text-xs sm:text-sm md:text-base font-bold tracking-tight text-white select-none">
-                    অর্ডার করার পর আমরা আপনার জন্য কী কী করব?
+                  <span className="text-xs sm:text-sm md:text-base font-bold tracking-tight text-[#00FF88] select-none">
+                    অর্ডার করার পর আমরা আপনার জন্য কী কী করব? (নির্দেশনা)
                   </span>
                 </div>
 
-                <div className="w-8 h-8 rounded-xl bg-black text-white flex items-center justify-center border border-white/10 group-hover:border-white/40 transition-all duration-200 shrink-0">
+                <div className="w-8 h-8 rounded-xl bg-black text-[#00FF88] flex items-center justify-center border border-[#00FF88]/30 group-hover:border-[#00FF88] transition-all duration-200 shrink-0">
                   {isWhatWeDoExpanded ? (
                     <ChevronUp className="w-4 h-4 stroke-[2.5]" />
                   ) : (
@@ -173,22 +173,22 @@ export default function OrderConsultPage({
 
               {/* Collapsible Action Roadmap */}
               {isWhatWeDoExpanded && (
-                <div className="p-5 sm:p-6 rounded-2xl bg-[#141414] border border-white/10 shadow-md mt-3 animate-fadeIn space-y-3 text-xs sm:text-sm text-white">
-                  <div className="flex items-start gap-3 p-3 bg-black border border-white/10 rounded-xl">
-                    <span className="w-6 h-6 rounded-lg bg-white text-black flex items-center justify-center shrink-0 font-bold text-xs">১</span>
-                    <span className="text-white/90">সরাসরি ফোন কল বা হোয়াটসঅ্যাপে কথা বলে আপনার প্ল্যান ও প্রয়োজনীয়তা নিশ্চিত করা হবে।</span>
+                <div className="p-5 sm:p-6 rounded-2xl bg-[#0A0A0A] border border-[#00FF88]/30 shadow-md mt-3 animate-fadeIn space-y-3 text-xs sm:text-sm text-[#00FF88]">
+                  <div className="flex items-start gap-3 p-3 bg-[#141414] border border-[#00FF88]/20 rounded-xl">
+                    <span className="w-6 h-6 rounded-lg bg-[#00FF88] text-black flex items-center justify-center shrink-0 font-bold text-xs">১</span>
+                    <span className="text-[#00FF88]">সরাসরি ফোন কল বা হোয়াটসঅ্যাপে কথা বলে আপনার প্ল্যান ও প্রয়োজনীয়তা নিশ্চিত করা হবে।</span>
                   </div>
-                  <div className="flex items-start gap-3 p-3 bg-black border border-white/10 rounded-xl">
-                    <span className="w-6 h-6 rounded-lg bg-white text-black flex items-center justify-center shrink-0 font-bold text-xs">২</span>
-                    <span className="text-white/90">আপনার ওয়েবসাইট ও ব্র্যান্ডের নাম, লোগো এবং প্রয়োজনীয় তথ্য সংগ্রহ করা হবে।</span>
+                  <div className="flex items-start gap-3 p-3 bg-[#141414] border border-[#00FF88]/20 rounded-xl">
+                    <span className="w-6 h-6 rounded-lg bg-[#00FF88] text-black flex items-center justify-center shrink-0 font-bold text-xs">২</span>
+                    <span className="text-[#00FF88]">আপনার ওয়েবসাইট ও ব্র্যান্ডের নাম, লোগো এবং প্রয়োজনীয় তথ্য সংগ্রহ করা হবে।</span>
                   </div>
-                  <div className="flex items-start gap-3 p-3 bg-black border border-white/10 rounded-xl">
-                    <span className="w-6 h-6 rounded-lg bg-white text-black flex items-center justify-center shrink-0 font-bold text-xs">৩</span>
-                    <span className="text-white/90">ডোমেন কানেকশন করে মাত্র ২৪ ঘণ্টার মধ্যে সম্পূর্ণ লাইভ ওয়েবসাইট ডেলিভারি দেওয়া হবে।</span>
+                  <div className="flex items-start gap-3 p-3 bg-[#141414] border border-[#00FF88]/20 rounded-xl">
+                    <span className="w-6 h-6 rounded-lg bg-[#00FF88] text-black flex items-center justify-center shrink-0 font-bold text-xs">৩</span>
+                    <span className="text-[#00FF88]">ডোমেন কানেকশন করে মাত্র ২৪ ঘণ্টার মধ্যে সম্পূর্ণ লাইভ ওয়েবসাইট ডেলিভারি দেওয়া হবে।</span>
                   </div>
-                  <div className="flex items-start gap-3 p-3 bg-black border border-white/10 rounded-xl">
-                    <span className="w-6 h-6 rounded-lg bg-white text-black flex items-center justify-center shrink-0 font-bold text-xs">৪</span>
-                    <span className="text-white/90">যেকোনো প্রয়োজনে আমাদের অফিসিয়াল হোয়াটসঅ্যাপে আজীবন নিরবচ্ছিন্ন সাপোর্ট পাবেন।</span>
+                  <div className="flex items-start gap-3 p-3 bg-[#141414] border border-[#00FF88]/20 rounded-xl">
+                    <span className="w-6 h-6 rounded-lg bg-[#00FF88] text-black flex items-center justify-center shrink-0 font-bold text-xs">৪</span>
+                    <span className="text-[#00FF88]">যেকোনো প্রয়োজনে আমাদের অফিসিয়াল হোয়াটসঅ্যাপে আজীবন নিরবচ্ছিন্ন সাপোর্ট পাবেন।</span>
                   </div>
                 </div>
               )}
@@ -236,8 +236,8 @@ export default function OrderConsultPage({
                         placeholder="যেমন: ঢাকা গুরমেট শপ"
                         className="w-full px-4 py-3 bg-black border border-white/10 rounded-xl text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-white focus:ring-1 focus:ring-white/20 transition-all"
                       />
-                      <span className="text-[11px] text-white/80 font-medium mt-1 block">
-                        ⓘ এই নামটি আপনার লাইভ ওয়েবসাইট এবং লোগোতে বসানো হবে।
+                      <span className="text-[11px] text-[#00FF88] font-medium mt-1 block">
+                        💡 <span className="font-bold">তথ্য:</span> এই নামটি আপনার লাইভ ওয়েবসাইট এবং লোগোতে বসানো হবে।
                       </span>
                     </div>
 
@@ -252,7 +252,7 @@ export default function OrderConsultPage({
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
                         placeholder="যেমন: 01700000000"
-                        className="w-full px-4 py-3 bg-black border border-white/10 rounded-xl text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-white focus:ring-1 focus:ring-white/20 transition-all font-mono"
+                        className="w-full px-4 py-3 bg-black border border-white/10 rounded-xl text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-[#00FF88] focus:ring-1 focus:ring-[#00FF88]/20 transition-all font-mono"
                       />
                     </div>
 
@@ -266,7 +266,7 @@ export default function OrderConsultPage({
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="যেমন: contact@mybrand.com"
-                        className="w-full px-4 py-3 bg-black border border-white/10 rounded-xl text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-white focus:ring-1 focus:ring-white/20 transition-all"
+                        className="w-full px-4 py-3 bg-black border border-white/10 rounded-xl text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-[#00FF88] focus:ring-1 focus:ring-[#00FF88]/20 transition-all"
                       />
                     </div>
                   </div>
@@ -276,10 +276,10 @@ export default function OrderConsultPage({
                   <button
                     type="submit"
                     id="btn-step1-next"
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl bg-white hover:bg-neutral-200 text-black font-bold text-sm cursor-pointer shadow-md transition-all hover:-translate-y-0.5"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl btn-rgb text-black font-extrabold text-sm cursor-pointer shadow-md transition-all hover:scale-[1.02] active:scale-[0.99]"
                   >
                     <span>পরবর্তী ধাপে যান (ডোমেন ও পেমেন্ট)</span>
-                    <ChevronRight className="w-4 h-4 text-black" />
+                    <ChevronRight className="w-4 h-4 text-black stroke-[2.5]" />
                   </button>
                 </div>
               </form>
@@ -296,8 +296,8 @@ export default function OrderConsultPage({
                     <h2 className="text-xl sm:text-2xl font-bold text-white mb-1">
                       ২. ডোমেন সেটআপ
                     </h2>
-                    <p className="text-xs sm:text-sm text-neutral-400 mb-3">
-                      <strong>ডোমেন কী?</strong> ডোমেন হলো ইন্টারনেটে আপনার ওয়েবসাইটের নির্দিষ্ট ঠিকানা (যেমন: yourbrand.com বা yourbrand.bongoweb.site)। কাস্টমাররা এটি লিখে আপনার সাইটে ঢুকবে।
+                    <p className="text-xs sm:text-sm text-[#00FF88] font-medium mb-3 bg-[#00FF88]/10 p-2.5 rounded-xl border border-[#00FF88]/20">
+                      💡 <strong className="font-bold">ডোমেন কী?</strong> ডোমেন হলো ইন্টারনেটে আপনার ওয়েবসাইটের নির্দিষ্ট ঠিকানা (যেমন: yourbrand.com বা yourbrand.bongoweb.site)। কাস্টমাররা এটি লিখে আপনার সাইটে ঢুকবে।
                     </p>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
@@ -557,32 +557,32 @@ export default function OrderConsultPage({
                     ক্যাটাগরি: {categoryName} · সম্পূর্ণ রেডিমেড রেসপনসিভ ওয়েবসাইট
                   </p>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-white/90 pt-3 border-t border-white/10">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-[#00FF88] pt-3 border-t border-white/10">
                     <div className="flex items-center gap-2">
-                      <Check className="w-3.5 h-3.5 text-white shrink-0" />
+                      <Check className="w-3.5 h-3.5 text-[#00FF88] shrink-0" />
                       <span>কাস্টম ডোমেন কানেকশন (.com / .net ইত্যাদি)</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Check className="w-3.5 h-3.5 text-white shrink-0" />
+                      <Check className="w-3.5 h-3.5 text-[#00FF88] shrink-0" />
                       <span>লাইফটাইম ফ্রি SSL সিকিউরিটি সার্টিফিকেট</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Check className="w-3.5 h-3.5 text-white shrink-0" />
+                      <Check className="w-3.5 h-3.5 text-[#00FF88] shrink-0" />
                       <span>১০০% মোবাইল ও ট্যাবলেট রেসপনসিভ</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Check className="w-3.5 h-3.5 text-white shrink-0" />
+                      <Check className="w-3.5 h-3.5 text-[#00FF88] shrink-0" />
                       <span>১-ক্লিকে সরাসরি হোয়াটসঅ্যাপ অর্ডার সিস্টেম</span>
                     </div>
                   </div>
                 </div>
 
-                {/* Final Submit Button */}
+                {/* Final Submit Button - Radiant RGB */}
                 <div className="pt-2">
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full py-4 rounded-xl text-sm sm:text-base font-bold text-black bg-white hover:bg-neutral-200 shadow-[0_4px_24px_rgba(255,255,255,0.15)] hover:shadow-[0_8px_32px_rgba(255,255,255,0.25)] transition-all cursor-pointer flex items-center justify-center gap-2 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.99] disabled:opacity-75"
+                    className="w-full py-4 rounded-xl text-sm sm:text-base font-extrabold text-black btn-rgb shadow-[0_0_28px_rgba(0,255,136,0.35)] transition-all cursor-pointer flex items-center justify-center gap-2 hover:scale-[1.01] active:scale-[0.99] disabled:opacity-75"
                   >
                     {isSubmitting ? (
                       <span className="flex items-center gap-2 text-black">
@@ -591,13 +591,13 @@ export default function OrderConsultPage({
                       </span>
                     ) : (
                       <>
-                        <Lock className="w-4 h-4 text-black" />
+                        <Lock className="w-4 h-4 text-black stroke-[2.5]" />
                         <span>অর্ডার কনফার্ম করুন (৳{finalPrice} টাকা)</span>
                       </>
                     )}
                   </button>
-                  <p className="text-[11px] text-center text-neutral-400 mt-2">
-                    ১০০% ডেমো-ম্যাচ গ্যারান্টি। আপনার সাথে ফোনে কথা বলার পরই কাজ শুরু করা হবে।
+                  <p className="text-[11px] text-center text-[#00FF88] font-medium mt-2 bg-[#00FF88]/10 py-1.5 px-3 rounded-lg border border-[#00FF88]/20">
+                    💡 <span className="font-bold">গ্যারান্টি:</span> ১০০% ডেমো-ম্যাচ গ্যারান্টি। আপনার সাথে ফোনে কথা বলার পরই কাজ শুরু করা হবে।
                   </p>
                 </div>
               </form>

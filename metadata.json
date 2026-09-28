@@ -1,6 +1,6 @@
 {
-  "name": "WebHub",
-  "description": "Interactive onboarding wizard and live website showcase for entrepreneurs.",
+  "name": "BongoWeb.xyz",
+  "description": "Stripe-standard business website catalog, onboarding and customer dashboard.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

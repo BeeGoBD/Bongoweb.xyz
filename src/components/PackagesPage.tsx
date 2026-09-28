@@ -135,15 +135,15 @@ export default function PackagesPage({
                 </div>
 
                 <div className="space-y-3 mb-8">
-                  <span className="text-[11px] font-bold text-neutral-400 block uppercase tracking-wider">
+                  <span className="text-[11px] font-bold text-[#00FF88] block uppercase tracking-wider">
                     Included Deliverables:
                   </span>
                   {pkg.features.map((feat, idx) => (
-                    <div key={idx} className="flex items-start gap-2.5 text-xs text-white">
-                      <div className="w-4 h-4 rounded-full bg-white/20 text-white flex items-center justify-center shrink-0 mt-0.5">
+                    <div key={idx} className="flex items-start gap-2.5 text-xs text-[#00FF88]">
+                      <div className="w-4 h-4 rounded-full bg-[#00FF88]/20 text-[#00FF88] border border-[#00FF88]/30 flex items-center justify-center shrink-0 mt-0.5">
                         <Check className="w-2.5 h-2.5 stroke-[3]" />
                       </div>
-                      <span className="font-medium">{feat}</span>
+                      <span className="font-medium text-white">{feat}</span>
                     </div>
                   ))}
                 </div>
@@ -151,14 +151,10 @@ export default function PackagesPage({
 
               <button
                 onClick={() => onSelectPackage(pkg.name)}
-                className={`w-full py-3.5 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all shadow-sm active:scale-[0.99] cursor-pointer flex items-center justify-center gap-2 ${
-                  pkg.popular
-                    ? 'bg-white hover:bg-neutral-200 text-black shadow-lg hover:-translate-y-0.5'
-                    : 'bg-white/10 hover:bg-white hover:text-black text-white border border-white/20 shadow-xs hover:-translate-y-0.5'
-                }`}
+                className="w-full py-3.5 px-4 rounded-xl text-xs sm:text-sm font-extrabold btn-rgb text-black transition-all shadow-md active:scale-[0.99] cursor-pointer flex items-center justify-center gap-2 hover:scale-[1.02]"
               >
                 <span>Select this Package</span>
-                <ArrowRight className="w-3.5 h-3.5" />
+                <ArrowRight className="w-3.5 h-3.5 text-black stroke-[2.5]" />
               </button>
             </div>
           ))}

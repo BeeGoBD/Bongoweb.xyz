@@ -397,10 +397,10 @@ export default function PhotoShowcasePage({
                   type="button"
                   id="btn-photo-continue-with-plan"
                   onClick={handleProceedToCatalog}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl bg-white hover:bg-neutral-200 text-black text-xs sm:text-sm font-bold transition-all shadow-md cursor-pointer hover:-translate-y-0.5 active:translate-y-0"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl btn-rgb text-black text-xs sm:text-sm font-extrabold transition-all shadow-md cursor-pointer hover:-translate-y-0.5 active:translate-y-0"
                 >
                   <span>Continue with this Plan</span>
-                  <ArrowRight className="w-4 h-4 text-black" />
+                  <ArrowRight className="w-4 h-4 text-black stroke-[2.5]" />
                 </button>
               </div>
             )}
@@ -430,8 +430,8 @@ export default function PhotoShowcasePage({
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
                   {activePlan.features.map((feat, idx) => (
-                    <div key={idx} className="flex items-center gap-2 text-xs text-white">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-white shrink-0" />
+                    <div key={idx} className="flex items-center gap-2 text-xs text-[#00FF88]">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-[#00FF88] shrink-0" />
                       <span>{feat}</span>
                     </div>
                   ))}
@@ -454,10 +454,10 @@ export default function PhotoShowcasePage({
                   <button
                     type="button"
                     onClick={handleProceedToCatalog}
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-2.5 rounded-xl bg-white hover:bg-neutral-200 text-black text-xs sm:text-sm font-bold transition-all shadow-md cursor-pointer hover:-translate-y-0.5 active:translate-y-0"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-2.5 rounded-xl btn-rgb text-black text-xs sm:text-sm font-extrabold transition-all shadow-md cursor-pointer hover:-translate-y-0.5 active:translate-y-0"
                   >
                     <span>Continue with this Plan</span>
-                    <ArrowRight className="w-4 h-4 text-black" />
+                    <ArrowRight className="w-4 h-4 text-black stroke-[2.5]" />
                   </button>
                 </div>
               </div>
@@ -497,19 +497,19 @@ export default function PhotoShowcasePage({
                 type="button"
                 onClick={() => setIsOrderProcessExpanded(prev => !prev)}
                 id="btn-what-we-do-after-order"
-                className="w-full relative group inline-flex items-center justify-between px-6 sm:px-8 py-3.5 sm:py-4 rounded-2xl bg-[#141414] hover:bg-[#1A1A1A] text-white cursor-pointer shadow-md border border-white/10 hover:border-white/30 transition-all duration-200 overflow-hidden"
+                className="w-full relative group inline-flex items-center justify-between px-6 sm:px-8 py-3.5 sm:py-4 rounded-2xl bg-[#0A0A0A] hover:bg-[#141414] text-[#00FF88] cursor-pointer shadow-md border border-[#00FF88]/30 hover:border-[#00FF88]/60 transition-all duration-200 overflow-hidden"
               >
                 <div className="flex items-center gap-3">
                   <span className="relative flex h-2.5 w-2.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-white"></span>
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00FF88] opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#00FF88]"></span>
                   </span>
-                  <span className="text-xs sm:text-sm md:text-base font-bold tracking-tight text-white select-none">
-                    অর্ডার করার পর আমরা আপনার জন্য কী কী করব
+                  <span className="text-xs sm:text-sm md:text-base font-bold tracking-tight text-[#00FF88] select-none">
+                    অর্ডার করার পর আমরা আপনার জন্য কী কী করব (নির্দেশনা ও ধাপসমূহ)
                   </span>
                 </div>
 
-                <div className="w-8 h-8 rounded-xl bg-[#0A0A0A] text-white flex items-center justify-center border border-white/20 group-hover:border-white transition-all duration-200 shrink-0">
+                <div className="w-8 h-8 rounded-xl bg-[#0A0A0A] text-[#00FF88] flex items-center justify-center border border-[#00FF88]/30 group-hover:border-[#00FF88] transition-all duration-200 shrink-0">
                   {isOrderProcessExpanded ? (
                     <ChevronUp className="w-4 h-4 stroke-[2.5]" />
                   ) : (
@@ -689,12 +689,12 @@ export default function PhotoShowcasePage({
                   type="button"
                   onClick={() => onSelectForOrder(selectedMockup.title)}
                   id="photo-header-checkout-btn"
-                  className="group relative inline-flex items-center gap-2 sm:gap-2.5 px-4 sm:px-6 py-2.5 sm:py-3 rounded-2xl bg-white hover:bg-neutral-200 text-black text-xs sm:text-sm font-black transition-all duration-200 cursor-pointer shadow-md hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] shrink-0 overflow-hidden"
+                  className="group relative inline-flex items-center gap-2 sm:gap-2.5 px-4 sm:px-6 py-2.5 sm:py-3 rounded-2xl btn-rgb text-black text-xs sm:text-sm font-black transition-all duration-200 cursor-pointer shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] shrink-0 overflow-hidden"
                   title={`ওয়েবসাইট কিনুন ${selectedMockup.fourDigitCode}`}
                 >
                   {/* Live pulsing radar beacon */}
                   <span className="relative flex h-2 w-2 shrink-0">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-black opacity-75"></span>
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-black opacity-85"></span>
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-black"></span>
                   </span>
 
@@ -705,13 +705,13 @@ export default function PhotoShowcasePage({
                   <span className="tracking-tight font-black whitespace-nowrap text-black">
                     <span className="hidden sm:inline">এই ওয়েবসাইটটি কিনুন </span>
                     <span className="sm:hidden">ওয়েবসাইট কিনুন </span>
-                    <span className="font-mono text-xs font-black bg-black/10 text-black px-1.5 py-0.5 rounded-md border border-black/20 ml-1">
+                    <span className="font-mono text-xs font-black bg-black/15 text-black px-1.5 py-0.5 rounded-md border border-black/30 ml-1">
                       {selectedMockup.fourDigitCode}
                     </span>
                   </span>
 
                   {/* Forward Arrow with glide animation */}
-                  <ArrowRight className="w-4 h-4 text-black group-hover:translate-x-1 transition-transform shrink-0" />
+                  <ArrowRight className="w-4 h-4 text-black group-hover:translate-x-1 transition-transform shrink-0 stroke-[2.5]" />
                 </button>
               </div>
             </div>
