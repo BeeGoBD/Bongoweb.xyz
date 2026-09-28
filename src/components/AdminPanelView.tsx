@@ -20,6 +20,7 @@ import {
   apiGetResetRequests, apiResolveResetRequest,
   apiExportCompleteBackup, apiRestoreCompleteBackup, pullFromCloudVault
 } from '../utils/api';
+import { realtimeManager } from '../utils/realtime';
 
 interface AdminPanelViewProps {
   onBackToApp: () => void;
@@ -101,6 +102,130 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
   const [actionPasswordInput, setActionPasswordInput] = useState('');
   const [actionPasswordError, setActionPasswordError] = useState('');
   const [showActionPasswordModal, setShowActionPasswordModal] = useState(false);
+
+  // Real-Time Event Toast Notification
+  const [realtimeToast, setRealtimeToast] = useState<{
+    title: string;
+    subtitle: string;
+    type: 'order' | 'chat';
+    actionTab?: 'orders' | 'chat';
+    threadPhone?: string;
+  } | null>(null);
+
+  // Real-time Event Listener (WebSocket & SSE Zero-Loss Integration)
+  useEffect(() => {
+    const unsubs = [
+      // 1. Order Received Real-Time Listener
+      realtimeManager.on('order:created', (payload) => {
+        if (!payload.order) return;
+        const newOrder: ClientOrder = payload.order;
+        setOrders((prev) => {
+          if (prev.some((o) => o.orderId === newOrder.orderId)) return prev;
+          return [newOrder, ...prev];
+        });
+
+        setRealtimeToast({
+          title: `🔔 নতুন অর্ডার রিসিভ হয়েছে! (${newOrder.orderId})`,
+          subtitle: `${newOrder.clientName} • ${newOrder.demoTitle} • মেকিং চার্জ: ${newOrder.makingCharge} ৳`,
+          type: 'order',
+          actionTab: 'orders'
+        });
+
+        setTimeout(() => setRealtimeToast(null), 8000);
+      }),
+
+      // 2. Chat Message Real-Time Listener
+      realtimeManager.on('chat:message', (payload) => {
+        if (!payload.message || !payload.phone) return;
+        const { phone, message } = payload;
+
+        setChatThreads((prev) => {
+          const idx = prev.findIndex((t) => t.userPhone === phone);
+          if (idx >= 0) {
+            const thread = prev[idx];
+            if (thread.messages.some((m) => m.id === message.id)) return prev;
+            const updated = {
+              ...thread,
+              lastMessage: message.text,
+              lastUpdated: 'এখনই',
+              unreadAdminCount: message.sender === 'client' ? (thread.unreadAdminCount || 0) + 1 : 0,
+              messages: [...thread.messages, message]
+            };
+            const copy = [...prev];
+            copy[idx] = updated;
+            return copy;
+          } else {
+            return [
+              {
+                userPhone: phone,
+                userName: payload.thread?.userName || 'Valued Client',
+                lastMessage: message.text,
+                lastUpdated: 'এখনই',
+                unreadAdminCount: message.sender === 'client' ? 1 : 0,
+                unreadClientCount: message.sender === 'admin' ? 1 : 0,
+                expiresAt: Date.now() + 5 * 60 * 1000,
+                isClosed: false,
+                additionalMinutesAdded: 0,
+                messages: [message]
+              },
+              ...prev
+            ];
+          }
+        });
+
+        if (message.sender === 'client') {
+          setRealtimeToast({
+            title: `💬 লাইভ চ্যাটে নতুন মেসেজ এসেছে!`,
+            subtitle: `${phone}: "${message.text.slice(0, 60)}${message.text.length > 60 ? '...' : ''}"`,
+            type: 'chat',
+            actionTab: 'chat',
+            threadPhone: phone
+          });
+
+          setTimeout(() => setRealtimeToast(null), 7000);
+        }
+      }),
+
+      // 3. Chat Activated Real-Time Listener
+      realtimeManager.on('chat:activated', (payload) => {
+        if (!payload.thread) return;
+        const newThread = payload.thread;
+        setChatThreads((prev) => {
+          const idx = prev.findIndex((t) => t.userPhone === newThread.userPhone);
+          if (idx >= 0) {
+            const copy = [...prev];
+            copy[idx] = { ...copy[idx], ...newThread };
+            return copy;
+          }
+          return [newThread, ...prev];
+        });
+
+        if (!selectedThreadPhone) {
+          setSelectedThreadPhone(newThread.userPhone);
+        }
+      }),
+
+      // 4. Chat Ended Real-Time Listener
+      realtimeManager.on('chat:ended', (payload) => {
+        if (!payload.phone) return;
+        setChatThreads((prev) => prev.filter((t) => t.userPhone !== payload.phone));
+        if (selectedThreadPhone === payload.phone) {
+          setSelectedThreadPhone('');
+        }
+      }),
+
+      // 5. Order Updated Real-Time Listener
+      realtimeManager.on('order:updated', (payload) => {
+        if (Array.isArray(payload.orders)) {
+          setOrders(payload.orders);
+        }
+      })
+    ];
+
+    return () => {
+      unsubs.forEach((unsub) => unsub());
+    };
+  }, [selectedThreadPhone]);
 
   // Load Real Data on Mount
   useEffect(() => {
@@ -691,6 +816,43 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
   // ==========================================
   return (
     <div className="min-h-screen w-full bg-[#05110A] text-[#FFFFFF] font-sans flex flex-col selection:bg-[#00B261]/30 selection:text-[#4EEDB0]">
+      {/* Floating Real-Time Event Notification Toast */}
+      {realtimeToast && (
+        <div 
+          onClick={() => {
+            if (realtimeToast.actionTab) setActiveTab(realtimeToast.actionTab);
+            if (realtimeToast.threadPhone) setSelectedThreadPhone(realtimeToast.threadPhone);
+            setRealtimeToast(null);
+          }}
+          className="fixed top-20 right-4 sm:right-6 z-50 max-w-sm w-full p-4 rounded-2xl bg-[#091A11] border-2 border-[#00B261] shadow-[0_10px_30px_rgba(0,178,97,0.3)] animate-slideDown flex items-start gap-3 cursor-pointer group"
+          role="alert"
+        >
+          <div className="p-2 rounded-xl bg-[#008A4B] text-white shrink-0 shadow-xs">
+            {realtimeToast.type === 'order' ? <ShoppingBag className="w-5 h-5" /> : <MessageSquare className="w-5 h-5" />}
+          </div>
+          <div className="flex-1 min-w-0">
+            <h5 className="text-xs font-black text-white group-hover:text-[#4EEDB0] transition-colors">
+              {realtimeToast.title}
+            </h5>
+            <p className="text-[11px] text-[#A8D7BD] mt-0.5 line-clamp-2">
+              {realtimeToast.subtitle}
+            </p>
+            <span className="text-[9px] text-[#4EEDB0] font-bold block mt-1.5 underline">
+              সরাসরি দেখতে ক্লিক করুন →
+            </span>
+          </div>
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              setRealtimeToast(null);
+            }}
+            className="text-[#69977E] hover:text-white p-1"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
       {/* 1. Header with Single Backup Vault Button Next to Logout */}
       <header className="sticky top-0 z-40 w-full bg-[#091A11]/95 backdrop-blur-md border-b border-[#173826] shadow-sm select-none">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">

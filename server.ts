@@ -1,4 +1,6 @@
 import express, { Request, Response } from 'express';
+import http from 'http';
+import { WebSocketServer, WebSocket } from 'ws';
 import { createServer as createViteServer } from 'vite';
 import path from 'path';
 import fs from 'fs';
@@ -216,7 +218,7 @@ const INITIAL_OFFICIAL_WEBSITES = [
   }
 ];
 
-// Initial Database Structure
+// Database Schema
 interface DatabaseSchema {
   adminConfig: {
     adminId: string;
@@ -307,8 +309,134 @@ function writeDb(data: DatabaseSchema): void {
 
 async function startServer() {
   const app = express();
+  const server = http.createServer(app);
 
-  // CORS support so mobile devices or local network IP addresses can communicate freely
+  // Initialize WebSocket Server
+  const wss = new WebSocketServer({ noServer: true });
+
+  // Connected SSE clients set
+  const sseClients: Set<Response> = new Set();
+
+  // Universal Broadcaster (WebSockets + SSE for zero-loss real-time events)
+  function broadcast(event: { type: string; [key: string]: any }) {
+    const payload = JSON.stringify(event);
+
+    // 1. Broadcast via WebSocket
+    wss.clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        try {
+          client.send(payload);
+        } catch (err) {
+          console.error('WebSocket send error:', err);
+        }
+      }
+    });
+
+    // 2. Broadcast via Server-Sent Events (SSE)
+    sseClients.forEach((res) => {
+      try {
+        res.write(`data: ${payload}\n\n`);
+      } catch (_) {
+        sseClients.delete(res);
+      }
+    });
+  }
+
+  // Handle HTTP -> WebSocket Upgrade on /ws
+  server.on('upgrade', (request, socket, head) => {
+    try {
+      const pathname = new URL(request.url || '', `http://${request.headers.host}`).pathname;
+      if (pathname === '/ws') {
+        wss.handleUpgrade(request, socket, head, (ws) => {
+          wss.emit('connection', ws, request);
+        });
+      }
+    } catch (err) {
+      console.error('WebSocket upgrade error:', err);
+    }
+  });
+
+  // WebSocket Connection Lifecycle
+  wss.on('connection', (ws: WebSocket) => {
+    console.log(`[WebSocket] Client connected. Total clients: ${wss.clients.size}`);
+
+    // Send initial snapshot on connect
+    const db = readDb();
+    ws.send(JSON.stringify({
+      type: 'init',
+      data: {
+        orders: db.orders,
+        supportChats: db.supportChats,
+        users: db.users,
+        customWebsites: db.customWebsites,
+        deliveredCredentials: db.deliveredCredentials
+      },
+      timestamp: Date.now()
+    }));
+
+    // Listen for incoming WebSocket messages from clients
+    ws.on('message', (raw) => {
+      try {
+        const msg = JSON.parse(raw.toString());
+        if (msg.type === 'ping') {
+          ws.send(JSON.stringify({ type: 'pong', timestamp: Date.now() }));
+        } else if (msg.type === 'chat:message') {
+          const db = readDb();
+          const { phone, sender, text, name } = msg;
+          const cleanPhone = (phone || '').trim();
+          const newMsg = {
+            id: `${sender}-${Date.now()}`,
+            sender,
+            text: (text || '').trim(),
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+          };
+
+          let thread = db.supportChats.find(t => t.userPhone === cleanPhone);
+          if (thread) {
+            thread.messages.push(newMsg);
+            thread.lastMessage = newMsg.text;
+            thread.lastUpdated = 'এখনই';
+            if (sender === 'client') {
+              thread.unreadAdminCount = (thread.unreadAdminCount || 0) + 1;
+              thread.expiresAt = Date.now() + 5 * 60 * 1000;
+              thread.isClosed = false;
+            } else {
+              thread.unreadClientCount = (thread.unreadClientCount || 0) + 1;
+            }
+          } else {
+            thread = {
+              userPhone: cleanPhone,
+              userName: name || 'Valued Client',
+              lastMessage: newMsg.text,
+              lastUpdated: 'এখনই',
+              unreadAdminCount: sender === 'client' ? 1 : 0,
+              unreadClientCount: sender === 'admin' ? 1 : 0,
+              expiresAt: Date.now() + 5 * 60 * 1000,
+              isClosed: false,
+              messages: [newMsg]
+            };
+            db.supportChats.unshift(thread);
+          }
+          writeDb(db);
+          broadcast({
+            type: 'chat:message',
+            phone: cleanPhone,
+            message: newMsg,
+            thread,
+            timestamp: Date.now()
+          });
+        }
+      } catch (err) {
+        console.error('Error handling WebSocket message:', err);
+      }
+    });
+
+    ws.on('close', () => {
+      console.log(`[WebSocket] Client disconnected. Remaining: ${wss.clients.size}`);
+    });
+  });
+
+  // CORS support
   app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
@@ -326,11 +454,42 @@ async function startServer() {
   // Ensure DB file exists
   readDb();
 
+  // ---------------- REAL-TIME SSE ENDPOINT ----------------
+  app.get('/api/events', (req: Request, res: Response) => {
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache, no-transform');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.flushHeaders?.();
+
+    res.write(`data: ${JSON.stringify({ type: 'connected', timestamp: Date.now() })}\n\n`);
+    sseClients.add(res);
+
+    const pingTimer = setInterval(() => {
+      try {
+        res.write(`:ping\n\n`);
+      } catch (_) {
+        clearInterval(pingTimer);
+        sseClients.delete(res);
+      }
+    }, 25000);
+
+    req.on('close', () => {
+      clearInterval(pingTimer);
+      sseClients.delete(res);
+    });
+  });
+
   // ---------------- API ROUTES ----------------
 
   // Health
   app.get('/api/health', (req: Request, res: Response) => {
-    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+    res.json({ 
+      status: 'ok', 
+      timestamp: new Date().toISOString(),
+      wsClients: wss.clients.size,
+      sseClients: sseClients.size
+    });
   });
 
   // Full DB State (for instant admin sync & complete backup)
@@ -371,7 +530,16 @@ async function startServer() {
     }
 
     writeDb(db);
-    console.log(`[Order Placed] Order ${newOrder.orderId} from ${newOrder.clientName} (${newOrder.phone})`);
+    console.log(`[Realtime Order Placed] Order ${newOrder.orderId} from ${newOrder.clientName} (${newOrder.phone})`);
+    
+    // Broadcast real-time order creation event
+    broadcast({
+      type: 'order:created',
+      order: newOrder,
+      totalOrders: db.orders.length,
+      timestamp: Date.now()
+    });
+
     res.status(201).json(newOrder);
   });
 
@@ -383,6 +551,16 @@ async function startServer() {
     if (order) {
       order.status = status;
       writeDb(db);
+
+      // Broadcast order status update event
+      broadcast({
+        type: 'order:updated',
+        orderId,
+        status,
+        orders: db.orders,
+        timestamp: Date.now()
+      });
+
       res.json(db.orders);
     } else {
       res.status(404).json({ error: 'Order not found' });
@@ -428,6 +606,14 @@ async function startServer() {
 
     db.users.push(newUser);
     writeDb(db);
+
+    broadcast({
+      type: 'user:registered',
+      user: newUser,
+      totalUsers: db.users.length,
+      timestamp: Date.now()
+    });
+
     res.status(201).json({ success: true, user: newUser });
   });
 
@@ -507,7 +693,15 @@ async function startServer() {
     }
 
     writeDb(db);
-    console.log(`[Chat Activated] User ${cleanName} (${cleanPhone})`);
+    console.log(`[Realtime Chat Activated] User ${cleanName} (${cleanPhone})`);
+
+    // Broadcast chat activation event
+    broadcast({
+      type: 'chat:activated',
+      thread,
+      timestamp: Date.now()
+    });
+
     res.json(thread);
   });
 
@@ -519,7 +713,7 @@ async function startServer() {
     const msg = message || {
       id: `${sender}-${Date.now()}`,
       sender,
-      text,
+      text: (text || '').trim(),
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
 
@@ -531,7 +725,7 @@ async function startServer() {
       thread.lastUpdated = 'এখনই';
       if (sender === 'client') {
         thread.unreadAdminCount = (thread.unreadAdminCount || 0) + 1;
-        // User responded: reset 5-minute inactivity timer!
+        // User responded: reset 5-minute inactivity timer
         thread.expiresAt = Date.now() + 5 * 60 * 1000;
         thread.isClosed = false;
       } else {
@@ -540,7 +734,7 @@ async function startServer() {
     } else {
       thread = {
         userPhone: cleanPhone,
-        userName: name || 'Client',
+        userName: name || 'Valued Client',
         lastMessage: msg.text,
         lastUpdated: 'এখনই',
         unreadAdminCount: sender === 'client' ? 1 : 0,
@@ -553,7 +747,17 @@ async function startServer() {
     }
 
     writeDb(db);
-    console.log(`[Chat Message] [${sender}] ${cleanPhone}: ${msg.text}`);
+    console.log(`[Realtime Chat Message] [${sender}] ${cleanPhone}: ${msg.text}`);
+
+    // Broadcast real-time chat message event
+    broadcast({
+      type: 'chat:message',
+      phone: cleanPhone,
+      message: msg,
+      thread,
+      timestamp: Date.now()
+    });
+
     res.json(msg);
   });
 
@@ -569,6 +773,15 @@ async function startServer() {
       thread.isClosed = false;
       thread.additionalMinutesAdded = (thread.additionalMinutesAdded || 0) + additionalMinutes;
       writeDb(db);
+
+      broadcast({
+        type: 'chat:extended',
+        phone,
+        expiresAt: thread.expiresAt,
+        additionalMinutes,
+        timestamp: Date.now()
+      });
+
       res.json({ success: true, expiresAt: thread.expiresAt });
     } else {
       res.status(404).json({ error: 'Thread not found' });
@@ -584,6 +797,13 @@ async function startServer() {
       db.supportChats.splice(idx, 1);
       writeDb(db);
     }
+
+    broadcast({
+      type: 'chat:ended',
+      phone,
+      timestamp: Date.now()
+    });
+
     res.json({ success: true });
   });
 
@@ -598,6 +818,13 @@ async function startServer() {
     const newSite = req.body;
     db.customWebsites.unshift(newSite);
     writeDb(db);
+
+    broadcast({
+      type: 'catalog:updated',
+      websites: db.customWebsites,
+      timestamp: Date.now()
+    });
+
     res.status(201).json(db.customWebsites);
   });
 
@@ -614,6 +841,13 @@ async function startServer() {
     if (idx >= 0) {
       db.customWebsites[idx] = { ...db.customWebsites[idx], ...updateData };
       writeDb(db);
+
+      broadcast({
+        type: 'catalog:updated',
+        websites: db.customWebsites,
+        timestamp: Date.now()
+      });
+
       res.json(db.customWebsites);
     } else {
       res.status(404).json({ error: 'Website not found' });
@@ -628,6 +862,13 @@ async function startServer() {
       s => (s.fourDigitCode && s.fourDigitCode.replace('#', '') !== cleanCode) && s.id !== code
     );
     writeDb(db);
+
+    broadcast({
+      type: 'catalog:updated',
+      websites: db.customWebsites,
+      timestamp: Date.now()
+    });
+
     res.json(db.customWebsites);
   });
 
@@ -642,6 +883,13 @@ async function startServer() {
     const cred = req.body;
     db.deliveredCredentials.unshift(cred);
     writeDb(db);
+
+    broadcast({
+      type: 'credential:delivered',
+      credential: cred,
+      timestamp: Date.now()
+    });
+
     res.status(201).json(db.deliveredCredentials);
   });
 
@@ -664,6 +912,13 @@ async function startServer() {
     const newReq = req.body;
     db.resetRequests.unshift(newReq);
     writeDb(db);
+
+    broadcast({
+      type: 'reset:requested',
+      request: newReq,
+      timestamp: Date.now()
+    });
+
     res.status(201).json(newReq);
   });
 
@@ -678,6 +933,13 @@ async function startServer() {
       reqItem.resolvedAt = new Date().toLocaleString('bn-BD');
       if (newPassword) reqItem.newPasswordAssigned = newPassword;
       writeDb(db);
+
+      broadcast({
+        type: 'reset:resolved',
+        request: reqItem,
+        timestamp: Date.now()
+      });
+
       res.json(db.resetRequests);
     } else {
       res.status(404).json({ error: 'Request not found' });
@@ -725,6 +987,12 @@ async function startServer() {
     };
 
     writeDb(newDb);
+
+    broadcast({
+      type: 'system:restored',
+      timestamp: Date.now()
+    });
+
     res.json({
       success: true,
       message: 'সম্পূর্ণ ডাটাবেজ সফলভাবে রিস্টোর করা হয়েছে।',
@@ -754,8 +1022,8 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 BongoWeb Server running on http://0.0.0.0:${PORT}`);
+  server.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 BongoWeb Realtime Full-Stack Server running on http://0.0.0.0:${PORT} (WS on /ws, SSE on /api/events)`);
   });
 }
 

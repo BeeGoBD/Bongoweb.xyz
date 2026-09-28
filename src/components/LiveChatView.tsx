@@ -8,6 +8,7 @@ import { SupportChatMessage, UserAccount } from '../types';
 import { 
   apiActivateChat, apiSendChatMessage, apiEndChat 
 } from '../utils/api';
+import { realtimeManager } from '../utils/realtime';
 
 export default function LiveChatView() {
   // Onboarding / Activation State
@@ -76,6 +77,49 @@ export default function LiveChatView() {
       }
     } catch (_) {}
   };
+
+  // Real-time Event Listener for instant zero-loss messages from Admin
+  useEffect(() => {
+    if (!isActivated || !userPhone) return;
+
+    const unsubs = [
+      realtimeManager.on('chat:message', (payload) => {
+        if (!payload.message) return;
+        if (payload.phone === userPhone) {
+          const newMsg: SupportChatMessage = payload.message;
+          setMessages((prev) => {
+            if (prev.some((m) => m.id === newMsg.id)) return prev;
+            return [...prev, newMsg];
+          });
+
+          // Reset inactivity timer when message arrives
+          const newExpiry = Date.now() + 5 * 60 * 1000;
+          setExpiresTimestamp(newExpiry);
+          setTimeLeft(300);
+          setIsExpired(false);
+        }
+      }),
+
+      realtimeManager.on('chat:extended', (payload) => {
+        if (payload.phone === userPhone && payload.expiresAt) {
+          setExpiresTimestamp(payload.expiresAt);
+          const remaining = Math.max(0, Math.floor((payload.expiresAt - Date.now()) / 1000));
+          setTimeLeft(remaining);
+          setIsExpired(false);
+        }
+      }),
+
+      realtimeManager.on('chat:ended', (payload) => {
+        if (payload.phone === userPhone) {
+          setIsExpired(true);
+        }
+      })
+    ];
+
+    return () => {
+      unsubs.forEach((unsub) => unsub());
+    };
+  }, [isActivated, userPhone]);
 
   // Real-time server sync polling every 1 second (Ensures cross-device sync between Phone and Admin PC!)
   useEffect(() => {
