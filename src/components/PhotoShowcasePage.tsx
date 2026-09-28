@@ -231,7 +231,7 @@ export default function PhotoShowcasePage({
                 </span>
               </h2>
               <p className="text-xs sm:text-sm text-neutral-400 mt-2">
-                Browse high-resolution editorial design mockups formatted for high-conversion brands.
+                Browse high-resolution editorial design collections ready for high-conversion brands.
               </p>
             </div>
 
@@ -485,7 +485,7 @@ export default function PhotoShowcasePage({
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search photo mockups by code or title..."
+                  placeholder="Search photo collections by code or title..."
                   className="w-full pl-9 pr-3.5 py-2 bg-[#141414] border border-white/15 rounded-xl text-xs sm:text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-white transition-all shadow-xs"
                 />
               </div>

@@ -4,77 +4,190 @@ import {
 } from '../types';
 import { WEBSITE_DEMOS } from '../data/mockData';
 
-const BASE_URL = '';
+export interface CompleteDatabaseState {
+  adminConfig: AdminConfig;
+  users: UserAccount[];
+  orders: ClientOrder[];
+  supportChats: SupportChatThread[];
+  customWebsites: WebsiteDemo[];
+  deliveredCredentials: WebsiteDeliveryCredentials[];
+  resetRequests: PasswordResetRequest[];
+}
 
-// Safe fetch wrapper
-async function apiRequest<T>(url: string, options?: RequestInit, fallbackLocalKey?: string): Promise<T | null> {
+// In-memory cache for instant UI rendering
+let localCache: CompleteDatabaseState = {
+  adminConfig: {
+    adminId: 'admin',
+    adminEntryPassword: 'admin123',
+    adminActionPassword: 'confirm786',
+    masterKey: 'MASTER-BONGO-2026'
+  },
+  users: [],
+  orders: [],
+  supportChats: [],
+  customWebsites: WEBSITE_DEMOS,
+  deliveredCredentials: [],
+  resetRequests: []
+};
+
+// Seed initial memory cache from localStorage if available
+try {
+  const o = localStorage.getItem('bongoweb_orders');
+  if (o) localCache.orders = JSON.parse(o);
+
+  const c = localStorage.getItem('bongoweb_support_chats');
+  if (c) localCache.supportChats = JSON.parse(c);
+
+  const u = localStorage.getItem('bongoweb_registered_users');
+  if (u) localCache.users = JSON.parse(u);
+
+  const cred = localStorage.getItem('bongoweb_delivered_credentials');
+  if (cred) localCache.deliveredCredentials = JSON.parse(cred);
+
+  const r = localStorage.getItem('bongoweb_reset_requests');
+  if (r) localCache.resetRequests = JSON.parse(r);
+
+  const cw = localStorage.getItem('bongoweb_custom_catalog');
+  if (cw) localCache.customWebsites = JSON.parse(cw);
+} catch (_) {}
+
+// ---------------- UNIVERSAL DATA FETCHER ----------------
+// Pulls live data from the real server /api/data
+export async function pullFromCloudVault(): Promise<{
+  orders: ClientOrder[];
+  chats: SupportChatThread[];
+  users: UserAccount[];
+  credentials: WebsiteDeliveryCredentials[];
+  resets: PasswordResetRequest[];
+  customWebsites: WebsiteDemo[];
+  adminConfig?: AdminConfig;
+}> {
   try {
-    const res = await fetch(url, {
-      headers: {
-        'Content-Type': 'application/json',
-        ...(options?.headers || {})
-      },
-      ...options
-    });
+    const res = await fetch('/api/data');
     if (res.ok) {
       const data = await res.json();
-      if (fallbackLocalKey && data) {
-        try {
-          localStorage.setItem(fallbackLocalKey, JSON.stringify(data));
-        } catch (_) {}
+      if (Array.isArray(data.orders)) {
+        localCache.orders = data.orders;
+        localStorage.setItem('bongoweb_orders', JSON.stringify(data.orders));
       }
-      return data as T;
+      if (Array.isArray(data.supportChats)) {
+        localCache.supportChats = data.supportChats;
+        localStorage.setItem('bongoweb_support_chats', JSON.stringify(data.supportChats));
+      }
+      if (Array.isArray(data.users)) {
+        localCache.users = data.users;
+        localStorage.setItem('bongoweb_registered_users', JSON.stringify(data.users));
+      }
+      if (Array.isArray(data.deliveredCredentials)) {
+        localCache.deliveredCredentials = data.deliveredCredentials;
+        localStorage.setItem('bongoweb_delivered_credentials', JSON.stringify(data.deliveredCredentials));
+      }
+      if (Array.isArray(data.resetRequests)) {
+        localCache.resetRequests = data.resetRequests;
+        localStorage.setItem('bongoweb_reset_requests', JSON.stringify(data.resetRequests));
+      }
+      if (Array.isArray(data.customWebsites) && data.customWebsites.length > 0) {
+        localCache.customWebsites = data.customWebsites;
+        localStorage.setItem('bongoweb_custom_catalog', JSON.stringify(data.customWebsites));
+      }
+      if (data.adminConfig) {
+        localCache.adminConfig = data.adminConfig;
+        localStorage.setItem('bongoweb_admin_config', JSON.stringify(data.adminConfig));
+      }
     }
   } catch (err) {
-    // network or server starting
+    console.warn('Network sync offline, using local storage cache:', err);
   }
 
-  // Fallback to local storage
-  if (fallbackLocalKey) {
-    try {
-      const cached = localStorage.getItem(fallbackLocalKey);
-      if (cached) return JSON.parse(cached) as T;
-    } catch (_) {}
-  }
-  return null;
+  return {
+    orders: localCache.orders,
+    chats: localCache.supportChats,
+    users: localCache.users,
+    credentials: localCache.deliveredCredentials,
+    resets: localCache.resetRequests,
+    customWebsites: localCache.customWebsites,
+    adminConfig: localCache.adminConfig
+  };
 }
 
 // ---------------- ORDERS ----------------
 export async function apiGetOrders(): Promise<ClientOrder[]> {
-  const data = await apiRequest<ClientOrder[]>('/api/orders', { method: 'GET' }, 'bongoweb_orders');
-  return data || [];
+  try {
+    const res = await fetch('/api/orders');
+    if (res.ok) {
+      const orders = await res.json();
+      localCache.orders = orders;
+      localStorage.setItem('bongoweb_orders', JSON.stringify(orders));
+      return orders;
+    }
+  } catch (_) {}
+  return localCache.orders;
 }
 
 export async function apiCreateOrder(order: ClientOrder): Promise<ClientOrder> {
-  // Always update local cache immediately
-  try {
-    const local = JSON.parse(localStorage.getItem('bongoweb_orders') || '[]');
-    local.unshift(order);
-    localStorage.setItem('bongoweb_orders', JSON.stringify(local));
+  // Update local cache immediately
+  const existing = localCache.orders.filter(o => o.orderId !== order.orderId);
+  existing.unshift(order);
+  localCache.orders = existing;
+  localStorage.setItem('bongoweb_orders', JSON.stringify(existing));
+
+  if (order.status === 'pending') {
     localStorage.setItem('bongoweb_active_pending_order', JSON.stringify(order));
-  } catch (_) {}
+  }
 
-  const res = await apiRequest<ClientOrder>('/api/orders', {
-    method: 'POST',
-    body: JSON.stringify(order)
-  });
+  try {
+    const res = await fetch('/api/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(order)
+    });
+    if (res.ok) {
+      const saved = await res.json();
+      return saved;
+    }
+  } catch (err) {
+    console.error('Failed to post order to server:', err);
+  }
 
-  return res || order;
+  return order;
 }
 
 export async function apiUpdateOrderStatus(orderId: string, status: 'pending' | 'verified' | 'cancelled'): Promise<ClientOrder[]> {
-  const res = await apiRequest<ClientOrder[]>(`/api/orders/${encodeURIComponent(orderId)}/status`, {
-    method: 'PUT',
-    body: JSON.stringify({ status })
-  }, 'bongoweb_orders');
+  localCache.orders = localCache.orders.map(o => 
+    o.orderId === orderId ? { ...o, status } : o
+  );
+  localStorage.setItem('bongoweb_orders', JSON.stringify(localCache.orders));
 
-  return res || [];
+  try {
+    const res = await fetch(`/api/orders/${encodeURIComponent(orderId)}/status`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status })
+    });
+    if (res.ok) {
+      const updated = await res.json();
+      localCache.orders = updated;
+      return updated;
+    }
+  } catch (err) {
+    console.error('Failed to update order status on server:', err);
+  }
+
+  return localCache.orders;
 }
 
-// ---------------- USERS ----------------
+// ---------------- USERS & AUTH ----------------
 export async function apiGetUsers(): Promise<UserAccount[]> {
-  const data = await apiRequest<UserAccount[]>('/api/users', { method: 'GET' }, 'bongoweb_registered_users');
-  return data || [];
+  try {
+    const res = await fetch('/api/users');
+    if (res.ok) {
+      const users = await res.json();
+      localCache.users = users;
+      localStorage.setItem('bongoweb_registered_users', JSON.stringify(users));
+      return users;
+    }
+  } catch (_) {}
+  return localCache.users;
 }
 
 export async function apiRegisterUser(user: UserAccount): Promise<{ success: boolean; user?: UserAccount; error?: string }> {
@@ -84,36 +197,72 @@ export async function apiRegisterUser(user: UserAccount): Promise<{ success: boo
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(user)
     });
-    const result = await res.json();
-    if (result.success && result.user) {
-      localStorage.setItem('bongoweb_user', JSON.stringify(result.user));
-      sessionStorage.setItem('bongoweb_user', JSON.stringify(result.user));
-      const local = JSON.parse(localStorage.getItem('bongoweb_registered_users') || '[]');
-      if (!local.some((u: UserAccount) => u.phone === result.user.phone)) {
-        local.push(result.user);
-        localStorage.setItem('bongoweb_registered_users', JSON.stringify(local));
-      }
-      return { success: true, user: result.user };
+    const data = await res.json();
+    if (res.ok && data.success) {
+      localCache.users.push(data.user);
+      localStorage.setItem('bongoweb_registered_users', JSON.stringify(localCache.users));
+      localStorage.setItem('bongoweb_user', JSON.stringify(data.user));
+      sessionStorage.setItem('bongoweb_user', JSON.stringify(data.user));
+      return { success: true, user: data.user };
+    } else {
+      return { success: false, error: data.error || 'নিবন্ধন সম্পন্ন করা যায়নি।' };
     }
-    return { success: false, error: result.error || 'নিবন্ধন ব্যর্থ হয়েছে' };
-  } catch (e) {
-    // Local fallback
-    const local = JSON.parse(localStorage.getItem('bongoweb_registered_users') || '[]');
-    if (local.some((u: UserAccount) => u.phone === user.phone || u.email === user.email)) {
-      return { success: false, error: 'এই মোবাইল নম্বর বা ইমেইল দিয়ে ইতিমধ্যে একটি অ্যাকাউন্ট তৈরি করা হয়েছে!' };
+  } catch (err) {
+    console.error('Registration failed:', err);
+    // Offline fallback
+    const cleanUser: UserAccount = {
+      ...user,
+      registeredAt: user.registeredAt || new Date().toLocaleDateString('bn-BD')
+    };
+    localCache.users.push(cleanUser);
+    localStorage.setItem('bongoweb_registered_users', JSON.stringify(localCache.users));
+    localStorage.setItem('bongoweb_user', JSON.stringify(cleanUser));
+    return { success: true, user: cleanUser };
+  }
+}
+
+export async function apiLoginUser(identifier: string, password: string): Promise<{ success: boolean; user?: UserAccount; error?: string }> {
+  try {
+    const res = await fetch('/api/users/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ identifier, password })
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      localStorage.setItem('bongoweb_user', JSON.stringify(data.user));
+      sessionStorage.setItem('bongoweb_user', JSON.stringify(data.user));
+      return { success: true, user: data.user };
     }
-    local.push(user);
-    localStorage.setItem('bongoweb_registered_users', JSON.stringify(local));
-    localStorage.setItem('bongoweb_user', JSON.stringify(user));
-    sessionStorage.setItem('bongoweb_user', JSON.stringify(user));
-    return { success: true, user };
+    return { success: false, error: data.error || 'ভুল ইউজার বা পাসওয়ার্ড!' };
+  } catch (_) {
+    // Fallback to local search
+    const cleanId = identifier.trim().toLowerCase();
+    const cleanPass = password.trim();
+    const user = localCache.users.find(
+      u => (u.phone === cleanId || (u.email && u.email.toLowerCase() === cleanId)) && u.password === cleanPass
+    );
+    if (user) {
+      localStorage.setItem('bongoweb_user', JSON.stringify(user));
+      sessionStorage.setItem('bongoweb_user', JSON.stringify(user));
+      return { success: true, user };
+    }
+    return { success: false, error: 'মোবাইল নম্বর/ইমেইল অথবা পাসওয়ার্ড সঠিক নয়!' };
   }
 }
 
 // ---------------- LIVE CHAT ----------------
 export async function apiGetChatThreads(): Promise<SupportChatThread[]> {
-  const data = await apiRequest<SupportChatThread[]>('/api/chat/threads', { method: 'GET' }, 'bongoweb_support_chats');
-  return data || [];
+  try {
+    const res = await fetch('/api/chat/threads');
+    if (res.ok) {
+      const threads = await res.json();
+      localCache.supportChats = threads;
+      localStorage.setItem('bongoweb_support_chats', JSON.stringify(threads));
+      return threads;
+    }
+  } catch (_) {}
+  return localCache.supportChats;
 }
 
 export async function apiActivateChat(params: {
@@ -121,13 +270,11 @@ export async function apiActivateChat(params: {
   phone: string;
   language: 'bn' | 'en';
   welcomeText: string;
-}): Promise<SupportChatThread | null> {
-  const res = await apiRequest<SupportChatThread>('/api/chat/activate', {
-    method: 'POST',
-    body: JSON.stringify(params)
-  });
+}): Promise<SupportChatThread> {
+  const cleanPhone = params.phone.trim();
+  const cleanName = params.name.trim();
 
-  // Local fallback / sync
+  // Optimistic local update
   const welcomeMsg: SupportChatMessage = {
     id: `init-${Date.now()}`,
     sender: 'admin',
@@ -135,33 +282,58 @@ export async function apiActivateChat(params: {
     timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
   };
 
-  const thread: SupportChatThread = res || {
-    userPhone: params.phone,
-    userName: params.name,
-    language: params.language,
-    lastMessage: params.welcomeText,
-    lastUpdated: 'এখনই',
-    unreadAdminCount: 1,
-    unreadClientCount: 0,
-    expiresAt: Date.now() + 5 * 60 * 1000,
-    isClosed: false,
-    messages: [welcomeMsg]
-  };
+  const expiresAt = Date.now() + 5 * 60 * 1000;
+  let existing = localCache.supportChats.find(t => t.userPhone === cleanPhone);
+
+  if (existing) {
+    existing.userName = cleanName;
+    existing.language = params.language;
+    existing.lastMessage = params.welcomeText;
+    existing.lastUpdated = 'এখনই';
+    existing.expiresAt = expiresAt;
+    existing.isClosed = false;
+    if (!existing.messages || existing.messages.length === 0) {
+      existing.messages = [welcomeMsg];
+    }
+  } else {
+    existing = {
+      userPhone: cleanPhone,
+      userName: cleanName,
+      language: params.language,
+      lastMessage: params.welcomeText,
+      lastUpdated: 'এখনই',
+      unreadAdminCount: 1,
+      unreadClientCount: 0,
+      expiresAt,
+      isClosed: false,
+      additionalMinutesAdded: 0,
+      messages: [welcomeMsg]
+    };
+    localCache.supportChats.unshift(existing);
+  }
+
+  localStorage.setItem('bongoweb_support_chats', JSON.stringify(localCache.supportChats));
+  localStorage.setItem('bongoweb_chat_active_session', JSON.stringify({
+    name: cleanName,
+    phone: cleanPhone,
+    language: params.language
+  }));
 
   try {
-    const stored = JSON.parse(localStorage.getItem('bongoweb_support_chats') || '[]');
-    const idx = stored.findIndex((t: SupportChatThread) => t.userPhone === params.phone);
-    if (idx >= 0) stored[idx] = thread;
-    else stored.unshift(thread);
-    localStorage.setItem('bongoweb_support_chats', JSON.stringify(stored));
-    localStorage.setItem('bongoweb_chat_active_session', JSON.stringify({
-      name: params.name,
-      phone: params.phone,
-      language: params.language
-    }));
-  } catch (_) {}
+    const res = await fetch('/api/chat/activate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(params)
+    });
+    if (res.ok) {
+      const serverThread = await res.json();
+      return serverThread;
+    }
+  } catch (err) {
+    console.error('Failed to activate chat on server:', err);
+  }
 
-  return thread;
+  return existing;
 }
 
 export async function apiSendChatMessage(params: {
@@ -170,244 +342,309 @@ export async function apiSendChatMessage(params: {
   text: string;
   name?: string;
 }): Promise<SupportChatMessage> {
+  const cleanPhone = params.phone.trim();
+  const cleanText = params.text.trim();
+
   const newMsg: SupportChatMessage = {
     id: `${params.sender}-${Date.now()}`,
     sender: params.sender,
-    text: params.text,
+    text: cleanText,
     timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
   };
 
+  let thread = localCache.supportChats.find(t => t.userPhone === cleanPhone);
+  if (thread) {
+    thread.messages.push(newMsg);
+    thread.lastMessage = cleanText;
+    thread.lastUpdated = 'এখনই';
+    if (params.sender === 'client') {
+      thread.unreadAdminCount = (thread.unreadAdminCount || 0) + 1;
+      thread.expiresAt = Date.now() + 5 * 60 * 1000;
+      thread.isClosed = false;
+    } else {
+      thread.unreadClientCount = (thread.unreadClientCount || 0) + 1;
+    }
+  } else {
+    thread = {
+      userPhone: cleanPhone,
+      userName: params.name || 'Valued Client',
+      lastMessage: cleanText,
+      lastUpdated: 'এখনই',
+      unreadAdminCount: params.sender === 'client' ? 1 : 0,
+      unreadClientCount: params.sender === 'admin' ? 1 : 0,
+      expiresAt: Date.now() + 5 * 60 * 1000,
+      isClosed: false,
+      additionalMinutesAdded: 0,
+      messages: [newMsg]
+    };
+    localCache.supportChats.unshift(thread);
+  }
+
+  localStorage.setItem('bongoweb_support_chats', JSON.stringify(localCache.supportChats));
+
   try {
-    await fetch('/api/chat/message', {
+    const res = await fetch('/api/chat/message', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        ...params,
-        message: newMsg
-      })
+      body: JSON.stringify(params)
     });
-  } catch (_) {}
-
-  // Update local cache
-  try {
-    const stored: SupportChatThread[] = JSON.parse(localStorage.getItem('bongoweb_support_chats') || '[]');
-    const idx = stored.findIndex((t) => t.userPhone === params.phone);
-    if (idx >= 0) {
-      stored[idx].messages.push(newMsg);
-      stored[idx].lastMessage = params.text;
-      stored[idx].lastUpdated = 'এখনই';
-      if (params.sender === 'client') {
-        stored[idx].unreadAdminCount += 1;
-        stored[idx].expiresAt = Date.now() + 5 * 60 * 1000;
-        stored[idx].isClosed = false;
-      } else {
-        stored[idx].unreadClientCount += 1;
-      }
-    } else {
-      stored.unshift({
-        userPhone: params.phone,
-        userName: params.name || 'Client',
-        lastMessage: params.text,
-        lastUpdated: 'এখনই',
-        unreadAdminCount: params.sender === 'client' ? 1 : 0,
-        unreadClientCount: params.sender === 'admin' ? 1 : 0,
-        expiresAt: Date.now() + 5 * 60 * 1000,
-        isClosed: false,
-        messages: [newMsg]
-      });
+    if (res.ok) {
+      const savedMsg = await res.json();
+      return savedMsg;
     }
-    localStorage.setItem('bongoweb_support_chats', JSON.stringify(stored));
-  } catch (_) {}
+  } catch (err) {
+    console.error('Failed to send message to server:', err);
+  }
 
   return newMsg;
 }
 
-export async function apiExtendChatTime(phone: string, additionalMinutes: number = 5): Promise<boolean> {
+export async function apiExtendChatTime(phone: string, additionalMinutes: number = 5): Promise<void> {
+  const cleanPhone = phone.trim();
+  const thread = localCache.supportChats.find(t => t.userPhone === cleanPhone);
+  if (thread) {
+    const base = thread.expiresAt && thread.expiresAt > Date.now() ? thread.expiresAt : Date.now();
+    thread.expiresAt = base + additionalMinutes * 60 * 1000;
+    thread.isClosed = false;
+    thread.additionalMinutesAdded = (thread.additionalMinutesAdded || 0) + additionalMinutes;
+    localStorage.setItem('bongoweb_support_chats', JSON.stringify(localCache.supportChats));
+  }
+
   try {
     await fetch('/api/chat/extend', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone, additionalMinutes })
+      body: JSON.stringify({ phone: cleanPhone, additionalMinutes })
     });
-  } catch (_) {}
-
-  // Update local
-  try {
-    const stored: SupportChatThread[] = JSON.parse(localStorage.getItem('bongoweb_support_chats') || '[]');
-    const idx = stored.findIndex((t) => t.userPhone === phone);
-    if (idx >= 0) {
-      const currentExpiry = stored[idx].expiresAt || Date.now();
-      const base = currentExpiry > Date.now() ? currentExpiry : Date.now();
-      stored[idx].expiresAt = base + additionalMinutes * 60 * 1000;
-      stored[idx].isClosed = false;
-      stored[idx].additionalMinutesAdded = (stored[idx].additionalMinutesAdded || 0) + additionalMinutes;
-      localStorage.setItem('bongoweb_support_chats', JSON.stringify(stored));
-    }
-  } catch (_) {}
-
-  return true;
+  } catch (err) {
+    console.error('Failed to extend chat time:', err);
+  }
 }
 
-export async function apiEndChat(phone: string): Promise<boolean> {
+export async function apiEndChat(phone: string): Promise<void> {
+  const cleanPhone = phone.trim();
+  localCache.supportChats = localCache.supportChats.filter(t => t.userPhone !== cleanPhone);
+  localStorage.setItem('bongoweb_support_chats', JSON.stringify(localCache.supportChats));
+
   try {
     await fetch('/api/chat/end', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone })
+      body: JSON.stringify({ phone: cleanPhone })
     });
-  } catch (_) {}
-
-  try {
-    const stored: SupportChatThread[] = JSON.parse(localStorage.getItem('bongoweb_support_chats') || '[]');
-    const filtered = stored.filter((t) => t.userPhone !== phone);
-    localStorage.setItem('bongoweb_support_chats', JSON.stringify(filtered));
-  } catch (_) {}
-
-  return true;
-}
-
-// ---------------- WEBSITES / CATALOG ----------------
-export async function apiGetWebsites(): Promise<WebsiteDemo[]> {
-  const data = await apiRequest<WebsiteDemo[]>('/api/websites', { method: 'GET' }, 'bongoweb_custom_catalog');
-  if (data && data.length > 0) return data;
-  return WEBSITE_DEMOS;
-}
-
-export async function apiUpdateWebsite(code: string, siteData: Partial<WebsiteDemo>): Promise<WebsiteDemo[]> {
-  const res = await apiRequest<WebsiteDemo[]>(`/api/websites/${encodeURIComponent(code)}`, {
-    method: 'PUT',
-    body: JSON.stringify(siteData)
-  }, 'bongoweb_custom_catalog');
-
-  if (res) return res;
-
-  // Local fallback
-  const local: WebsiteDemo[] = JSON.parse(localStorage.getItem('bongoweb_custom_catalog') || JSON.stringify(WEBSITE_DEMOS));
-  const idx = local.findIndex((s) => s.fourDigitCode.replace('#', '') === code.replace('#', ''));
-  if (idx >= 0) {
-    local[idx] = { ...local[idx], ...siteData };
-    localStorage.setItem('bongoweb_custom_catalog', JSON.stringify(local));
+  } catch (err) {
+    console.error('Failed to end chat on server:', err);
   }
-  return local;
+}
+
+// ---------------- WEBSITES CATALOG & STOCKS ----------------
+export async function apiGetWebsites(): Promise<WebsiteDemo[]> {
+  try {
+    const res = await fetch('/api/websites');
+    if (res.ok) {
+      const sites = await res.json();
+      if (Array.isArray(sites) && sites.length > 0) {
+        localCache.customWebsites = sites;
+        localStorage.setItem('bongoweb_custom_catalog', JSON.stringify(sites));
+        return sites;
+      }
+    }
+  } catch (_) {}
+  return localCache.customWebsites;
 }
 
 export async function apiAddWebsite(site: WebsiteDemo): Promise<WebsiteDemo[]> {
-  const res = await apiRequest<WebsiteDemo[]>('/api/websites', {
-    method: 'POST',
-    body: JSON.stringify(site)
-  }, 'bongoweb_custom_catalog');
+  localCache.customWebsites.unshift(site);
+  localStorage.setItem('bongoweb_custom_catalog', JSON.stringify(localCache.customWebsites));
 
-  if (res) return res;
+  try {
+    const res = await fetch('/api/websites', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(site)
+    });
+    if (res.ok) {
+      const updated = await res.json();
+      localCache.customWebsites = updated;
+      return updated;
+    }
+  } catch (err) {
+    console.error('Failed to add website to server:', err);
+  }
+  return localCache.customWebsites;
+}
 
-  const local: WebsiteDemo[] = JSON.parse(localStorage.getItem('bongoweb_custom_catalog') || JSON.stringify(WEBSITE_DEMOS));
-  local.unshift(site);
-  localStorage.setItem('bongoweb_custom_catalog', JSON.stringify(local));
-  return local;
+export async function apiUpdateWebsite(code: string, siteData: Partial<WebsiteDemo>): Promise<WebsiteDemo[]> {
+  const cleanCode = code.replace('#', '');
+  localCache.customWebsites = localCache.customWebsites.map(s => 
+    (s.fourDigitCode && s.fourDigitCode.replace('#', '') === cleanCode) || s.id === code
+      ? { ...s, ...siteData }
+      : s
+  );
+  localStorage.setItem('bongoweb_custom_catalog', JSON.stringify(localCache.customWebsites));
+
+  try {
+    const res = await fetch(`/api/websites/${encodeURIComponent(cleanCode)}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(siteData)
+    });
+    if (res.ok) {
+      const updated = await res.json();
+      localCache.customWebsites = updated;
+      return updated;
+    }
+  } catch (err) {
+    console.error('Failed to update website on server:', err);
+  }
+  return localCache.customWebsites;
 }
 
 export async function apiDeleteWebsite(code: string): Promise<WebsiteDemo[]> {
-  const res = await apiRequest<WebsiteDemo[]>(`/api/websites/${encodeURIComponent(code)}`, {
-    method: 'DELETE'
-  }, 'bongoweb_custom_catalog');
+  const cleanCode = code.replace('#', '');
+  localCache.customWebsites = localCache.customWebsites.filter(s => 
+    (s.fourDigitCode && s.fourDigitCode.replace('#', '') !== cleanCode) && s.id !== code
+  );
+  localStorage.setItem('bongoweb_custom_catalog', JSON.stringify(localCache.customWebsites));
 
-  if (res) return res;
-
-  const local: WebsiteDemo[] = JSON.parse(localStorage.getItem('bongoweb_custom_catalog') || JSON.stringify(WEBSITE_DEMOS));
-  const filtered = local.filter((s) => s.fourDigitCode.replace('#', '') !== code.replace('#', ''));
-  localStorage.setItem('bongoweb_custom_catalog', JSON.stringify(filtered));
-  return filtered;
+  try {
+    const res = await fetch(`/api/websites/${encodeURIComponent(cleanCode)}`, {
+      method: 'DELETE'
+    });
+    if (res.ok) {
+      const updated = await res.json();
+      localCache.customWebsites = updated;
+      return updated;
+    }
+  } catch (err) {
+    console.error('Failed to delete website on server:', err);
+  }
+  return localCache.customWebsites;
 }
 
 // ---------------- CREDENTIALS ----------------
 export async function apiGetCredentials(): Promise<WebsiteDeliveryCredentials[]> {
-  const data = await apiRequest<WebsiteDeliveryCredentials[]>('/api/credentials', { method: 'GET' }, 'bongoweb_delivered_credentials');
-  return data || [];
+  try {
+    const res = await fetch('/api/credentials');
+    if (res.ok) {
+      const creds = await res.json();
+      localCache.deliveredCredentials = creds;
+      localStorage.setItem('bongoweb_delivered_credentials', JSON.stringify(creds));
+      return creds;
+    }
+  } catch (_) {}
+  return localCache.deliveredCredentials;
 }
 
-export async function apiDeliverCredentials(creds: WebsiteDeliveryCredentials): Promise<WebsiteDeliveryCredentials[]> {
-  const res = await apiRequest<WebsiteDeliveryCredentials[]>('/api/credentials', {
-    method: 'POST',
-    body: JSON.stringify(creds)
-  }, 'bongoweb_delivered_credentials');
+export async function apiDeliverCredentials(cred: WebsiteDeliveryCredentials): Promise<WebsiteDeliveryCredentials[]> {
+  localCache.deliveredCredentials.unshift(cred);
+  localStorage.setItem('bongoweb_delivered_credentials', JSON.stringify(localCache.deliveredCredentials));
 
-  if (res) return res;
-
-  const local: WebsiteDeliveryCredentials[] = JSON.parse(localStorage.getItem('bongoweb_delivered_credentials') || '[]');
-  local.unshift(creds);
-  localStorage.setItem('bongoweb_delivered_credentials', JSON.stringify(local));
-  return local;
+  try {
+    const res = await fetch('/api/credentials', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(cred)
+    });
+    if (res.ok) {
+      const updated = await res.json();
+      localCache.deliveredCredentials = updated;
+      return updated;
+    }
+  } catch (err) {
+    console.error('Failed to deliver credentials to server:', err);
+  }
+  return localCache.deliveredCredentials;
 }
 
 export async function apiDeleteCredential(id: string): Promise<WebsiteDeliveryCredentials[]> {
-  const res = await apiRequest<WebsiteDeliveryCredentials[]>(`/api/credentials/${encodeURIComponent(id)}`, {
-    method: 'DELETE'
-  }, 'bongoweb_delivered_credentials');
+  localCache.deliveredCredentials = localCache.deliveredCredentials.filter(c => c.id !== id);
+  localStorage.setItem('bongoweb_delivered_credentials', JSON.stringify(localCache.deliveredCredentials));
 
-  if (res) return res;
-
-  const local: WebsiteDeliveryCredentials[] = JSON.parse(localStorage.getItem('bongoweb_delivered_credentials') || '[]');
-  const filtered = local.filter((c) => c.id !== id);
-  localStorage.setItem('bongoweb_delivered_credentials', JSON.stringify(filtered));
-  return filtered;
+  try {
+    const res = await fetch(`/api/credentials/${encodeURIComponent(id)}`, {
+      method: 'DELETE'
+    });
+    if (res.ok) {
+      const updated = await res.json();
+      localCache.deliveredCredentials = updated;
+      return updated;
+    }
+  } catch (err) {
+    console.error('Failed to delete credential on server:', err);
+  }
+  return localCache.deliveredCredentials;
 }
 
-// ---------------- PASSWORD RESET REQUESTS ----------------
+// ---------------- PASSWORD RESETS ----------------
 export async function apiGetResetRequests(): Promise<PasswordResetRequest[]> {
-  const data = await apiRequest<PasswordResetRequest[]>('/api/resets', { method: 'GET' }, 'bongoweb_reset_requests');
-  return data || [];
+  try {
+    const res = await fetch('/api/resets');
+    if (res.ok) {
+      const resets = await res.json();
+      localCache.resetRequests = resets;
+      localStorage.setItem('bongoweb_reset_requests', JSON.stringify(resets));
+      return resets;
+    }
+  } catch (_) {}
+  return localCache.resetRequests;
 }
 
-export async function apiRequestPasswordReset(phone: string): Promise<PasswordResetRequest> {
-  const newReq: PasswordResetRequest = {
-    id: `RST-${Date.now()}`,
-    phone,
+export async function apiRequestPasswordReset(reqOrPhone: PasswordResetRequest | string): Promise<PasswordResetRequest> {
+  const req: PasswordResetRequest = typeof reqOrPhone === 'string' ? {
+    id: `rst-${Date.now()}`,
+    phone: reqOrPhone,
     requestedAt: new Date().toLocaleString('bn-BD'),
     status: 'pending'
-  };
+  } : reqOrPhone;
+
+  localCache.resetRequests.unshift(req);
+  localStorage.setItem('bongoweb_reset_requests', JSON.stringify(localCache.resetRequests));
 
   try {
     const res = await fetch('/api/resets', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newReq)
+      body: JSON.stringify(req)
     });
     if (res.ok) {
       const saved = await res.json();
       return saved;
     }
-  } catch (_) {}
-
-  // Local fallback
-  const local: PasswordResetRequest[] = JSON.parse(localStorage.getItem('bongoweb_reset_requests') || '[]');
-  local.unshift(newReq);
-  localStorage.setItem('bongoweb_reset_requests', JSON.stringify(local));
-  return newReq;
+  } catch (err) {
+    console.error('Failed to post reset request to server:', err);
+  }
+  return req;
 }
 
 export async function apiResolveResetRequest(
   id: string, 
-  status: 'reset' | 'rejected' | 'call_not_received', 
+  status: 'pending' | 'reset' | 'rejected' | 'call_not_received', 
   newPassword?: string
 ): Promise<PasswordResetRequest[]> {
-  const res = await apiRequest<PasswordResetRequest[]>(`/api/resets/${encodeURIComponent(id)}`, {
-    method: 'PUT',
-    body: JSON.stringify({ status, newPassword })
-  }, 'bongoweb_reset_requests');
+  localCache.resetRequests = localCache.resetRequests.map(r => 
+    r.id === id ? { ...r, status, newPasswordAssigned: newPassword, resolvedAt: new Date().toLocaleString('bn-BD') } : r
+  );
+  localStorage.setItem('bongoweb_reset_requests', JSON.stringify(localCache.resetRequests));
 
-  if (res) return res;
-
-  const local: PasswordResetRequest[] = JSON.parse(localStorage.getItem('bongoweb_reset_requests') || '[]');
-  const idx = local.findIndex((r) => r.id === id);
-  if (idx >= 0) {
-    local[idx].status = status;
-    local[idx].resolvedAt = new Date().toLocaleString('bn-BD');
-    if (newPassword) local[idx].newPasswordAssigned = newPassword;
-    localStorage.setItem('bongoweb_reset_requests', JSON.stringify(local));
+  try {
+    const res = await fetch(`/api/resets/${encodeURIComponent(id)}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status, newPassword })
+    });
+    if (res.ok) {
+      const updated = await res.json();
+      localCache.resetRequests = updated;
+      return updated;
+    }
+  } catch (err) {
+    console.error('Failed to resolve reset on server:', err);
   }
-  return local;
+  return localCache.resetRequests;
 }
 
-// ---------------- BACKUP & VAULT ----------------
+// ---------------- FULL SYSTEM BACKUP (SINGLE LOCATION NEXT TO LOGOUT) ----------------
 export async function apiExportCompleteBackup(): Promise<any> {
   try {
     const res = await fetch('/api/backup/export');
@@ -416,18 +653,17 @@ export async function apiExportCompleteBackup(): Promise<any> {
     }
   } catch (_) {}
 
-  // Complete client data compile
   return {
     exportedAt: new Date().toISOString(),
     platform: 'BongoWeb.xyz Complete Production Vault',
     version: '4.0.0',
-    adminConfig: JSON.parse(localStorage.getItem('bongoweb_admin_config') || '{}'),
-    users: JSON.parse(localStorage.getItem('bongoweb_registered_users') || '[]'),
-    orders: JSON.parse(localStorage.getItem('bongoweb_orders') || '[]'),
-    customWebsites: JSON.parse(localStorage.getItem('bongoweb_custom_catalog') || JSON.stringify(WEBSITE_DEMOS)),
-    deliveredCredentials: JSON.parse(localStorage.getItem('bongoweb_delivered_credentials') || '[]'),
-    resetRequests: JSON.parse(localStorage.getItem('bongoweb_reset_requests') || '[]'),
-    supportChats: JSON.parse(localStorage.getItem('bongoweb_support_chats') || '[]')
+    totalUsers: localCache.users.length,
+    totalOrders: localCache.orders.length,
+    totalCustomWebsites: localCache.customWebsites.length,
+    totalChatThreads: localCache.supportChats.length,
+    totalDeliveredCredentials: localCache.deliveredCredentials.length,
+    totalResetRequests: localCache.resetRequests.length,
+    ...localCache
   };
 }
 
@@ -439,30 +675,27 @@ export async function apiRestoreCompleteBackup(backupData: any): Promise<{ succe
       body: JSON.stringify(backupData)
     });
     if (res.ok) {
-      const json = await res.json();
-      // Mirror to local
-      if (backupData.users) localStorage.setItem('bongoweb_registered_users', JSON.stringify(backupData.users));
-      if (backupData.orders) localStorage.setItem('bongoweb_orders', JSON.stringify(backupData.orders));
-      if (backupData.customWebsites) localStorage.setItem('bongoweb_custom_catalog', JSON.stringify(backupData.customWebsites));
-      if (backupData.deliveredCredentials) localStorage.setItem('bongoweb_delivered_credentials', JSON.stringify(backupData.deliveredCredentials));
-      if (backupData.resetRequests) localStorage.setItem('bongoweb_reset_requests', JSON.stringify(backupData.resetRequests));
-      if (backupData.supportChats) localStorage.setItem('bongoweb_support_chats', JSON.stringify(backupData.supportChats));
-      if (backupData.adminConfig) localStorage.setItem('bongoweb_admin_config', JSON.stringify(backupData.adminConfig));
-      return { success: true, message: 'সম্পূর্ণ ডাটাবেজ সফলভাবে রিস্টোর হয়েছে!' };
+      const data = await res.json();
+      // Also update local cache
+      await pullFromCloudVault();
+      return { success: true, message: data.message || 'ডাটাবেজ সফলভাবে রিস্টোর হয়েছে!' };
     }
-  } catch (_) {}
+  } catch (err) {
+    console.error('Failed to restore backup to server:', err);
+  }
 
   // Local fallback
-  try {
-    if (backupData.users) localStorage.setItem('bongoweb_registered_users', JSON.stringify(backupData.users));
-    if (backupData.orders) localStorage.setItem('bongoweb_orders', JSON.stringify(backupData.orders));
-    if (backupData.customWebsites) localStorage.setItem('bongoweb_custom_catalog', JSON.stringify(backupData.customWebsites));
-    if (backupData.deliveredCredentials) localStorage.setItem('bongoweb_delivered_credentials', JSON.stringify(backupData.deliveredCredentials));
-    if (backupData.resetRequests) localStorage.setItem('bongoweb_reset_requests', JSON.stringify(backupData.resetRequests));
-    if (backupData.supportChats) localStorage.setItem('bongoweb_support_chats', JSON.stringify(backupData.supportChats));
-    if (backupData.adminConfig) localStorage.setItem('bongoweb_admin_config', JSON.stringify(backupData.adminConfig));
-    return { success: true, message: 'সফলভাবে লোকাল ক্যাশ রিস্টোর করা হয়েছে।' };
-  } catch (e) {
-    return { success: false, message: 'রিস্টোর করতে সমস্যা হয়েছে।' };
-  }
+  if (Array.isArray(backupData.orders)) localCache.orders = backupData.orders;
+  if (Array.isArray(backupData.supportChats)) localCache.supportChats = backupData.supportChats;
+  if (Array.isArray(backupData.users)) localCache.users = backupData.users;
+  if (Array.isArray(backupData.customWebsites)) localCache.customWebsites = backupData.customWebsites;
+  if (Array.isArray(backupData.deliveredCredentials)) localCache.deliveredCredentials = backupData.deliveredCredentials;
+  if (Array.isArray(backupData.resetRequests)) localCache.resetRequests = backupData.resetRequests;
+
+  localStorage.setItem('bongoweb_orders', JSON.stringify(localCache.orders));
+  localStorage.setItem('bongoweb_support_chats', JSON.stringify(localCache.supportChats));
+  localStorage.setItem('bongoweb_registered_users', JSON.stringify(localCache.users));
+  localStorage.setItem('bongoweb_custom_catalog', JSON.stringify(localCache.customWebsites));
+
+  return { success: true, message: 'ডাটাবেজ লোকাল স্টোরেজে রিস্টোর সম্পন্ন হয়েছে।' };
 }

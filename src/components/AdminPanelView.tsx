@@ -18,7 +18,7 @@ import {
   apiGetWebsites, apiAddWebsite, apiUpdateWebsite, apiDeleteWebsite,
   apiGetCredentials, apiDeliverCredentials, apiDeleteCredential,
   apiGetResetRequests, apiResolveResetRequest,
-  apiExportCompleteBackup, apiRestoreCompleteBackup
+  apiExportCompleteBackup, apiRestoreCompleteBackup, pullFromCloudVault
 } from '../utils/api';
 
 interface AdminPanelViewProps {
@@ -66,6 +66,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
   const [adminReplyText, setAdminReplyText] = useState('');
   const [chatSearch, setChatSearch] = useState('');
   const chatMessagesEndRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
   // Website Edit Modal State (Non-hover inline editor)
   const [editingSite, setEditingSite] = useState<WebsiteDemo | null>(null);
@@ -124,68 +125,24 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
 
   const loadAllDatabaseCollections = async () => {
     try {
-      // 1. Fetch from real shared API
       const res = await fetch('/api/data');
       if (res.ok) {
         const db = await res.json();
-        if (Array.isArray(db.users)) {
-          setUsers(db.users);
-          localStorage.setItem('bongoweb_registered_users', JSON.stringify(db.users));
-        }
-        if (Array.isArray(db.orders)) {
-          setOrders(db.orders);
-          localStorage.setItem('bongoweb_orders', JSON.stringify(db.orders));
-        }
-        if (Array.isArray(db.deliveredCredentials)) {
-          setDeliveredCreds(db.deliveredCredentials);
-          localStorage.setItem('bongoweb_delivered_credentials', JSON.stringify(db.deliveredCredentials));
-        }
-        if (Array.isArray(db.resetRequests)) {
-          setResetRequests(db.resetRequests);
-          localStorage.setItem('bongoweb_reset_requests', JSON.stringify(db.resetRequests));
-        }
+        if (Array.isArray(db.users)) setUsers(db.users);
+        if (Array.isArray(db.orders)) setOrders(db.orders);
+        if (Array.isArray(db.deliveredCredentials)) setDeliveredCreds(db.deliveredCredentials);
+        if (Array.isArray(db.resetRequests)) setResetRequests(db.resetRequests);
         if (Array.isArray(db.customWebsites) && db.customWebsites.length > 0) {
           setCustomWebsites(db.customWebsites);
-          localStorage.setItem('bongoweb_custom_catalog', JSON.stringify(db.customWebsites));
         }
         if (Array.isArray(db.supportChats)) {
           setChatThreads(db.supportChats);
-          localStorage.setItem('bongoweb_support_chats', JSON.stringify(db.supportChats));
           if (db.supportChats.length > 0 && !selectedThreadPhone) {
             setSelectedThreadPhone(db.supportChats[0].userPhone);
           }
         }
         if (db.adminConfig) {
           setAdminConfig(db.adminConfig);
-          localStorage.setItem('bongoweb_admin_config', JSON.stringify(db.adminConfig));
-        }
-        return;
-      }
-    } catch (_) {}
-
-    // Fallback to local storage
-    try {
-      const storedUsers = localStorage.getItem('bongoweb_registered_users');
-      if (storedUsers) setUsers(JSON.parse(storedUsers));
-
-      const storedOrders = localStorage.getItem('bongoweb_orders');
-      if (storedOrders) setOrders(JSON.parse(storedOrders));
-
-      const storedCreds = localStorage.getItem('bongoweb_delivered_credentials');
-      if (storedCreds) setDeliveredCreds(JSON.parse(storedCreds));
-
-      const storedResets = localStorage.getItem('bongoweb_reset_requests');
-      if (storedResets) setResetRequests(JSON.parse(storedResets));
-
-      const storedCatalog = localStorage.getItem('bongoweb_custom_catalog');
-      if (storedCatalog) setCustomWebsites(JSON.parse(storedCatalog));
-
-      const storedChats = localStorage.getItem('bongoweb_support_chats');
-      if (storedChats) {
-        const parsed: SupportChatThread[] = JSON.parse(storedChats);
-        setChatThreads(parsed);
-        if (parsed.length > 0 && !selectedThreadPhone) {
-          setSelectedThreadPhone(parsed[0].userPhone);
         }
       }
     } catch (e) {
@@ -193,13 +150,13 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
     }
   };
 
-  // Real-Time Polling & Storage Sync every 800ms (Ensures orders & chats from mobile appear instantly!)
+  // Real-Time Polling & Storage Sync every 1.5s
   useEffect(() => {
     const syncData = () => {
       loadAllDatabaseCollections();
     };
 
-    const interval = setInterval(syncData, 800);
+    const interval = setInterval(syncData, 1500);
     window.addEventListener('storage', syncData);
 
     return () => {
@@ -208,10 +165,40 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
     };
   }, [selectedThreadPhone]);
 
-  // Auto scroll chat
+  // Track chat scroll state so user scrolling UP is NEVER disturbed
+  const lastThreadPhoneRef = useRef<string>('');
+  const lastMessageCountRef = useRef<number>(0);
+  const isUserScrolledUpRef = useRef<boolean>(false);
+
+  const handleChatContainerScroll = () => {
+    if (!chatContainerRef.current) return;
+    const { scrollTop, scrollHeight, clientHeight } = chatContainerRef.current;
+    // If user is within 60px of bottom, consider them at bottom; otherwise they scrolled up
+    const isAtBottom = scrollHeight - scrollTop - clientHeight < 60;
+    isUserScrolledUpRef.current = !isAtBottom;
+  };
+
   useEffect(() => {
-    if (activeTab === 'chat') {
-      chatMessagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (activeTab !== 'chat') return;
+
+    const currentThread = chatThreads.find((t) => t.userPhone === selectedThreadPhone);
+    const msgCount = currentThread?.messages?.length || 0;
+
+    const threadChanged = selectedThreadPhone !== lastThreadPhoneRef.current;
+    const hasNewMessage = msgCount > lastMessageCountRef.current;
+
+    lastThreadPhoneRef.current = selectedThreadPhone;
+    lastMessageCountRef.current = msgCount;
+
+    if (threadChanged) {
+      isUserScrolledUpRef.current = false;
+      if (chatContainerRef.current) {
+        chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+      }
+    } else if (hasNewMessage && !isUserScrolledUpRef.current) {
+      if (chatContainerRef.current) {
+        chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+      }
     }
   }, [chatThreads, selectedThreadPhone, activeTab]);
 
@@ -1071,7 +1058,11 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
               </div>
 
               {/* Chat Message Stream */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-3">
+              <div 
+                ref={chatContainerRef}
+                onScroll={handleChatContainerScroll}
+                className="flex-1 overflow-y-auto p-4 space-y-3"
+              >
                 {activeThread?.messages?.map((msg) => {
                   const isAdmin = msg.sender === 'admin';
                   return (

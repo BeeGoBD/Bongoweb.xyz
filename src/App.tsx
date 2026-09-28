@@ -31,7 +31,7 @@ export default function App() {
 
   // Modals state
   const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const [unreadNotifications, setUnreadNotifications] = useState(3);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
   const [sideMenuOpen, setSideMenuOpen] = useState(false);
 
   // Helper to extract demo by code (e.g. 1042 or #1042)

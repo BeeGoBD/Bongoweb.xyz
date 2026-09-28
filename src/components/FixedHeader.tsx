@@ -14,7 +14,7 @@ export default function FixedHeader({
   onBackToCategoryPicker,
   onOpenNotifications,
   onOpenMenu,
-  unreadCount = 3,
+  unreadCount = 0,
   currentCategory = 'all'
 }: FixedHeaderProps) {
   const [activePendingOrder, setActivePendingOrder] = useState<{ orderId: string } | null>(null);
