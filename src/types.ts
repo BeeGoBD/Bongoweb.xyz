@@ -74,3 +74,78 @@ export interface PaymentMethod {
   feeInfo: string;
   iconType: 'bkash' | 'nagad' | 'rocket' | 'upay' | 'card' | 'bank';
 }
+
+export interface UserAccount {
+  name: string;
+  phone: string;
+  email: string;
+  password?: string;
+  registeredAt: string;
+}
+
+export interface ClientOrder {
+  orderId: string; // e.g. '#BW-84920'
+  demoCode: string;
+  demoTitle: string;
+  clientName: string;
+  phone: string;
+  email: string;
+  companyName: string;
+  domainOption: 'have_domain' | 'no_domain' | 'dont_know';
+  customDomain?: string;
+  paymentMethod: 'bkash' | 'nagad' | 'rocket' | 'upay';
+  transactionId: string;
+  makingCharge: number; // 1990
+  monthlyCost: number; // 120
+  status: 'pending' | 'verified' | 'cancelled';
+  createdAt: string;
+  screenshotName?: string;
+}
+
+export interface WebsiteDeliveryCredentials {
+  id: string;
+  userPhone: string;
+  websiteTitle: string;
+  websiteCode: string;
+  websiteAdminId: string;
+  websiteAdminPass: string;
+  notes?: string;
+  deliveredAt: string;
+}
+
+export interface PasswordResetRequest {
+  id: string;
+  phone: string;
+  requestedAt: string;
+  status: 'pending' | 'reset' | 'rejected' | 'call_not_received';
+  resolvedAt?: string;
+  newPasswordAssigned?: string;
+}
+
+export interface AdminConfig {
+  adminId: string;
+  adminEntryPassword: string;
+  adminActionPassword: string;
+  masterKey: string;
+}
+
+export interface SupportChatMessage {
+  id: string;
+  sender: 'client' | 'admin';
+  text: string;
+  timestamp: string;
+}
+
+export interface SupportChatThread {
+  userPhone: string;
+  userName: string;
+  userEmail?: string;
+  lastMessage: string;
+  lastUpdated: string;
+  unreadAdminCount: number;
+  unreadClientCount: number;
+  messages: SupportChatMessage[];
+}
+
+
+

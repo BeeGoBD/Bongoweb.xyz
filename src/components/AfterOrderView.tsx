@@ -1,8 +1,8 @@
 import React from 'react';
 import { 
-  PhoneCall, Sparkles, Rocket, MessageCircle, ShieldCheck, 
-  CheckCircle2, Clock, Globe, CreditCard, Laptop, ArrowRight, 
-  HelpCircle, Lock, Server, FileText
+  PhoneCall, FolderKanban, Server, CreditCard, Rocket, 
+  CheckCircle2, ShieldCheck, Zap, Globe, Headphones, 
+  MessageCircle, ArrowRight
 } from 'lucide-react';
 
 interface AfterOrderViewProps {
@@ -11,193 +11,203 @@ interface AfterOrderViewProps {
 }
 
 export default function AfterOrderView({ onGoToDashboard, onOpenLiveChat }: AfterOrderViewProps) {
-  const workflowSteps = [
+  // Serialized order steps: strictly main text, no subtext, unique icons
+  const serialSteps = [
     {
-      step: '01',
-      titleEnglish: 'Direct Consultation & Order Confirmation Call',
-      titleBangla: 'সরাসরি ফোন কল ও রিকোয়ারমেন্ট যাচাই',
-      descriptionEnglish: 'Our senior engineer calls you or connects on WhatsApp within 15 minutes of receiving your order. We confirm your business requirements, template selection, and scope before any work begins.',
+      pointNumber: '১',
+      pointLabel: 'পয়েন্ট ১',
+      pointEn: 'Point 1',
+      mainText: 'সরাসরি আপনাকে ফোন কল করে প্রজেক্ট বিস্তারিত নিশ্চিতকরণ',
+      mainTextEn: 'We will call you directly to confirm project details',
       icon: PhoneCall,
-      highlight: 'Work starts only after speaking with you'
+      accentColor: '#533AFD'
     },
     {
-      step: '02',
-      titleEnglish: 'Collecting Brand Logo, Domain & Content Assets',
-      titleBangla: 'লোগো, ব্র্যান্ড কালার ও ডোমেইন সংগ্রহ',
-      descriptionEnglish: 'We collect your business logo, preferred domain name (.com or .xyz), company slogan, product lists, and official contact information through our simple checklist.',
-      icon: Sparkles,
-      highlight: 'Zero hassle asset onboarding'
+      pointNumber: '২',
+      pointLabel: 'পয়েন্ট ২',
+      pointEn: 'Point 2',
+      mainText: 'আপনার ব্যবসার লোগো ও প্রয়োজনীয় তথ্যাদি সংগ্রহ',
+      mainTextEn: 'Ask for your business logo, branding and information',
+      icon: FolderKanban,
+      accentColor: '#FF6118'
     },
     {
-      step: '03',
-      titleEnglish: 'High-Speed Customization & Cloud Architecture',
-      titleBangla: 'টেমপ্লেট কাস্টমাইজেশন ও ক্লাউড কনফিগারেশন',
-      descriptionEnglish: 'We configure the selected website on top-tier cloud architecture with 99.9% uptime, applying your brand colors, typography, banners, and sample product catalogs.',
+      pointNumber: '৩',
+      pointLabel: 'পয়েন্ট ৩',
+      pointEn: 'Point 3',
+      mainText: 'ক্লাউড সার্ভার, সুপারফাস্ট হোস্টিং ও ডোমেইন সক্রিয়করণ',
+      mainTextEn: 'Setup cloud server, high-speed hosting and domain',
       icon: Server,
-      highlight: 'Ultra-fast NVMe cloud servers'
+      accentColor: '#533AFD'
     },
     {
-      step: '04',
-      titleEnglish: 'Payment Gateway & Automated Courier API Setup',
-      titleBangla: 'বিকাশ/নগদ পেমেন্ট গেটওয়ে ও কুরিয়ার ইন্টিগ্রেশন',
-      descriptionEnglish: 'We integrate automated bKash, Nagad, cards, and bank checkout options along with Steadfast, Pathao, or RedX automated parcel tracking APIs directly to your merchant account.',
+      pointNumber: '৪',
+      pointLabel: 'পয়েন্ট ৪',
+      pointEn: 'Point 4',
+      mainText: 'পেমেন্ট গেটওয়ে, অটো কুরিয়ার ও কনটেন্ট কনফিগারেশন',
+      mainTextEn: 'Configure payment gateway, automated courier and products',
       icon: CreditCard,
-      highlight: 'Instant automated settlements'
+      accentColor: '#00B261'
     },
     {
-      step: '05',
-      titleEnglish: 'Cross-Device QA & Google PageSpeed 95+ Tuning',
-      titleBangla: 'মোবাইল অপ্টিমাইজেশন ও স্পিড টেস্টিং',
-      descriptionEnglish: 'We test your website across Android smartphones, iPhones, iPads, and desktop computers to guarantee lightning-fast load times under 1.5 seconds and secure SSL encryption.',
-      icon: Laptop,
-      highlight: 'Mobile-first Google Speed optimized'
-    },
-    {
-      step: '06',
-      titleEnglish: 'Private Staging Preview & Unlimited Fine-Tuning',
-      titleBangla: 'প্রাইভেট প্রিভিউ লিংক ও রিভিশন সম্পন্নকরণ',
-      descriptionEnglish: 'You receive a private live staging link to inspect every page, product, and button. Any text, price, or layout adjustments are made immediately until you are 100% satisfied.',
-      icon: CheckCircle2,
-      highlight: 'Your complete approval before launch'
-    },
-    {
-      step: '07',
-      titleEnglish: 'Official Launch & Admin Video Tutorial Handover',
-      titleBangla: 'ডোমেইন লাইভ ও অ্যাডমিন ভিডিও টিউটোরিয়াল',
-      descriptionEnglish: 'We link your live custom domain, hand over super-admin credentials, and provide a personalized screen-recorded video guide showing you how to add products and manage orders in 2 minutes.',
+      pointNumber: '৫',
+      pointLabel: 'পয়েন্ট ৫',
+      pointEn: 'Point 5',
+      mainText: 'মাত্র ২৪ ঘণ্টার মধ্যে সম্পূর্ণ লাইভ ওয়েবসাইট ডেলিভারি',
+      mainTextEn: 'Live website delivery and staging inspection within 24 hours',
       icon: Rocket,
-      highlight: 'Complete ownership with video guide'
+      accentColor: '#533AFD'
     },
     {
-      step: '08',
-      titleEnglish: 'Lifetime Technical Maintenance & WhatsApp Support',
-      titleBangla: '২৪/৭ ফ্রি টেকনিক্যাল সাপোর্ট ও মেইনটেন্যান্স',
-      descriptionEnglish: 'Our engineering desk remains at your disposal 24/7 on WhatsApp for server monitoring, daily automatic database backups, and technical help at any time.',
-      icon: MessageCircle,
-      highlight: 'Uninterrupted peace of mind'
+      pointNumber: '৬',
+      pointLabel: 'পয়েন্ট ৬',
+      pointEn: 'Point 6',
+      mainText: 'ক্লায়েন্টের সন্তুষ্টি যাচাই ও আজীবন পূর্ণ মালিকানা হস্তান্তর',
+      mainTextEn: 'Client satisfaction confirmation and lifetime ownership handover',
+      icon: CheckCircle2,
+      accentColor: '#00B261'
     }
   ];
 
   return (
     <div className="w-full flex flex-col font-sans pb-28 pt-4">
-      {/* Header Banner */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 w-full mb-8">
-        <div className="bg-[#F8FAFD] border border-[#E5EDF5] rounded-3xl p-6 sm:p-8 md:p-10 shadow-[0_4px_24px_rgba(13,37,61,0.03)] text-center relative overflow-hidden">
-          {/* Subtle Top Gradient Accent */}
-          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#533AFD] via-[#7F7DFC] to-[#BDB4FF]" />
-
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-[#E2E4FF] text-[#533AFD] mb-3 border border-[#533AFD]/20">
-            <ShieldCheck className="w-4 h-4 text-[#533AFD]" />
-            <span>স্বচ্ছ ও নিরাপদ কর্মপদ্ধতি • Transparent 8-Step Workflow</span>
-          </div>
-
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-[#0D253D] tracking-tight mb-3">
-            What We Do After Your{' '}
-            <span className="text-[#533AFD]">Website Order</span>
+      {/* 1. Header Banner */}
+      <section className="max-w-4xl mx-auto px-4 sm:px-6 w-full mb-6">
+        <div className="text-center">
+          <span className="px-3 py-1 rounded-full bg-[#E2E4FF] text-[#533AFD] text-xs font-bold border border-[#533AFD]/20 inline-block mb-2">
+            অর্ডার নিশ্চিতকরণের পরবর্তী ধাপ
+          </span>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-[#0D253D] tracking-tight">
+            অর্ডারের পর <span className="text-[#533AFD]">ধারাবাহিক পদক্ষেপসমূহ</span>
           </h1>
-
-          <p className="text-xs sm:text-sm text-[#273951] font-medium max-w-2xl mx-auto mb-2">
-            অর্ডার করার মুহূর্ত থেকে আপনার ওয়েবসাইট লাইভ হওয়া পর্যন্ত আমাদের প্রতিটি পদক্ষেপ বিস্তারিত জানুন।
-          </p>
-          <p className="text-xs text-[#64748D] max-w-2xl mx-auto">
-            Our step-by-step engineering roadmap ensures every website is delivered within 24 hours with custom domain, cloud hosting, and continuous live support.
-          </p>
-
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-            <button
-              onClick={onGoToDashboard}
-              className="px-5 py-2.5 rounded-xl bg-[#533AFD] hover:bg-[#665EFD] active:bg-[#4032C8] text-[#FFFFFF] text-xs font-bold transition-all shadow-xs flex items-center gap-2 cursor-pointer"
-            >
-              <span>ওয়েবসাইট ক্যাটালগে ফিরুন</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
-            <button
-              onClick={onOpenLiveChat}
-              className="px-5 py-2.5 rounded-xl bg-[#FFFFFF] hover:bg-[#E5EDF5] text-[#273951] border border-[#E5EDF5] text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shadow-2xs"
-            >
-              <MessageCircle className="w-3.5 h-3.5 text-[#533AFD]" />
-              <span>সরাসরি চ্যাটে কথা বলুন</span>
-            </button>
-          </div>
         </div>
       </section>
 
-      {/* 8-Step Interactive Timeline */}
-      <section className="max-w-5xl mx-auto px-4 sm:px-6 w-full space-y-4">
-        {workflowSteps.map((item, index) => {
-          const Icon = item.icon;
+      {/* 2. Serialized Step Cards: Each occupies ~15% screen size, main text only, no subtext */}
+      <section className="max-w-4xl mx-auto px-4 sm:px-6 w-full space-y-3 mb-10">
+        {serialSteps.map((step, idx) => {
+          const Icon = step.icon;
           return (
             <div
-              key={item.step}
-              className="group bg-[#FFFFFF] hover:bg-[#F8FAFD] rounded-2xl sm:rounded-3xl border border-[#E5EDF5] hover:border-[#533AFD]/50 p-5 sm:p-6 transition-all duration-200 shadow-[0_2px_12px_rgba(13,37,61,0.03)] hover:shadow-[0_8px_24px_rgba(83,58,253,0.08)] flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6"
+              key={idx}
+              className="w-full min-h-[76px] sm:min-h-[86px] p-4 sm:p-5 rounded-2xl bg-[#FFFFFF] border-2 border-[#E5EDF5] hover:border-[#533AFD] transition-all duration-200 shadow-2xs hover:shadow-md flex items-center justify-between gap-4 group"
             >
-              {/* Step Number & Icon */}
-              <div className="flex items-center gap-3 sm:gap-4 shrink-0">
-                <span className="text-xl sm:text-2xl font-black text-[#533AFD] font-mono tracking-tight w-8">
-                  {item.step}
-                </span>
-                <div className="w-12 h-12 rounded-2xl bg-[#E2E4FF] text-[#533AFD] flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform">
-                  <Icon className="w-6 h-6 stroke-[2.2]" />
-                </div>
-              </div>
-
-              {/* Text Info */}
-              <div className="flex-1">
-                <div className="flex flex-wrap items-center gap-2 mb-1">
-                  <h3 className="text-sm sm:text-base font-black text-[#0D253D]">
-                    {item.titleEnglish}
-                  </h3>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#E2E4FF] text-[#533AFD]">
-                    {item.highlight}
+              <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                {/* Serial Point Badge */}
+                <div className="flex flex-col items-center justify-center w-12 sm:w-14 shrink-0 border-r border-[#E5EDF5] pr-3 sm:pr-4">
+                  <span className="text-[10px] font-bold text-[#64748D] uppercase tracking-wider">
+                    {step.pointEn}
+                  </span>
+                  <span className="text-base sm:text-lg font-black text-[#533AFD]">
+                    {step.pointNumber}
                   </span>
                 </div>
 
-                <p className="text-xs font-semibold text-[#533AFD] mb-1.5">
-                  {item.titleBangla}
-                </p>
+                {/* Unique Matching Icon */}
+                <div 
+                  className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 transition-transform"
+                  style={{
+                    backgroundColor: '#E2E4FF',
+                    color: step.accentColor
+                  }}
+                >
+                  <Icon className="w-5 h-5 sm:w-5.5 sm:h-5.5 stroke-[2.2]" />
+                </div>
 
-                <p className="text-xs text-[#273951] leading-relaxed font-normal">
-                  {item.descriptionEnglish}
-                </p>
+                {/* Main Text ONLY (No subtext as requested) */}
+                <div className="min-w-0">
+                  <h3 className="text-sm sm:text-base md:text-lg font-black text-[#0D253D] group-hover:text-[#533AFD] transition-colors leading-snug">
+                    {step.mainText}
+                  </h3>
+                </div>
               </div>
 
-              {/* Verified Status Tag */}
-              <div className="shrink-0 self-end sm:self-center">
-                <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#00B261]">
-                  <CheckCircle2 className="w-4 h-4 text-[#00B261]" />
-                  <span>গ্যারান্টিযুক্ত</span>
-                </span>
+              {/* Status Indicator */}
+              <div className="shrink-0 hidden xs:block">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#00B261] inline-block animate-pulse" />
               </div>
             </div>
           );
         })}
       </section>
 
-      {/* 3 Core Assurances */}
-      <section className="max-w-5xl mx-auto px-4 sm:px-6 w-full mt-10">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="p-5 rounded-2xl bg-[#F8FAFD] border border-[#E5EDF5]">
-            <Clock className="w-6 h-6 text-[#533AFD] mb-2" />
-            <h4 className="text-sm font-bold text-[#0D253D]">২৪ ঘণ্টার মধ্যে ডেলিভারি</h4>
-            <p className="text-xs text-[#64748D] mt-1">
-              Live within 24 hours of receiving your brand assets. No endless delays.
+      {/* 3. Section After All Detail Steps: What We Do After Your Website Order */}
+      <section className="max-w-4xl mx-auto px-4 sm:px-6 w-full">
+        <div className="bg-[#F8FAFD] border border-[#E5EDF5] rounded-3xl p-6 sm:p-8 md:p-10 shadow-sm relative overflow-hidden">
+          <div className="text-center max-w-2xl mx-auto mb-8">
+            <span className="px-3.5 py-1 rounded-full bg-[#E2E4FF] text-[#533AFD] text-xs font-bold border border-[#533AFD]/20 inline-block mb-2">
+              Verified Delivery Standards
+            </span>
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-[#0D253D] tracking-tight">
+              What We Do After Your Website Order
+            </h2>
+            <p className="text-xs sm:text-sm text-[#64748D] mt-2">
+              আপনার ব্যবসার প্রতিটি ওয়েবসাইট অর্ডারের পর আমরা বিশ্বমানের ক্লাউড ইনফ্রাস্ট্রাকচার ও দীর্ঘমেয়াদী সেবা নিশ্চিত করি।
             </p>
           </div>
 
-          <div className="p-5 rounded-2xl bg-[#F8FAFD] border border-[#E5EDF5]">
-            <ShieldCheck className="w-6 h-6 text-[#00B261] mb-2" />
-            <h4 className="text-sm font-bold text-[#0D253D]">১০০% মানিব্যাক গ্যারান্টি</h4>
-            <p className="text-xs text-[#64748D] mt-1">
-              Full refund if we fail to deliver according to agreed specifications.
-            </p>
+          {/* 4 Smart Deliverables */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+            <div className="p-4 sm:p-5 rounded-2xl bg-[#FFFFFF] border border-[#E5EDF5] shadow-2xs">
+              <div className="w-10 h-10 rounded-xl bg-[#E2E4FF] text-[#533AFD] flex items-center justify-center mb-3">
+                <Zap className="w-5 h-5 stroke-[2.2]" />
+              </div>
+              <h4 className="text-sm sm:text-base font-bold text-[#0D253D]">২৪ ঘণ্টা এক্সপ্রেস ডেলিভারি</h4>
+              <p className="text-xs text-[#64748D] mt-1 leading-relaxed">
+                অর্ডার কনফার্ম করার মাত্র ২৪ ঘণ্টার মধ্যে সম্পূর্ণ কার্যকরী ওয়েবসাইট লাইভ করে দেওয়া হয়।
+              </p>
+            </div>
+
+            <div className="p-4 sm:p-5 rounded-2xl bg-[#FFFFFF] border border-[#E5EDF5] shadow-2xs">
+              <div className="w-10 h-10 rounded-xl bg-[#E2E4FF] text-[#533AFD] flex items-center justify-center mb-3">
+                <Globe className="w-5 h-5 stroke-[2.2]" />
+              </div>
+              <h4 className="text-sm sm:text-base font-bold text-[#0D253D]">ফ্রি .com ডোমেইন ও ক্লাউড হোস্টিং</h4>
+              <p className="text-xs text-[#64748D] mt-1 leading-relaxed">
+                ১ বছরের জন্য ফ্রি অফিশিয়াল ডোমেইন এবং ৯৯.৯% আপটাইম বিশিষ্ট হাই-স্পিড ক্লাউড সার্ভার।
+              </p>
+            </div>
+
+            <div className="p-4 sm:p-5 rounded-2xl bg-[#FFFFFF] border border-[#E5EDF5] shadow-2xs">
+              <div className="w-10 h-10 rounded-xl bg-[#00B261]/10 text-[#00B261] flex items-center justify-center mb-3">
+                <ShieldCheck className="w-5 h-5 stroke-[2.2]" />
+              </div>
+              <h4 className="text-sm sm:text-base font-bold text-[#0D253D]">১০০% মানিব্যাক সন্তুষ্টি গ্যারান্টি</h4>
+              <p className="text-xs text-[#64748D] mt-1 leading-relaxed">
+                কাজের গুণমান বা প্রতিশ্রুত ফিচারে অসন্তুষ্ট হলে কোনো প্রশ্ন ছাড়াই সম্পূর্ণ টাকা ফেরত।
+              </p>
+            </div>
+
+            <div className="p-4 sm:p-5 rounded-2xl bg-[#FFFFFF] border border-[#E5EDF5] shadow-2xs">
+              <div className="w-10 h-10 rounded-xl bg-[#E2E4FF] text-[#533AFD] flex items-center justify-center mb-3">
+                <Headphones className="w-5 h-5 stroke-[2.2]" />
+              </div>
+              <h4 className="text-sm sm:text-base font-bold text-[#0D253D]">আজীবন ফ্রি টেকনিক্যাল কনসাল্টেশন</h4>
+              <p className="text-xs text-[#64748D] mt-1 leading-relaxed">
+                যেকোনো সময় সরাসরি হোয়াটসঅ্যাপ বা ফোন কলে আমাদের টেকনিক্যাল টিম থেকে ইনস্ট্যান্ট সমাধান।
+              </p>
+            </div>
           </div>
 
-          <div className="p-5 rounded-2xl bg-[#F8FAFD] border border-[#E5EDF5]">
-            <MessageCircle className="w-6 h-6 text-[#FF6118] mb-2" />
-            <h4 className="text-sm font-bold text-[#0D253D]">২৪/৭ অফিসিয়াল হোয়াটসঅ্যাপ</h4>
-            <p className="text-xs text-[#64748D] mt-1">
-              Direct engineering access via WhatsApp whenever you need assistance.
-            </p>
+          {/* Quick Action Navigation */}
+          <div className="pt-6 border-t border-[#E5EDF5] flex flex-col sm:flex-row items-center justify-between gap-4">
+            <button
+              onClick={onGoToDashboard}
+              className="w-full sm:w-auto px-6 py-3 rounded-xl bg-[#533AFD] hover:bg-[#665EFD] active:bg-[#4032C8] text-[#FFFFFF] text-xs sm:text-sm font-bold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <span>ড্যাশবোর্ডে ওয়েবসাইট দেখুন</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+
+            <a
+              href="https://wa.me/8801700000000"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full sm:w-auto px-5 py-3 rounded-xl bg-[#00B261] hover:bg-[#009e56] text-[#FFFFFF] text-xs sm:text-sm font-bold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <MessageCircle className="w-4 h-4" />
+              <span>WhatsApp এ সরাসরি যোগাযোগ</span>
+            </a>
           </div>
         </div>
       </section>

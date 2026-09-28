@@ -1,42 +1,80 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { 
-  Send, MessageCircle, PhoneCall, CheckCircle2, Clock, 
-  Sparkles, Headphones, ShieldCheck, ArrowRight, User
-} from 'lucide-react';
-
-interface ChatMessage {
-  id: string;
-  sender: 'agent' | 'user';
-  text: string;
-  time: string;
-}
+import { Send, Headphones, CheckCircle2, User, Sparkles, CheckCheck } from 'lucide-react';
+import { SupportChatThread, SupportChatMessage, UserAccount } from '../types';
 
 export default function LiveChatView() {
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: '1',
-      sender: 'agent',
-      text: 'আসসালামু আলাইকুম! BongoWeb.xyz-এ স্বাগতম। আপনার ব্যবসার জন্য কোন ধরনের ওয়েবসাইট প্রয়োজন বা কী সাহায্য করতে পারি? আমাদের জানান।',
-      time: 'Just now'
-    },
-    {
-      id: '2',
-      sender: 'agent',
-      text: 'Hello! Our dedicated engineering team is live online. Feel free to ask about pricing, domains, payment integration, or 24-hour delivery.',
-      time: 'Just now'
-    }
-  ]);
-
+  const [userName, setUserName] = useState('');
+  const [userPhone, setUserPhone] = useState('');
   const [inputVal, setInputVal] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const quickQuestions = [
-    '🛒 ই-কমার্স ওয়েবসাইটের প্যাকেজ রেট কত?',
-    '⏱️ কত ঘণ্টার মধ্যে ডেলিভারি পাওয়া যাবে?',
-    '💳 বিকাশ ও নগদ পেমেন্ট কি অটো সেটআপ থাকবে?',
-    '🌐 .com ডোমেইন এবং হোস্টিং কি সম্পূর্ণ ফ্রি?'
-  ];
+  const [messages, setMessages] = useState<SupportChatMessage[]>([
+    {
+      id: 'welcome-1',
+      sender: 'admin',
+      text: 'স্বাগতম BongoWeb লাইভ চ্যাট সাপোর্টে! আপনার পছন্দের ওয়েবসাইট, ডোমেইন বা পেমেন্ট সম্পর্কিত যেকোনো সহায়তার জন্য মেসেজ লিখুন।',
+      timestamp: 'এখনই'
+    }
+  ]);
+
+  // Load registered user and their sync thread on mount
+  useEffect(() => {
+    try {
+      const storedUser = localStorage.getItem('bongoweb_user');
+      let phone = '01700000000';
+      let name = 'ক্লায়েন্ট';
+
+      if (storedUser) {
+        const parsed: UserAccount = JSON.parse(storedUser);
+        phone = parsed.phone;
+        name = parsed.name;
+        setUserPhone(phone);
+        setUserName(name);
+      } else {
+        setUserPhone(phone);
+        setUserName(name);
+      }
+
+      // Check existing thread in bongoweb_support_chats
+      const storedChats = localStorage.getItem('bongoweb_support_chats');
+      if (storedChats) {
+        const threads: SupportChatThread[] = JSON.parse(storedChats);
+        const myThread = threads.find((t) => t.userPhone === phone);
+        if (myThread && myThread.messages.length > 0) {
+          setMessages(myThread.messages);
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }, []);
+
+  // Poll for admin replies every 1.5 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      try {
+        const phone = userPhone || '01700000000';
+        const storedChats = localStorage.getItem('bongoweb_support_chats');
+        if (storedChats) {
+          const threads: SupportChatThread[] = JSON.parse(storedChats);
+          const myThread = threads.find((t) => t.userPhone === phone);
+          if (myThread && myThread.messages.length > 0) {
+            setMessages((prev) => {
+              if (prev.length !== myThread.messages.length) {
+                return myThread.messages;
+              }
+              return prev;
+            });
+          }
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }, 1500);
+
+    return () => clearInterval(interval);
+  }, [userPhone]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -46,194 +84,159 @@ export default function LiveChatView() {
     scrollToBottom();
   }, [messages, isTyping]);
 
-  const handleSendMessage = (textToSend?: string) => {
-    const text = textToSend || inputVal;
-    if (!text.trim()) return;
+  const handleSendMessage = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const text = inputVal.trim();
+    if (!text) return;
 
-    const userMsg: ChatMessage = {
-      id: Date.now().toString(),
-      sender: 'user',
-      text: text.trim(),
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    const phone = userPhone || '01700000000';
+    const name = userName || 'ক্লায়েন্ট';
+
+    const clientMsg: SupportChatMessage = {
+      id: `client-${Date.now()}`,
+      sender: 'client',
+      text,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
 
-    setMessages((prev) => [...prev, userMsg]);
-    if (!textToSend) setInputVal('');
+    const newMessages = [...messages, clientMsg];
+    setMessages(newMessages);
+    setInputVal('');
 
-    // Simulate Agent typing and replying
-    setIsTyping(true);
-    setTimeout(() => {
-      let reply = 'ধন্যবাদ আপনার বার্তার জন্য! আমাদের একজন সিনিয়র ওয়েব স্পেশালিস্ট এখনই আপনার সাথে যুক্ত হচ্ছেন। আপনি সরাসরি আমাদের হোয়াটসঅ্যাপেও নক দিতে পারেন (+8801700000000)।';
+    // Save and sync with bongoweb_support_chats for Admin Panel
+    try {
+      const storedChats = localStorage.getItem('bongoweb_support_chats');
+      let threads: SupportChatThread[] = storedChats ? JSON.parse(storedChats) : [];
+      const threadIndex = threads.findIndex((t) => t.userPhone === phone);
 
-      const lower = text.toLowerCase();
-      if (lower.includes('খরচ') || lower.includes('প্যাকেজ') || lower.includes('রেট') || lower.includes('price')) {
-        reply = 'আমাদের প্রিমিয়াম ওয়েবসাইট প্যাকেজ ৯৯৯ টাকা থেকে শুরু! এতে সম্পূর্ণ লাইভ ডোমেইন (.com), সুপারফাস্ট ক্লাউড হোস্টিং, এবং বিকাশ/নগদ অটো পেমেন্ট অন্তর্ভুক্ত থাকে।';
-      } else if (lower.includes('ডেলিভারি') || lower.includes('সময়') || lower.includes('hour') || lower.includes('delivery')) {
-        reply = 'আমাদের প্রতিটি ওয়েবসাইট মাত্র ২৪ ঘণ্টার মধ্যে সম্পূর্ণ ডেলিভারি দেওয়া হয়! কাজ শুরু করার পূর্বে আমরা সরাসরি আপনার সাথে কথা বলে সব রিকোয়ারমেন্ট ক্লিয়ার করে নিই।';
-      } else if (lower.includes('বিকাশ') || lower.includes('নগদ') || lower.includes('payment') || lower.includes('পেমেন্ট')) {
-        reply = 'হ্যাঁ! প্রতিটি ই-কমার্স ও বিজনেসে অটোমেটিক বিকাশ, নগদ, রকেট এবং কার্ড পেমেন্ট সরাসরি আপনার অ্যাকাউন্টে সেট করে দেওয়া হয়। সাথে কুরিয়ার অটো ট্র্যাকিংও থাকছে!';
-      } else if (lower.includes('ডোমেইন') || lower.includes('হোস্টিং') || lower.includes('domain')) {
-        reply = 'প্রতিটি অর্ডারের সাথে পাচ্ছেন ১ বছরের ফ্রি কাস্টম .com ডোমেইন এবং ৯৯.৯% আপটাইম বিশিষ্ট হাই-স্পিড ক্লাউড হোস্টিং ও ফ্রি SSL সিকিউরিটি সার্টিফিকেট!';
+      if (threadIndex >= 0) {
+        threads[threadIndex].lastMessage = text;
+        threads[threadIndex].lastUpdated = 'এখনই';
+        threads[threadIndex].unreadAdminCount += 1;
+        threads[threadIndex].messages = newMessages;
+      } else {
+        threads.unshift({
+          userPhone: phone,
+          userName: name,
+          lastMessage: text,
+          lastUpdated: 'এখনই',
+          unreadAdminCount: 1,
+          unreadClientCount: 0,
+          messages: newMessages
+        });
       }
 
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: (Date.now() + 1).toString(),
-          sender: 'agent',
-          text: reply,
-          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-        }
-      ]);
-      setIsTyping(false);
-    }, 1100);
+      localStorage.setItem('bongoweb_support_chats', JSON.stringify(threads));
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
-    <div className="w-full flex flex-col font-sans pb-28 pt-4">
-      {/* Top Header Card */}
-      <section className="max-w-4xl mx-auto px-4 sm:px-6 w-full mb-5">
-        <div className="bg-[#FFFFFF] border border-[#E5EDF5] rounded-3xl p-5 sm:p-6 shadow-[0_4px_20px_rgba(13,37,61,0.03)] flex flex-col sm:flex-row items-center justify-between gap-4">
+    <div className="w-full flex flex-col font-sans pb-28 pt-2">
+      {/* 1. Header: Clean "লাইভ চ্যাট" */}
+      <section className="max-w-3xl mx-auto px-4 sm:px-6 w-full mb-4">
+        <div className="bg-[#FFFFFF] border border-[#E5EDF5] rounded-2xl p-4 shadow-xs flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="relative">
-              <div className="w-12 h-12 rounded-2xl bg-[#E2E4FF] text-[#533AFD] flex items-center justify-center font-black shadow-xs">
-                <Headphones className="w-6 h-6 stroke-[2.2]" />
-              </div>
-              <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-[#00B261] border-2 border-[#FFFFFF] shadow-2xs" />
+            <div className="w-10 h-10 rounded-xl bg-[#E2E4FF] text-[#533AFD] flex items-center justify-center font-black shadow-2xs relative">
+              <Headphones className="w-5 h-5 stroke-[2.2]" />
+              <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-[#00B261] border-2 border-[#FFFFFF]" />
             </div>
 
             <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-base sm:text-lg font-black text-[#0D253D]">
-                  BongoWeb লাইভ চ্যাট সাপোর্ট
-                </h1>
-                <span className="px-2 py-0.5 rounded-full bg-[#00B261]/10 text-[#00B261] text-[10px] font-bold border border-[#00B261]/20">
-                  অনলাইন আছেন
-                </span>
-              </div>
-              <p className="text-xs text-[#64748D] mt-0.5">
-                সরাসরি আমাদের কারিগরি দলের সাথে কথা বলুন • সাধারণত ১-২ মিনিটে উত্তর দেওয়া হয়
+              <h1 className="text-base sm:text-lg font-black text-[#0D253D] leading-tight">
+                লাইভ সাপোর্ট চ্যাট (Live Support)
+              </h1>
+              <p className="text-[11px] text-[#00B261] font-bold flex items-center gap-1 mt-0.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#00B261] animate-pulse" />
+                সাপোর্ট টিম সরাসরি সক্রিয় আছেন
               </p>
             </div>
           </div>
 
-          {/* Direct WhatsApp Call Out */}
-          <div className="flex items-center gap-2 w-full sm:w-auto">
-            <a
-              href="https://wa.me/8801700000000"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-1 sm:flex-initial px-4 py-2 rounded-xl bg-[#00B261] hover:bg-[#009e56] text-[#FFFFFF] text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-1.5"
-            >
-              <MessageCircle className="w-4 h-4" />
-              <span>WhatsApp চ্যাট</span>
-            </a>
-            <a
-              href="tel:+8801700000000"
-              className="flex-1 sm:flex-initial px-4 py-2 rounded-xl bg-[#533AFD] hover:bg-[#665EFD] active:bg-[#4032C8] text-[#FFFFFF] text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-1.5"
-            >
-              <PhoneCall className="w-4 h-4" />
-              <span>কল করুন</span>
-            </a>
+          <div className="text-right text-xs text-[#64748D] hidden xs:block">
+            <span className="font-mono text-[#0D253D] font-bold">গড় উত্তর সময়: ১ মিনিট</span>
+            <span className="block text-[10px] text-[#00B261]">২৪/৭ ইনস্ট্যান্ট রিপ্লাই</span>
           </div>
         </div>
       </section>
 
-      {/* Main Chat Box Container */}
-      <section className="max-w-4xl mx-auto px-4 sm:px-6 w-full">
-        <div className="bg-[#FFFFFF] border border-[#E5EDF5] rounded-3xl shadow-[0_8px_30px_rgba(13,37,61,0.04)] overflow-hidden flex flex-col h-[520px] sm:h-[560px]">
-          {/* Quick FAQ Prompt Chips */}
-          <div className="p-3 bg-[#F8FAFD] border-b border-[#E5EDF5] overflow-x-auto scrollbar-none flex items-center gap-2">
-            <span className="text-[11px] font-bold text-[#64748D] shrink-0">
-              কুইক প্রশ্ন:
-            </span>
-            {quickQuestions.map((q, idx) => (
-              <button
-                key={idx}
-                onClick={() => handleSendMessage(q)}
-                className="px-2.5 py-1 rounded-lg bg-[#FFFFFF] hover:bg-[#E2E4FF] text-[#273951] hover:text-[#533AFD] border border-[#E5EDF5] hover:border-[#533AFD]/30 text-[11px] font-semibold transition-all whitespace-nowrap cursor-pointer shadow-2xs shrink-0"
-              >
-                {q}
-              </button>
-            ))}
-          </div>
+      {/* 2. Messages Window */}
+      <section className="max-w-3xl mx-auto px-4 sm:px-6 w-full flex-1">
+        <div className="bg-[#FFFFFF] border border-[#E5EDF5] rounded-3xl shadow-xs p-4 sm:p-6 min-h-[440px] max-h-[560px] flex flex-col justify-between">
+          <div className="space-y-4 overflow-y-auto pr-1 flex-1">
+            <div className="text-center my-2">
+              <span className="text-[10px] font-mono text-[#64748D] bg-[#F8FAFD] border border-[#E5EDF5] px-3 py-1 rounded-full inline-block">
+                অ্যাডমিন ও টেকনিক্যাল টিম অনলাইন
+              </span>
+            </div>
 
-          {/* Messages Stream Area */}
-          <div className="flex-1 p-4 sm:p-6 overflow-y-auto space-y-4 bg-[#FFFFFF]">
             {messages.map((msg) => {
-              const isAgent = msg.sender === 'agent';
+              const isClient = msg.sender === 'client';
               return (
                 <div
                   key={msg.id}
-                  className={`flex items-end gap-2.5 ${isAgent ? 'justify-start' : 'justify-end'}`}
+                  className={`flex flex-col ${isClient ? 'items-end' : 'items-start'} animate-fadeIn`}
                 >
-                  {isAgent && (
-                    <div className="w-8 h-8 rounded-xl bg-[#E2E4FF] text-[#533AFD] flex items-center justify-center shrink-0 text-xs font-black shadow-2xs">
-                      BW
-                    </div>
-                  )}
+                  <div className="flex items-end gap-2 max-w-[85%] sm:max-w-[75%]">
+                    {!isClient && (
+                      <div className="w-7 h-7 rounded-lg bg-[#533AFD] text-white flex items-center justify-center font-black text-[10px] shrink-0 mb-1">
+                        BW
+                      </div>
+                    )}
 
-                  <div
-                    className={`max-w-[82%] sm:max-w-[70%] p-3.5 sm:p-4 rounded-2xl text-xs sm:text-sm leading-relaxed ${
-                      isAgent
-                        ? 'bg-[#F8FAFD] text-[#0D253D] border border-[#E5EDF5] rounded-bl-xs'
-                        : 'bg-[#533AFD] text-[#FFFFFF] rounded-br-xs shadow-xs font-medium'
-                    }`}
-                  >
-                    <p>{msg.text}</p>
-                    <span
-                      className={`block text-[10px] mt-1.5 ${
-                        isAgent ? 'text-[#7D8BA4]' : 'text-[#E2E4FF]'
+                    <div
+                      className={`p-3.5 rounded-2xl text-xs leading-relaxed ${
+                        isClient
+                          ? 'bg-[#533AFD] text-[#FFFFFF] rounded-br-xs shadow-xs'
+                          : 'bg-[#F8FAFD] text-[#0D253D] border border-[#E5EDF5] rounded-bl-xs'
                       }`}
                     >
-                      {msg.time}
-                    </span>
+                      <p>{msg.text}</p>
+                    </div>
                   </div>
 
-                  {!isAgent && (
-                    <div className="w-8 h-8 rounded-xl bg-[#273951] text-[#FFFFFF] flex items-center justify-center shrink-0 text-xs shadow-2xs">
-                      <User className="w-4 h-4" />
-                    </div>
-                  )}
+                  <span className="text-[9px] text-[#64748D] mt-1 px-1 font-mono flex items-center gap-1">
+                    <span>{msg.timestamp}</span>
+                    {isClient && <CheckCheck className="w-3 h-3 text-[#533AFD]" />}
+                  </span>
                 </div>
               );
             })}
 
             {isTyping && (
-              <div className="flex items-center gap-2 text-xs text-[#7D8BA4] italic pl-11">
-                <span className="w-2 h-2 rounded-full bg-[#533AFD] animate-bounce" />
-                <span className="w-2 h-2 rounded-full bg-[#533AFD] animate-bounce [animation-delay:0.2s]" />
-                <span className="w-2 h-2 rounded-full bg-[#533AFD] animate-bounce [animation-delay:0.4s]" />
-                <span>BongoWeb ইঞ্জিনিয়ার লিখছেন...</span>
+              <div className="flex items-center gap-2 text-xs text-[#64748D] animate-pulse">
+                <div className="w-6 h-6 rounded-lg bg-[#E2E4FF] text-[#533AFD] flex items-center justify-center text-[10px] font-bold">
+                  BW
+                </div>
+                <span>ইঞ্জিনিয়ার উত্তর লিখছেন...</span>
               </div>
             )}
+
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Bottom Chat Input Form */}
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleSendMessage();
-            }}
-            className="p-3 sm:p-4 bg-[#F8FAFD] border-t border-[#E5EDF5] flex items-center gap-2"
-          >
-            <input
-              type="text"
-              placeholder="আপনার প্রশ্ন বা মতামত এখানে লিখুন..."
-              value={inputVal}
-              onChange={(e) => setInputVal(e.target.value)}
-              className="flex-1 px-4 py-2.5 rounded-xl bg-[#FFFFFF] border border-[#E5EDF5] text-xs sm:text-sm text-[#0D253D] placeholder-[#7D8BA4] focus:outline-none focus:border-[#533AFD] focus:ring-1 focus:ring-[#533AFD] transition-all"
-            />
-            <button
-              type="submit"
-              disabled={!inputVal.trim()}
-              className="px-4 sm:px-5 py-2.5 rounded-xl bg-[#533AFD] hover:bg-[#665EFD] active:bg-[#4032C8] disabled:opacity-50 disabled:pointer-events-none text-[#FFFFFF] text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
-            >
-              <span>পাঠান</span>
-              <Send className="w-3.5 h-3.5" />
-            </button>
-          </form>
+          {/* 3. Input Form */}
+          <div className="mt-4 pt-3 border-t border-[#E5EDF5]">
+            <form onSubmit={handleSendMessage} className="flex items-center gap-2">
+              <input
+                type="text"
+                value={inputVal}
+                onChange={(e) => setInputVal(e.target.value)}
+                placeholder="আপনার মেসেজ লিখুন..."
+                className="flex-1 px-4 py-2.5 rounded-xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs sm:text-sm text-[#0D253D] placeholder-[#64748D] focus:outline-none focus:bg-[#FFFFFF] focus:border-[#533AFD] focus:ring-1 focus:ring-[#533AFD] transition-all"
+              />
+
+              <button
+                type="submit"
+                disabled={!inputVal.trim()}
+                className="p-2.5 sm:px-4 sm:py-2.5 rounded-xl bg-[#533AFD] hover:bg-[#665EFD] disabled:opacity-40 disabled:hover:bg-[#533AFD] text-[#FFFFFF] text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs shrink-0"
+              >
+                <Send className="w-4 h-4" />
+                <span className="hidden sm:inline">পাঠান</span>
+              </button>
+            </form>
+          </div>
         </div>
       </section>
     </div>

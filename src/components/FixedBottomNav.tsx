@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutGrid, Sparkles, MessageCircle, User } from 'lucide-react';
+import { LayoutGrid, ClipboardCheck, MessageCircle, User } from 'lucide-react';
 
 export type BottomTabType = 'dashboard' | 'after-order' | 'live-chat' | 'account';
 
@@ -23,8 +23,8 @@ export default function FixedBottomNav({
     },
     {
       id: 'after-order' as BottomTabType,
-      label: 'অর্ডারের পর',
-      icon: Sparkles,
+      label: 'অর্ডারের ধাপ',
+      icon: ClipboardCheck,
       tag: 'কর্মপদ্ধতি'
     },
     {
