@@ -18,7 +18,10 @@ import {
   apiGetWebsites, apiAddWebsite, apiUpdateWebsite, apiDeleteWebsite,
   apiGetCredentials, apiDeliverCredentials, apiDeleteCredential,
   apiGetResetRequests, apiResolveResetRequest,
-  apiExportCompleteBackup, apiRestoreCompleteBackup, pullFromCloudVault
+  apiExportCompleteBackup, apiRestoreCompleteBackup, pullFromCloudVault,
+  subscribeToOrders, subscribeToChatThreads, subscribeToUsers,
+  subscribeToDeliveredCredentials, subscribeToResetRequests, subscribeToWebsites,
+  normalizePhone
 } from '../utils/api';
 import { realtimeManager } from '../utils/realtime';
 
@@ -64,6 +67,8 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
   // Live Chat System State
   const [chatThreads, setChatThreads] = useState<SupportChatThread[]>([]);
   const [selectedThreadPhone, setSelectedThreadPhone] = useState<string>('');
+  const selectedThreadPhoneRef = useRef<string>('');
+  selectedThreadPhoneRef.current = selectedThreadPhone;
   const [adminReplyText, setAdminReplyText] = useState('');
   const [chatSearch, setChatSearch] = useState('');
   const chatMessagesEndRef = useRef<HTMLDivElement>(null);
@@ -250,24 +255,23 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
 
   const loadAllDatabaseCollections = async () => {
     try {
-      const res = await fetch('/api/data');
-      if (res.ok) {
-        const db = await res.json();
-        if (Array.isArray(db.users)) setUsers(db.users);
-        if (Array.isArray(db.orders)) setOrders(db.orders);
-        if (Array.isArray(db.deliveredCredentials)) setDeliveredCreds(db.deliveredCredentials);
-        if (Array.isArray(db.resetRequests)) setResetRequests(db.resetRequests);
-        if (Array.isArray(db.customWebsites) && db.customWebsites.length > 0) {
-          setCustomWebsites(db.customWebsites);
+      const vault = await pullFromCloudVault();
+      if (vault) {
+        if (Array.isArray(vault.users)) setUsers(vault.users);
+        if (Array.isArray(vault.orders)) setOrders(vault.orders);
+        if (Array.isArray(vault.credentials)) setDeliveredCreds(vault.credentials);
+        if (Array.isArray(vault.resets)) setResetRequests(vault.resets);
+        if (Array.isArray(vault.customWebsites) && vault.customWebsites.length > 0) {
+          setCustomWebsites(vault.customWebsites);
         }
-        if (Array.isArray(db.supportChats)) {
-          setChatThreads(db.supportChats);
-          if (db.supportChats.length > 0 && !selectedThreadPhone) {
-            setSelectedThreadPhone(db.supportChats[0].userPhone);
+        if (Array.isArray(vault.chats)) {
+          setChatThreads(vault.chats);
+          if (vault.chats.length > 0 && !selectedThreadPhoneRef.current) {
+            setSelectedThreadPhone(vault.chats[0].userPhone);
           }
         }
-        if (db.adminConfig) {
-          setAdminConfig(db.adminConfig);
+        if (vault.adminConfig) {
+          setAdminConfig(vault.adminConfig);
         }
       }
     } catch (e) {
@@ -275,20 +279,59 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
     }
   };
 
-  // Real-Time Polling & Storage Sync every 1.5s
+  // Real-Time Multi-Device Cloud Firestore Subscriptions (Runs once and stays connected)
+  useEffect(() => {
+    const unsubOrders = subscribeToOrders((cloudOrders) => {
+      setOrders(cloudOrders);
+    });
+
+    const unsubChats = subscribeToChatThreads((cloudThreads) => {
+      setChatThreads(cloudThreads);
+      if (cloudThreads.length > 0 && !selectedThreadPhoneRef.current) {
+        setSelectedThreadPhone(cloudThreads[0].userPhone);
+      }
+    });
+
+    const unsubUsers = subscribeToUsers((cloudUsers) => {
+      setUsers(cloudUsers);
+    });
+
+    const unsubCreds = subscribeToDeliveredCredentials((cloudCreds) => {
+      setDeliveredCreds(cloudCreds);
+    });
+
+    const unsubResets = subscribeToResetRequests((cloudResets) => {
+      setResetRequests(cloudResets);
+    });
+
+    const unsubWebsites = subscribeToWebsites((cloudWebsites) => {
+      setCustomWebsites(cloudWebsites);
+    });
+
+    return () => {
+      unsubOrders();
+      unsubChats();
+      unsubUsers();
+      unsubCreds();
+      unsubResets();
+      unsubWebsites();
+    };
+  }, []);
+
+  // Real-Time Polling & Storage Sync every 2s (Secondary redundancy)
   useEffect(() => {
     const syncData = () => {
       loadAllDatabaseCollections();
     };
 
-    const interval = setInterval(syncData, 1500);
+    const interval = setInterval(syncData, 2000);
     window.addEventListener('storage', syncData);
 
     return () => {
       clearInterval(interval);
       window.removeEventListener('storage', syncData);
     };
-  }, [selectedThreadPhone]);
+  }, []);
 
   // Track chat scroll state so user scrolling UP is NEVER disturbed
   const lastThreadPhoneRef = useRef<string>('');
@@ -431,7 +474,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
     setAdminReplyText('');
 
     const newMsg: SupportChatMessage = {
-      id: `msg-${Date.now()}`,
+      id: `admin-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
       sender: 'admin',
       text,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -439,14 +482,18 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
 
     setChatThreads((prev) =>
       prev.map((th) => {
-        if (th.userPhone === targetPhone) {
+        if (normalizePhone(th.userPhone) === normalizePhone(targetPhone)) {
+          const safeMessages = th.messages || [];
           return {
             ...th,
             lastMessage: text,
             lastUpdated: 'এখনই',
             unreadAdminCount: 0,
             unreadClientCount: (th.unreadClientCount || 0) + 1,
-            messages: [...th.messages, newMsg]
+            messages: [
+              ...safeMessages.filter((m) => m.id !== newMsg.id && !(m.sender === newMsg.sender && m.text === newMsg.text)),
+              newMsg
+            ]
           };
         }
         return th;
@@ -457,7 +504,8 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
       await apiSendChatMessage({
         phone: targetPhone,
         sender: 'admin',
-        text
+        text,
+        message: newMsg
       });
       loadAllDatabaseCollections();
     } catch (err) {
@@ -710,12 +758,13 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
   ];
 
   // Active chat thread
-  const activeThread = chatThreads.find((t) => t.userPhone === selectedThreadPhone) || chatThreads[0];
-  const activeThreadUser = users.find((u) => u.phone === activeThread?.userPhone);
-  const activeThreadOrders = orders.filter((o) => o.phone === activeThread?.userPhone);
+  const activeThread = chatThreads.find((t) => normalizePhone(t.userPhone) === normalizePhone(selectedThreadPhone)) || chatThreads[0];
+  const activeThreadUser = users.find((u) => normalizePhone(u.phone) === normalizePhone(activeThread?.userPhone));
+  const activeThreadOrders = orders.filter((o) => normalizePhone(o.phone) === normalizePhone(activeThread?.userPhone));
 
   const filteredThreads = chatThreads.filter((t) => 
     t.userName.toLowerCase().includes(chatSearch.toLowerCase()) || 
+    normalizePhone(t.userPhone).includes(normalizePhone(chatSearch)) ||
     t.userPhone.includes(chatSearch)
   );
 
@@ -1227,29 +1276,42 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                 onScroll={handleChatContainerScroll}
                 className="flex-1 overflow-y-auto p-4 space-y-3"
               >
-                {activeThread?.messages?.map((msg) => {
-                  const isAdmin = msg.sender === 'admin';
-                  return (
-                    <div
-                      key={msg.id}
-                      className={`flex flex-col ${isAdmin ? 'items-end' : 'items-start'}`}
-                    >
+                {(() => {
+                  const msgs = activeThread?.messages || [];
+                  const seenIds = new Set<string>();
+                  const seenContent = new Set<string>();
+                  const cleanMsgs = msgs.filter((m) => {
+                    if (!m || !m.text) return false;
+                    const contentKey = `${m.sender}:${m.text.trim()}`;
+                    if (seenIds.has(m.id) || seenContent.has(contentKey)) return false;
+                    seenIds.add(m.id);
+                    seenContent.add(contentKey);
+                    return true;
+                  });
+                  return cleanMsgs.map((msg) => {
+                    const isAdmin = msg.sender === 'admin';
+                    return (
                       <div
-                        className={`max-w-[80%] sm:max-w-[70%] p-3.5 rounded-2xl text-xs leading-relaxed ${
-                          isAdmin
-                            ? 'bg-[#008A4B] text-white rounded-br-xs shadow-xs'
-                            : 'bg-[#0F2A1B] border border-[#173826] text-[#C8EAD7] rounded-bl-xs'
-                        }`}
+                        key={msg.id}
+                        className={`flex flex-col ${isAdmin ? 'items-end' : 'items-start'}`}
                       >
-                        <p>{msg.text}</p>
+                        <div
+                          className={`max-w-[80%] sm:max-w-[70%] p-3.5 rounded-2xl text-xs leading-relaxed ${
+                            isAdmin
+                              ? 'bg-[#008A4B] text-white rounded-br-xs shadow-xs'
+                              : 'bg-[#0F2A1B] border border-[#173826] text-[#C8EAD7] rounded-bl-xs'
+                          }`}
+                        >
+                          <p>{msg.text}</p>
+                        </div>
+                        <span className="text-[9px] text-[#69977E] font-mono mt-1 px-1 flex items-center gap-1">
+                          <span>{msg.timestamp}</span>
+                          {isAdmin && <CheckCheck className="w-3 h-3 text-[#4EEDB0]" />}
+                        </span>
                       </div>
-                      <span className="text-[9px] text-[#69977E] font-mono mt-1 px-1 flex items-center gap-1">
-                        <span>{msg.timestamp}</span>
-                        {isAdmin && <CheckCheck className="w-3 h-3 text-[#4EEDB0]" />}
-                      </span>
-                    </div>
-                  );
-                })}
+                    );
+                  });
+                })()}
                 <div ref={chatMessagesEndRef} />
               </div>
 

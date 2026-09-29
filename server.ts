@@ -382,10 +382,10 @@ async function startServer() {
           ws.send(JSON.stringify({ type: 'pong', timestamp: Date.now() }));
         } else if (msg.type === 'chat:message') {
           const db = readDb();
-          const { phone, sender, text, name } = msg;
+          const { phone, sender, text, name, message } = msg;
           const cleanPhone = (phone || '').trim();
-          const newMsg = {
-            id: `${sender}-${Date.now()}`,
+          const newMsg = message || {
+            id: `${sender}-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
             sender,
             text: (text || '').trim(),
             timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -393,7 +393,9 @@ async function startServer() {
 
           let thread = db.supportChats.find(t => t.userPhone === cleanPhone);
           if (thread) {
-            thread.messages.push(newMsg);
+            if (!thread.messages.some(m => m.id === newMsg.id || (m.sender === newMsg.sender && m.text === newMsg.text))) {
+              thread.messages.push(newMsg);
+            }
             thread.lastMessage = newMsg.text;
             thread.lastUpdated = 'এখনই';
             if (sender === 'client') {
@@ -692,6 +694,16 @@ async function startServer() {
       db.supportChats.unshift(thread);
     }
 
+    // Auto register client in db.users so user appears in admin section
+    if (!db.users.some(u => u.phone === cleanPhone)) {
+      db.users.unshift({
+        name: cleanName,
+        phone: cleanPhone,
+        email: '',
+        registeredAt: new Date().toLocaleDateString('bn-BD')
+      });
+    }
+
     writeDb(db);
     console.log(`[Realtime Chat Activated] User ${cleanName} (${cleanPhone})`);
 
@@ -711,7 +723,7 @@ async function startServer() {
     const cleanPhone = (phone || '').trim();
 
     const msg = message || {
-      id: `${sender}-${Date.now()}`,
+      id: `${sender}-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
       sender,
       text: (text || '').trim(),
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -720,7 +732,9 @@ async function startServer() {
     let thread = db.supportChats.find(t => t.userPhone === cleanPhone);
 
     if (thread) {
-      thread.messages.push(msg);
+      if (!thread.messages.some(m => m.id === msg.id || (m.sender === msg.sender && m.text === msg.text))) {
+        thread.messages.push(msg);
+      }
       thread.lastMessage = msg.text;
       thread.lastUpdated = 'এখনই';
       if (sender === 'client') {

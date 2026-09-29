@@ -100,6 +100,12 @@ export interface ClientOrder {
   status: 'pending' | 'verified' | 'cancelled';
   createdAt: string;
   screenshotName?: string;
+  advanceAmount?: number;
+  dueAmount?: number;
+  paymentPhone?: string;
+  businessName?: string;
+  chosenDomain?: string;
+  category?: string;
 }
 
 export interface WebsiteDeliveryCredentials {

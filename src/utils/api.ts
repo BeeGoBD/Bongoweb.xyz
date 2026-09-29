@@ -34,6 +34,24 @@ let localCache: CompleteDatabaseState = {
   resetRequests: []
 };
 
+// Helper to strip undefined fields so Firestore writes never fail
+export function cleanFirestoreData<T extends Record<string, any>>(obj: T): T {
+  if (!obj || typeof obj !== 'object') return obj;
+  if (Array.isArray(obj)) {
+    return obj.map(item => cleanFirestoreData(item)) as any;
+  }
+  const clean: any = {};
+  for (const [key, val] of Object.entries(obj)) {
+    if (val === undefined) continue;
+    if (val !== null && typeof val === 'object' && !(val instanceof Date)) {
+      clean[key] = cleanFirestoreData(val);
+    } else {
+      clean[key] = val;
+    }
+  }
+  return clean;
+}
+
 // Seed initial memory cache from localStorage if available
 try {
   const o = localStorage.getItem('bongoweb_orders');
@@ -154,24 +172,34 @@ export async function apiGetOrders(): Promise<ClientOrder[]> {
 }
 
 export async function apiCreateOrder(order: ClientOrder): Promise<ClientOrder> {
+  const safeOrder = cleanFirestoreData({
+    ...order,
+    makingCharge: order.makingCharge || 1990,
+    monthlyCost: order.monthlyCost || 120,
+    advanceAmount: order.advanceAmount || 200,
+    dueAmount: order.dueAmount || 1790,
+    status: order.status || 'pending',
+    createdAt: order.createdAt || new Date().toLocaleString('bn-BD')
+  });
+
   // Update local memory and storage immediately
   const existing = localCache.orders.filter(o => o.orderId !== order.orderId);
-  existing.unshift(order);
+  existing.unshift(safeOrder);
   localCache.orders = existing;
   localStorage.setItem('bongoweb_orders', JSON.stringify(existing));
 
-  if (order.status === 'pending') {
-    localStorage.setItem('bongoweb_active_pending_order', JSON.stringify(order));
+  if (safeOrder.status === 'pending') {
+    localStorage.setItem('bongoweb_active_pending_order', JSON.stringify(safeOrder));
   }
 
   // 1. Persist directly to Cloud Firestore (Works on phone & laptop instantly)
   try {
     const cleanId = order.orderId.replace(/[^a-zA-Z0-9_-]/g, '_');
-    await setDoc(doc(db, 'orders', cleanId), order);
+    await setDoc(doc(db, 'orders', cleanId), safeOrder);
 
     // Also auto-register customer in users collection if phone is provided
     if (order.phone) {
-      const cleanPhone = order.phone.trim();
+      const cleanPhone = (order.phone || '').trim();
       const userRef = doc(db, 'users', cleanPhone);
       const userSnap = await getDoc(userRef);
       if (!userSnap.exists()) {
@@ -181,9 +209,11 @@ export async function apiCreateOrder(order: ClientOrder): Promise<ClientOrder> {
           email: order.email || '',
           registeredAt: new Date().toLocaleDateString('bn-BD')
         };
-        await setDoc(userRef, newUser);
-        localCache.users.push(newUser);
-        localStorage.setItem('bongoweb_registered_users', JSON.stringify(localCache.users));
+        await setDoc(userRef, cleanFirestoreData(newUser));
+        const filteredUsers = localCache.users.filter(u => normalizePhone(u.phone) !== cleanPhone);
+        filteredUsers.unshift(newUser);
+        localCache.users = filteredUsers;
+        localStorage.setItem('bongoweb_registered_users', JSON.stringify(filteredUsers));
       }
     }
   } catch (err) {
@@ -195,11 +225,11 @@ export async function apiCreateOrder(order: ClientOrder): Promise<ClientOrder> {
     fetch('/api/orders', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(order)
+      body: JSON.stringify(safeOrder)
     }).catch(() => {});
   } catch (_) {}
 
-  return order;
+  return safeOrder;
 }
 
 export async function apiUpdateOrderStatus(orderId: string, status: 'pending' | 'verified' | 'cancelled'): Promise<ClientOrder[]> {
@@ -261,13 +291,13 @@ export async function apiRegisterUser(user: UserAccount): Promise<{ success: boo
     return { success: false, error: 'সবগুলো তথ্য পূরণ করুন।' };
   }
 
-  const cleanUser: UserAccount = {
+  const cleanUser: UserAccount = cleanFirestoreData({
     name: user.name.trim(),
     phone: cleanPhone,
     email: cleanEmail,
-    password: user.password ? user.password.trim() : undefined,
+    password: user.password ? user.password.trim() : '',
     registeredAt: user.registeredAt || new Date().toLocaleDateString('bn-BD')
-  };
+  });
 
   // 1. Persist directly to Cloud Firestore
   try {
@@ -389,13 +419,18 @@ export async function apiGetChatThreads(): Promise<SupportChatThread[]> {
   return localCache.supportChats;
 }
 
+export function normalizePhone(phone: string): string {
+  if (!phone) return '';
+  return phone.replace(/[^0-9]/g, '').trim();
+}
+
 export async function apiActivateChat(params: {
   name: string;
   phone: string;
   language: 'bn' | 'en';
   welcomeText: string;
 }): Promise<SupportChatThread> {
-  const cleanPhone = params.phone.trim();
+  const cleanPhone = normalizePhone(params.phone) || params.phone.trim();
   const cleanName = params.name.trim();
 
   const welcomeMsg: SupportChatMessage = {
@@ -420,7 +455,7 @@ export async function apiActivateChat(params: {
     messages: [welcomeMsg]
   };
 
-  // Check if thread already has prior messages in Firestore
+  // 1. Check if thread already has prior messages in Firestore
   try {
     const chatDocRef = doc(db, 'supportChats', cleanPhone);
     const existingSnap = await getDoc(chatDocRef);
@@ -438,14 +473,31 @@ export async function apiActivateChat(params: {
         thread.messages = [welcomeMsg];
       }
     }
-    // Save to Cloud Firestore
-    await setDoc(chatDocRef, thread);
+    // Save to Cloud Firestore with undefined sanitized
+    await setDoc(chatDocRef, cleanFirestoreData(thread));
+
+    // Also auto-register in users collection so customer appears in Users & Delivery sections!
+    const userRef = doc(db, 'users', cleanPhone);
+    const userSnap = await getDoc(userRef);
+    if (!userSnap.exists()) {
+      const newUser: UserAccount = {
+        name: cleanName,
+        phone: cleanPhone,
+        email: '',
+        registeredAt: new Date().toLocaleDateString('bn-BD')
+      };
+      await setDoc(userRef, cleanFirestoreData(newUser));
+      const filteredUsers = localCache.users.filter(u => normalizePhone(u.phone) !== cleanPhone);
+      filteredUsers.unshift(newUser);
+      localCache.users = filteredUsers;
+      localStorage.setItem('bongoweb_registered_users', JSON.stringify(filteredUsers));
+    }
   } catch (err) {
     console.error('Firestore activate chat error:', err);
   }
 
   // Update local memory & storage
-  const filtered = localCache.supportChats.filter(t => t.userPhone !== cleanPhone);
+  const filtered = localCache.supportChats.filter(t => normalizePhone(t.userPhone) !== cleanPhone);
   filtered.unshift(thread);
   localCache.supportChats = filtered;
   localStorage.setItem('bongoweb_support_chats', JSON.stringify(filtered));
@@ -460,7 +512,7 @@ export async function apiActivateChat(params: {
     fetch('/api/chat/activate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(params)
+      body: JSON.stringify({ ...params, phone: cleanPhone })
     }).catch(() => {});
   } catch (_) {}
 
@@ -472,12 +524,13 @@ export async function apiSendChatMessage(params: {
   sender: 'client' | 'admin';
   text: string;
   name?: string;
+  message?: SupportChatMessage;
 }): Promise<SupportChatMessage> {
-  const cleanPhone = params.phone.trim();
+  const cleanPhone = normalizePhone(params.phone) || params.phone.trim();
   const cleanText = params.text.trim();
 
-  const newMsg: SupportChatMessage = {
-    id: `${params.sender}-${Date.now()}`,
+  const newMsg: SupportChatMessage = params.message || {
+    id: `${params.sender}-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
     sender: params.sender,
     text: cleanText,
     timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -492,7 +545,9 @@ export async function apiSendChatMessage(params: {
     if (snap.exists()) {
       thread = snap.data() as SupportChatThread;
       thread.messages = thread.messages || [];
-      thread.messages.push(newMsg);
+      if (!thread.messages.some(m => m.id === newMsg.id || (m.sender === newMsg.sender && m.text === newMsg.text && m.timestamp === newMsg.timestamp))) {
+        thread.messages.push(newMsg);
+      }
       thread.lastMessage = cleanText;
       thread.lastUpdated = 'এখনই';
       if (params.sender === 'client') {
@@ -516,15 +571,17 @@ export async function apiSendChatMessage(params: {
         messages: [newMsg]
       };
     }
-    await setDoc(chatDocRef, thread);
+    await setDoc(chatDocRef, cleanFirestoreData(thread));
   } catch (err) {
     console.error('Firestore send message error:', err);
   }
 
-  // Update local memory and storage
-  let localThread = localCache.supportChats.find(t => t.userPhone === cleanPhone);
+  // Update local memory and storage without duplicating
+  let localThread = localCache.supportChats.find(t => normalizePhone(t.userPhone) === cleanPhone);
   if (localThread) {
-    localThread.messages.push(newMsg);
+    if (!localThread.messages.some(m => m.id === newMsg.id || (m.sender === newMsg.sender && m.text === newMsg.text && m.timestamp === newMsg.timestamp))) {
+      localThread.messages.push(newMsg);
+    }
     localThread.lastMessage = cleanText;
     localThread.lastUpdated = 'এখনই';
     if (params.sender === 'client') {
@@ -556,7 +613,7 @@ export async function apiSendChatMessage(params: {
     fetch('/api/chat/message', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(params)
+      body: JSON.stringify({ ...params, phone: cleanPhone, message: newMsg })
     }).catch(() => {});
   } catch (_) {}
 
@@ -920,7 +977,7 @@ export function subscribeToChatThreads(callback: (threads: SupportChatThread[]) 
 
 export function subscribeToSingleChatThread(phone: string, callback: (thread: SupportChatThread | null) => void): () => void {
   try {
-    const cleanPhone = phone.trim();
+    const cleanPhone = normalizePhone(phone) || phone.trim();
     return onSnapshot(doc(db, 'supportChats', cleanPhone), (docSnap) => {
       if (docSnap.exists()) {
         const thread = docSnap.data() as SupportChatThread;

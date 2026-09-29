@@ -6,9 +6,29 @@ import {
 } from 'lucide-react';
 import { SupportChatMessage, UserAccount } from '../types';
 import { 
-  apiActivateChat, apiSendChatMessage, apiEndChat, subscribeToSingleChatThread 
+  apiActivateChat, apiSendChatMessage, apiEndChat, subscribeToSingleChatThread, normalizePhone 
 } from '../utils/api';
 import { realtimeManager } from '../utils/realtime';
+
+// Helper to guarantee 100% zero message duplication
+const deduplicateChatMessages = (msgs: SupportChatMessage[]): SupportChatMessage[] => {
+  if (!Array.isArray(msgs)) return [];
+  const seenIds = new Set<string>();
+  const seenContent = new Set<string>();
+  const result: SupportChatMessage[] = [];
+
+  for (const m of msgs) {
+    if (!m || !m.text) continue;
+    const contentKey = `${m.sender}:${m.text.trim()}`;
+    if (seenIds.has(m.id) || seenContent.has(contentKey)) {
+      continue;
+    }
+    seenIds.add(m.id);
+    seenContent.add(contentKey);
+    result.push(m);
+  }
+  return result;
+};
 
 export default function LiveChatView() {
   // Onboarding / Activation State
@@ -63,7 +83,7 @@ export default function LiveChatView() {
         const thread = await res.json();
         if (thread) {
           if (thread.messages && thread.messages.length > 0) {
-            setMessages(thread.messages);
+            setMessages((prev) => deduplicateChatMessages([...prev, ...thread.messages]));
           }
           if (thread.expiresAt) {
             setExpiresTimestamp(thread.expiresAt);
@@ -85,14 +105,17 @@ export default function LiveChatView() {
     const unsubs = [
       realtimeManager.on('chat:message', (payload) => {
         if (!payload.message) return;
-        if (payload.phone === userPhone) {
-          const newMsg: SupportChatMessage = payload.message;
-          setMessages((prev) => {
-            if (prev.some((m) => m.id === newMsg.id)) return prev;
-            return [...prev, newMsg];
-          });
+        const targetPhone = normalizePhone(payload.phone);
+        const currentPhone = normalizePhone(userPhone);
 
-          // Reset inactivity timer when message arrives
+        if (targetPhone === currentPhone) {
+          const newMsg: SupportChatMessage = payload.message;
+          // If the message is from client, client already has it in local state optimistically, so skip echo
+          if (newMsg.sender === 'client') return;
+
+          setMessages((prev) => deduplicateChatMessages([...prev, newMsg]));
+
+          // Reset inactivity timer when admin message arrives
           const newExpiry = Date.now() + 5 * 60 * 1000;
           setExpiresTimestamp(newExpiry);
           setTimeLeft(300);
@@ -101,7 +124,9 @@ export default function LiveChatView() {
       }),
 
       realtimeManager.on('chat:extended', (payload) => {
-        if (payload.phone === userPhone && payload.expiresAt) {
+        const targetPhone = normalizePhone(payload.phone);
+        const currentPhone = normalizePhone(userPhone);
+        if (targetPhone === currentPhone && payload.expiresAt) {
           setExpiresTimestamp(payload.expiresAt);
           const remaining = Math.max(0, Math.floor((payload.expiresAt - Date.now()) / 1000));
           setTimeLeft(remaining);
@@ -110,7 +135,9 @@ export default function LiveChatView() {
       }),
 
       realtimeManager.on('chat:ended', (payload) => {
-        if (payload.phone === userPhone) {
+        const targetPhone = normalizePhone(payload.phone);
+        const currentPhone = normalizePhone(userPhone);
+        if (targetPhone === currentPhone) {
           setIsExpired(true);
         }
       })
@@ -128,7 +155,7 @@ export default function LiveChatView() {
     const unsub = subscribeToSingleChatThread(userPhone, (thread) => {
       if (thread) {
         if (Array.isArray(thread.messages) && thread.messages.length > 0) {
-          setMessages(thread.messages);
+          setMessages((prev) => deduplicateChatMessages([...prev, ...thread.messages]));
         }
         if (thread.expiresAt) {
           setExpiresTimestamp(thread.expiresAt);
@@ -213,7 +240,7 @@ export default function LiveChatView() {
       });
 
       if (thread && thread.messages) {
-        setMessages(thread.messages);
+        setMessages(deduplicateChatMessages(thread.messages));
       } else {
         setMessages([{
           id: `init-${Date.now()}`,
@@ -248,21 +275,23 @@ export default function LiveChatView() {
     setExpiresTimestamp(newExpiry);
     setTimeLeft(300);
 
+    const msgId = `client-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
     const newMsg: SupportChatMessage = {
-      id: `client-${Date.now()}`,
+      id: msgId,
       sender: 'client',
       text,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
 
-    setMessages((prev) => [...prev, newMsg]);
+    setMessages((prev) => deduplicateChatMessages([...prev, newMsg]));
 
     try {
       await apiSendChatMessage({
         phone: userPhone,
         sender: 'client',
         text,
-        name: userName
+        name: userName,
+        message: newMsg
       });
     } catch (err) {
       console.error(err);
@@ -471,7 +500,7 @@ export default function LiveChatView() {
 
       {/* 2. Messages Scroll Area */}
       <div className="flex-1 bg-[#F8FAFD] border-x border-[#E5EDF5] p-3 sm:p-4 overflow-y-auto space-y-3">
-        {messages.map((msg) => {
+        {deduplicateChatMessages(messages).map((msg) => {
           const isClient = msg.sender === 'client';
           return (
             <div
