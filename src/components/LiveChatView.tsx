@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import { SupportChatMessage, UserAccount } from '../types';
 import { 
-  apiActivateChat, apiSendChatMessage, apiEndChat 
+  apiActivateChat, apiSendChatMessage, apiEndChat, subscribeToSingleChatThread 
 } from '../utils/api';
 import { realtimeManager } from '../utils/realtime';
 
@@ -121,13 +121,38 @@ export default function LiveChatView() {
     };
   }, [isActivated, userPhone]);
 
-  // Real-time server sync polling every 1 second (Ensures cross-device sync between Phone and Admin PC!)
+  // Cloud Firestore Real-time Single Thread Listener (Guarantees direct real-time sync across devices)
+  useEffect(() => {
+    if (!isActivated || !userPhone) return;
+
+    const unsub = subscribeToSingleChatThread(userPhone, (thread) => {
+      if (thread) {
+        if (Array.isArray(thread.messages) && thread.messages.length > 0) {
+          setMessages(thread.messages);
+        }
+        if (thread.expiresAt) {
+          setExpiresTimestamp(thread.expiresAt);
+          const remaining = Math.max(0, Math.floor((thread.expiresAt - Date.now()) / 1000));
+          setTimeLeft(remaining);
+          if (remaining <= 0) {
+            setIsExpired(true);
+          } else {
+            setIsExpired(false);
+          }
+        }
+      }
+    });
+
+    return () => unsub();
+  }, [isActivated, userPhone]);
+
+  // Real-time server sync polling every 2 seconds (Secondary fail-safe)
   useEffect(() => {
     if (!isActivated || !userPhone || isExpired) return;
 
     const syncInterval = setInterval(() => {
       fetchCurrentThread(userPhone);
-    }, 1000);
+    }, 2000);
 
     return () => clearInterval(syncInterval);
   }, [isActivated, userPhone, isExpired]);

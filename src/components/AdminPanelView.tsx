@@ -425,7 +425,8 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
   // Admin Send Chat Reply
   const handleSendAdminReply = async (textToSend?: string) => {
     const text = (textToSend || adminReplyText).trim();
-    if (!text || !selectedThreadPhone) return;
+    const targetPhone = selectedThreadPhone || activeThread?.userPhone;
+    if (!text || !targetPhone) return;
 
     setAdminReplyText('');
 
@@ -438,7 +439,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
 
     setChatThreads((prev) =>
       prev.map((th) => {
-        if (th.userPhone === selectedThreadPhone) {
+        if (th.userPhone === targetPhone) {
           return {
             ...th,
             lastMessage: text,
@@ -454,7 +455,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
 
     try {
       await apiSendChatMessage({
-        phone: selectedThreadPhone,
+        phone: targetPhone,
         sender: 'admin',
         text
       });
@@ -466,9 +467,10 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
 
   // Admin Extend Chat Inactivity Timer for Client (+5 Min, etc.)
   const handleExtendChatTime = async (minutes: number = 5) => {
-    if (!selectedThreadPhone) return;
+    const targetPhone = selectedThreadPhone || activeThread?.userPhone;
+    if (!targetPhone) return;
     try {
-      await apiExtendChatTime(selectedThreadPhone, minutes);
+      await apiExtendChatTime(targetPhone, minutes);
       loadAllDatabaseCollections();
     } catch (err) {
       console.error(err);
