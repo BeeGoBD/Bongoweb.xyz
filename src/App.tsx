@@ -46,7 +46,7 @@ export default function App() {
   const parseCurrentUrl = useCallback(() => {
     const path = window.location.pathname;
 
-    if (path === '/admin') {
+    if (path === '/admin' || path.startsWith('/admin')) {
       setViewMode('admin');
       return;
     }
@@ -79,8 +79,13 @@ export default function App() {
       return;
     }
 
-    if (path === '/account') {
+    if (path === '/account' || path.startsWith('/account')) {
       setViewMode('account');
+      return;
+    }
+
+    if (path === '/dashboard') {
+      setViewMode('dashboard');
       return;
     }
 
@@ -290,6 +295,9 @@ export default function App() {
           setUnreadNotifications(0);
         }}
         onClearAll={() => setUnreadNotifications(0)}
+        onNavigateToAccount={() => {
+          handleTabChange('account');
+        }}
       />
 
       {/* Side Menu Drawer */}

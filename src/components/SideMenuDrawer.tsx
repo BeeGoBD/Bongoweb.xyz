@@ -1,23 +1,22 @@
 import React, { useState } from 'react';
 import { 
-  X, LayoutGrid, Layers, ClipboardCheck, MessageCircle, User, 
-  ShieldCheck, PhoneCall, Globe, ArrowRight, HelpCircle, FileText,
-  LifeBuoy, CheckCircle2, Send, Ticket
+  X, ClipboardCheck, MessageCircle, 
+  CheckCircle2, Send, Ticket, Star, Quote, Key
 } from 'lucide-react';
 import { BottomTabType } from './FixedBottomNav';
+import { TESTIMONIALS } from '../data/mockData';
 
 interface SideMenuDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   onSelectTab: (tab: BottomTabType) => void;
-  onGoToCategoryLanding: () => void;
+  onGoToCategoryLanding?: () => void;
 }
 
 export default function SideMenuDrawer({
   isOpen,
   onClose,
-  onSelectTab,
-  onGoToCategoryLanding
+  onSelectTab
 }: SideMenuDrawerProps) {
   const [ticketModalOpen, setTicketModalOpen] = useState(false);
   const [ticketReason, setTicketReason] = useState('');
@@ -26,6 +25,9 @@ export default function SideMenuDrawer({
   const [ticketQuestion, setTicketQuestion] = useState('');
   const [ticketSubmitted, setTicketSubmitted] = useState(false);
   const [generatedTicketId, setGeneratedTicketId] = useState('');
+
+  // Testimonials Modal State
+  const [testimonialsModalOpen, setTestimonialsModalOpen] = useState(false);
 
   if (!isOpen) return null;
 
@@ -71,142 +73,127 @@ export default function SideMenuDrawer({
               </div>
               <div>
                 <h3 className="text-sm font-black text-[#0D253D]">BongoWeb.xyz</h3>
-                <p className="text-[10px] text-[#64748D]">Stripe Design System</p>
+                <p className="text-[10px] text-[#64748D]">ক্লায়েন্ট মেনু ও সেবা</p>
               </div>
             </div>
 
             <button
               onClick={onClose}
-              className="p-2 rounded-xl text-[#64748D] hover:text-[#0D253D] hover:bg-[#E5EDF5] transition-colors"
+              className="p-2 rounded-xl text-[#64748D] hover:text-[#0D253D] hover:bg-[#E5EDF5] transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
 
           {/* Navigation Links */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-1.5">
-            <button
-              onClick={() => {
-                onSelectTab('dashboard');
-                onClose();
-              }}
-              className="w-full flex items-center gap-3 px-3.5 py-3 rounded-2xl hover:bg-[#E2E4FF] text-[#0D253D] hover:text-[#533AFD] transition-all text-xs font-bold text-left cursor-pointer group"
-            >
-              <div className="w-8 h-8 rounded-xl bg-[#F8FAFD] group-hover:bg-[#FFFFFF] flex items-center justify-center text-[#533AFD] border border-[#E5EDF5]">
-                <LayoutGrid className="w-4 h-4" />
-              </div>
-              <div className="flex-1">
-                <span className="block font-black">ড্যাশবোর্ড ও ওয়েবসাইট তালিকা</span>
-                <span className="text-[10px] text-[#64748D] font-normal">All templates & live designs</span>
-              </div>
-            </button>
-
-            <button
-              onClick={() => {
-                onGoToCategoryLanding();
-                onClose();
-              }}
-              className="w-full flex items-center gap-3 px-3.5 py-3 rounded-2xl hover:bg-[#E2E4FF] text-[#0D253D] hover:text-[#533AFD] transition-all text-xs font-bold text-left cursor-pointer group"
-            >
-              <div className="w-8 h-8 rounded-xl bg-[#F8FAFD] group-hover:bg-[#FFFFFF] flex items-center justify-center text-[#533AFD] border border-[#E5EDF5]">
-                <Layers className="w-4 h-4" />
-              </div>
-              <div className="flex-1">
-                <span className="block font-black">ক্যাটাগরি পেজে ফিরুন</span>
-                <span className="text-[10px] text-[#64748D] font-normal">E-commerce, Food, Blogs & Grocery</span>
-              </div>
-            </button>
-
+          <div className="flex-1 overflow-y-auto p-4 space-y-2">
+            {/* 1. আপনার Order এর বিস্তারিত */}
             <button
               onClick={() => {
                 onSelectTab('after-order');
                 onClose();
               }}
-              className="w-full flex items-center gap-3 px-3.5 py-3 rounded-2xl hover:bg-[#E2E4FF] text-[#0D253D] hover:text-[#533AFD] transition-all text-xs font-bold text-left cursor-pointer group"
+              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl hover:bg-[#E2E4FF] text-[#0D253D] hover:text-[#533AFD] transition-all text-xs font-bold text-left cursor-pointer group border border-[#E5EDF5] hover:border-[#533AFD]/30 shadow-2xs"
             >
-              <div className="w-8 h-8 rounded-xl bg-[#F8FAFD] group-hover:bg-[#FFFFFF] flex items-center justify-center text-[#533AFD] border border-[#E5EDF5]">
-                <ClipboardCheck className="w-4 h-4" />
+              <div className="w-9 h-9 rounded-xl bg-[#F8FAFD] group-hover:bg-[#FFFFFF] flex items-center justify-center text-[#533AFD] border border-[#E5EDF5] shadow-xs shrink-0">
+                <ClipboardCheck className="w-5 h-5" />
               </div>
-              <div className="flex-1">
-                <span className="block font-black">অর্ডারের পরের ধাপসমূহ</span>
-                <span className="text-[10px] text-[#64748D] font-normal">What we do after taking your order</span>
+              <div className="flex-1 min-w-0">
+                <span className="block text-sm font-black text-[#0D253D] group-hover:text-[#533AFD]">
+                  ১. আপনার Order এর বিস্তারিত
+                </span>
+                <span className="text-[11px] text-[#64748D] font-normal block truncate">
+                  পেন্ডিং, অনুমোদিত ও সম্পূর্ণ অর্ডারের লাইভ স্ট্যাটাস
+                </span>
               </div>
             </button>
 
-            {/* Support Ticket Menu Option Requested by User */}
-            <button
-              onClick={handleOpenTicket}
-              className="w-full flex items-center gap-3 px-3.5 py-3 rounded-2xl bg-[#E2E4FF]/60 hover:bg-[#E2E4FF] text-[#533AFD] transition-all text-xs font-bold text-left cursor-pointer group border border-[#533AFD]/20 shadow-2xs"
-            >
-              <div className="w-8 h-8 rounded-xl bg-[#533AFD] flex items-center justify-center text-[#FFFFFF] shadow-xs">
-                <Ticket className="w-4 h-4" />
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-1.5">
-                  <span className="block font-black">সাপোর্ট টিকিট জমা দিন</span>
-                  <span className="text-[9px] bg-[#533AFD] text-white px-1.5 py-0.2 rounded-md font-bold">নতুন</span>
-                </div>
-                <span className="text-[10px] text-[#533AFD] font-medium">Create direct support ticket</span>
-              </div>
-            </button>
-
-            <button
-              onClick={() => {
-                onSelectTab('live-chat');
-                onClose();
-              }}
-              className="w-full flex items-center gap-3 px-3.5 py-3 rounded-2xl hover:bg-[#E2E4FF] text-[#0D253D] hover:text-[#533AFD] transition-all text-xs font-bold text-left cursor-pointer group"
-            >
-              <div className="w-8 h-8 rounded-xl bg-[#F8FAFD] group-hover:bg-[#FFFFFF] flex items-center justify-center text-[#533AFD] border border-[#E5EDF5]">
-                <MessageCircle className="w-4 h-4" />
-              </div>
-              <div className="flex-1">
-                <span className="block font-black">লাইভ চ্যাট সাপোর্ট</span>
-                <span className="text-[10px] text-[#64748D] font-normal">Connect directly with our team</span>
-              </div>
-            </button>
-
+            {/* 2. ওয়েবসাইট আইডি ও পাসওয়ার্ড (Website ID & Password) */}
             <button
               onClick={() => {
                 onSelectTab('account');
                 onClose();
               }}
-              className="w-full flex items-center gap-3 px-3.5 py-3 rounded-2xl hover:bg-[#E2E4FF] text-[#0D253D] hover:text-[#533AFD] transition-all text-xs font-bold text-left cursor-pointer group"
+              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl hover:bg-[#E2E4FF] text-[#0D253D] hover:text-[#533AFD] transition-all text-xs font-bold text-left cursor-pointer group border border-[#E5EDF5] hover:border-[#533AFD]/30 shadow-2xs"
             >
-              <div className="w-8 h-8 rounded-xl bg-[#F8FAFD] group-hover:bg-[#FFFFFF] flex items-center justify-center text-[#533AFD] border border-[#E5EDF5]">
-                <User className="w-4 h-4" />
+              <div className="w-9 h-9 rounded-xl bg-[#E2E4FF] group-hover:bg-[#533AFD] flex items-center justify-center text-[#533AFD] group-hover:text-white border border-[#533AFD]/20 shadow-xs shrink-0 transition-colors">
+                <Key className="w-5 h-5" />
               </div>
-              <div className="flex-1">
-                <span className="block font-black">ক্লায়েন্ট অ্যাকাউন্ট ও সেটিংস</span>
-                <span className="text-[10px] text-[#64748D] font-normal">Client profile & policies</span>
+              <div className="flex-1 min-w-0">
+                <span className="block text-sm font-black text-[#0D253D] group-hover:text-[#533AFD]">
+                  ২. ওয়েবসাইট আইডি ও পাসওয়ার্ড
+                </span>
+                <span className="text-[11px] text-[#64748D] font-normal block truncate">
+                  অ্যাডমিন আইডি ও পাসওয়ার্ড বিস্তারিত দেখুন
+                </span>
               </div>
             </button>
 
-            {/* Guarantees Box */}
-            <div className="mt-4 p-4 rounded-2xl bg-[#F8FAFD] border border-[#E5EDF5] space-y-2">
-              <div className="flex items-center gap-2 text-xs font-bold text-[#0D253D]">
-                <ShieldCheck className="w-4 h-4 text-[#00B261]" />
-                <span>১০০% মানিব্যাক গ্যারান্টি</span>
+            {/* 3. Live Chat Support */}
+            <button
+              onClick={() => {
+                onSelectTab('live-chat');
+                onClose();
+              }}
+              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl hover:bg-[#E2E4FF] text-[#0D253D] hover:text-[#533AFD] transition-all text-xs font-bold text-left cursor-pointer group border border-[#E5EDF5] hover:border-[#533AFD]/30 shadow-2xs"
+            >
+              <div className="w-9 h-9 rounded-xl bg-[#F8FAFD] group-hover:bg-[#FFFFFF] flex items-center justify-center text-[#533AFD] border border-[#E5EDF5] shadow-xs shrink-0">
+                <MessageCircle className="w-5 h-5" />
               </div>
-              <p className="text-[11px] text-[#64748D] leading-relaxed">
-                ২৪ ঘণ্টার মধ্যে সন্তোষজনক ডেলিভারি নিশ্চিত না হলে সম্পূর্ণ টাকা ফেরত।
-              </p>
-            </div>
+              <div className="flex-1 min-w-0">
+                <span className="block text-sm font-black text-[#0D253D] group-hover:text-[#533AFD]">
+                  ৩. BongoWeb Live Support (২৪/৭)
+                </span>
+                <span className="text-[11px] text-[#64748D] font-normal block truncate">
+                  সরাসরি আমাদের টিমের সাথে লাইভ চ্যাট
+                </span>
+              </div>
+            </button>
+
+            {/* 4. Support Ticket */}
+            <button
+              onClick={handleOpenTicket}
+              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl hover:bg-[#E2E4FF] text-[#0D253D] hover:text-[#533AFD] transition-all text-xs font-bold text-left cursor-pointer group border border-[#E5EDF5] hover:border-[#533AFD]/30 shadow-2xs"
+            >
+              <div className="w-9 h-9 rounded-xl bg-[#F8FAFD] group-hover:bg-[#FFFFFF] flex items-center justify-center text-[#533AFD] border border-[#E5EDF5] shadow-xs shrink-0">
+                <Ticket className="w-5 h-5" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <span className="block text-sm font-black text-[#0D253D] group-hover:text-[#533AFD]">
+                  ৪. Support Ticket
+                </span>
+                <span className="text-[11px] text-[#64748D] font-normal block truncate">
+                  যেকোনো সমস্যায় সাপোর্ট টিকিট জমা দিন
+                </span>
+              </div>
+            </button>
+
+            {/* 5. Testimonials (Client Reviews & Ratings) */}
+            <button
+              onClick={() => setTestimonialsModalOpen(true)}
+              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl hover:bg-[#E2E4FF] text-[#0D253D] hover:text-[#533AFD] transition-all text-xs font-bold text-left cursor-pointer group border border-[#E5EDF5] hover:border-[#533AFD]/30 shadow-2xs"
+            >
+              <div className="w-9 h-9 rounded-xl bg-[#F8FAFD] group-hover:bg-[#FFFFFF] flex items-center justify-center text-[#FFD552] border border-[#E5EDF5] shadow-xs shrink-0">
+                <Star className="w-5 h-5 fill-[#FFD552]" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <span className="block text-sm font-black text-[#0D253D] group-hover:text-[#533AFD]">
+                  ৫. Testimonials (Client Reviews & Ratings)
+                </span>
+                <span className="text-[11px] text-[#64748D] font-normal block truncate">
+                  গ্রাহকদের মতামত ও ৫-স্টার রেটিং দেখুন
+                </span>
+              </div>
+            </button>
           </div>
 
-          {/* Drawer Footer Hotline */}
-          <div className="p-4 border-t border-[#E5EDF5] bg-[#F8FAFD]">
-            <a
-              href="https://wa.me/8801700000000"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full py-2.5 px-4 rounded-xl bg-[#00B261] hover:bg-[#009e56] text-[#FFFFFF] text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-xs"
-            >
-              <MessageCircle className="w-4 h-4" />
-              <span>অফিসিয়াল WhatsApp</span>
-            </a>
-            <p className="text-[10px] text-center text-[#7D8BA4] mt-2">
-              BongoWeb.xyz • Stripe Design System 2026
+          {/* Drawer Clean Footer (No WhatsApp button) */}
+          <div className="p-4 border-t border-[#E5EDF5] bg-[#F8FAFD] text-center">
+            <p className="text-[11px] font-bold text-[#0D253D]">
+              BongoWeb.xyz • Enterprise Solutions
+            </p>
+            <p className="text-[10px] text-[#7D8BA4] mt-0.5">
+              ২৪ ঘণ্টা লাইভ ডেলিভারি ও সাপোর্ট সিস্টেম
             </p>
           </div>
         </div>
@@ -218,7 +205,7 @@ export default function SideMenuDrawer({
           <div className="w-full max-w-lg bg-[#FFFFFF] rounded-3xl border border-[#E5EDF5] shadow-2xl p-6 sm:p-8 animate-slideUpModal relative">
             <button
               onClick={handleResetTicketModal}
-              className="absolute top-4 right-4 p-2 rounded-xl text-[#64748D] hover:text-[#0D253D] hover:bg-[#F8FAFD]"
+              className="absolute top-4 right-4 p-2 rounded-xl text-[#64748D] hover:text-[#0D253D] hover:bg-[#F8FAFD] cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -235,7 +222,7 @@ export default function SideMenuDrawer({
                   সাপোর্ট টিকিট সফলভাবে গৃহীত হয়েছে!
                 </h3>
                 <p className="text-xs sm:text-sm text-[#273951] leading-relaxed max-w-sm mx-auto">
-                  ধন্যবাদ <strong className="text-[#533AFD]">{ticketName}</strong>। আমাদের টেকনিক্যাল টিম আপনার টিকিট পর্যালোচনা করে খুব শীঘ্রই ফোন বা WhatsApp নম্বরে সমাধান জানাবে।
+                  ধন্যবাদ <strong className="text-[#533AFD]">{ticketName}</strong>। আমাদের টেকনিক্যাল টিম আপনার টিকিট পর্যালোচনা করে খুব শীঘ্রই আপনার মোবাইল নম্বরে সমাধান জানাবে।
                 </p>
                 <div className="pt-3">
                   <button
@@ -292,7 +279,7 @@ export default function SideMenuDrawer({
 
                     <div>
                       <label className="block text-xs font-bold text-[#0D253D] mb-1">
-                        মোবাইল / WhatsApp <span className="text-[#D8351E]">*</span>
+                        মোবাইল নম্বর <span className="text-[#D8351E]">*</span>
                       </label>
                       <input
                         type="tel"
@@ -331,6 +318,62 @@ export default function SideMenuDrawer({
                 </form>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Testimonials Modal */}
+      {testimonialsModalOpen && (
+        <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-[#0D253D]/60 backdrop-blur-xs animate-fadeIn">
+          <div className="w-full max-w-xl max-h-[85vh] bg-[#FFFFFF] rounded-3xl border border-[#E5EDF5] shadow-2xl p-6 sm:p-8 animate-slideUpModal relative flex flex-col">
+            <button
+              onClick={() => setTestimonialsModalOpen(false)}
+              className="absolute top-4 right-4 p-2 rounded-xl text-[#64748D] hover:text-[#0D253D] hover:bg-[#F8FAFD] cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="mb-4">
+              <span className="px-2.5 py-0.5 rounded-full bg-[#E2E4FF] text-[#533AFD] text-xs font-bold">
+                গ্রাহকদের রেটিং ও রিভিউ
+              </span>
+              <h2 className="text-xl font-black text-[#0D253D] mt-2">
+                Testimonials (Client Reviews & Ratings)
+              </h2>
+              <p className="text-xs text-[#64748D] mt-0.5">
+                BongoWeb থেকে ওয়েবসাইট নিয়ে গ্রাহকরা যা বলছেন:
+              </p>
+            </div>
+
+            <div className="flex-1 overflow-y-auto space-y-3.5 pr-1">
+              {TESTIMONIALS.map((t, idx) => (
+                <div key={idx} className="p-4 rounded-2xl bg-[#F8FAFD] border border-[#E5EDF5] space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="text-xs sm:text-sm font-bold text-[#0D253D]">{t.name}</h4>
+                      <p className="text-[11px] text-[#64748D]">{t.business} • {t.role || t.location}</p>
+                    </div>
+                    <div className="flex items-center gap-1 text-[#FFD552]">
+                      {[...Array(t.stars || 5)].map((_, rIdx) => (
+                        <Star key={rIdx} className="w-3.5 h-3.5 fill-[#FFD552]" />
+                      ))}
+                    </div>
+                  </div>
+                  <p className="text-xs text-[#273951] italic leading-relaxed">
+                    "{t.quote}"
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            <div className="pt-4 border-t border-[#E5EDF5] text-center">
+              <button
+                onClick={() => setTestimonialsModalOpen(false)}
+                className="px-6 py-2 rounded-xl bg-[#533AFD] text-white text-xs font-bold hover:bg-[#665EFD] cursor-pointer"
+              >
+                বন্ধ করুন
+              </button>
+            </div>
           </div>
         </div>
       )}

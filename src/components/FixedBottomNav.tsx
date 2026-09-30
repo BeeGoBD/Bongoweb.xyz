@@ -45,9 +45,9 @@ export default function FixedBottomNav({
   return (
     <nav
       id="fixed-bottom-nav"
-      className="fixed bottom-0 left-0 right-0 z-40 w-full bg-[#FFFFFF]/95 backdrop-blur-md border-t border-[#E5EDF5] shadow-[0_-4px_24px_rgba(13,37,61,0.06)] h-16 sm:h-[72px] flex items-center select-none"
+      className="fixed bottom-0 left-0 right-0 z-40 w-full bg-[#FFFFFF]/92 backdrop-blur-xl border-t border-[#E5EDF5] shadow-[0_-8px_32px_rgba(13,37,61,0.06)] h-16 sm:h-[72px] flex items-center select-none"
     >
-      <div className="max-w-md sm:max-w-xl md:max-w-2xl lg:max-w-3xl w-full mx-auto px-2 sm:px-4 h-full flex items-center justify-around gap-1">
+      <div className="max-w-lg sm:max-w-xl md:max-w-2xl w-full mx-auto px-3 sm:px-6 h-full flex items-center justify-around gap-1.5 sm:gap-2">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -57,26 +57,28 @@ export default function FixedBottomNav({
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
               id={`bottom-nav-${tab.id}`}
-              className={`relative flex-1 flex flex-col items-center justify-center py-1 sm:py-2 px-1 rounded-xl transition-all duration-200 cursor-pointer touch-manipulation min-h-[48px] ${
+              className={`relative flex-1 flex flex-col items-center justify-center py-1 sm:py-1.5 px-2 rounded-2xl transition-all duration-200 cursor-pointer touch-manipulation min-h-[50px] group ${
                 isActive
-                  ? 'text-[#533AFD] font-bold'
-                  : 'text-[#64748D] hover:text-[#273951] font-semibold'
+                  ? 'text-[#533AFD] font-black'
+                  : 'text-[#64748D] hover:text-[#0D253D] font-bold active:scale-95'
               }`}
             >
-              {/* Active subtle background capsule */}
+              {/* Active Tab Floating Capsule with Soft Light Elevation */}
               {isActive && (
-                <span className="absolute inset-x-2 inset-y-1 bg-[#E2E4FF] rounded-xl -z-10 animate-fadeIn" />
+                <span className="absolute inset-x-1 sm:inset-x-2 inset-y-1 bg-gradient-to-b from-[#F2F4FE] to-[#E7EAFF] border border-[#533AFD]/15 rounded-xl sm:rounded-2xl -z-10 shadow-[0_2px_10px_rgba(83,58,253,0.08)] transition-all animate-fadeIn" />
               )}
 
               {/* Icon Container with Badge */}
-              <div className="relative mb-0.5">
+              <div className="relative mb-0.5 flex items-center justify-center">
                 <Icon
-                  className={`w-5 h-5 sm:w-5.5 sm:h-5.5 transition-transform duration-200 ${
-                    isActive ? 'scale-110 stroke-[2.4]' : 'stroke-[1.8]'
+                  className={`w-5 h-5 sm:w-5.5 sm:h-5.5 transition-all duration-200 ${
+                    isActive 
+                      ? 'scale-110 stroke-[2.4] text-[#533AFD] drop-shadow-xs' 
+                      : 'stroke-[1.9] text-[#64748D] group-hover:text-[#0D253D] group-hover:scale-105'
                   }`}
                 />
                 {tab.badge && tab.badge > 0 && (
-                  <span className="absolute -top-1 -right-2 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[#00B261] text-[#FFFFFF] text-[9px] font-bold shadow-xs">
+                  <span className="absolute -top-1.5 -right-2.5 flex h-4 min-w-[16px] px-1 items-center justify-center rounded-full bg-[#00B261] text-[#FFFFFF] text-[9px] font-black shadow-[0_2px_6px_rgba(0,178,97,0.35)] ring-2 ring-[#FFFFFF]">
                     {tab.badge}
                   </span>
                 )}
@@ -84,16 +86,16 @@ export default function FixedBottomNav({
 
               {/* Tab Title */}
               <span
-                className={`text-[11px] sm:text-xs leading-none tracking-tight transition-colors ${
-                  isActive ? 'text-[#533AFD]' : 'text-[#64748D]'
+                className={`text-[10.5px] sm:text-[11.5px] leading-tight tracking-tight transition-colors mt-0.5 ${
+                  isActive ? 'text-[#533AFD] font-extrabold' : 'text-[#64748D] group-hover:text-[#0D253D]'
                 }`}
               >
                 {tab.label}
               </span>
 
-              {/* Micro Active Bottom Dot */}
+              {/* Active Pip Indicator */}
               {isActive && (
-                <span className="w-1 h-1 rounded-full bg-[#533AFD] mt-1" />
+                <span className="absolute bottom-1 w-3.5 sm:w-4 h-0.5 rounded-full bg-[#533AFD] shadow-[0_1px_4px_rgba(83,58,253,0.4)]" />
               )}
             </button>
           );

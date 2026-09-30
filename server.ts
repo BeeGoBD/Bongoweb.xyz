@@ -270,7 +270,7 @@ function getInitialDb(): DatabaseSchema {
     users: [],
     orders: [],
     supportChats: [],
-    customWebsites: INITIAL_OFFICIAL_WEBSITES,
+    customWebsites: [],
     deliveredCredentials: [],
     resetRequests: []
   };
@@ -282,8 +282,8 @@ function readDb(): DatabaseSchema {
     if (fs.existsSync(DB_FILE)) {
       const content = fs.readFileSync(DB_FILE, 'utf-8');
       const parsed: DatabaseSchema = JSON.parse(content);
-      if (!parsed.customWebsites || parsed.customWebsites.length === 0) {
-        parsed.customWebsites = INITIAL_OFFICIAL_WEBSITES;
+      if (!Array.isArray(parsed.customWebsites)) {
+        parsed.customWebsites = [];
         writeDb(parsed);
       }
       return parsed;
@@ -945,7 +945,13 @@ async function startServer() {
     if (reqItem) {
       reqItem.status = status;
       reqItem.resolvedAt = new Date().toLocaleString('bn-BD');
-      if (newPassword) reqItem.newPasswordAssigned = newPassword;
+      if (newPassword) {
+        reqItem.newPasswordAssigned = newPassword;
+        const matchingUser = db.users.find(u => u.phone === reqItem.phone);
+        if (matchingUser) {
+          matchingUser.password = newPassword;
+        }
+      }
       writeDb(db);
 
       broadcast({
@@ -953,6 +959,15 @@ async function startServer() {
         request: reqItem,
         timestamp: Date.now()
       });
+
+      if (newPassword) {
+        broadcast({
+          type: 'user:password_updated',
+          phone: reqItem.phone,
+          newPassword,
+          timestamp: Date.now()
+        });
+      }
 
       res.json(db.resetRequests);
     } else {
@@ -993,9 +1008,9 @@ async function startServer() {
       users: Array.isArray(backupData.users) ? backupData.users : [],
       orders: Array.isArray(backupData.orders) ? backupData.orders : [],
       supportChats: Array.isArray(backupData.supportChats) ? backupData.supportChats : [],
-      customWebsites: Array.isArray(backupData.customWebsites) && backupData.customWebsites.length > 0 
+      customWebsites: Array.isArray(backupData.customWebsites)
         ? backupData.customWebsites 
-        : INITIAL_OFFICIAL_WEBSITES,
+        : [],
       deliveredCredentials: Array.isArray(backupData.deliveredCredentials) ? backupData.deliveredCredentials : [],
       resetRequests: Array.isArray(backupData.resetRequests) ? backupData.resetRequests : []
     };
@@ -1028,6 +1043,21 @@ async function startServer() {
       appType: 'spa'
     });
     app.use(vite.middlewares);
+
+    // Explicit fallback for client-side routing on page refresh
+    app.use('*', async (req: Request, res: Response, next) => {
+      if (req.method !== 'GET' || req.originalUrl.startsWith('/api') || req.originalUrl.startsWith('/ws')) {
+        return next();
+      }
+      try {
+        const url = req.originalUrl;
+        let template = fs.readFileSync(path.resolve(__dirname, 'index.html'), 'utf-8');
+        template = await vite.transformIndexHtml(url, template);
+        res.status(200).set({ 'Content-Type': 'text/html' }).end(template);
+      } catch (e) {
+        next(e);
+      }
+    });
   } else {
     const distPath = path.resolve(__dirname, 'dist');
     app.use(express.static(distPath));

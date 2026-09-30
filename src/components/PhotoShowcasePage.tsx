@@ -629,7 +629,7 @@ export default function PhotoShowcasePage({
                       </p>
 
                       <div className="mt-3 flex flex-wrap gap-1.5">
-                        {mockup.features.slice(0, 3).map((feat, idx) => (
+                        {(mockup.features || []).slice(0, 3).map((feat, idx) => (
                           <span key={idx} className="text-[10px] font-medium bg-white/10 text-white border border-white/20 px-2 py-0.5 rounded-md">
                             ✓ {feat}
                           </span>

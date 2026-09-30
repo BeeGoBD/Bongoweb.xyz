@@ -471,14 +471,14 @@ export const PRICING_PACKAGES = [
     id: 'pkg-pro',
     name: 'Business Pro',
     subtitle: 'Designed for scaling e-commerce stores and retail brands',
-    oneTimeFee: '1,490 BDT',
+    oneTimeFee: '1,499 BDT',
     monthlyRenew: '250 BDT',
     popular: false,
     badge: 'High Conversion',
     color: 'from-white/20 to-white/5',
     features: [
       'All Starter Package features included',
-      'Custom domain (.com / .net) connection included',
+      'Free custom domain connection & cloud hosting included',
       'Direct online payment gateway integration (bKash, Nagad, etc.)',
       'Facebook Pixel & Google Analytics conversion tracking',
       'Automated SMS order notification gateway',
@@ -516,7 +516,7 @@ export const SUPPORT_FAQS = [
   },
   {
     q: 'Can I connect my own custom domain?',
-    a: 'Yes, absolutely! You can connect your existing .com, .net, or any custom domain for free at any time, or use our free high-speed subdomain.'
+    a: 'Yes, absolutely! You can connect your existing domain for free at any time, or get our free domain and cloud hosting included with your package.'
   },
   {
     q: 'I have no coding or technical experience. Can I manage this?',

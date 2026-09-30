@@ -2,11 +2,12 @@ import React, { useState, useRef, useEffect } from 'react';
 import { 
   Send, Headphones, CheckCircle2, User, Sparkles, 
   CheckCheck, LogOut, Clock, Plus, AlertCircle, ArrowRight, X,
-  ShieldCheck, RefreshCw, MessageSquare
+  ShieldCheck, RefreshCw, MessageSquare, Ticket
 } from 'lucide-react';
 import { SupportChatMessage, UserAccount } from '../types';
 import { 
-  apiActivateChat, apiSendChatMessage, apiEndChat, subscribeToSingleChatThread, normalizePhone 
+  apiActivateChat, apiSendChatMessage, apiEndChat, subscribeToSingleChatThread, 
+  normalizePhone, apiGetLiveChatEnabled, apiRequestPasswordReset
 } from '../utils/api';
 import { realtimeManager } from '../utils/realtime';
 
@@ -31,6 +32,14 @@ const deduplicateChatMessages = (msgs: SupportChatMessage[]): SupportChatMessage
 };
 
 export default function LiveChatView() {
+  // Live Chat System Toggle (Admin On/Off)
+  const [isLiveChatOnline, setIsLiveChatOnline] = useState<boolean>(true);
+
+  // Ticket Submission State (When Chat is OFF)
+  const [ticketDescription, setTicketDescription] = useState('');
+  const [ticketSubmitted, setTicketSubmitted] = useState(false);
+  const [submittedTicketId, setSubmittedTicketId] = useState('');
+
   // Onboarding / Activation State
   const [isActivated, setIsActivated] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState<'bn' | 'en'>('bn');
@@ -50,8 +59,19 @@ export default function LiveChatView() {
   const [showExitConfirm, setShowExitConfirm] = useState(false);
   const [expiresTimestamp, setExpiresTimestamp] = useState<number>(Date.now() + 300000);
 
-  // Check existing session on mount
+  // Check existing session & live chat status on mount
   useEffect(() => {
+    // 1. Check if Live Chat is enabled by Admin
+    apiGetLiveChatEnabled().then((status) => {
+      setIsLiveChatOnline(status);
+    });
+
+    const unsubSystem = realtimeManager.on('system:chat_status', (payload) => {
+      if (typeof payload.enabled === 'boolean') {
+        setIsLiveChatOnline(payload.enabled);
+      }
+    });
+
     try {
       const activeSession = localStorage.getItem('bongoweb_chat_active_session');
       if (activeSession) {
@@ -73,6 +93,10 @@ export default function LiveChatView() {
     } catch (e) {
       console.error(e);
     }
+
+    return () => {
+      unsubSystem();
+    };
   }, []);
 
   // Fetch thread from server
@@ -318,28 +342,115 @@ export default function LiveChatView() {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
+  // Handle Ticket Submit (When Live Chat is OFF)
+  const handleTicketSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setOnboardingError('');
+
+    const cleanName = userName.trim();
+    const cleanPhone = userPhone.trim();
+    const cleanDesc = ticketDescription.trim();
+
+    if (!cleanName) {
+      setOnboardingError(selectedLanguage === 'bn' ? 'অনুগ্রহ করে আপনার নাম লিখুন।' : 'Please enter your name.');
+      return;
+    }
+    if (!cleanPhone || cleanPhone.length < 10) {
+      setOnboardingError(selectedLanguage === 'bn' ? 'অনুগ্রহ করে সঠিক মোবাইল নম্বর লিখুন।' : 'Please enter a valid phone number.');
+      return;
+    }
+    if (!cleanDesc) {
+      setOnboardingError(selectedLanguage === 'bn' ? 'আপনার সমস্যার বিবরণ বা প্রশ্ন লিখুন।' : 'Please describe your inquiry.');
+      return;
+    }
+
+    const tktId = `#TKT-${Math.floor(1000 + Math.random() * 9000)}`;
+    setSubmittedTicketId(tktId);
+
+    // Save ticket to local storage and send admin notification
+    try {
+      const existing = localStorage.getItem('bongoweb_tickets');
+      const list = existing ? JSON.parse(existing) : [];
+      list.unshift({
+        id: tktId,
+        name: cleanName,
+        phone: cleanPhone,
+        description: cleanDesc,
+        createdAt: new Date().toLocaleString('bn-BD'),
+        status: 'open'
+      });
+      localStorage.setItem('bongoweb_tickets', JSON.stringify(list));
+
+      // Also trigger a reset request / support chat entry
+      await apiRequestPasswordReset({
+        id: tktId,
+        phone: cleanPhone,
+        requestedAt: new Date().toLocaleString('bn-BD'),
+        status: 'pending'
+      });
+    } catch (_) {}
+
+    setTicketSubmitted(true);
+  };
+
   // ==========================================
-  // VIEW 1: STEP-BY-STEP ONBOARDING FORM
+  // VIEW 1: STEP-BY-STEP ONBOARDING / TICKET FORM
   // ==========================================
   if (!isActivated) {
+    if (ticketSubmitted) {
+      return (
+        <div className="w-full max-w-lg mx-auto px-4 py-8 animate-fadeIn font-sans">
+          <div className="bg-[#FFFFFF] border border-[#E5EDF5] rounded-3xl p-6 sm:p-8 shadow-md text-center space-y-4">
+            <div className="w-14 h-14 mx-auto rounded-2xl bg-[#00B261]/10 text-[#00B261] flex items-center justify-center">
+              <CheckCircle2 className="w-8 h-8 stroke-[2.5]" />
+            </div>
+            <span className="px-3 py-1 rounded-full bg-[#E2E4FF] text-[#533AFD] text-xs font-black font-mono inline-block">
+              {submittedTicketId}
+            </span>
+            <h2 className="text-xl font-black text-[#0D253D]">
+              সাপোর্ট টিকিট সফলভাবে জমা হয়েছে
+            </h2>
+            <p className="text-xs text-[#64748D] leading-relaxed max-w-sm mx-auto">
+              আমাদের টিম আপনার প্রদত্ত মোবাইল নম্বরে ({userPhone}) অতি দ্রুত যোগাযোগ করবে এবং সহায়তা প্রদান করবে।
+            </p>
+            <div className="pt-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setTicketSubmitted(false);
+                  setTicketDescription('');
+                }}
+                className="px-6 py-2.5 rounded-xl bg-[#533AFD] text-white text-xs font-bold hover:bg-[#665EFD] transition-all cursor-pointer shadow-xs"
+              >
+                নতুন টিকিট সাবমিট করুন
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="w-full max-w-lg mx-auto px-4 py-6 sm:py-10 animate-fadeIn font-sans">
         <div className="bg-[#FFFFFF] border border-[#E5EDF5] rounded-3xl p-6 sm:p-8 shadow-md">
-          {/* Header */}
+          {/* Header: Strictly BongoWeb Live Support (২৪/৭) without excessive subtext */}
           <div className="text-center mb-6">
             <div className="w-14 h-14 mx-auto rounded-2xl bg-[#E2E4FF] text-[#533AFD] flex items-center justify-center mb-3 shadow-inner">
               <Headphones className="w-7 h-7 stroke-[2.2]" />
             </div>
             <h2 className="text-xl sm:text-2xl font-black text-[#0D253D] tracking-tight">
-              BongoWeb লাইভ সাপোর্ট
+              BongoWeb Live Support (২৪/৭)
             </h2>
-            <p className="text-xs text-[#64748D] mt-1">
-              আমাদের অফিসিয়াল প্রতিনিধির সাথে সরাসরি কথা বলতে নিচের তথ্যগুলো পূরণ করে চ্যাট শুরু করুন।
-            </p>
+            {!isLiveChatOnline && (
+              <div className="mt-2.5 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E53935]/10 text-[#E53935] text-xs font-bold border border-[#E53935]/20">
+                <span className="w-2 h-2 rounded-full bg-[#E53935] animate-pulse" />
+                <span>লাইভ চ্যাট বর্তমানে অফলাইন (টিকিট সাবমিট করুন)</span>
+              </div>
+            )}
           </div>
 
-          {/* Form */}
-          <form onSubmit={handleStartChat} className="space-y-4">
+          {/* Form: If Live Chat is OFF -> Ticket Submit; If ON -> Start Live Chat */}
+          <form onSubmit={isLiveChatOnline ? handleStartChat : handleTicketSubmit} className="space-y-4">
             {onboardingError && (
               <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 text-xs font-bold flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 shrink-0" />
@@ -377,66 +488,93 @@ export default function LiveChatView() {
               />
             </div>
 
-            {/* 3. Language Selector */}
-            <div>
-              <label className="block text-xs font-bold text-[#0D253D] mb-1.5">
-                ৩. চ্যাটের ভাষা নির্বাচন করুন (Select Language) <span className="text-rose-500">*</span>
-              </label>
-              <div className="grid grid-cols-2 gap-2.5">
-                <button
-                  type="button"
-                  onClick={() => setSelectedLanguage('bn')}
-                  className={`py-2.5 px-3 rounded-xl border-2 text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
-                    selectedLanguage === 'bn'
-                      ? 'border-[#533AFD] bg-[#533AFD]/5 text-[#533AFD]'
-                      : 'border-[#E5EDF5] bg-[#FFFFFF] text-[#64748D] hover:border-[#533AFD]/30'
-                  }`}
-                >
-                  <span className="text-base">🇧🇩</span>
-                  <span>বাংলা (Bangla)</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSelectedLanguage('en')}
-                  className={`py-2.5 px-3 rounded-xl border-2 text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
-                    selectedLanguage === 'en'
-                      ? 'border-[#533AFD] bg-[#533AFD]/5 text-[#533AFD]'
-                      : 'border-[#E5EDF5] bg-[#FFFFFF] text-[#64748D] hover:border-[#533AFD]/30'
-                  }`}
-                >
-                  <span className="text-base">🇬🇧</span>
-                  <span>English</span>
-                </button>
+            {/* If Chat is ON -> Language Selector */}
+            {isLiveChatOnline ? (
+              <div>
+                <label className="block text-xs font-bold text-[#0D253D] mb-1.5">
+                  ৩. চ্যাটের ভাষা নির্বাচন করুন (Select Language) <span className="text-rose-500">*</span>
+                </label>
+                <div className="grid grid-cols-2 gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedLanguage('bn')}
+                    className={`py-2.5 px-3 rounded-xl border-2 text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                      selectedLanguage === 'bn'
+                        ? 'border-[#533AFD] bg-[#533AFD]/5 text-[#533AFD]'
+                        : 'border-[#E5EDF5] bg-[#FFFFFF] text-[#64748D] hover:border-[#533AFD]/30'
+                    }`}
+                  >
+                    <span className="text-base">🇧🇩</span>
+                    <span>বাংলা (Bangla)</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedLanguage('en')}
+                    className={`py-2.5 px-3 rounded-xl border-2 text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                      selectedLanguage === 'en'
+                        ? 'border-[#533AFD] bg-[#533AFD]/5 text-[#533AFD]'
+                        : 'border-[#E5EDF5] bg-[#FFFFFF] text-[#64748D] hover:border-[#533AFD]/30'
+                    }`}
+                  >
+                    <span className="text-base">🇬🇧</span>
+                    <span>English</span>
+                  </button>
+                </div>
               </div>
-            </div>
+            ) : (
+              /* If Chat is OFF -> Issue Details Input */
+              <div>
+                <label className="block text-xs font-bold text-[#0D253D] mb-1.5">
+                  ৩. আপনার সমস্যা বা প্রশ্ন লিখুন (Issue Details) <span className="text-rose-500">*</span>
+                </label>
+                <textarea
+                  rows={3}
+                  value={ticketDescription}
+                  onChange={(e) => setTicketDescription(e.target.value)}
+                  placeholder="আপনার ওয়েবসাইট বা যেকোনো সমস্যা বিস্তারিত লিখুন..."
+                  className="w-full px-4 py-2.5 rounded-xl border border-[#E5EDF5] text-xs text-[#0D253D] focus:outline-none focus:border-[#533AFD] focus:ring-2 focus:ring-[#533AFD]/15 bg-[#F8FAFD]"
+                  required
+                />
+              </div>
+            )}
 
-            {/* 4. Continue Button */}
+            {/* 4. Action Button */}
             <div className="pt-2">
-              <button
-                type="submit"
-                disabled={isStarting}
-                className="w-full py-3 px-4 rounded-xl bg-[#533AFD] hover:bg-[#4329d9] text-white font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-[0_4px_16px_rgba(83,58,253,0.3)] cursor-pointer disabled:opacity-50"
-              >
-                {isStarting ? (
-                  <>
-                    <RefreshCw className="w-4 h-4 animate-spin" />
-                    <span>সংযোগ করা হচ্ছে...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>চালিয়ে যান (Continue to Live Chat)</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </>
-                )}
-              </button>
+              {isLiveChatOnline ? (
+                <button
+                  type="submit"
+                  disabled={isStarting}
+                  className="w-full py-3 px-4 rounded-xl bg-[#533AFD] hover:bg-[#4329d9] text-white font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-[0_4px_16px_rgba(83,58,253,0.3)] cursor-pointer disabled:opacity-50"
+                >
+                  {isStarting ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                      <span>সংযোগ করা হচ্ছে...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>লাইভ চ্যাট শুরু করুন (Start Live Chat)</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </>
+                  )}
+                </button>
+              ) : (
+                <button
+                  type="submit"
+                  className="w-full py-3 px-4 rounded-xl bg-[#00B261] hover:bg-[#009E56] text-white font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-[0_4px_16px_rgba(0,178,97,0.3)] cursor-pointer"
+                >
+                  <Ticket className="w-4 h-4" />
+                  <span>সাবমিট সাপোর্ট টিকিট (Submit Ticket)</span>
+                </button>
+              )}
             </div>
           </form>
 
-          {/* Quick Notice */}
+          {/* Clean Assurance */}
           <div className="mt-4 pt-4 border-t border-[#E5EDF5] text-center">
             <span className="text-[11px] text-[#64748D] inline-flex items-center gap-1">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-              <span>নিরাপদ ও এনক্রিপ্টেড রিয়েল-টাইম লাইভ চ্যাট</span>
+              <span>২৪/৭ অফিসিয়াল কাস্টমার সাপোর্ট সার্ভিস</span>
             </span>
           </div>
         </div>
@@ -471,22 +609,18 @@ export default function LiveChatView() {
           </div>
         </div>
 
-        {/* Right Actions: Inactivity Timer & Exit Button */}
+        {/* Right Actions: Clean Status & Exit Button (5-min timer is strictly Admin-only) */}
         <div className="flex items-center gap-2">
-          {/* 5-Minute Inactivity Timer */}
+          {/* Client only sees that they are actively chatting */}
           <div 
-            className={`px-2.5 py-1 rounded-lg border text-xs font-mono font-bold flex items-center gap-1.5 ${
-              timeLeft < 60
-                ? 'bg-rose-50 border-rose-200 text-rose-600 animate-pulse'
-                : 'bg-[#F8FAFD] border-[#E5EDF5] text-[#533AFD]'
-            }`}
-            title="৫ মিনিট নিষ্ক্রিয় থাকলে চ্যাট স্বয়ংক্রিয়ভাবে শেষ হবে"
+            className="px-2.5 py-1 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 text-xs font-bold flex items-center gap-1.5"
+            title="লাইভ সাপোর্ট সেশন সক্রিয়"
           >
-            <Clock className="w-3.5 h-3.5" />
-            <span>{formatTimer(timeLeft)}</span>
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span>লাইভ চ্যাট চলছে</span>
           </div>
 
-          {/* Exit Chat Button as requested */}
+          {/* Exit Chat Button */}
           <button
             onClick={() => setShowExitConfirm(true)}
             className="px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-600 text-xs font-bold flex items-center gap-1 transition-all cursor-pointer"
@@ -528,19 +662,28 @@ export default function LiveChatView() {
           );
         })}
 
-        {/* If chat expired due to inactivity */}
+        {/* If chat closed by Admin or session ended */}
         {isExpired && (
-          <div className="my-4 p-4 rounded-xl bg-amber-50 border border-amber-200 text-center text-xs text-amber-800">
-            <p className="font-bold mb-1">⚠️ ৫ মিনিট নিষ্ক্রিয়তার কারণে চ্যাট সেশন সমাপ্ত হয়েছে।</p>
-            <p className="text-[11px] text-amber-700 mb-2">
-              পুনরায় প্রতিনিধিদের সাথে কথা বলতে চাইলে নিচে চ্যাট রিস্টার্ট করুন।
+          <div className="my-4 p-5 rounded-2xl bg-[#FFFFFF] border border-[#E5EDF5] text-center shadow-xs space-y-2">
+            <p className="font-black text-sm text-[#0D253D]">এই চ্যাট সেশনটি সমাপ্ত করা হয়েছে।</p>
+            <p className="text-xs text-[#64748D] max-w-sm mx-auto">
+              আমাদের সাপোর্ট টিমের সাথে পুনরায় কথা বলতে চাইলে নিচের বাটনে ক্লিক করে নতুন চ্যাট শুরু করুন।
             </p>
-            <button
-              onClick={handleConfirmExit}
-              className="px-4 py-1.5 bg-amber-600 text-white rounded-lg font-bold text-xs hover:bg-amber-700 cursor-pointer"
-            >
-              নতুন করে চ্যাট শুরু করুন
-            </button>
+            <div className="pt-2">
+              <button
+                onClick={() => {
+                  setIsActivated(false);
+                  setIsExpired(false);
+                  setMessages([]);
+                  setUserPhone('');
+                  setUserName('');
+                  setInputVal('');
+                }}
+                className="px-5 py-2.5 bg-[#533AFD] hover:bg-[#665EFD] text-white rounded-xl font-bold text-xs shadow-xs cursor-pointer transition-all inline-flex items-center gap-1.5"
+              >
+                <span>নতুন চ্যাট শুরু করুন (Start New Chat)</span>
+              </button>
+            </div>
           </div>
         )}
 

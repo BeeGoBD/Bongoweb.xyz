@@ -127,7 +127,7 @@ export default function LiveBrowserPage({
       suitabilityText: 'Perfect for small retailers, home-based businesses, single-branch boutiques, and individual service providers.',
       features: [
         'Complete ready-made website delivery within 24 hours',
-        'Custom domain setup (.com / .com.bd or your existing domain)',
+        'Official custom domain setup & cloud server hosting',
         'Lifetime SSL encryption certificate',
         'Unlimited product catalog with high-res photos',
         'Direct 1-click WhatsApp order button',
@@ -679,7 +679,7 @@ export default function LiveBrowserPage({
                         </p>
 
                         <div className="mt-3 flex flex-wrap gap-1.5">
-                          {demo.features.slice(0, 3).map((feat, idx) => (
+                          {(demo.features || []).slice(0, 3).map((feat, idx) => (
                             <span key={idx} className="text-[10px] font-medium bg-[#FAF7F2] text-[#800020] border border-[#E7E0D6] px-2 py-0.5 rounded-md">
                               ✓ {feat}
                             </span>

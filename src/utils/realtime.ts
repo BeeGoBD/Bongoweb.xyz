@@ -180,7 +180,7 @@ class RealtimeManager {
   }
 
   // Emit event to subscribers
-  private emit(event: string, data: any) {
+  public emit(event: string, data: any) {
     const callbacks = this.listeners.get(event);
     if (callbacks) {
       callbacks.forEach((cb) => {

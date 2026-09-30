@@ -15,12 +15,14 @@ interface NotificationsModalProps {
   isOpen: boolean;
   onClose: () => void;
   onClearAll: () => void;
+  onNavigateToAccount?: () => void;
 }
 
 export default function NotificationsModal({
   isOpen,
   onClose,
-  onClearAll
+  onClearAll,
+  onNavigateToAccount
 }: NotificationsModalProps) {
   const [notifications, setNotifications] = useState<RealNotification[]>([]);
 
@@ -56,34 +58,29 @@ export default function NotificationsModal({
         const userPhone = storedUser ? JSON.parse(storedUser).phone : null;
 
         const userOrders = userPhone ? orders.filter(o => o.phone === userPhone) : orders;
-        userOrders.slice(0, 3).forEach((o) => {
+        
+        // Requirement 6: If payment is in verification, notice is visible.
+        // After the order is confirmed (verified), the verification notification automatically disappears!
+        userOrders.forEach((o) => {
           if (o.status === 'pending') {
             realList.push({
-              id: `ord-${o.orderId}`,
+              id: `ord-pending-${o.orderId}`,
               title: `অর্ডার ${o.orderId} — পেমেন্ট ভেরিফিকেশন চলছে`,
-              subtitle: `${o.companyName || o.clientName} (${o.demoTitle}) এর পেমেন্ট যাচাই করা হচ্ছে।`,
+              subtitle: `${o.companyName || o.clientName} (${o.demoTitle}) এর পেমেন্ট যাচাই করা হচ্ছে। অনুগ্রহ করে অপেক্ষা করুন।`,
               time: o.createdAt || 'সম্প্রতি',
               type: 'order',
               isUnread: true
             });
-          } else if (o.status === 'verified') {
-            realList.push({
-              id: `ord-ver-${o.orderId}`,
-              title: `🎉 অর্ডার ${o.orderId} ভেরিফাই সম্পন্ন হয়েছে`,
-              subtitle: `ওয়েবসাইট প্রস্তুতির কাজ চলছে। ২৪ ঘণ্টার মধ্যে সম্পূর্ণ ডেলিভারি দেওয়া হবে।`,
-              time: o.createdAt || 'সম্প্রতি',
-              type: 'order',
-              isUnread: false
-            });
           }
         });
 
+        // Requirement 6: Once details are sent, client receives notification per website
         const myCreds = userPhone ? creds.filter(c => c.userPhone === userPhone) : creds;
-        myCreds.slice(0, 2).forEach((c) => {
+        myCreds.forEach((c) => {
           realList.push({
             id: `cred-${c.id}`,
-            title: `🔑 ওয়েবসাইটের অ্যাডমিন আইডি ও পাসওয়ার্ড ডেলিভারি হয়েছে`,
-            subtitle: `অ্যাডমিন ইউজারনেম: ${c.websiteAdminId}। অ্যাকাউন্ট সেকশন থেকে বিবরণ দেখুন।`,
+            title: `🔑 ${c.websiteTitle || 'ওয়েবসাইট'} — অ্যাডমিন অ্যাক্সেস ডেলিভারি`,
+            subtitle: `আইডি: ${c.websiteAdminId} • পাসওয়ার্ড: ${c.websiteAdminPass}। ক্লিক করে বিস্তারিত দেখুন।`,
             time: c.deliveredAt || 'সম্প্রতি',
             type: 'credential',
             isUnread: true
@@ -159,7 +156,13 @@ export default function NotificationsModal({
             notifications.map((item) => (
               <div
                 key={item.id}
-                className={`p-3.5 rounded-2xl border transition-all ${
+                onClick={() => {
+                  if (onNavigateToAccount) {
+                    onNavigateToAccount();
+                    onClose();
+                  }
+                }}
+                className={`p-3.5 rounded-2xl border transition-all cursor-pointer hover:border-[#533AFD]/50 ${
                   item.isUnread
                     ? 'bg-[#E2E4FF]/40 border-[#533AFD]/30 shadow-2xs'
                     : 'bg-[#F8FAFD] border-[#E5EDF5]'
@@ -174,9 +177,14 @@ export default function NotificationsModal({
                     <p className="text-[11px] text-[#64748D] mt-0.5 leading-snug">
                       {item.subtitle}
                     </p>
-                    <span className="text-[10px] font-mono text-[#7D8BA4] mt-1.5 block">
-                      {item.time}
-                    </span>
+                    <div className="flex items-center justify-between mt-1.5">
+                      <span className="text-[10px] font-mono text-[#7D8BA4]">
+                        {item.time}
+                      </span>
+                      <span className="text-[10px] font-bold text-[#533AFD] hover:underline">
+                        বিস্তারিত দেখুন →
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>

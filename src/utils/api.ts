@@ -7,6 +7,7 @@ import {
   collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, onSnapshot 
 } from 'firebase/firestore';
 import { db } from '../firebase';
+import { realtimeManager } from './realtime';
 
 export interface CompleteDatabaseState {
   adminConfig: AdminConfig;
@@ -29,7 +30,7 @@ let localCache: CompleteDatabaseState = {
   users: [],
   orders: [],
   supportChats: [],
-  customWebsites: WEBSITE_DEMOS,
+  customWebsites: [],
   deliveredCredentials: [],
   resetRequests: []
 };
@@ -52,10 +53,52 @@ export function cleanFirestoreData<T extends Record<string, any>>(obj: T): T {
   return clean;
 }
 
+// Default initial orders so admin and client can immediately see and test order lifecycle
+export const DEFAULT_INITIAL_ORDERS: ClientOrder[] = [
+  {
+    orderId: '#BW-84192',
+    demoCode: '#1042',
+    demoTitle: 'প্রিমিয়াম ই-কমার্স শপ (E-Commerce Store)',
+    clientName: 'মোঃ রাকিবুল ইসলাম',
+    phone: '01711223344',
+    email: 'rakibul@example.com',
+    companyName: 'রাকিব ফ্যাশন বিডি',
+    domainOption: 'no_domain',
+    paymentMethod: 'bkash',
+    transactionId: '9K8X2W1Q',
+    makingCharge: 1990,
+    monthlyCost: 120,
+    status: 'pending',
+    createdAt: '30/09/2026, 11:30 AM'
+  },
+  {
+    orderId: '#BW-72615',
+    demoCode: '#1042',
+    demoTitle: 'রেস্তোরাঁ ও ক্যাফে ওয়েবসাইট (Food & Dine)',
+    clientName: 'আরিফুল হাসান',
+    phone: '01822334455',
+    email: 'ariful@example.com',
+    companyName: 'ঢাকা বিরিয়ানি হাউজ',
+    domainOption: 'no_domain',
+    paymentMethod: 'nagad',
+    transactionId: '7M3V9N4P',
+    makingCharge: 1990,
+    monthlyCost: 120,
+    status: 'pending',
+    createdAt: '30/09/2026, 01:15 PM'
+  }
+];
+
 // Seed initial memory cache from localStorage if available
 try {
   const o = localStorage.getItem('bongoweb_orders');
-  if (o) localCache.orders = JSON.parse(o);
+  if (o) {
+    const parsed = JSON.parse(o);
+    localCache.orders = Array.isArray(parsed) && parsed.length > 0 ? parsed : DEFAULT_INITIAL_ORDERS;
+  } else {
+    localCache.orders = DEFAULT_INITIAL_ORDERS;
+    localStorage.setItem('bongoweb_orders', JSON.stringify(DEFAULT_INITIAL_ORDERS));
+  }
 
   const c = localStorage.getItem('bongoweb_support_chats');
   if (c) localCache.supportChats = JSON.parse(c);
@@ -232,30 +275,99 @@ export async function apiCreateOrder(order: ClientOrder): Promise<ClientOrder> {
   return safeOrder;
 }
 
-export async function apiUpdateOrderStatus(orderId: string, status: 'pending' | 'verified' | 'cancelled'): Promise<ClientOrder[]> {
-  localCache.orders = localCache.orders.map(o => 
-    o.orderId === orderId ? { ...o, status } : o
-  );
+export async function apiUpdateOrderStatus(orderId: string, status: 'pending' | 'processing' | 'completed' | 'verified' | 'cancelled'): Promise<ClientOrder[]> {
+  // Normalize 'verified' to 'processing' (Approved & in processing)
+  const effectiveStatus = (status === 'verified') ? 'processing' : status;
+  const targetId = String(orderId || '').trim();
+  const targetIdStr = targetId.replace('#', '').trim().toLowerCase();
+
+  localCache.orders = (localCache.orders || []).map(o => {
+    if (!o) return o;
+    const currentId = o.orderId || (o as any).id || '';
+    const currentIdStr = String(currentId).replace('#', '').trim().toLowerCase();
+    const isTarget = (currentId && currentId === targetId) || (currentIdStr && targetIdStr && currentIdStr === targetIdStr);
+    return isTarget ? { ...o, status: effectiveStatus } : o;
+  });
   localStorage.setItem('bongoweb_orders', JSON.stringify(localCache.orders));
 
-  // 1. Update Cloud Firestore
+  // If order is approved/processing/completed, clear pending order notice
+  if (effectiveStatus !== 'pending') {
+    try {
+      const activePending = localStorage.getItem('bongoweb_active_pending_order');
+      if (activePending) {
+        const parsed = JSON.parse(activePending);
+        const parsedId = parsed?.orderId || parsed?.id || '';
+        const parsedIdStr = String(parsedId).replace('#', '').trim().toLowerCase();
+        if (parsedId === targetId || (parsedIdStr && targetIdStr && parsedIdStr === targetIdStr)) {
+          localStorage.removeItem('bongoweb_active_pending_order');
+        }
+      }
+    } catch (_) {}
+  }
+
+  // 1. Update Cloud Firestore using setDoc with merge so it never throws if document was locally created
   try {
-    const cleanId = orderId.replace(/[^a-zA-Z0-9_-]/g, '_');
-    await updateDoc(doc(db, 'orders', cleanId), { status });
+    const cleanId = String(targetId || 'order').replace(/[^a-zA-Z0-9_-]/g, '_');
+    if (cleanId) {
+      await setDoc(doc(db, 'orders', cleanId), { status: effectiveStatus }, { merge: true });
+    }
   } catch (err) {
     console.warn('Firestore update order status notice:', err);
   }
 
-  // 2. Replicate to server route
+  // 2. Realtime broadcast so all tabs and client screens update immediately
   try {
-    fetch(`/api/orders/${encodeURIComponent(orderId)}/status`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status })
-    }).catch(() => {});
+    realtimeManager.emit('order:updated', { 
+      orders: localCache.orders, 
+      orderId: targetId, 
+      status: effectiveStatus 
+    });
   } catch (_) {}
 
+  // 3. Replicate to server route
+  if (targetId) {
+    try {
+      fetch(`/api/orders/${encodeURIComponent(targetId)}/status`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: effectiveStatus })
+      }).catch(() => {});
+    } catch (_) {}
+  }
+
   return localCache.orders;
+}
+
+// ---------------- LIVE CHAT SYSTEM STATUS TOGGLE ----------------
+export async function apiGetLiveChatEnabled(): Promise<boolean> {
+  try {
+    const snap = await getDoc(doc(db, 'systemSettings', 'liveChat'));
+    if (snap.exists()) {
+      const data = snap.data();
+      if (typeof data.enabled === 'boolean') {
+        localStorage.setItem('bongoweb_live_chat_enabled', String(data.enabled));
+        return data.enabled;
+      }
+    }
+  } catch (_) {}
+
+  const cached = localStorage.getItem('bongoweb_live_chat_enabled');
+  if (cached !== null) return cached === 'true';
+  return true; // default ON
+}
+
+export async function apiSetLiveChatEnabled(enabled: boolean): Promise<boolean> {
+  localStorage.setItem('bongoweb_live_chat_enabled', String(enabled));
+  try {
+    await setDoc(doc(db, 'systemSettings', 'liveChat'), { 
+      enabled, 
+      updatedAt: new Date().toISOString() 
+    }, { merge: true });
+  } catch (_) {}
+  try {
+    realtimeManager.emit('system:chat_status', { enabled });
+  } catch (_) {}
+  return enabled;
 }
 
 // ---------------- USERS & AUTH ----------------
@@ -704,7 +816,12 @@ export async function apiGetWebsites(): Promise<WebsiteDemo[]> {
     }
   } catch (_) {}
 
-  return localCache.customWebsites;
+  if (localCache.customWebsites && localCache.customWebsites.length > 0) {
+    return localCache.customWebsites;
+  }
+
+  // Exactly 1 mock website as requested by user
+  return [WEBSITE_DEMOS[0]];
 }
 
 export async function apiAddWebsite(website: WebsiteDemo): Promise<WebsiteDemo[]> {
@@ -912,6 +1029,7 @@ export async function apiResolveResetRequest(
   newPassword?: string
 ): Promise<PasswordResetRequest[]> {
   const cleanId = id.replace(/[^a-zA-Z0-9_-]/g, '_');
+  const targetReq = localCache.resetRequests.find(r => r.id === id);
 
   try {
     const updatePayload: any = {
@@ -920,6 +1038,12 @@ export async function apiResolveResetRequest(
     };
     if (newPassword) updatePayload.newPasswordAssigned = newPassword;
     await updateDoc(doc(db, 'resetRequests', cleanId), updatePayload);
+
+    // If new password assigned, update the user account in Firestore
+    if (status === 'reset' && newPassword && targetReq?.phone) {
+      const cleanPhone = normalizePhone(targetReq.phone) || targetReq.phone.trim();
+      await updateDoc(doc(db, 'users', cleanPhone), { password: newPassword }).catch(() => {});
+    }
   } catch (err) {
     console.warn('Firestore resolve reset notice:', err);
   }
@@ -928,6 +1052,29 @@ export async function apiResolveResetRequest(
     r.id === id ? { ...r, status, newPasswordAssigned: newPassword, resolvedAt: new Date().toLocaleString('bn-BD') } : r
   );
   localStorage.setItem('bongoweb_reset_requests', JSON.stringify(localCache.resetRequests));
+
+  // Also update registered users cache and active session
+  if (status === 'reset' && newPassword && targetReq?.phone) {
+    const cleanPhone = normalizePhone(targetReq.phone) || targetReq.phone.trim();
+    localCache.users = localCache.users.map(u => 
+      (normalizePhone(u.phone) === cleanPhone || u.phone.trim() === targetReq.phone.trim()) 
+        ? { ...u, password: newPassword } 
+        : u
+    );
+    localStorage.setItem('bongoweb_registered_users', JSON.stringify(localCache.users));
+
+    try {
+      const stored = localStorage.getItem('bongoweb_user');
+      if (stored) {
+        const u = JSON.parse(stored);
+        if (normalizePhone(u.phone) === cleanPhone) {
+          u.password = newPassword;
+          localStorage.setItem('bongoweb_user', JSON.stringify(u));
+          sessionStorage.setItem('bongoweb_user', JSON.stringify(u));
+        }
+      }
+    } catch (_) {}
+  }
 
   try {
     fetch(`/api/resets/${encodeURIComponent(id)}`, {
@@ -1087,14 +1234,15 @@ export async function apiRestoreCompleteBackup(backupData: any): Promise<{ succe
     const resets: PasswordResetRequest[] = Array.isArray(backupData.resets || backupData.resetRequests) 
       ? (backupData.resets || backupData.resetRequests) 
       : [];
-    const websites: WebsiteDemo[] = Array.isArray(backupData.customWebsites) && backupData.customWebsites.length > 0
+    const websites: WebsiteDemo[] = Array.isArray(backupData.customWebsites)
       ? backupData.customWebsites
-      : WEBSITE_DEMOS;
+      : [];
 
     // Restore to Cloud Firestore
     const writePromises: Promise<any>[] = [];
     orders.forEach(o => {
-      const cleanId = o.orderId.replace(/[^a-zA-Z0-9_-]/g, '_');
+      if (!o) return;
+      const cleanId = String(o.orderId || (o as any).id || Math.random()).replace(/[^a-zA-Z0-9_-]/g, '_');
       writePromises.push(setDoc(doc(db, 'orders', cleanId), o));
     });
     users.forEach(u => {

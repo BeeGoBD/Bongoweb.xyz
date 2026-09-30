@@ -97,7 +97,7 @@ export interface ClientOrder {
   transactionId: string;
   makingCharge: number; // 1990
   monthlyCost: number; // 120
-  status: 'pending' | 'verified' | 'cancelled';
+  status: 'pending' | 'processing' | 'completed' | 'verified' | 'cancelled';
   createdAt: string;
   screenshotName?: string;
   advanceAmount?: number;

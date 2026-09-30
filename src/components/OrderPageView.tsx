@@ -465,7 +465,7 @@ export default function OrderPageView({
 
                 {domainOption === 'no_domain' && (
                   <p className="text-xs text-[#00B261] font-semibold bg-white p-2.5 rounded-xl border border-[#E5EDF5] animate-fadeIn">
-                    ✓ আপনার প্যাকেজের সাথে ১ বছরের সম্পূর্ণ ফ্রি .com ডোমেইন যুক্ত থাকবে।
+                    ✓ আপনার প্যাকেজের সাথে ১ বছরের সম্পূর্ণ ফ্রি ডোমেইন ও হোস্টিং যুক্ত থাকবে।
                   </p>
                 )}
 

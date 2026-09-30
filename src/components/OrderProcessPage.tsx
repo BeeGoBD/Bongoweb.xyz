@@ -7,24 +7,24 @@ interface OrderProcessPageProps {
 export default function OrderProcessPage({ onBack }: OrderProcessPageProps) {
   const steps = [
     {
-      number: '01',
+      number: '1',
       icon: PhoneCall,
-      title: 'Direct phone call or WhatsApp connection to discuss and confirm your plan (Work begins only after speaking with you)'
+      title: 'আপনাকে আমরা phone করে বিস্তারিত জেনে নিবো।'
     },
     {
-      number: '02',
+      number: '2',
       icon: Sparkles,
-      title: 'Collecting your brand logo, website tagline, site title, and custom domain details'
+      title: 'আপনার ব্যবসার logo ও প্রয়োজনীয় তথ্য আমরা সংগ্রহ করবো।'
     },
     {
-      number: '03',
+      number: '3',
       icon: Rocket,
-      title: 'Domain connection and rapid setup with live website delivery within 24 hours'
+      title: 'আপনার পছন্দের color ধরন ও website এর প্রয়োজনীয় বিষয়গুলো নিয়ে আমরা website টা ready করে দিব।'
     },
     {
-      number: '04',
-      icon: MessageCircle,
-      title: 'Lifetime uninterrupted technical support via official WhatsApp for any assistance'
+      number: '4',
+      icon: ShieldCheck,
+      title: '৪৮ ঘন্টার মধ্যে website delivery + Free Support'
     }
   ];
 
@@ -42,12 +42,12 @@ export default function OrderProcessPage({ onBack }: OrderProcessPageProps) {
             className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-[#141414] hover:bg-white hover:text-black text-white text-xs sm:text-sm font-semibold transition-all border border-white/15 cursor-pointer shadow-xs active:scale-[0.99]"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span>← Return to Catalog</span>
+            <span>← ক্যাটালগে ফিরুন</span>
           </button>
 
           <span className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-white/10 px-3 py-1 rounded-full border border-white/20 shadow-2xs">
             <ShieldCheck className="w-3.5 h-3.5 text-white" />
-            <span>24-Hour Express Guarantee</span>
+            <span>৪৮ ঘণ্টার ডেলিভারি গ্যারান্টি</span>
           </span>
         </div>
       </header>
@@ -57,16 +57,13 @@ export default function OrderProcessPage({ onBack }: OrderProcessPageProps) {
         <div className="text-center max-w-xl mx-auto mb-10">
           <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-[#141414] text-white border border-white/20 mb-3 shadow-2xs">
             <Sparkles className="w-3.5 h-3.5 text-white" />
-            <span>Transparent Workflow</span>
+            <span>অর্ডার প্রসেস ও ওয়ার্কফ্লো</span>
           </span>
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-tight">
-            What We Do After Your{' '}
-            <span className="text-white underline decoration-white/40 underline-offset-8">
-              Website Order
-            </span>
+            অর্ডারের পর <span className="text-white underline decoration-white/40 underline-offset-8">ধারাবাহিক পদক্ষেপসমূহ</span>
           </h1>
           <p className="text-xs sm:text-sm text-neutral-400 mt-2">
-            Our step-by-step commitment from the moment you place an order to live launch.
+            অর্ডার কনফার্ম করার পর থেকে লাইভ ডেলিভারি পর্যন্ত প্রতিটি ধাপের বিস্তারিত।
           </p>
         </div>
 
