@@ -768,11 +768,11 @@ export default function LiveBrowserPage({
                 {/* Clean Authentic Brand Name */}
                 <div className="flex items-center gap-2.5">
                   <div className="w-9 h-9 rounded-xl bg-[#800020] text-white flex items-center justify-center font-black text-base shadow-xs">
-                    {(activeDemo.englishTitle || activeDemo.title).replace(/^#\d+\s*/, '').split('—')[0].trim().charAt(0)}
+                    {(activeDemo?.englishTitle || activeDemo?.title || 'BongoWeb Store').replace(/^#\d+\s*/, '').split('—')[0].trim().charAt(0)}
                   </div>
                   <div className="flex flex-col">
                     <span className="font-extrabold text-base sm:text-lg text-[#1C1614] tracking-tight leading-tight">
-                      {(activeDemo.englishTitle || activeDemo.title).replace(/^#\d+\s*/, '').split('—')[0].trim()}
+                      {(activeDemo?.englishTitle || activeDemo?.title || 'BongoWeb Store').replace(/^#\d+\s*/, '').split('—')[0].trim()}
                     </span>
                     <span className="text-[10px] text-[#7A6A66] font-medium">
                       Official Store
@@ -925,7 +925,7 @@ export default function LiveBrowserPage({
                           {item.price}
                         </span>
                         <span className="text-[10px] text-[#7A6A66] line-through font-mono">
-                          ৳{parseInt(item.price.replace(/[^0-9]/g, '') || '500') + 350}
+                          ৳{parseInt(String(item?.price || '500').replace(/[^0-9]/g, '') || '500') + 350}
                         </span>
                       </div>
                     </div>

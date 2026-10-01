@@ -34,25 +34,43 @@ export default function App() {
   const [unreadNotifications, setUnreadNotifications] = useState(0);
   const [sideMenuOpen, setSideMenuOpen] = useState(false);
 
-  // Helper to extract demo by code (e.g. 1042 or #1042)
+  // Helper to extract demo by code (e.g. 1042 or #1042 or custom uploaded websites)
   const findDemoByCode = (rawCode: string): WebsiteDemo | null => {
-    const clean = rawCode.replace('#', '').trim().toLowerCase();
-    return WEBSITE_DEMOS.find(
-      (d) => d.fourDigitCode.replace('#', '').toLowerCase() === clean
-    ) || WEBSITE_DEMOS[0];
+    const clean = decodeURIComponent(String(rawCode || '')).replace('#', '').trim().toLowerCase();
+    
+    // 1. Search in static mock data
+    const foundStatic = WEBSITE_DEMOS.find(
+      (d) => String(d?.fourDigitCode || '').replace('#', '').toLowerCase() === clean
+    );
+    if (foundStatic) return foundStatic;
+
+    // 2. Search in custom websites from storage/vault
+    try {
+      const storedCustom = localStorage.getItem('bongoweb_custom_websites');
+      if (storedCustom) {
+        const parsed: WebsiteDemo[] = JSON.parse(storedCustom);
+        const foundCustom = parsed.find(
+          (d) => String(d?.fourDigitCode || '').replace('#', '').toLowerCase() === clean
+        );
+        if (foundCustom) return foundCustom;
+      }
+    } catch (_) {}
+
+    return WEBSITE_DEMOS[0];
   };
 
   // Parse path from window.location.pathname
   const parseCurrentUrl = useCallback(() => {
-    const path = window.location.pathname;
+    const rawPath = window.location.pathname || '/';
+    const path = decodeURIComponent(rawPath).replace(/\/+$/, '') || '/';
 
     if (path === '/admin' || path.startsWith('/admin')) {
       setViewMode('admin');
       return;
     }
 
-    if (path.startsWith('/website/')) {
-      const code = path.replace('/website/', '').split('/')[0];
+    if (path.startsWith('/website')) {
+      const code = path.replace(/^\/website\/?/, '').split('/')[0].split('?')[0];
       const demo = findDemoByCode(code);
       if (demo) {
         setActiveDemo(demo);
@@ -61,20 +79,20 @@ export default function App() {
       }
     }
 
-    if (path.startsWith('/order/')) {
-      const code = path.replace('/order/', '').split('/')[0];
+    if (path.startsWith('/order')) {
+      const code = path.replace(/^\/order\/?/, '').split('/')[0].split('?')[0];
       const demo = findDemoByCode(code);
-      setActiveDemo(demo);
+      setActiveDemo(demo || WEBSITE_DEMOS[0]);
       setViewMode('order-page');
       return;
     }
 
-    if (path === '/after-order') {
+    if (path === '/after-order' || path.startsWith('/after-order')) {
       setViewMode('after-order');
       return;
     }
 
-    if (path === '/live-chat') {
+    if (path === '/live-chat' || path.startsWith('/live-chat')) {
       setViewMode('live-chat');
       return;
     }
@@ -84,7 +102,7 @@ export default function App() {
       return;
     }
 
-    if (path === '/dashboard') {
+    if (path === '/dashboard' || path.startsWith('/dashboard')) {
       setViewMode('dashboard');
       return;
     }
@@ -101,7 +119,23 @@ export default function App() {
 
   // Initialize and listen to popstate
   useEffect(() => {
+    // 1. Initial route resolution
     parseCurrentUrl();
+
+    // 2. Fetch custom websites from database so direct URLs or page reloads resolve instantly
+    fetch('/api/websites')
+      .then(res => res.ok ? res.json() : [])
+      .then((customWebsites: WebsiteDemo[]) => {
+        if (Array.isArray(customWebsites) && customWebsites.length > 0) {
+          localStorage.setItem('bongoweb_custom_websites', JSON.stringify(customWebsites));
+          // If user loaded on a website or order page, re-parse to ensure the exact custom website object is bound
+          const path = window.location.pathname || '';
+          if (path.startsWith('/website') || path.startsWith('/order')) {
+            parseCurrentUrl();
+          }
+        }
+      })
+      .catch(() => {});
 
     const handlePopState = () => {
       parseCurrentUrl();
@@ -132,7 +166,7 @@ export default function App() {
   // Open Website in dedicated full page with unique URL: /website/:code
   const handleOpenWebsiteDetail = (demo: WebsiteDemo) => {
     setActiveDemo(demo);
-    const cleanCode = demo.fourDigitCode.replace('#', '');
+    const cleanCode = String(demo?.fourDigitCode || '2085').replace('#', '');
     setViewMode('website-detail');
     window.history.pushState({}, '', `/website/${cleanCode}`);
     window.scrollTo({ top: 0, behavior: 'instant' });
@@ -152,7 +186,7 @@ export default function App() {
     }
 
     setActiveDemo(resolvedDemo);
-    const cleanCode = resolvedDemo.fourDigitCode.replace('#', '');
+    const cleanCode = String(resolvedDemo?.fourDigitCode || '2085').replace('#', '');
     setViewMode('order-page');
     window.history.pushState({}, '', `/order/${cleanCode}`);
     window.scrollTo({ top: 0, behavior: 'instant' });
@@ -207,9 +241,9 @@ export default function App() {
       )}
 
       {/* 3. Dedicated Website Full Page (Unique URL: /website/:code, NO hover modal overlay) */}
-      {viewMode === 'website-detail' && activeDemo && (
+      {viewMode === 'website-detail' && (
         <WebsiteDetailPage
-          demo={activeDemo}
+          demo={activeDemo || findDemoByCode('') || WEBSITE_DEMOS[0]}
           onBackToDashboard={handleReturnToDashboard}
           onGoToOrder={handleOpenOrder}
         />
@@ -218,7 +252,7 @@ export default function App() {
       {/* 4. Dedicated Order Full Page (Unique URL: /order/:code) */}
       {viewMode === 'order-page' && (
         <OrderPageView
-          demo={activeDemo}
+          demo={activeDemo || findDemoByCode('') || WEBSITE_DEMOS[0]}
           onBackToDashboard={handleReturnToDashboard}
           onBackToWebsite={(code) => {
             const demo = findDemoByCode(code);

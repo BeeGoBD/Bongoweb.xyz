@@ -110,7 +110,15 @@ export default function FixedHeader({
                 আপনার পেমেন্ট ভেরিফিকেশন প্রক্রিয়াধীন রয়েছে ({activePendingOrder.orderId})। অনুগ্রহ করে ১ মিনিট থেকে ১ ঘণ্টা অপেক্ষা করুন।
               </span>
             </div>
-            <a href="/account" className="underline font-black text-[#8A6D00] hover:text-[#533AFD] hidden sm:inline ml-2">
+            <a 
+              href="/account" 
+              onClick={(e) => {
+                e.preventDefault();
+                window.history.pushState({}, '', '/account');
+                window.dispatchEvent(new PopStateEvent('popstate'));
+              }}
+              className="underline font-black text-[#8A6D00] hover:text-[#533AFD] hidden sm:inline ml-2 cursor-pointer"
+            >
               অ্যাকাউন্টে দেখুন →
             </a>
           </div>

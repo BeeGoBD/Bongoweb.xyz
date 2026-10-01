@@ -2,11 +2,11 @@ import React, { useState, useRef, useEffect } from 'react';
 import { 
   Send, Headphones, CheckCircle2, User, Sparkles, 
   CheckCheck, LogOut, Clock, Plus, AlertCircle, ArrowRight, X,
-  ShieldCheck, RefreshCw, MessageSquare, Ticket
+  ShieldCheck, RefreshCw, MessageSquare, Ticket, RotateCcw
 } from 'lucide-react';
 import { SupportChatMessage, UserAccount } from '../types';
 import { 
-  apiActivateChat, apiSendChatMessage, apiEndChat, subscribeToSingleChatThread, 
+  apiActivateChat, apiSendChatMessage, apiEndChat, apiReopenChat, subscribeToSingleChatThread, 
   normalizePhone, apiGetLiveChatEnabled, apiRequestPasswordReset
 } from '../utils/api';
 import { realtimeManager } from '../utils/realtime';
@@ -109,6 +109,10 @@ export default function LiveChatView() {
           if (thread.messages && thread.messages.length > 0) {
             setMessages((prev) => deduplicateChatMessages([...prev, ...thread.messages]));
           }
+          if (thread.isClosed) {
+            setIsExpired(true);
+            return;
+          }
           if (thread.expiresAt) {
             setExpiresTimestamp(thread.expiresAt);
             const remaining = Math.max(0, Math.floor((thread.expiresAt - Date.now()) / 1000));
@@ -180,6 +184,10 @@ export default function LiveChatView() {
       if (thread) {
         if (Array.isArray(thread.messages) && thread.messages.length > 0) {
           setMessages((prev) => deduplicateChatMessages([...prev, ...thread.messages]));
+        }
+        if (thread.isClosed) {
+          setIsExpired(true);
+          return;
         }
         if (thread.expiresAt) {
           setExpiresTimestamp(thread.expiresAt);
@@ -664,26 +672,26 @@ export default function LiveChatView() {
 
         {/* If chat closed by Admin or session ended */}
         {isExpired && (
-          <div className="my-4 p-5 rounded-2xl bg-[#FFFFFF] border border-[#E5EDF5] text-center shadow-xs space-y-2">
-            <p className="font-black text-sm text-[#0D253D]">এই চ্যাট সেশনটি সমাপ্ত করা হয়েছে।</p>
-            <p className="text-xs text-[#64748D] max-w-sm mx-auto">
-              আমাদের সাপোর্ট টিমের সাথে পুনরায় কথা বলতে চাইলে নিচের বাটনে ক্লিক করে নতুন চ্যাট শুরু করুন।
-            </p>
-            <div className="pt-2">
-              <button
-                onClick={() => {
-                  setIsActivated(false);
-                  setIsExpired(false);
-                  setMessages([]);
-                  setUserPhone('');
-                  setUserName('');
-                  setInputVal('');
-                }}
-                className="px-5 py-2.5 bg-[#533AFD] hover:bg-[#665EFD] text-white rounded-xl font-bold text-xs shadow-xs cursor-pointer transition-all inline-flex items-center gap-1.5"
-              >
-                <span>নতুন চ্যাট শুরু করুন (Start New Chat)</span>
-              </button>
-            </div>
+          <div className="my-2 p-2.5 rounded-xl bg-[#F8FAFD] border border-[#E5EDF5] flex flex-wrap items-center justify-between gap-2 text-xs">
+            <span className="text-[#475569] font-medium">
+              আপনার টেক্সট সমাপ্ত হয়েছে (Your text is over).
+            </span>
+            <button
+              type="button"
+              onClick={async () => {
+                setIsExpired(false);
+                const newExpiry = Date.now() + 5 * 60 * 1000;
+                setExpiresTimestamp(newExpiry);
+                setTimeLeft(300);
+                try {
+                  await apiReopenChat(userPhone);
+                } catch (_) {}
+              }}
+              className="px-3 py-1.5 rounded-lg bg-[#533AFD] hover:bg-[#4329d9] text-white text-xs font-bold transition-all shrink-0 cursor-pointer shadow-xs flex items-center gap-1.5"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>রিটেক্সট (Retext)</span>
+            </button>
           </div>
         )}
 

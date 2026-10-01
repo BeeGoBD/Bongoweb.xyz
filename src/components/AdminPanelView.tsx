@@ -5,23 +5,26 @@ import {
   Download, Upload, Lock, Eye, EyeOff, Search, Plus, Trash2, 
   RefreshCw, MessageSquare, ArrowRight, Check, X, FileText, Globe,
   Send, Sparkles, Clock, CheckCheck, User, Zap, Terminal, Activity,
-  Sliders, ChevronRight, Edit3, Save, Power, LogOut, Info
+  Sliders, ChevronRight, Edit3, Save, Power, LogOut, Info,
+  Flag, RotateCcw, Ban
 } from 'lucide-react';
 import { 
   UserAccount, ClientOrder, WebsiteDeliveryCredentials, 
-  PasswordResetRequest, AdminConfig, WebsiteDemo, SupportChatThread, SupportChatMessage 
+  PasswordResetRequest, AdminConfig, WebsiteDemo, SupportChatThread, SupportChatMessage,
+  UserReport
 } from '../types';
 import { WEBSITE_DEMOS } from '../data/mockData';
 import { 
-  apiGetOrders, apiUpdateOrderStatus, apiGetUsers,
-  apiGetChatThreads, apiSendChatMessage, apiExtendChatTime, apiEndChat,
+  apiGetOrders, apiUpdateOrderStatus, apiSaveOrders, apiGetUsers,
+  apiGetChatThreads, apiSendChatMessage, apiExtendChatTime, apiEndChat, apiReopenChat,
   apiGetWebsites, apiAddWebsite, apiUpdateWebsite, apiDeleteWebsite,
   apiGetCredentials, apiDeliverCredentials, apiDeleteCredential,
   apiGetResetRequests, apiResolveResetRequest,
   apiExportCompleteBackup, apiRestoreCompleteBackup, pullFromCloudVault,
   subscribeToOrders, subscribeToChatThreads, subscribeToUsers,
   subscribeToDeliveredCredentials, subscribeToResetRequests, subscribeToWebsites,
-  normalizePhone, apiGetLiveChatEnabled, apiSetLiveChatEnabled
+  normalizePhone, apiGetLiveChatEnabled, apiSetLiveChatEnabled,
+  apiRestrictUser, apiGetReports, apiResolveReport, subscribeToReports
 } from '../utils/api';
 import { realtimeManager } from '../utils/realtime';
 import { getClientSecurityCode } from '../utils/securityCode';
@@ -55,8 +58,8 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
     masterKey: 'MASTER-BONGO-2026'
   });
 
-  // Active Admin Tab (Backup tab removed, moved to single header button)
-  const [activeTab, setActiveTab] = useState<'overview' | 'chat' | 'orders' | 'users' | 'resets' | 'catalog'>('overview');
+  // Active Admin Tab
+  const [activeTab, setActiveTab] = useState<'overview' | 'chat' | 'orders' | 'users' | 'reports' | 'resets' | 'catalog'>('overview');
 
   // Real Database Collections
   const [users, setUsers] = useState<UserAccount[]>([]);
@@ -64,12 +67,16 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
   const [deliveredCreds, setDeliveredCreds] = useState<WebsiteDeliveryCredentials[]>([]);
   const [resetRequests, setResetRequests] = useState<PasswordResetRequest[]>([]);
   const [customWebsites, setCustomWebsites] = useState<WebsiteDemo[]>([]);
+  const [reports, setReports] = useState<UserReport[]>([]);
+  const [reportFilter, setReportFilter] = useState<'all' | 'pending' | 'resolved'>('all');
 
   // Live Chat System State
   const [chatThreads, setChatThreads] = useState<SupportChatThread[]>([]);
+  const [chatTab, setChatTab] = useState<'active' | 'archived'>('active');
   const [selectedThreadPhone, setSelectedThreadPhone] = useState<string>('');
   const selectedThreadPhoneRef = useRef<string>('');
   selectedThreadPhoneRef.current = selectedThreadPhone;
+  const [mobileChatView, setMobileChatView] = useState<'list' | 'chat'>('list');
   const [adminReplyText, setAdminReplyText] = useState('');
   const [chatSearch, setChatSearch] = useState('');
   const chatMessagesEndRef = useRef<HTMLDivElement>(null);
@@ -126,8 +133,8 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
   // Live Chat System Toggle (Admin On/Off)
   const [isLiveChatOnline, setIsLiveChatOnline] = useState<boolean>(true);
 
-  // Orders Filter Subtab ('pending' | 'approved' | 'completed' | 'all')
-  const [orderFilterTab, setOrderFilterTab] = useState<'pending' | 'approved' | 'completed' | 'all'>('pending');
+  // Orders Filter Subtab ('pending' | 'approved' | 'completed' | 'bin')
+  const [orderFilterTab, setOrderFilterTab] = useState<'pending' | 'approved' | 'completed' | 'bin'>('pending');
 
   // Real-Time Event Toast Notification
   const [realtimeToast, setRealtimeToast] = useState<{
@@ -296,6 +303,8 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
           setAdminConfig(vault.adminConfig);
         }
       }
+      const cloudReports = await apiGetReports();
+      if (Array.isArray(cloudReports)) setReports(cloudReports);
     } catch (e) {
       console.error(e);
     }
@@ -330,6 +339,10 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
       setCustomWebsites(cloudWebsites);
     });
 
+    const unsubReports = subscribeToReports((cloudReports) => {
+      setReports(cloudReports);
+    });
+
     return () => {
       unsubOrders();
       unsubChats();
@@ -337,6 +350,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
       unsubCreds();
       unsubResets();
       unsubWebsites();
+      unsubReports();
     };
   }, []);
 
@@ -570,7 +584,51 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
     });
   };
 
-  // 4. Cancel Order
+  // 4. Move Order to Bin (Requires Admin Action Password)
+  const handleMoveOrderToBin = (orderId?: string) => {
+    const idToUse = String(orderId || '').trim();
+    if (!idToUse) return;
+    requestProtectedAction(async () => {
+      const updated = await apiUpdateOrderStatus(idToUse, 'bin');
+      setOrders([...updated]);
+      setMasterSuccessMsg(`অর্ডার ${idToUse} সফলভাবে রিমুভ করে ট্র্যাশ (বিন)-এ স্থানান্তর করা হয়েছে!`);
+      setTimeout(() => setMasterSuccessMsg(''), 4000);
+      loadAllDatabaseCollections();
+    });
+  };
+
+  // 5. Restore Order from Bin (Reactivate immediately without password)
+  const handleRestoreOrderFromBin = async (orderId?: string) => {
+    const idToUse = String(orderId || '').trim();
+    if (!idToUse) return;
+    try {
+      const targetOrder = orders.find(o => o.orderId === idToUse);
+      const restoredStatus = (targetOrder?.originalStatus as 'processing' | 'pending' | 'completed') || 'processing';
+      const updated = await apiUpdateOrderStatus(idToUse, restoredStatus);
+      setOrders([...updated]);
+      setMasterSuccessMsg(`অর্ডার ${idToUse} সফলভাবে পুনরুদ্ধার (Restore) করা হয়েছে এবং সক্রিয় হয়েছে!`);
+      setTimeout(() => setMasterSuccessMsg(''), 4000);
+      loadAllDatabaseCollections();
+    } catch (err) {
+      console.error('Restore error:', err);
+    }
+  };
+
+  // 6. Permanently Delete Order from Bin (Requires Admin Action Password)
+  const handlePermanentDeleteOrder = (orderId?: string) => {
+    const idToUse = String(orderId || '').trim();
+    if (!idToUse) return;
+    requestProtectedAction(async () => {
+      const remaining = orders.filter(o => o.orderId !== idToUse);
+      setOrders(remaining);
+      await apiSaveOrders(remaining);
+      setMasterSuccessMsg(`অর্ডার ${idToUse} স্থায়ীভাবে মুছে ফেলা হয়েছে।`);
+      setTimeout(() => setMasterSuccessMsg(''), 4000);
+      loadAllDatabaseCollections();
+    });
+  };
+
+  // 7. Cancel Order
   const handleCancelOrder = (orderId?: string) => {
     const idToUse = String(orderId || '').trim();
     if (!idToUse) return;
@@ -581,6 +639,52 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
       setTimeout(() => setMasterSuccessMsg(''), 4000);
       loadAllDatabaseCollections();
     });
+  };
+
+  // 8. User Restriction Toggle (Ban / Unban from logging in)
+  const handleToggleRestrictUser = async (user: UserAccount) => {
+    const newStatus = !user.isRestricted;
+    const confirmMsg = newStatus 
+      ? `আপনি কি নিশ্চিতভাবে "${user.name}" (${user.phone}) অ্যাকাউন্টটি রেস্ট্রিক্ট করতে চান? তিনি আর ওয়েবসাইটে লগইন করতে পারবেন না।` 
+      : `আপনি কি "${user.name}" (${user.phone}) অ্যাকাউন্টের রেস্ট্রিকশন তুলে নিতে চান?`;
+    
+    if (window.confirm(confirmMsg)) {
+      try {
+        const updatedUsers = await apiRestrictUser(user.phone, newStatus);
+        setUsers([...updatedUsers]);
+        setMasterSuccessMsg(newStatus ? `ক্লায়েন্ট "${user.name}" এর অ্যাকাউন্ট রেস্ট্রিক্ট করা হয়েছে!` : `ক্লায়েন্ট "${user.name}" এর রেস্ট্রিকশন প্রত্যাহার করা হয়েছে!`);
+        setTimeout(() => setMasterSuccessMsg(''), 4000);
+        loadAllDatabaseCollections();
+      } catch (err) {
+        console.error('Restrict user error:', err);
+      }
+    }
+  };
+
+  // 9. Report Resolution (NO password required as requested by user!)
+  const handleResolveReport = async (reportId: string) => {
+    try {
+      const updated = await apiResolveReport(reportId);
+      setReports(updated);
+      setMasterSuccessMsg('রিপোর্টটি সফলভাবে সমাধানকৃত (Complete) হিসেবে মার্ক করা হয়েছে!');
+      setTimeout(() => setMasterSuccessMsg(''), 3500);
+    } catch (err) {
+      console.error('Resolve report error:', err);
+    }
+  };
+
+  // 10. Reopen Archived Chat
+  const handleReopenChatThread = async (phone: string) => {
+    try {
+      await apiReopenChat(phone);
+      loadAllDatabaseCollections();
+      setSelectedThreadPhone(phone);
+      setChatTab('active');
+      setMasterSuccessMsg('চ্যাট সফলভাবে পুনরায় সক্রিয় করা হয়েছে!');
+      setTimeout(() => setMasterSuccessMsg(''), 3000);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   // Admin Send Chat Reply
@@ -681,6 +785,27 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
     // Keep separate credentials for each website
     const updated = [newCred, ...deliveredCreds.filter((c) => !(c.userPhone === selectedUserForDelivery.phone && c.websiteCode === websiteCode))];
     saveDeliveredCreds(updated);
+
+    // Update order with delivered credentials so Mark Complete is immediately unlocked
+    if (chosenOrder) {
+      const updatedOrders = orders.map((o) => {
+        if (o.orderId === chosenOrder.orderId || (o.phone === selectedUserForDelivery.phone && o.demoCode === websiteCode)) {
+          return {
+            ...o,
+            hasDeliveredCredentials: true,
+            deliveredAdminId: deliveryAdminId.trim(),
+            deliveredAdminPass: deliveryAdminPass.trim()
+          };
+        }
+        return o;
+      });
+      saveOrders(updatedOrders);
+      apiUpdateOrderStatus(chosenOrder.orderId, chosenOrder.status, {
+        hasDeliveredCredentials: true,
+        deliveredAdminId: deliveryAdminId.trim(),
+        deliveredAdminPass: deliveryAdminPass.trim()
+      });
+    }
 
     // Auto-send Live Chat notification if active thread
     const threadExists = chatThreads.find((t) => t.userPhone === selectedUserForDelivery.phone);
@@ -910,12 +1035,16 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
     '🔑 অ্যাডমিন আইডি ও পাসওয়ার্ড ডেলিভারি করা হয়েছে।'
   ];
 
-  // Active chat thread
-  const activeThread = chatThreads.find((t) => normalizePhone(t.userPhone) === normalizePhone(selectedThreadPhone)) || chatThreads[0];
+  // Active & Archived chat threads separation
+  const activeThreads = chatThreads.filter((t) => !t.isArchived && !t.isClosed);
+  const archivedThreads = chatThreads.filter((t) => t.isArchived || t.isClosed);
+  const currentTabThreads = chatTab === 'active' ? activeThreads : archivedThreads;
+
+  const activeThread = chatThreads.find((t) => normalizePhone(t.userPhone) === normalizePhone(selectedThreadPhone)) || currentTabThreads[0] || chatThreads[0];
   const activeThreadUser = users.find((u) => normalizePhone(u.phone) === normalizePhone(activeThread?.userPhone));
   const activeThreadOrders = orders.filter((o) => normalizePhone(o.phone) === normalizePhone(activeThread?.userPhone));
 
-  const filteredThreads = chatThreads.filter((t) => 
+  const filteredThreads = currentTabThreads.filter((t) => 
     t.userName.toLowerCase().includes(chatSearch.toLowerCase()) || 
     normalizePhone(t.userPhone).includes(normalizePhone(chatSearch)) ||
     t.userPhone.includes(chatSearch)
@@ -1170,7 +1299,25 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
             }`}
           >
             <Users className="w-3.5 h-3.5" />
-            <span>ব্যবহারকারী ও ডেলিভারি ({users.length})</span>
+            <span>ব্যবহারকারী ({users.length})</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('reports')}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 ${
+              activeTab === 'reports'
+                ? 'bg-[#533AFD] text-white shadow-xs'
+                : 'text-[#94A3B8] hover:bg-[#1E293B] hover:text-white'
+            }`}
+          >
+            <Flag className="w-3.5 h-3.5" />
+            <span>রিপোর্টসমূহ</span>
+            <span className="px-1.5 py-0.2 rounded-full bg-[#1E293B] text-[#A5B4FC] text-[10px] font-bold border border-[#1E293B]">
+              {reports.length}
+            </span>
+            {reports.filter((r) => r.status === 'pending').length > 0 && (
+              <span className="w-2 h-2 rounded-full bg-[#E53935] animate-ping" />
+            )}
           </button>
 
           <button
@@ -1280,9 +1427,11 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
 
         {/* ================= TAB 2: LIVE CHAT HUB ================= */}
         {activeTab === 'chat' && (
-          <div className="bg-[#091A11] border border-[#173826] rounded-3xl overflow-hidden shadow-xl animate-fadeIn flex flex-col md:flex-row h-[680px]">
-            {/* Left Column: Conversations List */}
-            <div className="w-full md:w-80 border-r border-[#173826] flex flex-col bg-[#07160D]">
+          <div className="bg-[#091A11] border border-[#173826] rounded-3xl overflow-hidden shadow-2xl animate-fadeIn flex flex-col md:flex-row h-[calc(100vh-140px)] min-h-[580px] max-h-[850px]">
+            {/* Left Column: Conversations List (Full screen on mobile when list is active) */}
+            <div className={`w-full md:w-80 lg:w-88 border-r border-[#173826] flex flex-col bg-[#07160D] ${
+              mobileChatView === 'chat' ? 'hidden md:flex' : 'flex flex-1 md:flex-none'
+            }`}>
               {/* Top Bar with Live Chat ON / OFF Toggle */}
               <div className="p-3.5 bg-[#05110A] border-b border-[#173826] flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -1304,14 +1453,45 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                 </button>
               </div>
 
+              {/* Active vs Archive Chat Tabs */}
+              <div className="p-2.5 bg-[#05110A] border-b border-[#173826] flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setChatTab('active')}
+                  className={`flex-1 py-1.5 rounded-xl text-xs font-bold transition-all text-center cursor-pointer flex items-center justify-center gap-1.5 ${
+                    chatTab === 'active'
+                      ? 'bg-[#008A4B] text-white shadow-xs'
+                      : 'text-[#8BB99F] hover:bg-[#0E2417] hover:text-white'
+                  }`}
+                >
+                  <MessageSquare className="w-3.5 h-3.5" />
+                  <span>সক্রিয় চ্যাট ({activeThreads.length})</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setChatTab('archived')}
+                  className={`flex-1 py-1.5 rounded-xl text-xs font-bold transition-all text-center cursor-pointer flex items-center justify-center gap-1.5 ${
+                    chatTab === 'archived'
+                      ? 'bg-[#533AFD] text-white shadow-xs'
+                      : 'text-[#8BB99F] hover:bg-[#0E2417] hover:text-white'
+                  }`}
+                >
+                  <Clock className="w-3.5 h-3.5" />
+                  <span>আর্কাইভ ({archivedThreads.length})</span>
+                </button>
+              </div>
+
               <div className="p-4 border-b border-[#173826]">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <MessageSquare className="w-4 h-4 text-[#4EEDB0]" />
-                    <h3 className="text-sm font-black text-white">গ্রাহক চ্যাট তালিকা</h3>
+                    <h3 className="text-sm font-black text-white">
+                      {chatTab === 'active' ? 'সক্রিয় গ্রাহক চ্যাট' : 'আর্কাইভকৃত চ্যাট রেকর্ড'}
+                    </h3>
                   </div>
                   <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#0F2A1B] text-[#4EEDB0]">
-                    {chatThreads.length} অ্যাক্টিভ
+                    {currentTabThreads.length} টি
                   </span>
                 </div>
 
@@ -1330,7 +1510,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
               {/* Thread list */}
               <div className="flex-1 overflow-y-auto divide-y divide-[#173826]/50">
                 {filteredThreads.length === 0 ? (
-                  <div className="p-6 text-center text-xs text-[#69977E]">
+                  <div className="p-8 text-center text-xs text-[#69977E]">
                     কোনো সক্রিয় কথোপকথন নেই
                   </div>
                 ) : (
@@ -1339,39 +1519,42 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                     return (
                       <div
                         key={thread.userPhone ? `${thread.userPhone}-${tIdx}` : `th-${tIdx}`}
-                        onClick={() => setSelectedThreadPhone(thread.userPhone)}
-                        className={`p-3.5 transition-all cursor-pointer flex items-start gap-3 ${
+                        onClick={() => {
+                          setSelectedThreadPhone(thread.userPhone);
+                          setMobileChatView('chat');
+                        }}
+                        className={`p-3.5 sm:p-4 transition-all cursor-pointer flex items-start gap-3 ${
                           isSelected
                             ? 'bg-[#0E2417] border-l-4 border-l-[#00B261]'
-                            : 'hover:bg-[#0B1E13]'
+                            : 'hover:bg-[#0B1E13] active:bg-[#0E2417]'
                         }`}
                       >
                         <div className="relative shrink-0">
-                          <div className="w-10 h-10 rounded-xl bg-[#122A1E] text-[#4EEDB0] flex items-center justify-center font-bold text-xs border border-[#173826]">
+                          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#122A1E] to-[#1E4D34] text-[#4EEDB0] flex items-center justify-center font-bold text-sm border border-[#173826] shadow-2xs">
                             {thread.userName.charAt(0)}
                           </div>
-                          <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#00B261] border-2 border-[#07160D]" />
+                          <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-[#00B261] border-2 border-[#07160D]" />
                         </div>
 
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between">
-                            <h4 className="text-xs font-bold text-white truncate">
+                            <h4 className="text-xs sm:text-sm font-bold text-white truncate">
                               {thread.userName}
                             </h4>
-                            <span className="text-[9px] text-[#69977E] font-mono shrink-0">
+                            <span className="text-[10px] text-[#69977E] font-mono shrink-0 ml-1">
                               {thread.lastUpdated}
                             </span>
                           </div>
-                          <p className="text-[11px] text-[#69977E] font-mono mt-0.5 truncate">
+                          <p className="text-[11px] text-[#4EEDB0] font-mono mt-0.5 truncate">
                             {thread.userPhone}
                           </p>
-                          <p className="text-[11px] text-[#8BB99F] mt-1 truncate">
+                          <p className="text-[11px] text-[#94A3B8] mt-1 truncate">
                             {thread.lastMessage}
                           </p>
                         </div>
 
                         {thread.unreadAdminCount > 0 && (
-                          <span className="w-4 h-4 rounded-full bg-[#00B261] text-black text-[9px] font-black flex items-center justify-center shrink-0">
+                          <span className="w-5 h-5 rounded-full bg-[#00B261] text-black text-[10px] font-black flex items-center justify-center shrink-0 shadow-xs">
                             {thread.unreadAdminCount}
                           </span>
                         )}
@@ -1382,26 +1565,39 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
               </div>
             </div>
 
-            {/* Center Column: Active Chat Stream */}
-            <div className="flex-1 flex flex-col bg-[#091A11]">
-              <div className="p-4 border-b border-[#173826] flex items-center justify-between bg-[#07160D]">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-[#008A4B] text-white flex items-center justify-center font-bold text-xs">
+            {/* Center Column: Active Chat Stream (Full screen on mobile when chat is active) */}
+            <div className={`flex-1 flex flex-col bg-[#091A11] ${
+              mobileChatView === 'list' ? 'hidden md:flex' : 'flex'
+            }`}>
+              <div className="p-3.5 sm:p-4 border-b border-[#173826] flex items-center justify-between bg-[#07160D] shrink-0">
+                <div className="flex items-center gap-2.5 sm:gap-3">
+                  {/* Mobile Back Button to list */}
+                  <button
+                    type="button"
+                    onClick={() => setMobileChatView('list')}
+                    className="md:hidden px-2.5 py-1.5 rounded-xl bg-[#122A1E] hover:bg-[#173826] text-[#4EEDB0] border border-[#173826] text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-xs shrink-0"
+                    title="কথোপকথন তালিকায় ফিরে যান"
+                  >
+                    <ArrowLeft className="w-4 h-4" />
+                    <span>সব চ্যাট</span>
+                  </button>
+
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-[#008A4B] to-[#006034] text-white flex items-center justify-center font-bold text-xs sm:text-sm shrink-0 border border-[#00B261]/30">
                     {activeThread?.userName.charAt(0) || 'U'}
                   </div>
-                  <div>
-                    <h3 className="text-xs sm:text-sm font-black text-white">
+                  <div className="min-w-0">
+                    <h3 className="text-xs sm:text-sm font-black text-white truncate">
                       {activeThread?.userName || 'গ্রাহক নির্বাচন করুন'}
                     </h3>
-                    <p className="text-[10px] text-[#4EEDB0] font-mono flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#00B261]" />
-                      <span>{activeThread?.userPhone || 'সরাসরি রিয়েল-টাইম'}</span>
+                    <p className="text-[10px] sm:text-[11px] text-[#4EEDB0] font-mono flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#00B261] animate-pulse" />
+                      <span className="truncate">{activeThread?.userPhone || 'সরাসরি রিয়েল-টাইম'}</span>
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 flex-wrap justify-end">
-                  {/* View Client Profile & Orders from Chat (Requirement 5) */}
+                <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap justify-end">
+                  {/* View Client Profile & Orders from Chat */}
                   {activeThread && (
                     <button
                       type="button"
@@ -1414,23 +1610,23 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                         };
                         setViewingClientDetailsUser(clientUser);
                       }}
-                      className="px-2.5 py-1 rounded-lg bg-[#0E2417] hover:bg-[#173826] text-[#4EEDB0] border border-[#173826] text-[11px] font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-xs"
+                      className="px-2.5 py-1.5 rounded-lg bg-[#0E2417] hover:bg-[#173826] text-[#4EEDB0] border border-[#173826] text-[11px] font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-xs"
                       title="এই ক্লায়েন্টের সম্পূর্ণ প্রোফাইল ও অর্ডারের তথ্য দেখুন"
                     >
-                      <Eye className="w-3 h-3 text-[#4EEDB0]" />
-                      <span>প্রোফাইল ও অর্ডার</span>
+                      <Eye className="w-3.5 h-3.5 text-[#4EEDB0]" />
+                      <span className="hidden sm:inline">প্রোফাইল ও অর্ডার</span>
                     </button>
                   )}
 
                   {/* Client Inactivity Timer remaining */}
                   {activeThread?.expiresAt && (
                     <div 
-                      className="px-2.5 py-1 rounded-lg bg-[#0F2A1B] border border-[#00B261]/30 text-[#4EEDB0] text-[11px] font-mono font-bold flex items-center gap-1.5" 
-                      title="ক্লায়েন্ট ইনঅ্যাক্টিভিটি টাইমার (৫ মিনিট নিষ্ক্রিয় থাকলে চ্যাট বন্ধ হবে)"
+                      className="px-2 py-1 rounded-lg bg-[#0F2A1B] border border-[#00B261]/30 text-[#4EEDB0] text-[10px] sm:text-[11px] font-mono font-bold flex items-center gap-1" 
+                      title="ক্লায়েন্ট ইনঅ্যাক্টিভিটি টাইমার"
                     >
-                      <Clock className="w-3.5 h-3.5 text-[#00B261]" />
+                      <Clock className="w-3 h-3 text-[#00B261]" />
                       <span>
-                        {Math.max(0, Math.floor((activeThread.expiresAt - Date.now()) / 1000 / 60))} মিনিট অবশিষ্ট
+                        {Math.max(0, Math.floor((activeThread.expiresAt - Date.now()) / 1000 / 60))} মি.
                       </span>
                     </div>
                   )}
@@ -1439,11 +1635,11 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                   {activeThread && (
                     <button
                       onClick={() => handleExtendChatTime(5)}
-                      className="px-2.5 py-1 rounded-lg bg-[#008A4B] hover:bg-[#009E56] text-white text-[11px] font-bold flex items-center gap-1 transition-all cursor-pointer shadow-xs"
-                      title="ক্লায়েন্ট অফলাইন থাকলে চ্যাটের মেয়াদ আরও ৫ মিনিট বাড়ান"
+                      className="px-2.5 py-1.5 rounded-lg bg-[#008A4B] hover:bg-[#009E56] text-white text-[11px] font-bold flex items-center gap-1 transition-all cursor-pointer shadow-xs"
+                      title="চ্যাটের মেয়াদ আরও ৫ মিনিট বাড়ান"
                     >
                       <Plus className="w-3 h-3" />
-                      <span>+৫ মি. বৃদ্ধি</span>
+                      <span>+৫ মি.</span>
                     </button>
                   )}
 
@@ -1455,22 +1651,44 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                           handleEndChatThread(activeThread.userPhone);
                         }
                       }}
-                      className="px-2.5 py-1 rounded-lg bg-[#E53935]/20 hover:bg-[#E53935] text-[#FF8A80] hover:text-white border border-[#E53935]/30 text-[11px] font-bold transition-all cursor-pointer"
+                      className="px-2.5 py-1.5 rounded-lg bg-[#E53935]/20 hover:bg-[#E53935] text-[#FF8A80] hover:text-white border border-[#E53935]/30 text-[11px] font-bold transition-all cursor-pointer"
                       title="চ্যাট সেশন সমাপ্ত করুন"
                     >
-                      <X className="w-3 h-3" />
+                      <X className="w-3.5 h-3.5" />
                       <span className="hidden sm:inline">চ্যাট ক্লোজ</span>
                     </button>
                   )}
                 </div>
               </div>
 
-              {/* Chat Message Stream */}
+              {/* Chat Message Stream - Fully Decorated with Clear Sender Tags */}
               <div 
                 ref={chatContainerRef}
                 onScroll={handleChatContainerScroll}
-                className="flex-1 overflow-y-auto p-4 space-y-3"
+                className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4"
               >
+                {/* Archive Chat Banner with Reopen option */}
+                {activeThread && (activeThread.isArchived || activeThread.isClosed) && (
+                  <div className="p-3.5 rounded-2xl bg-[#1E1B4B] border border-[#533AFD]/40 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs animate-fadeIn shadow-xs">
+                    <div className="flex items-center gap-2.5 text-[#A5B4FC]">
+                      <Clock className="w-5 h-5 text-[#818CF8] shrink-0" />
+                      <div>
+                        <strong className="text-white block text-xs">আর্কাইভ চ্যাট রেকর্ড (স্থায়ী মেমোরি)</strong>
+                        <span className="text-[11px] text-[#94A3B8]">
+                          {activeThread.archivedAt ? `ক্লোজ ও সংরক্ষিত: ${activeThread.archivedAt}` : 'এই কথোপকথনটি আর্কাইভ সেকশনে সংরক্ষিত রয়েছে।'}
+                        </span>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleReopenChatThread(activeThread.userPhone)}
+                      className="px-3.5 py-1.5 rounded-xl bg-[#533AFD] hover:bg-[#432BEE] text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs shrink-0"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5" />
+                      <span>পুনরায় চ্যাট চালু করুন (Reopen)</span>
+                    </button>
+                  </div>
+                )}
                 {(() => {
                   const msgs = activeThread?.messages || [];
                   const seenIds = new Set<string>();
@@ -1483,25 +1701,59 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                     seenContent.add(contentKey);
                     return true;
                   });
+
+                  if (cleanMsgs.length === 0) {
+                    return (
+                      <div className="h-full flex flex-col items-center justify-center p-8 text-center text-[#69977E]">
+                        <MessageSquare className="w-10 h-10 mb-2 opacity-50 text-[#00B261]" />
+                        <p className="text-sm font-bold text-white">কোনো বার্তা পাওয়া যায়নি</p>
+                        <p className="text-xs text-[#69977E] mt-1">নিচের ইনপুট বক্সে মেসেজ লিখে গ্রাহকের সাথে চ্যাট শুরু করুন।</p>
+                      </div>
+                    );
+                  }
+
                   return cleanMsgs.map((msg, mIdx) => {
                     const isAdmin = msg.sender === 'admin';
                     return (
                       <div
                         key={msg.id ? `${msg.id}-${mIdx}` : `msg-${mIdx}`}
-                        className={`flex flex-col ${isAdmin ? 'items-end' : 'items-start'}`}
+                        className={`flex flex-col ${isAdmin ? 'items-end' : 'items-start'} max-w-full`}
                       >
+                        {/* Clear Sender Badge Header - No Hover Needed, Visible on all Devices */}
+                        <div className={`flex items-center gap-1.5 mb-1 px-1 text-[11px] font-bold ${
+                          isAdmin ? 'text-[#A5B4FC]' : 'text-[#4EEDB0]'
+                        }`}>
+                          {isAdmin ? (
+                            <>
+                              <ShieldCheck className="w-3.5 h-3.5 text-[#818CF8]" />
+                              <span>আপনি (সাপোর্ট অ্যাডমিন)</span>
+                            </>
+                          ) : (
+                            <>
+                              <span className="w-4 h-4 rounded-full bg-[#122A1E] text-[#4EEDB0] border border-[#00B261]/40 inline-flex items-center justify-center text-[9px]">👤</span>
+                              <span>গ্রাহক: {activeThread?.userName || 'Customer'}</span>
+                              <span className="text-[10px] text-[#69977E] font-mono">({activeThread?.userPhone})</span>
+                            </>
+                          )}
+                        </div>
+
+                        {/* Decorated High-Contrast Bubble */}
                         <div
-                          className={`max-w-[80%] sm:max-w-[70%] p-3.5 rounded-2xl text-xs leading-relaxed ${
+                          className={`max-w-[92%] sm:max-w-[80%] md:max-w-[75%] p-3.5 sm:p-4 rounded-2xl text-xs sm:text-sm leading-relaxed ${
                             isAdmin
-                              ? 'bg-[#008A4B] text-white rounded-br-xs shadow-xs'
-                              : 'bg-[#0F2A1B] border border-[#173826] text-[#C8EAD7] rounded-bl-xs'
+                              ? 'bg-[#533AFD] text-white rounded-tr-xs shadow-md'
+                              : 'bg-[#102C1E] border border-[#1E4D34] text-[#E8FAF0] rounded-tl-xs shadow-md'
                           }`}
                         >
-                          <p>{msg.text}</p>
+                          <p className="whitespace-pre-wrap select-text font-sans">{msg.text}</p>
                         </div>
-                        <span className="text-[9px] text-[#69977E] font-mono mt-1 px-1 flex items-center gap-1">
+
+                        {/* Explicit Inline Timestamp - No Hover Needed */}
+                        <span className={`text-[10px] font-mono mt-1 px-1 flex items-center gap-1 ${
+                          isAdmin ? 'text-[#A5B4FC]' : 'text-[#69977E]'
+                        }`}>
                           <span>{msg.timestamp}</span>
-                          {isAdmin && <CheckCheck className="w-3 h-3 text-[#4EEDB0]" />}
+                          {isAdmin && <CheckCheck className="w-3.5 h-3.5 text-[#4EEDB0]" />}
                         </span>
                       </div>
                     );
@@ -1511,7 +1763,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
               </div>
 
               {/* Canned Responses Pills */}
-              <div className="px-4 py-2 border-t border-[#173826] bg-[#07160D] flex items-center gap-1.5 overflow-x-auto scrollbar-none">
+              <div className="px-3 sm:px-4 py-2 border-t border-[#173826] bg-[#07160D] flex items-center gap-1.5 overflow-x-auto scrollbar-none shrink-0">
                 <span className="text-[10px] text-[#69977E] font-bold shrink-0">দ্রুত রিপ্লাই:</span>
                 {cannedReplies.map((reply, rIdx) => (
                   <button
@@ -1525,7 +1777,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
               </div>
 
               {/* Chat Input Box */}
-              <div className="p-3 sm:p-4 border-t border-[#173826] bg-[#07160D]">
+              <div className="p-3 sm:p-4 border-t border-[#173826] bg-[#07160D] shrink-0">
                 <form
                   onSubmit={(e) => {
                     e.preventDefault();
@@ -1538,13 +1790,13 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                     placeholder="আপনার মেসেজ লিখুন (Enter চাপুন)..."
                     value={adminReplyText}
                     onChange={(e) => setAdminReplyText(e.target.value)}
-                    className="flex-1 px-4 py-2.5 rounded-xl bg-[#05110A] border border-[#173826] text-xs text-white placeholder-[#69977E] focus:outline-none focus:border-[#00B261]"
+                    className="flex-1 px-4 py-2.5 sm:py-3 rounded-xl bg-[#05110A] border border-[#173826] text-xs sm:text-sm text-white placeholder-[#69977E] focus:outline-none focus:border-[#00B261]"
                   />
                   <button
                     type="submit"
-                    className="px-4 py-2.5 rounded-xl bg-[#008A4B] hover:bg-[#009E56] active:bg-[#00743E] text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
+                    className="px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl bg-[#008A4B] hover:bg-[#009E56] active:bg-[#00743E] text-white text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs shrink-0"
                   >
-                    <Send className="w-3.5 h-3.5" />
+                    <Send className="w-4 h-4" />
                     <span className="hidden sm:inline">পাঠান</span>
                   </button>
                 </form>
@@ -1614,11 +1866,13 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
           const pendingOrders = orders.filter((o) => o.status === 'pending');
           const approvedOrders = orders.filter((o) => o.status === 'processing' || o.status === 'verified');
           const completedOrders = orders.filter((o) => o.status === 'completed');
+          const binOrders = orders.filter((o) => o.status === 'bin');
 
-          let displayedOrders = orders;
+          let displayedOrders = pendingOrders;
           if (orderFilterTab === 'pending') displayedOrders = pendingOrders;
           else if (orderFilterTab === 'approved') displayedOrders = approvedOrders;
           else if (orderFilterTab === 'completed') displayedOrders = completedOrders;
+          else if (orderFilterTab === 'bin') displayedOrders = binOrders;
 
           return (
             <div className="space-y-5 animate-fadeIn">
@@ -1630,12 +1884,12 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                     <span>অর্ডার ও ওয়েবসাইট ডেলিভারি ম্যানেজমেন্ট</span>
                   </h2>
                   <p className="text-xs text-[#94A3B8] mt-0.5">
-                    ৩-ধাপে অর্ডার পরিচালনা: ১. পেন্ডিং যাচাই → ২. অনুমোদিত (প্রসেসিং) → ৩. সম্পূর্ণ ওয়েবসাইট
+                    ৩-ধাপে অর্ডার পরিচালনা: ১. পেন্ডিং যাচাই → ২. প্রসেসিং (আইডি-পাস দেওয়ার পর কমপ্লিট অপশন খুলবে) → ৩. সম্পূর্ণ ওয়েবসাইট
                   </p>
                 </div>
               </div>
 
-              {/* 3 Interactive Workflow Sub-Tabs */}
+              {/* 4 Interactive Workflow Sub-Tabs: Pending, Approved, Completed, Bin (NO All option) */}
               <div className="flex items-center gap-2 p-1.5 bg-[#07160D] border border-[#173826] rounded-2xl overflow-x-auto">
                 <button
                   type="button"
@@ -1693,15 +1947,20 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
 
                 <button
                   type="button"
-                  onClick={() => setOrderFilterTab('all')}
+                  onClick={() => setOrderFilterTab('bin')}
                   className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shrink-0 ${
-                    orderFilterTab === 'all'
-                      ? 'bg-[#173826] text-[#4EEDB0] shadow-xs'
+                    orderFilterTab === 'bin'
+                      ? 'bg-[#E53935] text-white shadow-xs'
                       : 'text-[#8BB99F] hover:text-white hover:bg-[#0E2417]'
                   }`}
                 >
-                  <span>সবগুলো</span>
-                  <span className="text-[10px] font-mono opacity-80">({orders.length})</span>
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>রিসাইকেল বিন / ট্র্যাশ</span>
+                  <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono ${
+                    orderFilterTab === 'bin' ? 'bg-white/20 text-white' : 'bg-[#173826] text-[#FF8A80]'
+                  }`}>
+                    {binOrders.length}
+                  </span>
                 </button>
               </div>
 
@@ -1718,10 +1977,12 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                       ? 'বর্তমানে কোনো প্রসেসিং অর্ডার নেই'
                       : orderFilterTab === 'completed'
                       ? 'এখনো কোনো অর্ডার সম্পূর্ণ হিসেবে মার্ক করা হয়নি'
-                      : 'কোনো অর্ডার পাওয়া যায়নি'}
+                      : 'রিসাইকেল বিন সম্পূর্ণ খালি (Bin is Empty)'}
                   </h3>
                   <p className="text-xs text-[#69977E]">
-                    নতুন অর্ডার আসলে অথবা স্ট্যাটাস পরিবর্তন করলে এখানে প্রদর্শিত হবে।
+                    {orderFilterTab === 'bin'
+                      ? 'ভুল অর্ডার রিমুভ করলে সেগুলো এখানে জমা হবে এবং যে কোনো সময় রিস্টোর করা যাবে।'
+                      : 'নতুন অর্ডার আসলে অথবা স্ট্যাটাস পরিবর্তন করলে এখানে প্রদর্শিত হবে।'}
                   </p>
                 </div>
               ) : (
@@ -1731,6 +1992,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                     const isProcessing = ord.status === 'processing' || ord.status === 'verified';
                     const isCompleted = ord.status === 'completed';
                     const isCancelled = ord.status === 'cancelled';
+                    const isBin = ord.status === 'bin';
                     const activeOrdId = ord.orderId || (ord as any).id || '';
 
                     return (
@@ -1743,6 +2005,8 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                             ? 'bg-[#0E1B24] border-[#533AFD]/40 hover:border-[#533AFD]'
                             : isCompleted
                             ? 'bg-[#091A11] border-[#00B261]/40 hover:border-[#00B261]'
+                            : isBin
+                            ? 'bg-[#181116] border-[#E53935]/30'
                             : 'bg-[#111827] border-[#1E293B]'
                         }`}
                       >
@@ -1768,6 +2032,8 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                                 ? 'bg-[#533AFD]/20 text-[#A5B4FC] border border-[#533AFD]'
                                 : isCancelled
                                 ? 'bg-[#E53935]/20 text-[#FF8A80] border border-[#E53935]'
+                                : isBin
+                                ? 'bg-rose-900/30 text-rose-300 border border-rose-800/40'
                                 : 'bg-[#FFD552]/20 text-[#FFD552] border border-[#FFD552]'
                             }`}>
                               {isCompleted ? (
@@ -1782,6 +2048,11 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                                 </>
                               ) : isCancelled ? (
                                 <span>বাতিলকৃত</span>
+                              ) : isBin ? (
+                                <>
+                                  <Trash2 className="w-3.5 h-3.5 text-rose-400" />
+                                  <span>রিসাইকেল বিন (Bin)</span>
+                                </>
                               ) : (
                                 <>
                                   <span className="w-2 h-2 rounded-full bg-[#FFD552] animate-ping" />
@@ -1832,11 +2103,12 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                         <div className="pt-3 border-t border-[#173826]/70 flex items-center justify-between flex-wrap gap-2">
                           <div className="text-[11px] text-[#69977E]">
                             {isPending && 'অর্ডারটি পেন্ডিং রয়েছে। ট্রানজেকশন যাচাই করে অনুমোদন করুন।'}
-                            {isProcessing && 'অর্ডারটি অনুমোদিত হয়েছে এবং বর্তমানে প্রসেসিং চলছে।'}
+                            {isProcessing && 'অর্ডারটি অনুমোদিত হয়েছে এবং বর্তমানে প্রসেসিং চলছে। আইডি-পাস দেওয়ার পর কমপ্লিট অপশন সক্রিয় হবে।'}
                             {isCompleted && 'ওয়েবসাইট সম্পূর্ণ তৈরি ও ক্লায়েন্টের কাছে ডেলিভারি সম্পন্ন হয়েছে।'}
+                            {isBin && 'এই অর্ডারটি রিমুভ করে বিনে রাখা হয়েছে। যে কোনো সময় রিস্টোর করা যাবে।'}
                           </div>
 
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 flex-wrap">
                             {/* PENDING STAGE ACTIONS */}
                             {isPending && (
                               <>
@@ -1859,47 +2131,76 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                             )}
 
                             {/* APPROVED / PROCESSING STAGE ACTIONS */}
-                            {isProcessing && (
-                              <>
-                                <button
-                                  type="button"
-                                  onClick={() => handleMarkOrderProcessing(activeOrdId)}
-                                  className="px-3 py-1.5 rounded-xl bg-[#173826] hover:bg-[#1E4A32] text-[#8BB99F] hover:text-white text-xs font-bold transition-all cursor-pointer"
-                                >
-                                  প্রসেসিং রাখুন
-                                </button>
+                            {isProcessing && (() => {
+                              const hasCredentialsSent = !!(
+                                ord.hasDeliveredCredentials ||
+                                ord.deliveredAdminId ||
+                                deliveredCreds.some(c => c.userPhone === ord.phone && (c.websiteCode === ord.demoCode || !c.websiteCode))
+                              );
 
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    const matchingUser = users.find(u => u.phone === ord.phone) || {
-                                      name: ord.clientName,
-                                      phone: ord.phone,
-                                      email: ord.email,
-                                      registeredAt: 'অর্ডারকারী'
-                                    };
-                                    setSelectedUserForDelivery(matchingUser);
-                                    setSelectedDeliveryOrder(ord.demoCode);
-                                    const safeDigits = ord.phone ? String(ord.phone).replace(/\D/g, '').slice(-4) : Math.floor(1000 + Math.random() * 9000);
-                                    setDeliveryAdminId(`admin_${safeDigits}`);
-                                    setDeliveryAdminPass(`pass${Math.floor(1000 + Math.random() * 9000)}`);
-                                  }}
-                                  className="px-3 py-1.5 rounded-xl bg-[#533AFD] hover:bg-[#4329d9] text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
-                                >
-                                  <Key className="w-3.5 h-3.5" />
-                                  <span>আইডি-পাস পাঠান</span>
-                                </button>
+                              return (
+                                <>
+                                  {/* 1. Deliver ID & Password first */}
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const matchingUser = users.find(u => u.phone === ord.phone) || {
+                                        name: ord.clientName,
+                                        phone: ord.phone,
+                                        email: ord.email,
+                                        registeredAt: 'অর্ডারকারী'
+                                      };
+                                      setSelectedUserForDelivery(matchingUser);
+                                      setSelectedDeliveryOrder(ord.demoCode);
+                                      const safeDigits = ord.phone ? String(ord.phone).replace(/\D/g, '').slice(-4) : Math.floor(1000 + Math.random() * 9000);
+                                      setDeliveryAdminId(`admin_${safeDigits}`);
+                                      setDeliveryAdminPass(`pass${Math.floor(1000 + Math.random() * 9000)}`);
+                                    }}
+                                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs ${
+                                      hasCredentialsSent
+                                        ? 'bg-[#0E2417] text-[#4EEDB0] border border-[#173826]'
+                                        : 'bg-[#533AFD] hover:bg-[#4329d9] text-white'
+                                    }`}
+                                  >
+                                    <Key className="w-3.5 h-3.5" />
+                                    <span>{hasCredentialsSent ? 'আইডি-পাস দেওয়া হয়েছে (পরিবর্তন)' : 'আগে আইডি-পাস দিন (Required)'}</span>
+                                  </button>
 
-                                <button
-                                  type="button"
-                                  onClick={() => handleMarkOrderCompleted(activeOrdId)}
-                                  className="px-4 py-1.5 rounded-xl bg-[#008A4B] hover:bg-[#009E56] text-white text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
-                                >
-                                  <CheckCircle2 className="w-4 h-4" />
-                                  <span>সম্পূর্ণ করুন (Mark Complete)</span>
-                                </button>
-                              </>
-                            )}
+                                  {/* 2. Mark Complete Button (ONLY opens after ID & password sent!) */}
+                                  {hasCredentialsSent ? (
+                                    <button
+                                      type="button"
+                                      onClick={() => handleMarkOrderCompleted(activeOrdId)}
+                                      className="px-4 py-1.5 rounded-xl bg-[#008A4B] hover:bg-[#009E56] text-white text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
+                                    >
+                                      <CheckCircle2 className="w-4 h-4" />
+                                      <span>সম্পূর্ণ করুন (Mark Complete)</span>
+                                    </button>
+                                  ) : (
+                                    <button
+                                      type="button"
+                                      disabled
+                                      title="সম্পূর্ণ মার্ক করার আগে ক্লায়েন্টকে আইডি ও পাসওয়ার্ড ডেলিভারি করা আবশ্যক"
+                                      className="px-4 py-1.5 rounded-xl bg-[#173826]/40 text-[#69977E] border border-[#173826] text-xs font-bold transition-all flex items-center gap-1.5 cursor-not-allowed opacity-60"
+                                    >
+                                      <Lock className="w-3.5 h-3.5" />
+                                      <span>সম্পূর্ণ করুন (আগে আইডি-পাস দিন)</span>
+                                    </button>
+                                  )}
+
+                                  {/* 3. Remove Button -> Moves to Bin with Password prompt */}
+                                  <button
+                                    type="button"
+                                    onClick={() => handleMoveOrderToBin(activeOrdId)}
+                                    className="px-3 py-1.5 rounded-xl bg-[#E53935]/15 hover:bg-[#E53935]/25 text-[#FF8A80] border border-[#E53935]/30 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+                                    title="ভুল বা বাতিল অর্ডার রিমুভ করে ট্র্যাশ (বিন)-এ স্থানান্তর করুন"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                    <span>রিমুভ করুন (Move to Bin)</span>
+                                  </button>
+                                </>
+                              );
+                            })()}
 
                             {/* COMPLETED STAGE ACTIONS */}
                             {isCompleted && (
@@ -1923,6 +2224,31 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                                 <Key className="w-3.5 h-3.5" />
                                 <span>ক্রেডেনশিয়াল পাঠান / পরিবর্তন</span>
                               </button>
+                            )}
+
+                            {/* BIN / TRASH STAGE ACTIONS */}
+                            {isBin && (
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <button
+                                  type="button"
+                                  onClick={() => handleRestoreOrderFromBin(activeOrdId)}
+                                  className="px-3.5 py-1.5 rounded-xl bg-[#008A4B] hover:bg-[#009E56] text-white text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
+                                  title="অর্ডারটি পুনরায় আগের প্রসেসিং তালিকায় ফিরিয়ে নিন"
+                                >
+                                  <RotateCcw className="w-3.5 h-3.5" />
+                                  <span>পুনরুদ্ধার করুন (Restore)</span>
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => handlePermanentDeleteOrder(activeOrdId)}
+                                  className="px-3 py-1.5 rounded-xl bg-[#E53935]/20 hover:bg-[#E53935]/30 text-[#FF8A80] border border-[#E53935]/40 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+                                  title="অর্ডারটি স্থায়ীভাবে মুছে ফেলুন"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                  <span>স্থায়ীভাবে মুছুন (Permanent Delete)</span>
+                                </button>
+                              </div>
                             )}
                           </div>
                         </div>
@@ -1987,35 +2313,40 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
 
                     return (
                       <div
-                        key={uIdx}
-                        className="p-5 rounded-2xl bg-[#111827] border border-[#1E293B] space-y-3.5 flex flex-col justify-between transition-all shadow-sm"
+                        key={usr.phone ? `usr-${usr.phone}` : `usr-${uIdx}`}
+                        className={`p-5 rounded-2xl border space-y-3.5 flex flex-col justify-between transition-all shadow-sm ${
+                          usr.isRestricted 
+                            ? 'bg-[#181116] border-rose-500/40' 
+                            : 'bg-[#111827] border-[#1E293B]'
+                        }`}
                       >
                         <div className="space-y-3">
-                          {/* Header: Name, Date, and Security Code */}
+                          {/* Header: Name, Date, Restriction Badge, and Security Code */}
                           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                            <h4 className="text-sm font-bold text-white flex items-center gap-2.5">
-                              <span className="w-8 h-8 rounded-xl bg-[#533AFD] text-white flex items-center justify-center font-black text-xs shadow-xs">
+                            <div className="flex items-center gap-2.5">
+                              <span className={`w-8 h-8 rounded-xl text-white flex items-center justify-center font-black text-xs shadow-xs ${
+                                usr.isRestricted ? 'bg-rose-600' : 'bg-[#533AFD]'
+                              }`}>
                                 {usr.name.charAt(0).toUpperCase()}
                               </span>
-                              <span className="truncate">{usr.name}</span>
-                            </h4>
-
-                            {/* Security Code System (Requirement 13) */}
-                            <div className="flex items-center gap-1.5 flex-wrap">
-                              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-[#533AFD]/15 border border-[#533AFD]/30 text-xs">
-                                <ShieldCheck className="w-3.5 h-3.5 text-[#818CF8]" />
-                                <span className="text-[10px] text-[#A5B4FC] font-semibold">Security Code:</span>
-                                <span className="font-mono font-black text-white tracking-wider">{secCode}</span>
+                              <div>
+                                <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                                  <span className="truncate">{usr.name}</span>
+                                  {usr.isRestricted && (
+                                    <span className="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/40 text-[10px] font-bold">
+                                      🚫 রেস্ট্রিক্টেড (Restricted)
+                                    </span>
+                                  )}
+                                </h4>
+                                <span className="text-[10px] text-[#94A3B8]">নিবন্ধন: {usr.registeredAt}</span>
                               </div>
-                              <button
-                                type="button"
-                                onClick={() => handleSendSecurityCodeToClient(usr)}
-                                className="px-2.5 py-1 rounded-xl bg-[#533AFD] hover:bg-[#432BEE] text-white text-[11px] font-bold transition-all flex items-center gap-1 cursor-pointer shadow-xs"
-                                title="ক্লায়েন্টের কাছে সিকিউরিটি কোড মেসেজ পাঠান"
-                              >
-                                <Send className="w-3 h-3" />
-                                <span>কোড পাঠান</span>
-                              </button>
+                            </div>
+
+                            {/* Security Code System (Badge only - no send details button) */}
+                            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-[#533AFD]/15 border border-[#533AFD]/30 text-xs">
+                              <ShieldCheck className="w-3.5 h-3.5 text-[#818CF8]" />
+                              <span className="text-[10px] text-[#A5B4FC] font-semibold">Security Code:</span>
+                              <span className="font-mono font-black text-white tracking-wider">{secCode}</span>
                             </div>
                           </div>
 
@@ -2082,7 +2413,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                                 <div className="flex flex-wrap gap-1.5">
                                   {userOrders.map((ord, oIndex) => (
                                     <span
-                                      key={oIndex}
+                                      key={ord.orderId ? `uo-${ord.orderId}-${oIndex}` : `uo-${oIndex}`}
                                       className="px-2 py-0.5 rounded-lg bg-[#1E293B] border border-[#1E293B] text-[11px] text-white font-medium truncate max-w-full flex items-center gap-1"
                                     >
                                       <span className="w-1.5 h-1.5 rounded-full bg-[#533AFD]" />
@@ -2103,7 +2434,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                           </div>
                         </div>
 
-                        {/* Action Buttons: View Details & Client কে Details পাঠান (NO HOVER, permanently visible) */}
+                        {/* Action Buttons: 1. View Details, 2. Restrict/Unrestrict User (NO send details button!) */}
                         <div className="pt-2 grid grid-cols-2 gap-2 border-t border-[#1E293B]">
                           {/* 1. View Details Button */}
                           <button
@@ -2115,21 +2446,206 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                             <span>View Details</span>
                           </button>
 
-                          {/* 2. Client কে Details পাঠান Button */}
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setSelectedUserForDelivery(usr);
-                              setSelectedDeliveryOrder(userOrders[0]?.orderId || '');
-                              setDeliveryAdminId('');
-                              setDeliveryAdminPass('');
-                              setDeliveryNotes('');
-                            }}
-                            className="py-2 px-3 rounded-xl bg-[#533AFD] hover:bg-[#432BEE] text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
-                          >
-                            <Key className="w-3.5 h-3.5" />
-                            <span>Client কে Details পাঠান</span>
-                          </button>
+                          {/* 2. Restrict / Unrestrict User Button (Replaces Send Details button) */}
+                          {usr.isRestricted ? (
+                            <button
+                              type="button"
+                              onClick={() => handleToggleRestrictUser(usr)}
+                              className="py-2 px-3 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+                              title="রেস্ট্রিকশন প্রত্যাহার করুন"
+                            >
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                              <span>রেস্ট্রিকশন সরান (Unrestrict)</span>
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => handleToggleRestrictUser(usr)}
+                              className="py-2 px-3 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+                              title="এই ব্যবহারকারীর অ্যাকাউন্ট রেস্ট্রিক্ট করুন (তিনি আর লগইন করতে পারবেন না)"
+                            >
+                              <Ban className="w-3.5 h-3.5 text-rose-400" />
+                              <span>রেস্ট্রিক্ট করুন (Restrict)</span>
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          );
+        })()}
+
+        {/* ================= TAB: REPORTS MANAGEMENT ================= */}
+        {activeTab === 'reports' && (() => {
+          const pendingReports = reports.filter((r) => r.status === 'pending');
+          const resolvedReports = reports.filter((r) => r.status === 'resolved');
+
+          let displayedReports = reports;
+          if (reportFilter === 'pending') displayedReports = pendingReports;
+          else if (reportFilter === 'resolved') displayedReports = resolvedReports;
+
+          return (
+            <div className="space-y-5 animate-fadeIn">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <h2 className="text-xl font-black text-white flex items-center gap-2">
+                    <Flag className="w-5 h-5 text-[#818CF8]" />
+                    <span>ক্লায়েন্ট রিপোর্ট ও কমপ্লেন বক্স</span>
+                  </h2>
+                  <p className="text-xs text-[#94A3B8] mt-0.5">
+                    ক্লায়েন্টদের পাঠানো রিপোর্ট ও সমস্যা পর্যালোচনা করুন। কমপ্লিট বাটনে ক্লিক করলে পাসওয়ার্ড ছাড়াই স্বয়ংক্রিয়ভাবে সম্পন্ন হবে।
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <span className="px-3 py-1 rounded-xl bg-[#E53935]/20 text-[#FF8A80] border border-[#E53935]/40 text-xs font-bold">
+                    {pendingReports.length} টি পেন্ডিং রিপোর্ট
+                  </span>
+                </div>
+              </div>
+
+              {/* Subtabs: All, Pending, Resolved */}
+              <div className="flex items-center gap-2 p-1.5 bg-[#0B0F19] border border-[#1E293B] rounded-2xl overflow-x-auto">
+                <button
+                  type="button"
+                  onClick={() => setReportFilter('all')}
+                  className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shrink-0 ${
+                    reportFilter === 'all'
+                      ? 'bg-[#533AFD] text-white shadow-xs'
+                      : 'text-[#94A3B8] hover:text-white hover:bg-[#1E293B]'
+                  }`}
+                >
+                  <span>সবগুলো রিপোর্ট</span>
+                  <span className="text-[10px] font-mono opacity-80">({reports.length})</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setReportFilter('pending')}
+                  className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shrink-0 ${
+                    reportFilter === 'pending'
+                      ? 'bg-[#E53935] text-white shadow-xs'
+                      : 'text-[#94A3B8] hover:text-white hover:bg-[#1E293B]'
+                  }`}
+                >
+                  <Clock className="w-3.5 h-3.5" />
+                  <span>পেন্ডিং রিপোর্ট</span>
+                  <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono ${
+                    reportFilter === 'pending' ? 'bg-white/20 text-white' : 'bg-[#1E293B] text-[#FF8A80]'
+                  }`}>
+                    {pendingReports.length}
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setReportFilter('resolved')}
+                  className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shrink-0 ${
+                    reportFilter === 'resolved'
+                      ? 'bg-[#008A4B] text-white shadow-xs'
+                      : 'text-[#94A3B8] hover:text-white hover:bg-[#1E293B]'
+                  }`}
+                >
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>সমাধানকৃত / সম্পন্ন</span>
+                  <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono ${
+                    reportFilter === 'resolved' ? 'bg-white/20 text-white' : 'bg-[#1E293B] text-[#4EEDB0]'
+                  }`}>
+                    {resolvedReports.length}
+                  </span>
+                </button>
+              </div>
+
+              {/* Reports List */}
+              {displayedReports.length === 0 ? (
+                <div className="p-12 rounded-3xl bg-[#111827] border border-[#1E293B] text-center space-y-2">
+                  <div className="w-12 h-12 rounded-2xl bg-[#1E293B] text-[#818CF8] flex items-center justify-center mx-auto mb-2">
+                    <CheckCircle2 className="w-6 h-6" />
+                  </div>
+                  <h3 className="text-sm font-bold text-white">
+                    {reportFilter === 'pending'
+                      ? 'কোনো পেন্ডিং রিপোর্ট নেই (All Reports Resolved)'
+                      : reportFilter === 'resolved'
+                      ? 'কোনো সমাধানকৃত রিপোর্ট নেই'
+                      : 'এখনো কোনো রিপোর্ট জমা পড়েনি'}
+                  </h3>
+                  <p className="text-xs text-[#94A3B8]">
+                    ক্লায়েন্ট তাদের একাউন্ট সেকশন থেকে রিপোর্ট বা অভিযোগ পাঠালে এখানে তালিকাভুক্ত হবে।
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-3.5">
+                  {displayedReports.map((rep, rIdx) => {
+                    const isPending = rep.status === 'pending';
+                    return (
+                      <div
+                        key={rep.id ? `rep-${rep.id}-${rIdx}` : `rep-${rIdx}`}
+                        className={`p-5 rounded-2xl border space-y-3 transition-all shadow-md ${
+                          isPending
+                            ? 'bg-[#181116] border-[#E53935]/40 hover:border-[#E53935]'
+                            : 'bg-[#111827] border-[#1E293B]'
+                        }`}
+                      >
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#1E293B] pb-3">
+                          <div className="flex items-center gap-2.5 flex-wrap">
+                            <span className="px-2.5 py-1 rounded-xl bg-[#533AFD] text-white font-mono font-black text-xs">
+                              {rep.clientIdentifier || '#BW-CLIENT'}
+                            </span>
+                            <h4 className="text-sm font-bold text-white">
+                              {rep.clientName || 'ক্লায়েন্ট'}
+                            </h4>
+                            <span className="text-xs text-[#4EEDB0] font-mono">
+                              ({rep.clientPhone})
+                            </span>
+                            {rep.clientEmail && (
+                              <span className="text-xs text-[#94A3B8]">
+                                • {rep.clientEmail}
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <span className={`px-2.5 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 ${
+                              isPending
+                                ? 'bg-[#E53935]/20 text-[#FF8A80] border border-[#E53935]/40'
+                                : 'bg-[#00B261]/20 text-[#4EEDB0] border border-[#00B261]/40'
+                            }`}>
+                              <span className={`w-2 h-2 rounded-full ${isPending ? 'bg-[#E53935] animate-ping' : 'bg-[#00B261]'}`} />
+                              <span>{isPending ? 'অপেক্ষমান (Pending)' : 'সম্পূর্ণ (Resolved)'}</span>
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Report message box */}
+                        <div className="p-4 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-xs text-white leading-relaxed whitespace-pre-wrap">
+                          {rep.message}
+                        </div>
+
+                        <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-[#1E293B]">
+                          <div className="text-[11px] text-[#94A3B8]">
+                            জমা দেওয়ার সময়: <span className="font-mono text-white">{rep.createdAt}</span>
+                            {rep.resolvedAt && (
+                              <span className="text-emerald-400 ml-2">
+                                (সমাধান সম্পন্ন: {rep.resolvedAt})
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Complete button (NO password needed as explicitly requested!) */}
+                          {isPending && (
+                            <button
+                              type="button"
+                              onClick={() => handleResolveReport(rep.id)}
+                              className="px-4 py-2 rounded-xl bg-[#008A4B] hover:bg-[#009E56] text-white text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
+                              title="পাসওয়ার্ড ছাড়াই সরাসরি সম্পূর্ণ মার্ক করুন"
+                            >
+                              <CheckCircle2 className="w-4 h-4" />
+                              <span>সম্পূর্ণ করুন (Complete)</span>
+                            </button>
+                          )}
                         </div>
                       </div>
                     );

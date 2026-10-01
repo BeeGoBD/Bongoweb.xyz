@@ -81,6 +81,8 @@ export interface UserAccount {
   email: string;
   password?: string;
   registeredAt: string;
+  isRestricted?: boolean;
+  clientId?: string;
 }
 
 export interface ClientOrder {
@@ -97,7 +99,7 @@ export interface ClientOrder {
   transactionId: string;
   makingCharge: number; // 1990
   monthlyCost: number; // 120
-  status: 'pending' | 'processing' | 'completed' | 'verified' | 'cancelled';
+  status: 'pending' | 'processing' | 'completed' | 'verified' | 'cancelled' | 'bin';
   createdAt: string;
   screenshotName?: string;
   advanceAmount?: number;
@@ -106,6 +108,11 @@ export interface ClientOrder {
   businessName?: string;
   chosenDomain?: string;
   category?: string;
+  hasDeliveredCredentials?: boolean;
+  deliveredAdminId?: string;
+  deliveredAdminPass?: string;
+  binnedAt?: string;
+  originalStatus?: 'pending' | 'processing' | 'completed';
 }
 
 export interface WebsiteDeliveryCredentials {
@@ -153,8 +160,22 @@ export interface SupportChatThread {
   unreadClientCount: number;
   expiresAt?: number; // timestamp in ms when 5-min inactivity expires
   isClosed?: boolean;
+  isArchived?: boolean;
+  archivedAt?: string;
   additionalMinutesAdded?: number;
   messages: SupportChatMessage[];
+}
+
+export interface UserReport {
+  id: string;
+  clientIdentifier: string;
+  clientName: string;
+  clientPhone: string;
+  clientEmail?: string;
+  message: string;
+  createdAt: string;
+  status: 'pending' | 'resolved';
+  resolvedAt?: string;
 }
 
 

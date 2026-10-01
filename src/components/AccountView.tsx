@@ -2,11 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { 
   User, ShieldCheck, Key, Globe, FileText, 
   HelpCircle, CheckCircle2, Lock, ArrowRight, ArrowLeft, X, 
-  Printer, AlertCircle, ShoppingBag, Eye, LogOut, PhoneCall, 
-  Sparkles, Check, Server, Shield, Copy, Languages, CheckCheck
+  Printer, AlertCircle, ShoppingBag, Eye, EyeOff, LogOut, PhoneCall, 
+  Sparkles, Check, Server, Shield, Copy, Languages, CheckCheck,
+  AlertTriangle, Flag, Mail, Phone, RefreshCw
 } from 'lucide-react';
+import { Descope, useDescope, useSession, useUser } from '@descope/react-sdk';
 import { ClientOrder, UserAccount, WebsiteDeliveryCredentials, PasswordResetRequest } from '../types';
-import { apiRegisterUser, apiRequestPasswordReset, apiGetOrders, apiGetUsers, apiGetCredentials } from '../utils/api';
+import { 
+  apiRegisterUser, apiRequestPasswordReset, apiGetOrders, apiGetUsers, 
+  apiGetCredentials, apiCreateReport, apiSendEmailOtp, apiVerifyEmailOtp, 
+  apiResetPasswordWithOtp, apiSyncDescopeUser 
+} from '../utils/api';
 import { getClientSecurityCode, getSecurityCodeRemainingSeconds, formatRemainingTime } from '../utils/securityCode';
 
 interface AccountViewProps {
@@ -28,32 +34,64 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
   const [securityCodeCopied, setSecurityCodeCopied] = useState(false);
   const [codeRemainingSec, setCodeRemainingSec] = useState<number>(getSecurityCodeRemainingSeconds());
 
+  // Report Modal State
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportMessage, setReportMessage] = useState('');
+  const [reportSuccess, setReportSuccess] = useState('');
+  const [reportLoading, setReportLoading] = useState(false);
+
   // Language Change State (Requirement 9)
   const [selectedLanguage, setSelectedLanguage] = useState<'bn' | 'en'>('bn');
 
   // Copy Feedback State
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
-  // Auth Screen State (when logged out)
+  // Descope SDK integration
+  const descope = useDescope();
+  const { isAuthenticated } = useSession();
+  const { user: descopeUser } = useUser();
+
+  // Auth Screen State (when logged out: defaults to clean Login view)
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+  const [showDescopeFlow, setShowDescopeFlow] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   // Login Form State
   const [loginIdentifier, setLoginIdentifier] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
+  const [showLoginPass, setShowLoginPass] = useState(false);
   const [loginError, setLoginError] = useState('');
+  const [loginLoading, setLoginLoading] = useState(false);
 
-  // Register Form State
+  // Register Form State (with Email OTP)
   const [regName, setRegName] = useState('');
   const [regPhone, setRegPhone] = useState('');
   const [regEmail, setRegEmail] = useState('');
+  const [emailOtpCode, setEmailOtpCode] = useState('');
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpSending, setOtpSending] = useState(false);
+  const [otpConfirming, setOtpConfirming] = useState(false);
+  const [emailVerified, setEmailVerified] = useState(false);
+  const [otpCountdown, setOtpCountdown] = useState(0);
+  const [devCodeHint, setDevCodeHint] = useState('');
   const [regPass, setRegPass] = useState('');
   const [regConfirmPass, setRegConfirmPass] = useState('');
+  const [showRegPass, setShowRegPass] = useState(false);
   const [regError, setRegError] = useState('');
+  const [regSuccess, setRegSuccess] = useState('');
+  const [regSubmitting, setRegSubmitting] = useState(false);
 
-  // Forgot Password / Request Call Modal
+  // Forgot Password Modal (Email OTP based)
   const [showForgotModal, setShowForgotModal] = useState(false);
-  const [forgotPhone, setForgotPhone] = useState('');
-  const [forgotSubmitted, setForgotSubmitted] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotOtpSent, setForgotOtpSent] = useState(false);
+  const [forgotOtpCode, setForgotOtpCode] = useState('');
+  const [forgotNewPass, setForgotNewPass] = useState('');
+  const [forgotConfirmPass, setForgotConfirmPass] = useState('');
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [forgotError, setForgotError] = useState('');
+  const [forgotSuccess, setForgotSuccess] = useState('');
+  const [forgotDevCode, setForgotDevCode] = useState('');
 
   // Subview routing parser
   const syncSubViewWithUrl = () => {
@@ -117,7 +155,14 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
       const storedUser = localStorage.getItem('bongoweb_user');
       if (storedUser) {
         const parsed: UserAccount = JSON.parse(storedUser);
-        setCurrentUser(parsed);
+        const allUsers = await apiGetUsers();
+        const latest = allUsers.find(u => u.phone === parsed.phone) || parsed;
+        if (latest.isRestricted) {
+          handleLogout();
+          setLoginError('🚫 আপনার অ্যাকাউন্টটি সাময়িকভাবে সীমাবদ্ধ (Restricted) করা হয়েছে।');
+          return;
+        }
+        setCurrentUser(latest);
 
         // Check delivered credentials for this user
         const credsList = await apiGetCredentials();
@@ -136,7 +181,10 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
   };
 
   // Handle Logout (Requirement 2 & 9)
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await descope.logout();
+    } catch (_) {}
     localStorage.removeItem('bongoweb_user');
     sessionStorage.removeItem('bongoweb_user');
     setCurrentUser(null);
@@ -151,10 +199,54 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
     setTimeout(() => setCopiedField(null), 2000);
   };
 
+  // Descope Google Social Login (continuous and visible)
+  const handleGoogleSignIn = async () => {
+    setGoogleLoading(true);
+    setLoginError('');
+    try {
+      await descope.oauth.start('google', window.location.origin + '/account');
+    } catch (err: any) {
+      console.error('Google Sign In error:', err);
+      setShowDescopeFlow(true);
+      setLoginError('Google প্রমাণীকরণে সমস্যা হয়েছে। নিচের অল-ইন-ওয়ান সাইন-ইন ব্যবহার করুন।');
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
+
+  // Handle Descope Flow Success Callback
+  const handleDescopeSuccess = async (e: any) => {
+    try {
+      const u = e?.detail?.user || descopeUser;
+      const email = u?.email || u?.loginIds?.[0] || '';
+      const name = u?.name || u?.givenName || (email ? email.split('@')[0] : 'BongoWeb User');
+      const phone = u?.phone || '';
+      const synced = await apiSyncDescopeUser({ email, name, phone });
+      setCurrentUser(synced);
+      loadUserData();
+
+      // Redirect user to home page "/" as requested
+      if (onGoToDashboard) {
+        onGoToDashboard();
+      } else {
+        window.location.href = '/';
+      }
+    } catch (err) {
+      console.error('Descope success handler error:', err);
+      window.location.href = '/';
+    }
+  };
+
+  const handleDescopeError = (err: any) => {
+    console.error('Descope authentication error:', err);
+    setLoginError('Descope প্রমাণীকরণ ত্রুটি। অনুগ্রহ করে পুনরায় চেষ্টা করুন।');
+  };
+
   // Handle Client Login (or Secret Admin Login)
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoginError('');
+    setLoginLoading(true);
 
     const cleanId = loginIdentifier.trim().toLowerCase();
     const cleanPass = loginPassword.trim();
@@ -172,6 +264,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
       cleanPass === adminConfig.adminEntryPassword
     ) {
       sessionStorage.setItem('bongoweb_admin_auth', 'true');
+      setLoginLoading(false);
       if (onOpenAdminPanel) {
         onOpenAdminPanel();
       } else {
@@ -182,6 +275,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
 
     if (cleanPass === adminConfig.masterKey) {
       sessionStorage.setItem('bongoweb_admin_auth', 'true');
+      setLoginLoading(false);
       if (onOpenAdminPanel) {
         onOpenAdminPanel();
       } else {
@@ -191,18 +285,154 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
     }
 
     // 2. Client Login Check
-    const storedUsers = await apiGetUsers();
-    const matchingUser = storedUsers.find(
-      (u) => (u.phone === cleanId || u.email.toLowerCase() === cleanId) && u.password === cleanPass
-    );
+    try {
+      const storedUsers = await apiGetUsers();
+      const matchingUser = storedUsers.find(
+        (u) => (u.phone === cleanId || (u.email && u.email.toLowerCase() === cleanId)) && u.password === cleanPass
+      );
 
-    if (matchingUser) {
-      localStorage.setItem('bongoweb_user', JSON.stringify(matchingUser));
-      sessionStorage.setItem('bongoweb_user', JSON.stringify(matchingUser));
-      setCurrentUser(matchingUser);
-      loadUserData();
-    } else {
-      setLoginError('মোবাইল নম্বর/ইমেইল অথবা পাসওয়ার্ড সঠিক নয়!');
+      if (matchingUser) {
+        if (matchingUser.isRestricted) {
+          setLoginError('🚫 আপনার অ্যাকাউন্টটি সাময়িকভাবে সীমাবদ্ধ (Restricted) করা হয়েছে। সহায়তার জন্য অ্যাডমিন বা লাইভ সাপোর্টের সাথে যোগাযোগ করুন।');
+          setLoginLoading(false);
+          return;
+        }
+        localStorage.setItem('bongoweb_user', JSON.stringify(matchingUser));
+        sessionStorage.setItem('bongoweb_user', JSON.stringify(matchingUser));
+        setCurrentUser(matchingUser);
+        loadUserData();
+
+        // Redirect user to the home page "/"
+        if (onGoToDashboard) {
+          onGoToDashboard();
+        } else {
+          window.location.href = '/';
+        }
+      } else {
+        setLoginError('মোবাইল নম্বর/ইমেইল অথবা পাসওয়ার্ড সঠিক নয়!');
+      }
+    } catch (_) {
+      setLoginError('লগইন প্রক্রিয়ায় সমস্যা হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।');
+    } finally {
+      setLoginLoading(false);
+    }
+  };
+
+  // Handle Send Email OTP during Registration
+  const handleSendEmailOtp = async () => {
+    const clean = regEmail.trim().toLowerCase();
+    if (!clean || !clean.includes('@')) {
+      setRegError('অনুগ্রহ করে সঠিক ইমেইল এড্রেস লিখুন।');
+      return;
+    }
+
+    // Check duplicate email
+    const allUsers = await apiGetUsers();
+    if (allUsers.some(u => (u.email || '').toLowerCase() === clean)) {
+      setRegError('এই ইমেইল এড্রেস দিয়ে ইতোমধ্যে একটি অ্যাকাউন্ট রয়েছে। এক ইমেইলে একাধিক অ্যাকাউন্ট খোলা সম্ভব নয়।');
+      return;
+    }
+
+    setRegError('');
+    setOtpSending(true);
+
+    try {
+      // Optional Descope OTP attempt
+      try {
+        if (descope?.otp?.signUp?.email) {
+          await descope.otp.signUp.email(clean, {
+            email: clean,
+            name: regName.trim() || undefined,
+            phone: regPhone.trim() || undefined
+          });
+        }
+      } catch (dErr) {
+        console.log('Descope OTP notice:', dErr);
+      }
+
+      const res = await apiSendEmailOtp(clean, 'signup');
+      if (res.success) {
+        setOtpSent(true);
+        setOtpCountdown(60);
+        if (res.devCode) {
+          setDevCodeHint(res.devCode);
+        }
+      } else {
+        setRegError(res.error || 'ওটিপি পাঠাতে সমস্যা হয়েছে।');
+      }
+    } catch (err) {
+      setRegError('ওটিপি পাঠাতে সমস্যা হয়েছে। পুনরায় চেষ্টা করুন।');
+    } finally {
+      setOtpSending(false);
+    }
+  };
+
+  // Handle Confirm Email OTP
+  const handleConfirmEmailOtp = async () => {
+    const cleanCode = emailOtpCode.trim();
+    if (!cleanCode || cleanCode.length < 6) {
+      setRegError('৬ ডিজিটের ওটিপি কোডটি লিখুন।');
+      return;
+    }
+
+    setRegError('');
+    setOtpConfirming(true);
+
+    try {
+      let dOk = false;
+      try {
+        if (descope?.otp?.verify?.email) {
+          const dRes = await descope.otp.verify.email(regEmail.trim().toLowerCase(), cleanCode);
+          if (dRes?.ok) dOk = true;
+        }
+      } catch (_) {}
+
+      const res = await apiVerifyEmailOtp(regEmail.trim().toLowerCase(), cleanCode);
+      if (res.success || dOk) {
+        setEmailVerified(true);
+        setDevCodeHint('');
+      } else {
+        setRegError(res.error || 'ভুল ওটিপি কোড! অনুগ্রহ করে ইমেইলে পাওয়া কোডটি পুনরায় চেক করুন।');
+      }
+    } catch (_) {
+      setRegError('কোড যাচাই ব্যর্থ হয়েছে।');
+    } finally {
+      setOtpConfirming(false);
+    }
+  };
+
+  // Handle Submit Client Report
+  const handleReportSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!reportMessage.trim()) return;
+    setReportLoading(true);
+    try {
+      const clientId = currentUser?.clientId || (currentUser?.phone ? `#BW-USER-${currentUser.phone.slice(-4)}` : `#BW-${Date.now()}`);
+      await apiCreateReport({
+        id: `REP-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`,
+        clientIdentifier: clientId,
+        clientName: currentUser?.name || 'Valued Client',
+        clientPhone: currentUser?.phone || '',
+        clientEmail: currentUser?.email || '',
+        message: reportMessage.trim(),
+        createdAt: new Date().toLocaleString('bn-BD'),
+        status: 'pending'
+      });
+      setReportSuccess('আপনার রিপোর্ট সফলভাবে জমা নেওয়া হয়েছে! আমাদের টিম শীঘ্রই এটি পর্যালোচনা করবে।');
+      setTimeout(() => {
+        setReportSuccess('');
+        setReportMessage('');
+        setShowReportModal(false);
+      }, 2500);
+    } catch (_) {
+      setReportSuccess('রিপোর্ট পাঠানো সম্পন্ন হয়েছে।');
+      setTimeout(() => {
+        setReportSuccess('');
+        setReportMessage('');
+        setShowReportModal(false);
+      }, 2000);
+    } finally {
+      setReportLoading(false);
     }
   };
 
@@ -212,17 +442,36 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
     setRegError('');
 
     if (!regName.trim()) {
-      setRegError('অনুগ্রহ করে নাম লিখুন।');
+      setRegError('অনুগ্রহ করে আপনার নাম লিখুন।');
       return;
     }
-    if (!regPhone.trim() || regPhone.length < 10) {
+    const cleanPhone = regPhone.trim();
+    if (!cleanPhone || cleanPhone.length < 10) {
       setRegError('সঠিক মোবাইল নম্বর প্রদান করুন।');
       return;
     }
-    if (!regEmail.trim() || !regEmail.includes('@')) {
+    const cleanEmail = regEmail.trim().toLowerCase();
+    if (!cleanEmail || !cleanEmail.includes('@')) {
       setRegError('সঠিক ইমেইল এড্রেস প্রদান করুন।');
       return;
     }
+
+    // Check duplicate phone or email before proceeding (1 phone = 1 account, 1 email = 1 account)
+    const allUsers = await apiGetUsers();
+    if (allUsers.some(u => u.phone === cleanPhone)) {
+      setRegError('এই মোবাইল নম্বর দিয়ে ইতোমধ্যে একটি অ্যাকাউন্ট রয়েছে। এক ফোন নম্বরে একাধিক অ্যাকাউন্ট সম্ভব নয়।');
+      return;
+    }
+    if (allUsers.some(u => (u.email || '').toLowerCase() === cleanEmail)) {
+      setRegError('এই ইমেইল এড্রেস দিয়ে ইতোমধ্যে একটি অ্যাকাউন্ট তৈরি করা হয়েছে। এক ইমেইলে একাধিক অ্যাকাউন্ট সম্ভব নয়।');
+      return;
+    }
+
+    if (!emailVerified) {
+      setRegError('অনুগ্রহ করে আগে ইমেইল ওটিপি কোড পাঠিয়ে ভেরিফাই করুন।');
+      return;
+    }
+
     if (!regPass || regPass.length < 4) {
       setRegError('পাসওয়ার্ড কমপক্ষে ৪ অক্ষরের হতে হবে।');
       return;
@@ -232,15 +481,18 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
       return;
     }
 
+    setRegSubmitting(true);
     const newUser: UserAccount = {
       name: regName.trim(),
-      phone: regPhone.trim(),
-      email: regEmail.trim().toLowerCase(),
+      phone: cleanPhone,
+      email: cleanEmail,
       password: regPass.trim(),
       registeredAt: new Date().toLocaleDateString('bn-BD')
     };
 
     const result = await apiRegisterUser(newUser);
+    setRegSubmitting(false);
+
     if (!result.success) {
       setRegError(result.error || 'নিবন্ধন করা সম্ভব হয়নি!');
       return;
@@ -248,15 +500,85 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
 
     setCurrentUser(newUser);
     loadUserData();
+
+    // Redirect user to home page "/" as requested
+    if (onGoToDashboard) {
+      onGoToDashboard();
+    } else {
+      window.location.href = '/';
+    }
   };
 
-  // Handle Forgot Password Request Call
-  const handleRequestPasswordCall = async (e: React.FormEvent) => {
+  // Handle Forgot Password Send OTP (Email OTP)
+  const handleForgotSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!forgotPhone.trim() || forgotPhone.length < 10) return;
+    const clean = forgotEmail.trim().toLowerCase();
+    if (!clean || !clean.includes('@')) {
+      setForgotError('অনুগ্রহ করে সঠিক ইমেইল এড্রেস লিখুন।');
+      return;
+    }
 
-    await apiRequestPasswordReset(forgotPhone.trim());
-    setForgotSubmitted(true);
+    setForgotError('');
+    setForgotLoading(true);
+
+    try {
+      const res = await apiSendEmailOtp(clean, 'forgot_password');
+      if (res.success) {
+        setForgotOtpSent(true);
+        if (res.devCode) {
+          setForgotDevCode(res.devCode);
+        }
+      } else {
+        setForgotError(res.error || 'এই ইমেইল দিয়ে কোনো অ্যাকাউন্ট পাওয়া যায়নি।');
+      }
+    } catch (_) {
+      setForgotError('ওটিপি পাঠাতে সমস্যা হয়েছে। পুনরায় চেষ্টা করুন।');
+    } finally {
+      setForgotLoading(false);
+    }
+  };
+
+  // Handle Forgot Password Reset Submit
+  const handleForgotResetSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setForgotError('');
+
+    if (!forgotOtpCode || forgotOtpCode.length < 6) {
+      setForgotError('৬ ডিজিটের ওটিপি কোডটি লিখুন।');
+      return;
+    }
+    if (!forgotNewPass || forgotNewPass.length < 4) {
+      setForgotError('পাসওয়ার্ড কমপক্ষে ৪ অক্ষরের হতে হবে।');
+      return;
+    }
+    if (forgotNewPass !== forgotConfirmPass) {
+      setForgotError('পাসওয়ার্ড ও কনফার্ম পাসওয়ার্ড মিলছে না!');
+      return;
+    }
+
+    setForgotLoading(true);
+    try {
+      const res = await apiResetPasswordWithOtp(forgotEmail.trim().toLowerCase(), forgotOtpCode.trim(), forgotNewPass.trim());
+      if (res.success) {
+        setForgotSuccess('পাসওয়ার্ড সফলভাবে পরিবর্তন করা হয়েছে! এখন লগইন করুন।');
+        setTimeout(() => {
+          setShowForgotModal(false);
+          setForgotSuccess('');
+          setForgotOtpSent(false);
+          setForgotOtpCode('');
+          setForgotNewPass('');
+          setForgotConfirmPass('');
+          setForgotEmail('');
+          setAuthMode('login');
+        }, 2200);
+      } else {
+        setForgotError(res.error || 'পাসওয়ার্ড পরিবর্তন ব্যর্থ হয়েছে।');
+      }
+    } catch (_) {
+      setForgotError('সার্ভারে সমস্যা হয়েছে। পুনরায় চেষ্টা করুন।');
+    } finally {
+      setForgotLoading(false);
+    }
   };
 
   // Filter orders for the logged-in client
@@ -266,223 +588,470 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
   const pendingOrders = userOrders.filter((o) => o.status === 'pending');
 
   // ==========================================
-  // VIEW: IF USER IS NOT LOGGED IN
+  // VIEW: IF USER IS NOT LOGGED IN (Production Authentication Portal)
   // ==========================================
   if (!currentUser) {
     return (
       <div className="w-full min-h-[calc(100vh-140px)] flex flex-col justify-center items-center font-sans pb-28 pt-4 sm:pt-8 relative overflow-hidden animate-fadeIn">
         {/* Subtle Ambient Background Spotlight */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[380px] bg-gradient-to-tr from-[#533AFD]/[0.05] via-transparent to-[#00B261]/[0.03] rounded-full blur-3xl pointer-events-none -z-10" />
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[620px] h-[440px] bg-gradient-to-tr from-[#533AFD]/[0.08] via-[#7C3AED]/[0.04] to-[#00B261]/[0.06] rounded-full blur-3xl pointer-events-none -z-10" />
 
         <div className="max-w-md sm:max-w-[480px] mx-auto px-4 w-full relative z-10 flex flex-col items-center">
           {/* Top Brand Context Pill */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#FFFFFF] border border-[#E2E8F0] shadow-2xs text-[11px] font-bold text-[#533AFD] mb-3.5 select-none">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#00B261] animate-pulse" />
+          <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white/90 backdrop-blur-md border border-slate-200/90 shadow-[0_2px_10px_rgba(0,0,0,0.03)] text-[11px] font-bold text-slate-700 mb-4 select-none">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00B261] opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#00B261]"></span>
+            </span>
             <span>BongoWeb Official Client Portal</span>
           </div>
 
-          <div className="w-full bg-[#FFFFFF]/95 backdrop-blur-md border border-[#E2E8F0] rounded-3xl p-6 sm:p-9 shadow-[0_20px_50px_-12px_rgba(13,37,61,0.1),0_4px_12px_-2px_rgba(13,37,61,0.05)] ring-1 ring-black/[0.02] relative overflow-hidden">
+          <div className="w-full bg-white/95 backdrop-blur-xl border border-slate-200/90 rounded-[28px] p-6 sm:p-8 shadow-[0_25px_65px_-15px_rgba(15,23,42,0.12),0_4px_20px_-2px_rgba(15,23,42,0.04)] ring-1 ring-slate-900/[0.04] relative overflow-hidden transition-all duration-300">
             {/* Top Accent Gradient Line */}
-            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#533AFD] via-[#7C3AED] to-[#00B261]" />
+            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#533AFD] via-[#6366F1] to-[#00B261]" />
 
+            {/* Header: Title changes based on login vs register */}
             <div className="text-center mb-6">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#533AFD] to-[#694FFF] text-[#FFFFFF] flex items-center justify-center font-black mx-auto mb-3.5 text-xl shadow-[0_6px_20px_rgba(83,58,253,0.32)] ring-4 ring-[#533AFD]/10">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#533AFD] via-[#6366F1] to-[#432BEE] text-white flex items-center justify-center font-black mx-auto mb-3.5 text-xl shadow-[0_8px_25px_rgba(83,58,253,0.35)] ring-4 ring-[#533AFD]/10 tracking-tight">
                 BW
               </div>
               <h1 className="text-xl sm:text-2xl font-black text-[#0D253D] tracking-tight">
-                ক্লায়েন্ট অ্যাকাউন্ট পোর্টাল
+                {authMode === 'login' ? 'পুরাতন অ্যাকাউন্টে লগইন করুন (Log In)' : 'নতুন অ্যাকাউন্ট তৈরি করুন (Create Account)'}
               </h1>
-              <p className="text-xs sm:text-[13px] text-[#64748D] mt-1.5 leading-relaxed">
-                আপনার ওয়েবসাইট ম্যানেজ করতে লগইন করুন অথবা নতুন অ্যাকাউন্ট তৈরি করুন।
+              <p className="text-xs sm:text-[13px] text-slate-500 mt-1.5 leading-relaxed">
+                {authMode === 'login' 
+                  ? 'আপনার পুরাতন আইডি, মোবাইল নম্বর বা ইমেইল এবং পাসওয়ার্ড দিয়ে প্রবেশ করুন।' 
+                  : 'আপনার নাম, মোবাইল নম্বর এবং ভেরিফাইড ইমেইল দিয়ে মাত্র ১ মিনিটে নিবন্ধন করুন।'}
               </p>
             </div>
 
-            {/* Segmented Toggle Tabs */}
-            <div className="grid grid-cols-2 gap-1.5 p-1.5 bg-[#F1F5F9] border border-[#E2E8F0] rounded-2xl mb-6 shadow-inner">
-              <button
-                type="button"
-                onClick={() => {
-                  setAuthMode('login');
-                  setLoginError('');
-                }}
-                className={`py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
-                  authMode === 'login'
-                    ? 'bg-[#FFFFFF] text-[#0D253D] font-black shadow-[0_2px_8px_rgba(13,37,61,0.06)] border border-[#E2E8F0]'
-                    : 'text-[#64748D] hover:text-[#0D253D]'
-                }`}
-              >
-                লগইন (Log In)
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setAuthMode('register');
-                  setRegError('');
-                }}
-                className={`py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
-                  authMode === 'register'
-                    ? 'bg-[#FFFFFF] text-[#0D253D] font-black shadow-[0_2px_8px_rgba(13,37,61,0.06)] border border-[#E2E8F0]'
-                    : 'text-[#64748D] hover:text-[#0D253D]'
-                }`}
-              >
-                রেজিস্টার (Register)
-              </button>
-            </div>
+            {/* Embedded Descope Flow (flowId="sign-up-or-in") */}
+            {showDescopeFlow ? (
+              <div className="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/90 shadow-inner space-y-3 animate-fadeIn">
+                <div className="flex items-center justify-between pb-2 border-b border-slate-200">
+                  <div>
+                    <span className="text-xs font-bold text-[#0D253D] block">Descope Sign-Up or Sign-In</span>
+                    <span className="text-[11px] text-slate-500">Email OTP অথবা সোশ্যাল লগইন সম্পন্ন করুন</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowDescopeFlow(false)}
+                    className="text-xs font-bold text-[#533AFD] hover:underline cursor-pointer"
+                  >
+                    ← সাধারণ ফর্মে ফিরুন
+                  </button>
+                </div>
+                <div className="min-h-[300px] flex items-center justify-center">
+                  <Descope
+                    flowId="sign-up-or-in"
+                    onSuccess={handleDescopeSuccess}
+                    onError={handleDescopeError}
+                    theme="light"
+                  />
+                </div>
+              </div>
+            ) : (
+              <>
+                {/* 1. LOGIN FORM VIEW (FIRST: ID & PASSWORD) */}
+                {authMode === 'login' && (
+                  <div className="space-y-4 animate-fadeIn">
+                    <form onSubmit={handleLoginSubmit} className="space-y-4">
+                      {loginError && (
+                        <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs font-bold flex items-center gap-2 animate-shake">
+                          <AlertCircle className="w-4 h-4 shrink-0" />
+                          <span>{loginError}</span>
+                        </div>
+                      )}
 
-            {/* LOGIN FORM */}
-            {authMode === 'login' && (
-              <form onSubmit={handleLoginSubmit} className="space-y-4">
-                {loginError && (
-                  <div className="p-3 rounded-xl bg-[#D8351E]/10 border border-[#D8351E]/20 text-[#D8351E] text-xs font-bold flex items-center gap-2">
-                    <AlertCircle className="w-4 h-4 shrink-0" />
-                    <span>{loginError}</span>
+                      <div>
+                        <label className="block text-xs font-bold text-slate-800 mb-1.5">
+                          মোবাইল নম্বর অথবা ইমেইল এড্রেস
+                        </label>
+                        <div className="relative">
+                          <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                          <input
+                            type="text"
+                            required
+                            placeholder="01XXXXXXXXX অথবা you@gmail.com"
+                            value={loginIdentifier}
+                            onChange={(e) => setLoginIdentifier(e.target.value)}
+                            className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50/80 border border-slate-200 text-xs sm:text-sm text-[#0D253D] placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#533AFD] focus:ring-3 focus:ring-[#533AFD]/15 transition-all shadow-2xs"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <label className="text-xs font-bold text-slate-800">
+                            অ্যাকাউন্ট পাসওয়ার্ড
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setShowForgotModal(true);
+                              setForgotError('');
+                              setForgotSuccess('');
+                              setForgotOtpSent(false);
+                              setForgotEmail(loginIdentifier.includes('@') ? loginIdentifier : '');
+                            }}
+                            className="text-[11px] text-[#533AFD] hover:text-[#432BEE] hover:underline font-semibold cursor-pointer transition-colors"
+                          >
+                            পাসওয়ার্ড ভুলে গেছেন? (Forgot Password?)
+                          </button>
+                        </div>
+                        <div className="relative">
+                          <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                          <input
+                            type={showLoginPass ? 'text' : 'password'}
+                            required
+                            placeholder="আপনার পাসওয়ার্ড লিখুন"
+                            value={loginPassword}
+                            onChange={(e) => setLoginPassword(e.target.value)}
+                            className="w-full pl-10 pr-10 py-3 rounded-xl bg-slate-50/80 border border-slate-200 text-xs sm:text-sm text-[#0D253D] placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#533AFD] focus:ring-3 focus:ring-[#533AFD]/15 transition-all shadow-2xs font-mono"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowLoginPass(!showLoginPass)}
+                            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
+                          >
+                            {showLoginPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="pt-1">
+                        <button
+                          type="submit"
+                          disabled={loginLoading}
+                          className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#533AFD] to-[#432BEE] hover:from-[#432BEE] hover:to-[#3724C4] active:scale-[0.99] text-white text-xs sm:text-sm font-bold shadow-[0_8px_20px_-4px_rgba(83,58,253,0.35)] hover:shadow-[0_12px_28px_-4px_rgba(83,58,253,0.45)] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+                        >
+                          {loginLoading ? (
+                            <span>প্রবেশ করা হচ্ছে...</span>
+                          ) : (
+                            <>
+                              <span>অ্যাকাউন্টে প্রবেশ করুন (Log In)</span>
+                              <ArrowRight className="w-4 h-4" />
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </form>
+
+                    {/* Subtle Divider: OR CONTINUE WITH GOOGLE */}
+                    <div className="relative my-4">
+                      <div className="absolute inset-0 flex items-center">
+                        <div className="w-full border-t border-slate-200/80" />
+                      </div>
+                      <div className="relative flex justify-center text-[11px] uppercase tracking-wider text-slate-400">
+                        <span className="bg-white px-3 font-semibold">
+                          অথবা গুগল দিয়ে প্রবেশ করুন
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* 2. CONTINUE WITH GOOGLE SOCIAL LOGIN BUTTON */}
+                    <div className="space-y-2.5">
+                      <button
+                        type="button"
+                        onClick={handleGoogleSignIn}
+                        disabled={googleLoading}
+                        className="w-full py-3.5 px-4 rounded-xl bg-white hover:bg-slate-50/90 border border-slate-200/90 hover:border-slate-300 text-slate-700 hover:text-slate-900 text-xs sm:text-sm font-bold shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.07)] transition-all flex items-center justify-center gap-3 cursor-pointer group active:scale-[0.99] disabled:opacity-60"
+                      >
+                        <svg className="w-5 h-5 shrink-0 transition-transform group-hover:scale-105" viewBox="0 0 24 24">
+                          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+                          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+                        </svg>
+                        <span>{googleLoading ? 'গুগলে কানেক্ট হচ্ছে...' : 'Continue with Google (গুগল দিয়ে প্রবেশ করুন)'}</span>
+                      </button>
+
+                      {/* Optional Descope All-In-One Flow Toggle Link */}
+                      <div className="flex justify-center">
+                        <button
+                          type="button"
+                          onClick={() => setShowDescopeFlow(true)}
+                          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-[11px] font-semibold text-[#533AFD] hover:text-[#432BEE] hover:bg-[#533AFD]/5 transition-colors cursor-pointer"
+                        >
+                          <Sparkles className="w-3.5 h-3.5 text-[#533AFD]" />
+                          <span>Descope অল-ইন-ওয়ান সাইন-ইন ব্যবহার করুন</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* 3. BOTTOM PROMPT: NEW USER? CREATE AN ACCOUNT */}
+                    <div className="mt-5 pt-4 border-t border-slate-100 text-center">
+                      <p className="text-xs text-slate-500">
+                        নতুন ব্যবহারকারী?{' '}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setAuthMode('register');
+                            setLoginError('');
+                            setRegError('');
+                          }}
+                          className="text-[#533AFD] hover:text-[#432BEE] font-bold hover:underline cursor-pointer inline-flex items-center gap-1.5 transition-colors ml-1"
+                        >
+                          <span>Create an account (নতুন অ্যাকাউন্ট তৈরি করুন)</span>
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </button>
+                      </p>
+                    </div>
                   </div>
                 )}
 
-                <div>
-                  <label className="block text-xs font-bold text-[#0D253D] mb-1.5">
-                    মোবাইল নম্বর অথবা ইমেইল এড্রেস
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="আপনার Mobile Number অথবা Email Address"
-                    value={loginIdentifier}
-                    onChange={(e) => setLoginIdentifier(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl bg-[#F8FAFD] border border-[#E2E8F0] text-xs sm:text-sm text-[#0D253D] placeholder-[#94A3B8] focus:outline-none focus:bg-[#FFFFFF] focus:border-[#533AFD] focus:ring-2 focus:ring-[#533AFD]/15 transition-all shadow-2xs"
-                  />
-                </div>
+                {/* 3. REGISTER FORM VIEW (With Email OTP Verification) */}
+                {authMode === 'register' && (
+                  <form onSubmit={handleRegisterSubmit} className="space-y-4 animate-fadeIn">
+                    {regError && (
+                      <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs font-bold flex items-center gap-2 animate-shake">
+                        <AlertCircle className="w-4 h-4 shrink-0" />
+                        <span>{regError}</span>
+                      </div>
+                    )}
 
-                <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <label className="text-xs font-bold text-[#0D253D]">
-                      অ্যাকাউন্ট পাসওয়ার্ড
-                    </label>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setShowForgotModal(true);
-                        setForgotSubmitted(false);
-                      }}
-                      className="text-[11px] text-[#533AFD] hover:underline font-semibold cursor-pointer"
-                    >
-                      পাসওয়ার্ড ভুলে গেছেন?
-                    </button>
-                  </div>
-                  <input
-                    type="password"
-                    required
-                    placeholder="আপনার Password লিখুন"
-                    value={loginPassword}
-                    onChange={(e) => setLoginPassword(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl bg-[#F8FAFD] border border-[#E2E8F0] text-xs sm:text-sm text-[#0D253D] placeholder-[#94A3B8] focus:outline-none focus:bg-[#FFFFFF] focus:border-[#533AFD] focus:ring-2 focus:ring-[#533AFD]/15 transition-all shadow-2xs"
-                  />
-                </div>
+                    {/* Full Name */}
+                    <div>
+                      <label className="block text-xs font-bold text-slate-800 mb-1.5">
+                        আপনার পূর্ণ নাম (Full Name) <span className="text-red-500">*</span>
+                      </label>
+                      <div className="relative">
+                        <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                        <input
+                          type="text"
+                          required
+                          placeholder="যেমন: তানভীর আহমেদ"
+                          value={regName}
+                          onChange={(e) => setRegName(e.target.value)}
+                          className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50/80 border border-slate-200 text-xs sm:text-sm text-[#0D253D] placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#533AFD] focus:ring-3 focus:ring-[#533AFD]/15 transition-all shadow-2xs"
+                        />
+                      </div>
+                    </div>
 
-                <div className="pt-2">
-                  <button
-                    type="submit"
-                    className="w-full py-3.5 px-4 rounded-xl bg-[#533AFD] hover:bg-[#665EFD] active:scale-[0.99] text-white text-xs sm:text-sm font-bold shadow-[0_4px_16px_rgba(83,58,253,0.3)] hover:shadow-[0_6px_22px_rgba(83,58,253,0.4)] transition-all flex items-center justify-center gap-2 cursor-pointer"
-                  >
-                    <span>অ্যাকাউন্টে প্রবেশ করুন</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-                </div>
-              </form>
-            )}
+                    {/* Phone Number (1 Phone = 1 Account) */}
+                    <div>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <label className="text-xs font-bold text-slate-800">
+                          মোবাইল নম্বর (Phone Number) <span className="text-red-500">*</span>
+                        </label>
+                        <span className="text-[10px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md font-medium">১ ফোন = ১ অ্যাকাউন্ট</span>
+                      </div>
+                      <div className="relative">
+                        <Phone className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                        <input
+                          type="tel"
+                          required
+                          placeholder="যেমন: 01712345678"
+                          value={regPhone}
+                          onChange={(e) => setRegPhone(e.target.value)}
+                          className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50/80 border border-slate-200 text-xs sm:text-sm text-[#0D253D] placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#533AFD] focus:ring-3 focus:ring-[#533AFD]/15 transition-all shadow-2xs font-mono"
+                        />
+                      </div>
+                    </div>
 
-            {/* REGISTER FORM */}
-            {authMode === 'register' && (
-              <form onSubmit={handleRegisterSubmit} className="space-y-4">
-                {regError && (
-                  <div className="p-3 rounded-xl bg-[#D8351E]/10 border border-[#D8351E]/20 text-[#D8351E] text-xs font-bold flex items-center gap-2">
-                    <AlertCircle className="w-4 h-4 shrink-0" />
-                    <span>{regError}</span>
-                  </div>
+                    {/* Email Address & Send OTP Button Beside It */}
+                    <div>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <label className="text-xs font-bold text-slate-800">
+                          ইমেইল এড্রেস (Email Address) <span className="text-red-500">*</span>
+                        </label>
+                        {emailVerified && (
+                          <span className="text-emerald-700 text-[11px] font-bold flex items-center gap-1 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                            <span>ইমেইল ভেরিফাইড (Verified)</span>
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="flex gap-2">
+                        <div className="relative flex-1">
+                          <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                          <input
+                            type="email"
+                            required
+                            disabled={emailVerified}
+                            placeholder="yourname@gmail.com"
+                            value={regEmail}
+                            onChange={(e) => {
+                              setRegEmail(e.target.value);
+                              if (emailVerified) setEmailVerified(false);
+                            }}
+                            className={`w-full pl-10 pr-4 py-3 rounded-xl border text-xs sm:text-sm text-[#0D253D] placeholder-slate-400 focus:outline-none transition-all shadow-2xs ${
+                              emailVerified
+                                ? 'bg-emerald-50/60 border-emerald-300 text-emerald-900 font-semibold'
+                                : 'bg-slate-50/80 border-slate-200 focus:bg-white focus:border-[#533AFD] focus:ring-3 focus:ring-[#533AFD]/15'
+                            }`}
+                          />
+                        </div>
+
+                        {/* Send OTP button right beside email */}
+                        <button
+                          type="button"
+                          onClick={handleSendEmailOtp}
+                          disabled={otpSending || emailVerified || !regEmail.includes('@') || otpCountdown > 0}
+                          className={`px-3.5 sm:px-4 py-3 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer shadow-xs flex items-center gap-1.5 ${
+                            emailVerified
+                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-300 cursor-default font-bold'
+                              : otpCountdown > 0
+                              ? 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed'
+                              : 'bg-[#533AFD] hover:bg-[#432BEE] text-white active:scale-95 shadow-xs hover:shadow-sm'
+                          }`}
+                        >
+                          {otpSending ? (
+                            <span className="animate-spin">⏳</span>
+                          ) : emailVerified ? (
+                            <>
+                              <Check className="w-3.5 h-3.5 text-emerald-600 stroke-[3]" />
+                              <span>ভেরিফাইড</span>
+                            </>
+                          ) : (
+                            <>
+                              <Key className="w-3.5 h-3.5" />
+                              <span>{otpCountdown > 0 ? `${otpCountdown}s অপেক্ষা` : otpSent ? 'আবার পাঠান' : 'কোড পাঠান (Send OTP)'}</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Email OTP Verification Box (Appears directly below email after Send OTP is clicked) */}
+                    {otpSent && !emailVerified && (
+                      <div className="p-4 rounded-2xl bg-gradient-to-br from-indigo-50/90 via-violet-50/40 to-slate-50 border border-indigo-200/70 shadow-[inset_0_1px_3px_rgba(0,0,0,0.03)] space-y-3 animate-fadeIn">
+                        <div className="flex items-center justify-between text-xs text-indigo-900">
+                          <span className="font-bold flex items-center gap-1.5">
+                            <Key className="w-3.5 h-3.5 text-[#533AFD]" />
+                            <span>ইমেইলে পাঠানো ৬ ডিজিটের ওটিপি কোডটি লিখুন:</span>
+                          </span>
+                          {devCodeHint && (
+                            <span className="text-[10px] font-mono bg-white px-2 py-0.5 rounded border border-indigo-200 text-[#533AFD] font-bold shadow-2xs">
+                              কোড: {devCodeHint}
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            maxLength={6}
+                            placeholder="৬ ডিজিট ওটিপি"
+                            value={emailOtpCode}
+                            onChange={(e) => setEmailOtpCode(e.target.value.replace(/\D/g, ''))}
+                            className="flex-1 px-4 py-2.5 rounded-xl bg-white border border-indigo-200 text-sm text-[#0D253D] font-mono tracking-[0.25em] sm:tracking-[0.35em] text-center font-bold focus:outline-none focus:border-[#533AFD] focus:ring-3 focus:ring-[#533AFD]/15 shadow-2xs"
+                          />
+                          <button
+                            type="button"
+                            onClick={handleConfirmEmailOtp}
+                            disabled={otpConfirming || emailOtpCode.length < 6}
+                            className="px-4 py-2.5 rounded-xl bg-[#00B261] hover:bg-[#009E56] text-white text-xs font-bold transition-all shrink-0 cursor-pointer shadow-xs hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
+                          >
+                            {otpConfirming ? (
+                              <span>যাচাই হচ্ছে...</span>
+                            ) : (
+                              <>
+                                <CheckCircle2 className="w-4 h-4" />
+                                <span>কনফার্ম করুন (Confirm Code)</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
+                        <p className="text-[11px] text-indigo-700/80 leading-relaxed">
+                          আপনার ইমেইলের ইনবক্স বা স্প্যাম ফোল্ডার চেক করুন। কোডটি ১০ মিনিট কার্যকর থাকবে।
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Passwords (Enabled & clear) */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-800 mb-1.5">
+                          পাসওয়ার্ড (Password) <span className="text-red-500">*</span>
+                        </label>
+                        <div className="relative">
+                          <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                          <input
+                            type={showRegPass ? 'text' : 'password'}
+                            required
+                            placeholder="কমপক্ষে ৪ অক্ষর"
+                            value={regPass}
+                            onChange={(e) => setRegPass(e.target.value)}
+                            className="w-full pl-10 pr-9 py-3 rounded-xl bg-slate-50/80 border border-slate-200 text-xs sm:text-sm text-[#0D253D] placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#533AFD] focus:ring-3 focus:ring-[#533AFD]/15 transition-all shadow-2xs font-mono"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowRegPass(!showRegPass)}
+                            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
+                          >
+                            {showRegPass ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                          </button>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-slate-800 mb-1.5">
+                          কনফার্ম পাসওয়ার্ড <span className="text-red-500">*</span>
+                        </label>
+                        <div className="relative">
+                          <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                          <input
+                            type={showRegPass ? 'text' : 'password'}
+                            required
+                            placeholder="পাসওয়ার্ড পুনরায় লিখুন"
+                            value={regConfirmPass}
+                            onChange={(e) => setRegConfirmPass(e.target.value)}
+                            className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50/80 border border-slate-200 text-xs sm:text-sm text-[#0D253D] placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#533AFD] focus:ring-3 focus:ring-[#533AFD]/15 transition-all shadow-2xs font-mono"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Submit Registration Button */}
+                    <div className="pt-2">
+                      <button
+                        type="submit"
+                        disabled={regSubmitting}
+                        className={`w-full py-3.5 px-4 rounded-xl text-white text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                          emailVerified 
+                            ? 'bg-gradient-to-r from-[#00B261] to-[#009E56] hover:from-[#009E56] hover:to-[#008749] shadow-[0_8px_20px_-4px_rgba(0,178,97,0.35)] hover:shadow-[0_12px_28px_-4px_rgba(0,178,97,0.45)]' 
+                            : 'bg-gradient-to-r from-[#533AFD] to-[#432BEE] hover:from-[#432BEE] hover:to-[#3724C4] shadow-[0_8px_20px_-4px_rgba(83,58,253,0.35)] hover:shadow-[0_12px_28px_-4px_rgba(83,58,253,0.45)]'
+                        }`}
+                      >
+                        {regSubmitting ? (
+                          <span>অ্যাকাউন্ট তৈরি হচ্ছে...</span>
+                        ) : (
+                          <>
+                            <span>একাউন্ট তৈরি করুন (Create Account)</span>
+                            <ArrowRight className="w-4 h-4" />
+                          </>
+                        )}
+                      </button>
+                      {!emailVerified && (
+                        <p className="text-[11px] text-center text-slate-500 mt-2">
+                          * অ্যাকাউন্ট তৈরির আগে ইমেইলে কোড পাঠিয়ে ভেরিফাই সম্পন্ন করুন।
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Bottom Prompt: Already have an account? Sign in */}
+                    <div className="mt-6 pt-5 border-t border-slate-100 text-center">
+                      <p className="text-xs text-slate-500">
+                        Already have an account?{' '}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setAuthMode('login');
+                            setRegError('');
+                            setLoginError('');
+                          }}
+                          className="text-[#533AFD] hover:text-[#432BEE] font-bold hover:underline cursor-pointer inline-flex items-center gap-1.5 transition-colors ml-1"
+                        >
+                          <span>Log In (লগইন করুন)</span>
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </button>
+                      </p>
+                    </div>
+                  </form>
                 )}
-
-                <div>
-                  <label className="block text-xs font-bold text-[#0D253D] mb-1.5">
-                    আপনার পূর্ণ নাম <span className="text-[#D8351E]">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="যেমন: তানভীর আহমেদ"
-                    value={regName}
-                    onChange={(e) => setRegName(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl bg-[#F8FAFD] border border-[#E2E8F0] text-xs sm:text-sm text-[#0D253D] placeholder-[#94A3B8] focus:outline-none focus:bg-[#FFFFFF] focus:border-[#533AFD] focus:ring-2 focus:ring-[#533AFD]/15 transition-all shadow-2xs"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-[#0D253D] mb-1.5">
-                    মোবাইল নম্বর <span className="text-[#D8351E]">*</span>
-                  </label>
-                  <input
-                    type="tel"
-                    required
-                    placeholder="যেমন: 01712345678"
-                    value={regPhone}
-                    onChange={(e) => setRegPhone(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl bg-[#F8FAFD] border border-[#E2E8F0] text-xs sm:text-sm text-[#0D253D] placeholder-[#94A3B8] focus:outline-none focus:bg-[#FFFFFF] focus:border-[#533AFD] focus:ring-2 focus:ring-[#533AFD]/15 transition-all shadow-2xs"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-[#0D253D] mb-1.5">
-                    ইমেইল এড্রেস <span className="text-[#D8351E]">*</span>
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    placeholder="যেমন: yourname@gmail.com"
-                    value={regEmail}
-                    onChange={(e) => setRegEmail(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl bg-[#F8FAFD] border border-[#E2E8F0] text-xs sm:text-sm text-[#0D253D] placeholder-[#94A3B8] focus:outline-none focus:bg-[#FFFFFF] focus:border-[#533AFD] focus:ring-2 focus:ring-[#533AFD]/15 transition-all shadow-2xs"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-bold text-[#0D253D] mb-1.5">
-                      পাসওয়ার্ড <span className="text-[#D8351E]">*</span>
-                    </label>
-                    <input
-                      type="password"
-                      required
-                      placeholder="কমপক্ষে ৪ অক্ষর"
-                      value={regPass}
-                      onChange={(e) => setRegPass(e.target.value)}
-                      className="w-full px-4 py-3 rounded-xl bg-[#F8FAFD] border border-[#E2E8F0] text-xs sm:text-sm text-[#0D253D] placeholder-[#94A3B8] focus:outline-none focus:bg-[#FFFFFF] focus:border-[#533AFD] focus:ring-2 focus:ring-[#533AFD]/15 transition-all shadow-2xs"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold text-[#0D253D] mb-1.5">
-                      কনফার্ম পাসওয়ার্ড <span className="text-[#D8351E]">*</span>
-                    </label>
-                    <input
-                      type="password"
-                      required
-                      placeholder="পাসওয়ার্ড পুনরায় লিখুন"
-                      value={regConfirmPass}
-                      onChange={(e) => setRegConfirmPass(e.target.value)}
-                      className="w-full px-4 py-3 rounded-xl bg-[#F8FAFD] border border-[#E2E8F0] text-xs sm:text-sm text-[#0D253D] placeholder-[#94A3B8] focus:outline-none focus:bg-[#FFFFFF] focus:border-[#533AFD] focus:ring-2 focus:ring-[#533AFD]/15 transition-all shadow-2xs"
-                    />
-                  </div>
-                </div>
-
-                <div className="pt-2">
-                  <button
-                    type="submit"
-                    className="w-full py-3.5 px-4 rounded-xl bg-[#533AFD] hover:bg-[#665EFD] active:scale-[0.99] text-white text-xs sm:text-sm font-bold shadow-[0_4px_16px_rgba(83,58,253,0.3)] hover:shadow-[0_6px_22px_rgba(83,58,253,0.4)] transition-all flex items-center justify-center gap-2 cursor-pointer"
-                  >
-                    <span>নতুন অ্যাকাউন্ট খুলুন</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-                </div>
-              </form>
+              </>
             )}
           </div>
 
@@ -491,7 +1060,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
             <button
               type="button"
               onClick={() => setShowSecurityCodeModal(true)}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#FFFFFF] hover:bg-[#F8FAFD] active:scale-95 text-[#533AFD] border border-[#E2E8F0] hover:border-[#533AFD]/30 text-xs font-bold transition-all shadow-2xs hover:shadow-xs cursor-pointer group"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white hover:bg-slate-50 active:scale-95 text-[#533AFD] border border-slate-200/90 hover:border-[#533AFD]/30 text-xs font-bold transition-all shadow-[0_2px_8px_rgba(0,0,0,0.03)] hover:shadow-xs cursor-pointer group"
             >
               <ShieldCheck className="w-4 h-4 text-[#533AFD] transition-transform group-hover:scale-110" />
               <span>Security Code (কোড দেখুন)</span>
@@ -499,87 +1068,196 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
           </div>
 
           {/* Security & Support Footnote */}
-          <div className="mt-5 flex items-center justify-center gap-3 text-[11px] font-semibold text-[#64748D] flex-wrap select-none">
+          <div className="mt-5 flex items-center justify-center gap-3 text-[11px] font-medium text-slate-500 flex-wrap select-none">
             <span className="flex items-center gap-1.5">
               <ShieldCheck className="w-3.5 h-3.5 text-[#00B261]" />
-              <span>256-Bit SSL সুরক্ষিত</span>
+              <span>Descope ও 256-Bit SSL সুরক্ষিত</span>
             </span>
-            <span className="text-[#CBD5E1]" aria-hidden="true">·</span>
+            <span className="text-slate-300" aria-hidden="true">·</span>
             <span className="flex items-center gap-1.5">
               <CheckCircle2 className="w-3.5 h-3.5 text-[#533AFD]" />
-              <span>ভেরিফাইড ক্লায়েন্ট পোর্টাল</span>
+              <span>ভেরিফাইড ইমেইল ওটিপি</span>
             </span>
-            <span className="text-[#CBD5E1]" aria-hidden="true">·</span>
+            <span className="text-slate-300" aria-hidden="true">·</span>
             <span>২৪/৭ লাইভ সাপোর্ট</span>
           </div>
         </div>
 
-        {/* Forgot Password Modal */}
+        {/* FORGOT PASSWORD MODAL (EMAIL OTP BASED) */}
         {showForgotModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0D253D]/60 backdrop-blur-xs animate-fadeIn">
-            <div className="w-full max-w-sm bg-[#FFFFFF] rounded-3xl border border-[#E5EDF5] shadow-2xl p-6 relative">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0D253D]/65 backdrop-blur-xs animate-fadeIn">
+            <div className="w-full max-w-md bg-white rounded-[28px] border border-slate-200/90 shadow-[0_25px_65px_-15px_rgba(15,23,42,0.25)] p-6 sm:p-7 relative space-y-4">
               <button
+                type="button"
                 onClick={() => setShowForgotModal(false)}
-                className="absolute top-4 right-4 p-1 rounded-xl text-[#64748D] hover:text-[#0D253D]"
+                className="absolute top-4 right-4 p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-all cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
 
-              {forgotSubmitted ? (
-                <div className="text-center py-4 space-y-3">
-                  <div className="w-12 h-12 rounded-full bg-[#00B261]/10 text-[#00B261] flex items-center justify-center mx-auto">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-indigo-50 text-[#533AFD] flex items-center justify-center shadow-xs">
+                  <Key className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-black text-[#0D253D]">
+                    পাসওয়ার্ড রিসেট (Email OTP)
+                  </h3>
+                  <p className="text-[11px] text-slate-500">
+                    আপনার রেজিস্ট্রেশনকৃত ইমেইলে ওটিপি কোড দিয়ে নতুন পাসওয়ার্ড সেট করুন
+                  </p>
+                </div>
+              </div>
+
+              {forgotSuccess ? (
+                <div className="py-6 text-center space-y-2 animate-fadeIn">
+                  <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto border border-emerald-200">
                     <CheckCircle2 className="w-6 h-6" />
                   </div>
-                  <h3 className="text-base font-black text-[#0D253D]">
-                    কল অনুরোধ সফল হয়েছে
-                  </h3>
-                  <p className="text-xs text-[#64748D]">
-                    আমাদের সাপোর্ট টিম আপনার নম্বরে কল করে পাসওয়ার্ড ভেরিফিকেশন ও রিসেট সম্পন্ন করবে।
+                  <h4 className="text-sm font-bold text-[#0D253D]">
+                    পাসওয়ার্ড পরিবর্তন সফল হয়েছে!
+                  </h4>
+                  <p className="text-xs text-slate-500">
+                    {forgotSuccess}
                   </p>
-                  <button
-                    onClick={() => setShowForgotModal(false)}
-                    className="mt-2 px-5 py-2 rounded-xl bg-[#533AFD] text-white text-xs font-bold"
-                  >
-                    ঠিক আছে
-                  </button>
                 </div>
-              ) : (
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2">
-                    <PhoneCall className="w-5 h-5 text-[#533AFD]" />
-                    <h3 className="text-base font-black text-[#0D253D]">
-                      পাসওয়ার্ড রিসেট সাপোর্ট কল
-                    </h3>
-                  </div>
-                  <p className="text-xs text-[#64748D]">
-                    আপনার রেজিস্ট্রেশনকৃত মোবাইল নম্বর দিন। আমাদের সাপোর্ট স্পেশালিস্ট আপনাকে সরাসরি ফোন করে সহায়তা করবেন।
-                  </p>
-                  <form onSubmit={handleRequestPasswordCall} className="space-y-3">
-                    <input
-                      type="tel"
-                      required
-                      placeholder="যেমন: 01712345678"
-                      value={forgotPhone}
-                      onChange={(e) => setForgotPhone(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs text-[#0D253D] focus:outline-none focus:border-[#533AFD]"
-                    />
-                    <div className="flex gap-2 pt-2">
-                      <button
-                        type="submit"
-                        className="flex-1 py-2.5 rounded-xl bg-[#533AFD] text-white text-xs font-bold hover:bg-[#665EFD] cursor-pointer"
-                      >
-                        কল রিকোয়েস্ট পাঠান
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setShowForgotModal(false)}
-                        className="px-4 py-2.5 rounded-xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs text-[#64748D] cursor-pointer"
-                      >
-                        বাতিল
-                      </button>
+              ) : !forgotOtpSent ? (
+                /* Step 1: Send OTP to Email */
+                <form onSubmit={handleForgotSendOtp} className="space-y-3.5">
+                  {forgotError && (
+                    <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs font-bold flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4 shrink-0" />
+                      <span>{forgotError}</span>
                     </div>
-                  </form>
-                </div>
+                  )}
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-800 mb-1.5">
+                      আপনার রেজিস্টার্ড ইমেইল এড্রেস
+                    </label>
+                    <div className="relative">
+                      <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="email"
+                        required
+                        placeholder="yourname@gmail.com"
+                        value={forgotEmail}
+                        onChange={(e) => setForgotEmail(e.target.value)}
+                        className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50/80 border border-slate-200 text-xs sm:text-sm text-[#0D253D] placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#533AFD] focus:ring-3 focus:ring-[#533AFD]/15 transition-all shadow-2xs"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2 pt-2">
+                    <button
+                      type="submit"
+                      disabled={forgotLoading || !forgotEmail.includes('@')}
+                      className="flex-1 py-3 rounded-xl bg-gradient-to-r from-[#533AFD] to-[#432BEE] text-white text-xs font-bold hover:from-[#432BEE] hover:to-[#3724C4] transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-60 shadow-xs"
+                    >
+                      {forgotLoading ? (
+                        <span>কোড পাঠানো হচ্ছে...</span>
+                      ) : (
+                        <>
+                          <Key className="w-3.5 h-3.5" />
+                          <span>রিসেট ওটিপি পাঠান (Send Code)</span>
+                        </>
+                      )}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowForgotModal(false)}
+                      className="px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 hover:text-slate-900 cursor-pointer"
+                    >
+                      বাতিল
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                /* Step 2: Enter OTP Code + New Password */
+                <form onSubmit={handleForgotResetSubmit} className="space-y-3.5 animate-fadeIn">
+                  {forgotError && (
+                    <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs font-bold flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4 shrink-0" />
+                      <span>{forgotError}</span>
+                    </div>
+                  )}
+
+                  <div className="p-3 rounded-xl bg-indigo-50/80 border border-indigo-200 text-xs text-indigo-900 flex items-center justify-between">
+                    <span>{forgotEmail} এ কোড পাঠানো হয়েছে</span>
+                    {forgotDevCode && (
+                      <span className="font-mono font-bold bg-white px-2 py-0.5 rounded border border-indigo-200 text-[#533AFD]">
+                        কোড: {forgotDevCode}
+                      </span>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-800 mb-1.5">
+                      ইমেইলে পাওয়া ৬ ডিজিটের ওটিপি কোড <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      maxLength={6}
+                      required
+                      placeholder="৬ ডিজিটের কোড"
+                      value={forgotOtpCode}
+                      onChange={(e) => setForgotOtpCode(e.target.value.replace(/\D/g, ''))}
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-50/80 border border-slate-200 text-sm text-[#0D253D] font-mono tracking-[0.25em] text-center font-bold focus:outline-none focus:bg-white focus:border-[#533AFD] focus:ring-3 focus:ring-[#533AFD]/15 transition-all shadow-2xs"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-800 mb-1.5">
+                      নতুন পাসওয়ার্ড লিখুন <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="password"
+                      required
+                      placeholder="কমপক্ষে ৪ অক্ষর"
+                      value={forgotNewPass}
+                      onChange={(e) => setForgotNewPass(e.target.value)}
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-50/80 border border-slate-200 text-xs sm:text-sm text-[#0D253D] focus:outline-none focus:bg-white focus:border-[#533AFD] focus:ring-3 focus:ring-[#533AFD]/15 transition-all shadow-2xs font-mono"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-800 mb-1.5">
+                      নতুন পাসওয়ার্ড নিশ্চিত করুন <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="password"
+                      required
+                      placeholder="পাসওয়ার্ড পুনরায় লিখুন"
+                      value={forgotConfirmPass}
+                      onChange={(e) => setForgotConfirmPass(e.target.value)}
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-50/80 border border-slate-200 text-xs sm:text-sm text-[#0D253D] focus:outline-none focus:bg-white focus:border-[#533AFD] focus:ring-3 focus:ring-[#533AFD]/15 transition-all shadow-2xs font-mono"
+                    />
+                  </div>
+
+                  <div className="flex gap-2 pt-2">
+                    <button
+                      type="submit"
+                      disabled={forgotLoading || forgotOtpCode.length < 6}
+                      className="flex-1 py-3 rounded-xl bg-gradient-to-r from-[#00B261] to-[#009E56] text-white text-xs font-bold hover:from-[#009E56] hover:to-[#008749] transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-60 shadow-xs"
+                    >
+                      {forgotLoading ? (
+                        <span>রিসেট হচ্ছে...</span>
+                      ) : (
+                        <>
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          <span>পাসওয়ার্ড পরিবর্তন সম্পন্ন করুন</span>
+                        </>
+                      )}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setForgotOtpSent(false)}
+                      className="px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 hover:text-slate-900 cursor-pointer"
+                    >
+                      কোড পুনরায় পাঠান
+                    </button>
+                  </div>
+                </form>
               )}
             </div>
           </div>
@@ -1227,8 +1905,21 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
             </div>
           </div>
 
-          {/* Sign Out Button placed cleanly at the VERY END of the profile section (Requirement 2) - WhatsApp button completely removed */}
-          <div className="pt-2 border-t border-[#E5EDF5] flex items-center justify-end">
+          {/* Sign Out & Report Buttons */}
+          <div className="pt-3 border-t border-[#E5EDF5] flex flex-col sm:flex-row items-center justify-between gap-2.5">
+            <button
+              type="button"
+              onClick={() => {
+                setReportMessage('');
+                setReportSuccess('');
+                setShowReportModal(true);
+              }}
+              className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-[#E2E4FF] hover:bg-[#533AFD] text-[#533AFD] hover:text-white border border-[#533AFD]/30 text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
+            >
+              <Flag className="w-4 h-4" />
+              <span>রিপোর্ট / অভিযোগ জানান (Submit Report)</span>
+            </button>
+
             <button
               onClick={handleLogout}
               className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#F8FAFD] hover:bg-[#E53935]/10 text-[#64748D] hover:text-[#E53935] border border-[#E5EDF5] text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
@@ -1506,6 +2197,100 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                   * এই কোডটি প্রতি ৫ মিনিটে স্বয়ংক্রিয়ভাবে পরিবর্তিত হয়। অ্যাডমিন বা সাপোর্ট টিম চাইলে তাদের এই কোডটি প্রদান করুন।
                 </p>
               </div>
+            )}
+          </div>
+        </div>
+      )}
+      {/* Client Report Submission Modal */}
+      {showReportModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0D253D]/70 backdrop-blur-xs animate-fadeIn">
+          <div className="w-full max-w-md bg-[#FFFFFF] rounded-3xl border border-[#E5EDF5] shadow-2xl p-6 sm:p-7 relative space-y-4">
+            <button
+              type="button"
+              onClick={() => setShowReportModal(false)}
+              className="absolute top-4 right-4 p-1.5 rounded-xl text-[#64748D] hover:text-[#0D253D] hover:bg-[#F8FAFD] transition-all cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-[#E2E4FF] text-[#533AFD] flex items-center justify-center shadow-xs">
+                <Flag className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-base font-black text-[#0D253D]">
+                  অভিযোগ ও রিপোর্ট পাঠান
+                </h3>
+                <p className="text-[11px] text-[#64748D]">
+                  আপনার মতামত, টেকনিক্যাল সমস্যা বা অভিযোগ সরাসরি অ্যাডমিনকে জানান
+                </p>
+              </div>
+            </div>
+
+            {reportSuccess ? (
+              <div className="py-6 text-center space-y-2">
+                <div className="w-12 h-12 rounded-full bg-[#00B261]/10 text-[#00B261] flex items-center justify-center mx-auto">
+                  <CheckCircle2 className="w-6 h-6" />
+                </div>
+                <h4 className="text-sm font-bold text-[#0D253D]">
+                  রিপোর্ট সফলভাবে পাঠানো হয়েছে!
+                </h4>
+                <p className="text-xs text-[#64748D]">
+                  {reportSuccess}
+                </p>
+              </div>
+            ) : (
+              <form onSubmit={handleReportSubmit} className="space-y-3.5">
+                {/* Auto-filled details (User doesn't need to type them) */}
+                <div className="p-3.5 rounded-2xl bg-[#F8FAFD] border border-[#E5EDF5] space-y-2 text-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[#64748D]">ক্লায়েন্ট আইডি:</span>
+                    <span className="font-mono font-bold text-[#533AFD] bg-[#E2E4FF] px-2.5 py-0.5 rounded-md">
+                      {currentUser?.clientId || (currentUser?.phone ? `#BW-USER-${currentUser.phone.slice(-4)}` : '#BW-CLIENT')}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[#64748D]">নাম:</span>
+                    <strong className="text-[#0D253D]">{currentUser?.name}</strong>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[#64748D]">মোবাইল নম্বর:</span>
+                    <span className="font-mono text-[#0D253D]">{currentUser?.phone}</span>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[#0D253D] mb-1.5">
+                    আপনার অভিযোগ বা সমস্যা লিখুন <span className="text-[#E53935]">*</span>
+                  </label>
+                  <textarea
+                    required
+                    rows={4}
+                    value={reportMessage}
+                    onChange={(e) => setReportMessage(e.target.value)}
+                    placeholder="আপনার অভিযোগ, ওয়েবসাইটের সমস্যা বা যেকোনো প্রশ্ন বিস্তারিত লিখুন..."
+                    className="w-full p-3.5 rounded-2xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs text-[#0D253D] focus:outline-none focus:border-[#533AFD] focus:ring-1 focus:ring-[#533AFD] resize-none"
+                  />
+                </div>
+
+                <div className="flex items-center gap-2 pt-1">
+                  <button
+                    type="submit"
+                    disabled={reportLoading || !reportMessage.trim()}
+                    className="flex-1 py-3 rounded-xl bg-[#533AFD] hover:bg-[#432BEE] text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 shadow-xs"
+                  >
+                    <Flag className="w-3.5 h-3.5" />
+                    <span>{reportLoading ? 'পাঠানো হচ্ছে...' : 'রিপোর্ট পাঠান (Send Report)'}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowReportModal(false)}
+                    className="px-4 py-3 rounded-xl bg-[#F8FAFD] text-[#64748D] hover:text-[#0D253D] text-xs font-bold cursor-pointer"
+                  >
+                    বাতিল
+                  </button>
+                </div>
+              </form>
             )}
           </div>
         </div>

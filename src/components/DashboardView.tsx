@@ -235,8 +235,8 @@ export default function DashboardView({
                       {/* Clean Title */}
                       <h3 className="text-sm sm:text-base font-black text-[#0D253D] group-hover:text-[#533AFD] transition-colors line-clamp-1 mb-1.5">
                         {language === 'en' 
-                          ? (demo.englishTitle || demo.title.replace(/^#\d+\s*/, ''))
-                          : (demo.banglaTitle || demo.title.replace(/^#\d+\s*/, ''))
+                          ? (demo?.englishTitle || String(demo?.title || '').replace(/^#\d+\s*/, ''))
+                          : (demo?.banglaTitle || String(demo?.title || '').replace(/^#\d+\s*/, ''))
                         }
                       </h3>
 

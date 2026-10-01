@@ -46,8 +46,8 @@ export default function OrderPageView({
   const [createdOrder, setCreatedOrder] = useState<ClientOrder | null>(null);
 
   const demoTitle = typeof demo === 'string' ? demo : demo?.title || 'প্রিমিয়াম বিজনেস ওয়েবসাইট';
-  const demoCode = typeof demo === 'object' && demo ? demo.fourDigitCode : '#2085';
-  const cleanCode = demoCode.replace('#', '');
+  const demoCode = (typeof demo === 'object' && demo?.fourDigitCode) ? demo.fourDigitCode : (typeof demo === 'string' ? demo : '#2085');
+  const cleanCode = String(demoCode || '').replace('#', '');
 
   // Payment Numbers
   const paymentNumbers: Record<'bkash' | 'nagad' | 'rocket' | 'upay', { number: string; type: string }> = {

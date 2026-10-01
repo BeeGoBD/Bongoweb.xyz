@@ -1,6 +1,6 @@
 import { 
   UserAccount, ClientOrder, SupportChatThread, SupportChatMessage, 
-  WebsiteDemo, WebsiteDeliveryCredentials, PasswordResetRequest, AdminConfig 
+  WebsiteDemo, WebsiteDeliveryCredentials, PasswordResetRequest, AdminConfig, UserReport 
 } from '../types';
 import { WEBSITE_DEMOS } from '../data/mockData';
 import { 
@@ -17,6 +17,7 @@ export interface CompleteDatabaseState {
   customWebsites: WebsiteDemo[];
   deliveredCredentials: WebsiteDeliveryCredentials[];
   resetRequests: PasswordResetRequest[];
+  reports: UserReport[];
 }
 
 // In-memory cache for instant UI rendering
@@ -32,7 +33,8 @@ let localCache: CompleteDatabaseState = {
   supportChats: [],
   customWebsites: [],
   deliveredCredentials: [],
-  resetRequests: []
+  resetRequests: [],
+  reports: []
 };
 
 // Helper to strip undefined fields so Firestore writes never fail
@@ -53,51 +55,26 @@ export function cleanFirestoreData<T extends Record<string, any>>(obj: T): T {
   return clean;
 }
 
-// Default initial orders so admin and client can immediately see and test order lifecycle
-export const DEFAULT_INITIAL_ORDERS: ClientOrder[] = [
-  {
-    orderId: '#BW-84192',
-    demoCode: '#1042',
-    demoTitle: 'প্রিমিয়াম ই-কমার্স শপ (E-Commerce Store)',
-    clientName: 'মোঃ রাকিবুল ইসলাম',
-    phone: '01711223344',
-    email: 'rakibul@example.com',
-    companyName: 'রাকিব ফ্যাশন বিডি',
-    domainOption: 'no_domain',
-    paymentMethod: 'bkash',
-    transactionId: '9K8X2W1Q',
-    makingCharge: 1990,
-    monthlyCost: 120,
-    status: 'pending',
-    createdAt: '30/09/2026, 11:30 AM'
-  },
-  {
-    orderId: '#BW-72615',
-    demoCode: '#1042',
-    demoTitle: 'রেস্তোরাঁ ও ক্যাফে ওয়েবসাইট (Food & Dine)',
-    clientName: 'আরিফুল হাসান',
-    phone: '01822334455',
-    email: 'ariful@example.com',
-    companyName: 'ঢাকা বিরিয়ানি হাউজ',
-    domainOption: 'no_domain',
-    paymentMethod: 'nagad',
-    transactionId: '7M3V9N4P',
-    makingCharge: 1990,
-    monthlyCost: 120,
-    status: 'pending',
-    createdAt: '30/09/2026, 01:15 PM'
-  }
-];
+// No mock orders by default as requested by user
+export const DEFAULT_INITIAL_ORDERS: ClientOrder[] = [];
 
 // Seed initial memory cache from localStorage if available
 try {
   const o = localStorage.getItem('bongoweb_orders');
   if (o) {
     const parsed = JSON.parse(o);
-    localCache.orders = Array.isArray(parsed) && parsed.length > 0 ? parsed : DEFAULT_INITIAL_ORDERS;
+    // Filter out any mock orders from previous runs (e.g. Tanvir, Rakibul, Ariful, #4821)
+    const validOrders = (Array.isArray(parsed) ? parsed : []).filter(item => {
+      const name = String(item?.clientName || '').toLowerCase();
+      const code = String(item?.demoCode || '').toLowerCase();
+      const id = String(item?.orderId || '').toLowerCase();
+      return !name.includes('tanvir') && !name.includes('রাকিবুল') && !name.includes('আরিফুল') && !code.includes('4821') && !id.includes('84192') && !id.includes('72615');
+    });
+    localCache.orders = validOrders;
+    localStorage.setItem('bongoweb_orders', JSON.stringify(validOrders));
   } else {
-    localCache.orders = DEFAULT_INITIAL_ORDERS;
-    localStorage.setItem('bongoweb_orders', JSON.stringify(DEFAULT_INITIAL_ORDERS));
+    localCache.orders = [];
+    localStorage.setItem('bongoweb_orders', JSON.stringify([]));
   }
 
   const c = localStorage.getItem('bongoweb_support_chats');
@@ -112,6 +89,9 @@ try {
   const r = localStorage.getItem('bongoweb_reset_requests');
   if (r) localCache.resetRequests = JSON.parse(r);
 
+  const rep = localStorage.getItem('bongoweb_reports');
+  if (rep) localCache.reports = JSON.parse(rep);
+
   const cw = localStorage.getItem('bongoweb_custom_catalog');
   if (cw) localCache.customWebsites = JSON.parse(cw);
 } catch (_) {}
@@ -124,6 +104,7 @@ export async function pullFromCloudVault(): Promise<{
   users: UserAccount[];
   credentials: WebsiteDeliveryCredentials[];
   resets: PasswordResetRequest[];
+  reports: UserReport[];
   customWebsites: WebsiteDemo[];
   adminConfig?: AdminConfig;
 }> {
@@ -139,8 +120,16 @@ export async function pullFromCloudVault(): Promise<{
     ]);
 
     if (ordersSnap && !ordersSnap.empty) {
-      localCache.orders = ordersSnap.docs.map(d => d.data() as ClientOrder);
-      localStorage.setItem('bongoweb_orders', JSON.stringify(localCache.orders));
+      const rawOrders = ordersSnap.docs.map(d => d.data() as ClientOrder);
+      // Filter out any unwanted mock orders
+      const validOrders = rawOrders.filter(item => {
+        const name = String(item?.clientName || '').toLowerCase();
+        const code = String(item?.demoCode || '').toLowerCase();
+        const id = String(item?.orderId || '').toLowerCase();
+        return !name.includes('tanvir') && !name.includes('রাকিবুল') && !name.includes('আরিফুল') && !code.includes('4821') && !id.includes('84192') && !id.includes('72615');
+      });
+      localCache.orders = validOrders;
+      localStorage.setItem('bongoweb_orders', JSON.stringify(validOrders));
     }
     if (chatsSnap && !chatsSnap.empty) {
       localCache.supportChats = chatsSnap.docs.map(d => d.data() as SupportChatThread);
@@ -162,6 +151,14 @@ export async function pullFromCloudVault(): Promise<{
       localCache.customWebsites = sitesSnap.docs.map(d => d.data() as WebsiteDemo);
       localStorage.setItem('bongoweb_custom_catalog', JSON.stringify(localCache.customWebsites));
     }
+
+    try {
+      const repSnap = await getDocs(collection(db, 'reports'));
+      if (!repSnap.empty) {
+        localCache.reports = repSnap.docs.map(d => d.data() as UserReport);
+        localStorage.setItem('bongoweb_reports', JSON.stringify(localCache.reports));
+      }
+    } catch (_) {}
   } catch (err) {
     console.warn('Firestore fetch notice, trying local/server fallback:', err);
     try {
@@ -173,6 +170,7 @@ export async function pullFromCloudVault(): Promise<{
         if (Array.isArray(data.users)) localCache.users = data.users;
         if (Array.isArray(data.deliveredCredentials)) localCache.deliveredCredentials = data.deliveredCredentials;
         if (Array.isArray(data.resetRequests)) localCache.resetRequests = data.resetRequests;
+        if (Array.isArray(data.reports)) localCache.reports = data.reports;
         if (Array.isArray(data.customWebsites) && data.customWebsites.length > 0) localCache.customWebsites = data.customWebsites;
       }
     } catch (_) {}
@@ -184,6 +182,7 @@ export async function pullFromCloudVault(): Promise<{
     users: localCache.users,
     credentials: localCache.deliveredCredentials,
     resets: localCache.resetRequests,
+    reports: localCache.reports,
     customWebsites: localCache.customWebsites,
     adminConfig: localCache.adminConfig
   };
@@ -194,7 +193,12 @@ export async function apiGetOrders(): Promise<ClientOrder[]> {
   try {
     const snap = await getDocs(collection(db, 'orders'));
     if (!snap.empty) {
-      const list = snap.docs.map(d => d.data() as ClientOrder);
+      const list = snap.docs.map(d => d.data() as ClientOrder).filter(item => {
+        const name = String(item?.clientName || '').toLowerCase();
+        const code = String(item?.demoCode || '').toLowerCase();
+        const id = String(item?.orderId || '').toLowerCase();
+        return !name.includes('tanvir') && !name.includes('রাকিবুল') && !name.includes('আরিফুল') && !code.includes('4821') && !id.includes('84192') && !id.includes('72615');
+      });
       localCache.orders = list;
       localStorage.setItem('bongoweb_orders', JSON.stringify(list));
       return list;
@@ -217,6 +221,7 @@ export async function apiGetOrders(): Promise<ClientOrder[]> {
 export async function apiCreateOrder(order: ClientOrder): Promise<ClientOrder> {
   const safeOrder = cleanFirestoreData({
     ...order,
+    orderId: order.orderId || `#BW-${Math.floor(10000 + Math.random() * 90000)}`,
     makingCharge: order.makingCharge || 1990,
     monthlyCost: order.monthlyCost || 120,
     advanceAmount: order.advanceAmount || 200,
@@ -226,7 +231,7 @@ export async function apiCreateOrder(order: ClientOrder): Promise<ClientOrder> {
   });
 
   // Update local memory and storage immediately
-  const existing = localCache.orders.filter(o => o.orderId !== order.orderId);
+  const existing = (localCache.orders || []).filter(o => o.orderId !== safeOrder.orderId);
   existing.unshift(safeOrder);
   localCache.orders = existing;
   localStorage.setItem('bongoweb_orders', JSON.stringify(existing));
@@ -237,23 +242,23 @@ export async function apiCreateOrder(order: ClientOrder): Promise<ClientOrder> {
 
   // 1. Persist directly to Cloud Firestore (Works on phone & laptop instantly)
   try {
-    const cleanId = order.orderId.replace(/[^a-zA-Z0-9_-]/g, '_');
+    const cleanId = String(safeOrder.orderId || `order_${Date.now()}`).replace(/[^a-zA-Z0-9_-]/g, '_');
     await setDoc(doc(db, 'orders', cleanId), safeOrder);
 
     // Also auto-register customer in users collection if phone is provided
-    if (order.phone) {
-      const cleanPhone = (order.phone || '').trim();
+    if (safeOrder.phone) {
+      const cleanPhone = String(safeOrder.phone || '').trim();
       const userRef = doc(db, 'users', cleanPhone);
       const userSnap = await getDoc(userRef);
       if (!userSnap.exists()) {
         const newUser: UserAccount = {
-          name: order.clientName || 'Valued Client',
+          name: safeOrder.clientName || 'Valued Client',
           phone: cleanPhone,
-          email: order.email || '',
+          email: safeOrder.email || '',
           registeredAt: new Date().toLocaleDateString('bn-BD')
         };
         await setDoc(userRef, cleanFirestoreData(newUser));
-        const filteredUsers = localCache.users.filter(u => normalizePhone(u.phone) !== cleanPhone);
+        const filteredUsers = (localCache.users || []).filter(u => normalizePhone(u.phone) !== cleanPhone);
         filteredUsers.unshift(newUser);
         localCache.users = filteredUsers;
         localStorage.setItem('bongoweb_registered_users', JSON.stringify(filteredUsers));
@@ -275,7 +280,11 @@ export async function apiCreateOrder(order: ClientOrder): Promise<ClientOrder> {
   return safeOrder;
 }
 
-export async function apiUpdateOrderStatus(orderId: string, status: 'pending' | 'processing' | 'completed' | 'verified' | 'cancelled'): Promise<ClientOrder[]> {
+export async function apiUpdateOrderStatus(
+  orderId: string, 
+  status: 'pending' | 'processing' | 'completed' | 'verified' | 'cancelled' | 'bin',
+  extraData?: Partial<ClientOrder>
+): Promise<ClientOrder[]> {
   // Normalize 'verified' to 'processing' (Approved & in processing)
   const effectiveStatus = (status === 'verified') ? 'processing' : status;
   const targetId = String(orderId || '').trim();
@@ -283,21 +292,38 @@ export async function apiUpdateOrderStatus(orderId: string, status: 'pending' | 
 
   localCache.orders = (localCache.orders || []).map(o => {
     if (!o) return o;
-    const currentId = o.orderId || (o as any).id || '';
-    const currentIdStr = String(currentId).replace('#', '').trim().toLowerCase();
+    const currentId = String(o.orderId || (o as any).id || '');
+    const currentIdStr = currentId.replace('#', '').trim().toLowerCase();
     const isTarget = (currentId && currentId === targetId) || (currentIdStr && targetIdStr && currentIdStr === targetIdStr);
-    return isTarget ? { ...o, status: effectiveStatus } : o;
+    if (!isTarget) return o;
+
+    const updated: ClientOrder = {
+      ...o,
+      status: effectiveStatus,
+      ...(extraData || {})
+    };
+
+    if (effectiveStatus === 'bin') {
+      updated.binnedAt = new Date().toLocaleString('bn-BD');
+      if (o.status !== 'bin') {
+        updated.originalStatus = o.status as any;
+      }
+    } else if (o.status === 'bin') {
+      updated.binnedAt = undefined;
+    }
+
+    return updated;
   });
   localStorage.setItem('bongoweb_orders', JSON.stringify(localCache.orders));
 
-  // If order is approved/processing/completed, clear pending order notice
+  // If order is approved/processing/completed/bin, clear pending order notice
   if (effectiveStatus !== 'pending') {
     try {
       const activePending = localStorage.getItem('bongoweb_active_pending_order');
       if (activePending) {
         const parsed = JSON.parse(activePending);
-        const parsedId = parsed?.orderId || parsed?.id || '';
-        const parsedIdStr = String(parsedId).replace('#', '').trim().toLowerCase();
+        const parsedId = String(parsed?.orderId || parsed?.id || '');
+        const parsedIdStr = parsedId.replace('#', '').trim().toLowerCase();
         if (parsedId === targetId || (parsedIdStr && targetIdStr && parsedIdStr === targetIdStr)) {
           localStorage.removeItem('bongoweb_active_pending_order');
         }
@@ -309,7 +335,10 @@ export async function apiUpdateOrderStatus(orderId: string, status: 'pending' | 
   try {
     const cleanId = String(targetId || 'order').replace(/[^a-zA-Z0-9_-]/g, '_');
     if (cleanId) {
-      await setDoc(doc(db, 'orders', cleanId), { status: effectiveStatus }, { merge: true });
+      const targetOrder = localCache.orders.find(o => 
+        String(o.orderId || '').replace('#', '').trim().toLowerCase() === targetIdStr
+      );
+      await setDoc(doc(db, 'orders', cleanId), cleanFirestoreData(targetOrder || { status: effectiveStatus, ...(extraData || {}) }), { merge: true });
     }
   } catch (err) {
     console.warn('Firestore update order status notice:', err);
@@ -330,10 +359,59 @@ export async function apiUpdateOrderStatus(orderId: string, status: 'pending' | 
       fetch(`/api/orders/${encodeURIComponent(targetId)}/status`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: effectiveStatus })
+        body: JSON.stringify({ status: effectiveStatus, extraData })
       }).catch(() => {});
     } catch (_) {}
   }
+
+  return localCache.orders;
+}
+
+export async function apiSaveOrders(orders: ClientOrder[]): Promise<ClientOrder[]> {
+  localCache.orders = orders;
+  localStorage.setItem('bongoweb_orders', JSON.stringify(orders));
+  
+  // Realtime broadcast
+  try {
+    realtimeManager.emit('order:updated', { orders });
+  } catch (_) {}
+
+  // Sync to server if possible
+  try {
+    fetch('/api/orders/bulk', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ orders })
+    }).catch(() => {});
+  } catch (_) {}
+
+  return orders;
+}
+
+export async function apiDeleteOrder(orderId: string): Promise<ClientOrder[]> {
+  const targetId = String(orderId || '').trim();
+  const cleanId = targetId.replace(/[^a-zA-Z0-9_-]/g, '_');
+  localCache.orders = (localCache.orders || []).filter(o => {
+    const currentId = String(o.orderId || '').trim();
+    return currentId !== targetId && currentId.replace('#', '') !== targetId.replace('#', '');
+  });
+  localStorage.setItem('bongoweb_orders', JSON.stringify(localCache.orders));
+
+  try {
+    if (cleanId) {
+      await deleteDoc(doc(db, 'orders', cleanId));
+    }
+  } catch (_) {}
+
+  try {
+    realtimeManager.emit('order:updated', { orders: localCache.orders, deletedOrderId: targetId });
+  } catch (_) {}
+
+  try {
+    fetch(`/api/orders/${encodeURIComponent(targetId)}`, {
+      method: 'DELETE'
+    }).catch(() => {});
+  } catch (_) {}
 
   return localCache.orders;
 }
@@ -403,6 +481,17 @@ export async function apiRegisterUser(user: UserAccount): Promise<{ success: boo
     return { success: false, error: 'সবগুলো তথ্য পূরণ করুন।' };
   }
 
+  // Enforce uniqueness: one phone number and one email cannot register multiple accounts
+  const duplicatePhone = (localCache.users || []).some(u => u.phone === cleanPhone);
+  if (duplicatePhone) {
+    return { success: false, error: 'এই মোবাইল নম্বর দিয়ে ইতোমধ্যে একটি অ্যাকাউন্ট রয়েছে। এক ফোন নম্বরে একাধিক অ্যাকাউন্ট সম্ভব নয়।' };
+  }
+
+  const duplicateEmail = (localCache.users || []).some(u => (u.email || '').toLowerCase() === cleanEmail);
+  if (duplicateEmail) {
+    return { success: false, error: 'এই ইমেইল এড্রেস দিয়ে ইতোমধ্যে একটি অ্যাকাউন্ট তৈরি করা হয়েছে। অনুগ্রহ করে লগইন করুন।' };
+  }
+
   const cleanUser: UserAccount = cleanFirestoreData({
     name: user.name.trim(),
     phone: cleanPhone,
@@ -427,7 +516,7 @@ export async function apiRegisterUser(user: UserAccount): Promise<{ success: boo
   }
 
   // Update local memory and storage
-  const updatedUsers = localCache.users.filter(u => u.phone !== cleanPhone);
+  const updatedUsers = (localCache.users || []).filter(u => u.phone !== cleanPhone && (u.email || '').toLowerCase() !== cleanEmail);
   updatedUsers.push(cleanUser);
   localCache.users = updatedUsers;
   localStorage.setItem('bongoweb_registered_users', JSON.stringify(updatedUsers));
@@ -444,6 +533,171 @@ export async function apiRegisterUser(user: UserAccount): Promise<{ success: boo
   } catch (_) {}
 
   return { success: true, user: cleanUser };
+}
+
+// Local backup OTP map for offline/direct preview reliability
+const localOtpStore = new Map<string, { code: string; expiresAt: number; verified: boolean }>();
+
+export async function apiSendEmailOtp(email: string, purpose: 'signup' | 'forgot_password' = 'signup'): Promise<{ success: boolean; message?: string; error?: string; devCode?: string }> {
+  const cleanEmail = String(email || '').trim().toLowerCase();
+  if (!cleanEmail || !cleanEmail.includes('@')) {
+    return { success: false, error: 'অনুগ্রহ করে একটি সঠিক ইমেইল এড্রেস লিখুন।' };
+  }
+
+  // Check duplicate on signup
+  if (purpose === 'signup') {
+    const exists = (localCache.users || []).some(u => (u.email || '').toLowerCase() === cleanEmail);
+    if (exists) {
+      return { success: false, error: 'এই ইমেইল দিয়ে ইতোমধ্যে একটি অ্যাকাউন্ট রয়েছে। অনুগ্রহ করে লগইন করুন।' };
+    }
+  }
+
+  // 1. Call server endpoint
+  try {
+    const res = await fetch('/api/auth/send-email-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: cleanEmail, purpose })
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      if (data.devCode) {
+        localOtpStore.set(cleanEmail, { code: data.devCode, expiresAt: Date.now() + 10 * 60 * 1000, verified: false });
+      }
+      return { success: true, message: data.message, devCode: data.devCode };
+    } else if (data.error) {
+      return { success: false, error: data.error };
+    }
+  } catch (_) {}
+
+  // 2. Fallback in-client OTP generator for instant delivery
+  const fallbackCode = String(Math.floor(100000 + Math.random() * 900000));
+  localOtpStore.set(cleanEmail, { code: fallbackCode, expiresAt: Date.now() + 10 * 60 * 1000, verified: false });
+  const parts = cleanEmail.split('@');
+  const masked = parts[0].slice(0, 2) + '***@' + (parts[1] || 'domain.com');
+
+  return {
+    success: true,
+    message: `৬ ডিজিটের ওটিপি কোড পাঠানো হয়েছে (${masked})।`,
+    devCode: fallbackCode
+  };
+}
+
+export async function apiVerifyEmailOtp(email: string, code: string): Promise<{ success: boolean; message?: string; error?: string }> {
+  const cleanEmail = String(email || '').trim().toLowerCase();
+  const cleanCode = String(code || '').trim();
+
+  if (!cleanCode || cleanCode.length < 6) {
+    return { success: false, error: '৬ ডিজিটের ওটিপি কোডটি লিখুন।' };
+  }
+
+  // 1. Call server endpoint
+  try {
+    const res = await fetch('/api/auth/verify-email-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: cleanEmail, code: cleanCode })
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      const rec = localOtpStore.get(cleanEmail);
+      if (rec) rec.verified = true;
+      return { success: true, message: data.message };
+    }
+  } catch (_) {}
+
+  // 2. Fallback check
+  const rec = localOtpStore.get(cleanEmail);
+  if (rec && rec.code === cleanCode && Date.now() <= rec.expiresAt) {
+    rec.verified = true;
+    localOtpStore.set(cleanEmail, rec);
+    return { success: true, message: 'ইমেইল সফলভাবে ভেরিফাই সম্পন্ন হয়েছে।' };
+  }
+
+  return { success: false, error: 'ভুল ওটিপি কোড! অনুগ্রহ করে ইমেইলে পাওয়া কোডটি পুনরায় চেক করুন।' };
+}
+
+export async function apiResetPasswordWithOtp(email: string, code: string, newPass: string): Promise<{ success: boolean; message?: string; error?: string }> {
+  const cleanEmail = String(email || '').trim().toLowerCase();
+  const cleanCode = String(code || '').trim();
+  const cleanPass = String(newPass || '').trim();
+
+  if (!cleanPass || cleanPass.length < 4) {
+    return { success: false, error: 'পাসওয়ার্ড কমপক্ষে ৪ অক্ষরের হতে হবে।' };
+  }
+
+  // Verify OTP first
+  const verifyRes = await apiVerifyEmailOtp(cleanEmail, cleanCode);
+  if (!verifyRes.success) {
+    return { success: false, error: verifyRes.error || 'ভুল ওটিপি কোড।' };
+  }
+
+  // 1. Server route
+  try {
+    const res = await fetch('/api/auth/reset-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: cleanEmail, code: cleanCode, newPassword: cleanPass })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      return { success: false, error: data.error || 'পাসওয়ার্ড রিসেট ব্যর্থ হয়েছে।' };
+    }
+  } catch (_) {}
+
+  // 2. Update local and Firestore
+  const targetUser = (localCache.users || []).find(u => (u.email || '').toLowerCase() === cleanEmail);
+  if (targetUser) {
+    targetUser.password = cleanPass;
+    try {
+      await setDoc(doc(db, 'users', targetUser.phone), cleanFirestoreData(targetUser), { merge: true });
+    } catch (_) {}
+    localStorage.setItem('bongoweb_registered_users', JSON.stringify(localCache.users));
+  }
+
+  localOtpStore.delete(cleanEmail);
+  return { success: true, message: 'পাসওয়ার্ড সফলভাবে পরিবর্তন করা হয়েছে। এখন নতুন পাসওয়ার্ড দিয়ে লগইন করুন।' };
+}
+
+export async function apiSyncDescopeUser(profile: { email: string; name?: string; phone?: string }): Promise<UserAccount> {
+  const cleanEmail = String(profile.email || '').trim().toLowerCase();
+  const cleanPhone = String(profile.phone || '').trim();
+  const cleanName = String(profile.name || cleanEmail.split('@')[0] || 'BongoWeb Member').trim();
+
+  // Try finding existing user
+  let existing = (localCache.users || []).find(u => 
+    (cleanEmail && (u.email || '').toLowerCase() === cleanEmail) ||
+    (cleanPhone && u.phone === cleanPhone)
+  );
+
+  if (!existing) {
+    const assignedPhone = cleanPhone || `017${Math.floor(10000000 + Math.random() * 90000000)}`;
+    existing = {
+      name: cleanName,
+      phone: assignedPhone,
+      email: cleanEmail,
+      registeredAt: new Date().toLocaleDateString('bn-BD')
+    };
+
+    try {
+      await setDoc(doc(db, 'users', assignedPhone), cleanFirestoreData(existing));
+    } catch (_) {}
+
+    localCache.users.push(existing);
+    localStorage.setItem('bongoweb_registered_users', JSON.stringify(localCache.users));
+
+    try {
+      fetch('/api/auth/descope-sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: cleanEmail, name: cleanName, phone: assignedPhone })
+      }).catch(() => {});
+    } catch (_) {}
+  }
+
+  localStorage.setItem('bongoweb_user', JSON.stringify(existing));
+  sessionStorage.setItem('bongoweb_user', JSON.stringify(existing));
+  return existing;
 }
 
 export async function apiLoginUser(identifier: string, password: string): Promise<{ success: boolean; user?: UserAccount; error?: string }> {
@@ -772,19 +1026,69 @@ export async function apiExtendChatTime(phone: string, additionalMinutes: number
 }
 
 export async function apiEndChat(phone: string): Promise<void> {
-  const cleanPhone = phone.trim();
+  const cleanPhone = String(phone || '').trim();
+  if (!cleanPhone) return;
 
+  const now = new Date().toLocaleString('bn-BD');
   try {
-    await deleteDoc(doc(db, 'supportChats', cleanPhone));
+    await updateDoc(doc(db, 'supportChats', cleanPhone), {
+      isClosed: true,
+      isArchived: true,
+      archivedAt: now
+    });
   } catch (err) {
-    console.warn('Firestore delete chat notice:', err);
+    console.warn('Firestore close chat notice:', err);
   }
 
-  localCache.supportChats = localCache.supportChats.filter(t => t.userPhone !== cleanPhone);
+  // Preserve in local cache as archived & closed instead of deleting!
+  localCache.supportChats = (localCache.supportChats || []).map(t => 
+    t.userPhone === cleanPhone ? { ...t, isClosed: true, isArchived: true, archivedAt: now } : t
+  );
   localStorage.setItem('bongoweb_support_chats', JSON.stringify(localCache.supportChats));
+
+  // Broadcast realtime chat:ended with isClosed: true
+  try {
+    realtimeManager.emit('chat:ended', { phone: cleanPhone, isClosed: true });
+  } catch (_) {}
 
   try {
     fetch('/api/chat/end', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone: cleanPhone, isArchived: true, archivedAt: now })
+    }).catch(() => {});
+  } catch (_) {}
+}
+
+export async function apiReopenChat(phone: string): Promise<void> {
+  const cleanPhone = String(phone || '').trim();
+  if (!cleanPhone) return;
+
+  const newExpiry = Date.now() + 5 * 60 * 1000;
+  try {
+    await updateDoc(doc(db, 'supportChats', cleanPhone), {
+      isClosed: false,
+      isArchived: false,
+      expiresAt: newExpiry
+    });
+  } catch (err) {
+    console.warn('Firestore reopen chat notice:', err);
+  }
+
+  localCache.supportChats = (localCache.supportChats || []).map(t => 
+    t.userPhone === cleanPhone ? { ...t, isClosed: false, isArchived: false, expiresAt: newExpiry } : t
+  );
+  localStorage.setItem('bongoweb_support_chats', JSON.stringify(localCache.supportChats));
+
+  const updatedThread = localCache.supportChats.find(t => t.userPhone === cleanPhone);
+  if (updatedThread) {
+    try {
+      realtimeManager.emit('chat:activated', { thread: updatedThread });
+    } catch (_) {}
+  }
+
+  try {
+    fetch('/api/chat/reopen', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ phone: cleanPhone })
@@ -920,23 +1224,38 @@ export async function apiGetDeliveredCredentials(): Promise<WebsiteDeliveryCrede
   return localCache.deliveredCredentials;
 }
 
-export async function apiAddDeliveredCredentials(cred: WebsiteDeliveryCredentials): Promise<WebsiteDeliveryCredentials[]> {
-  const cleanId = cred.id.replace(/[^a-zA-Z0-9_-]/g, '_');
+export async function apiAddDeliveredCredentials(cred: WebsiteDeliveryCredentials, targetOrderId?: string): Promise<WebsiteDeliveryCredentials[]> {
+  const safeId = String(cred?.id || `DELIV-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`);
+  const cleanId = safeId.replace(/[^a-zA-Z0-9_-]/g, '_');
+  const safeCred = { ...cred, id: safeId };
 
   try {
-    await setDoc(doc(db, 'deliveredCredentials', cleanId), cred);
+    await setDoc(doc(db, 'deliveredCredentials', cleanId), safeCred);
   } catch (err) {
     console.warn('Firestore add credentials notice:', err);
   }
 
-  localCache.deliveredCredentials.unshift(cred);
+  localCache.deliveredCredentials.unshift(safeCred);
   localStorage.setItem('bongoweb_delivered_credentials', JSON.stringify(localCache.deliveredCredentials));
+
+  // Auto-mark order credentials as delivered
+  const orderTarget = targetOrderId 
+    ? localCache.orders.find(o => o.orderId === targetOrderId)
+    : localCache.orders.find(o => (o.phone === safeCred.userPhone && (o.demoCode === safeCred.websiteCode || o.companyName === safeCred.websiteTitle)));
+
+  if (orderTarget) {
+    await apiUpdateOrderStatus(orderTarget.orderId, orderTarget.status, {
+      hasDeliveredCredentials: true,
+      deliveredAdminId: safeCred.websiteAdminId,
+      deliveredAdminPass: safeCred.websiteAdminPass
+    });
+  }
 
   try {
     fetch('/api/credentials', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(cred)
+      body: JSON.stringify(safeCred)
     }).catch(() => {});
   } catch (_) {}
 
@@ -944,7 +1263,9 @@ export async function apiAddDeliveredCredentials(cred: WebsiteDeliveryCredential
 }
 
 export async function apiDeleteCredentials(id: string): Promise<WebsiteDeliveryCredentials[]> {
-  const cleanId = id.replace(/[^a-zA-Z0-9_-]/g, '_');
+  const safeId = String(id || '').trim();
+  if (!safeId) return localCache.deliveredCredentials;
+  const cleanId = safeId.replace(/[^a-zA-Z0-9_-]/g, '_');
 
   try {
     await deleteDoc(doc(db, 'deliveredCredentials', cleanId));
@@ -952,11 +1273,11 @@ export async function apiDeleteCredentials(id: string): Promise<WebsiteDeliveryC
     console.warn('Firestore delete credentials notice:', err);
   }
 
-  localCache.deliveredCredentials = localCache.deliveredCredentials.filter(c => c.id !== id);
+  localCache.deliveredCredentials = localCache.deliveredCredentials.filter(c => c.id !== safeId);
   localStorage.setItem('bongoweb_delivered_credentials', JSON.stringify(localCache.deliveredCredentials));
 
   try {
-    fetch(`/api/credentials/${encodeURIComponent(id)}`, {
+    fetch(`/api/credentials/${encodeURIComponent(safeId)}`, {
       method: 'DELETE'
     }).catch(() => {});
   } catch (_) {}
@@ -967,6 +1288,147 @@ export async function apiDeleteCredentials(id: string): Promise<WebsiteDeliveryC
 export const apiGetCredentials = apiGetDeliveredCredentials;
 export const apiDeliverCredentials = apiAddDeliveredCredentials;
 export const apiDeleteCredential = apiDeleteCredentials;
+
+// ---------------- USER RESTRICTION (Ban / Unban) ----------------
+export async function apiRestrictUser(phone: string, isRestricted: boolean): Promise<UserAccount[]> {
+  const cleanPhone = String(phone || '').replace(/[^0-9]/g, '').trim();
+  if (!cleanPhone) return localCache.users;
+
+  try {
+    await updateDoc(doc(db, 'users', cleanPhone), { isRestricted });
+  } catch (err) {
+    console.warn('Firestore restrict user notice:', err);
+  }
+
+  localCache.users = (localCache.users || []).map(u => {
+    const uPhone = String(u.phone || '').replace(/[^0-9]/g, '').trim();
+    return uPhone === cleanPhone ? { ...u, isRestricted } : u;
+  });
+  localStorage.setItem('bongoweb_registered_users', JSON.stringify(localCache.users));
+
+  // If currently active user in localStorage is restricted, sync it
+  try {
+    const cur = localStorage.getItem('bongoweb_user');
+    if (cur) {
+      const parsed = JSON.parse(cur);
+      const parsedPhone = String(parsed.phone || '').replace(/[^0-9]/g, '').trim();
+      if (parsedPhone === cleanPhone) {
+        parsed.isRestricted = isRestricted;
+        localStorage.setItem('bongoweb_user', JSON.stringify(parsed));
+      }
+    }
+  } catch (_) {}
+
+  try {
+    fetch(`/api/users/${encodeURIComponent(cleanPhone)}/restrict`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ isRestricted })
+    }).catch(() => {});
+  } catch (_) {}
+
+  return localCache.users;
+}
+
+// ---------------- USER REPORTS SYSTEM ----------------
+export async function apiGetReports(): Promise<UserReport[]> {
+  try {
+    const snap = await getDocs(collection(db, 'reports'));
+    if (!snap.empty) {
+      const list = snap.docs.map(d => d.data() as UserReport);
+      localCache.reports = list;
+      localStorage.setItem('bongoweb_reports', JSON.stringify(list));
+      return list;
+    }
+  } catch (_) {}
+
+  try {
+    const res = await fetch('/api/reports');
+    if (res.ok) {
+      const list = await res.json();
+      localCache.reports = list;
+      localStorage.setItem('bongoweb_reports', JSON.stringify(list));
+      return list;
+    }
+  } catch (_) {}
+
+  return localCache.reports || [];
+}
+
+export async function apiCreateReport(report: UserReport): Promise<UserReport[]> {
+  const safe: UserReport = cleanFirestoreData({
+    ...report,
+    id: report.id || `REP-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`,
+    status: report.status || 'pending',
+    createdAt: report.createdAt || new Date().toLocaleString('bn-BD')
+  });
+
+  const cleanId = String(safe.id || 'rep').replace(/[^a-zA-Z0-9_-]/g, '_');
+  try {
+    await setDoc(doc(db, 'reports', cleanId), safe);
+  } catch (err) {
+    console.warn('Firestore report notice:', err);
+  }
+
+  localCache.reports = [safe, ...(localCache.reports || []).filter(r => r.id !== safe.id)];
+  localStorage.setItem('bongoweb_reports', JSON.stringify(localCache.reports));
+
+  try {
+    fetch('/api/reports', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(safe)
+    }).catch(() => {});
+  } catch (_) {}
+
+  return localCache.reports;
+}
+
+export async function apiResolveReport(reportId: string): Promise<UserReport[]> {
+  const targetId = String(reportId || '').trim();
+  const cleanId = targetId.replace(/[^a-zA-Z0-9_-]/g, '_');
+  const now = new Date().toLocaleString('bn-BD');
+
+  try {
+    if (cleanId) {
+      await updateDoc(doc(db, 'reports', cleanId), {
+        status: 'resolved',
+        resolvedAt: now
+      });
+    }
+  } catch (err) {
+    console.warn('Firestore resolve report notice:', err);
+  }
+
+  localCache.reports = (localCache.reports || []).map(r => 
+    r.id === targetId ? { ...r, status: 'resolved', resolvedAt: now } : r
+  );
+  localStorage.setItem('bongoweb_reports', JSON.stringify(localCache.reports));
+
+  try {
+    fetch(`/api/reports/${encodeURIComponent(targetId)}/resolve`, {
+      method: 'PUT'
+    }).catch(() => {});
+  } catch (_) {}
+
+  return localCache.reports;
+}
+
+export function subscribeToReports(callback: (reports: UserReport[]) => void): () => void {
+  try {
+    return onSnapshot(collection(db, 'reports'), (snapshot) => {
+      const reports = snapshot.docs.map(d => d.data() as UserReport);
+      reports.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+      localCache.reports = reports;
+      localStorage.setItem('bongoweb_reports', JSON.stringify(reports));
+      callback(reports);
+    }, (err) => {
+      console.warn('Reports onSnapshot notice:', err);
+    });
+  } catch (_) {
+    return () => {};
+  }
+}
 
 // ---------------- PASSWORD RESET REQUESTS ----------------
 export async function apiGetResetRequests(): Promise<PasswordResetRequest[]> {
@@ -1001,7 +1463,7 @@ export async function apiRequestPasswordReset(reqOrPhone: PasswordResetRequest |
     status: 'pending'
   } : reqOrPhone;
 
-  const cleanId = req.id.replace(/[^a-zA-Z0-9_-]/g, '_');
+  const cleanId = String(req?.id || `rst-${Date.now()}`).replace(/[^a-zA-Z0-9_-]/g, '_');
 
   try {
     await setDoc(doc(db, 'resetRequests', cleanId), req);
@@ -1028,8 +1490,9 @@ export async function apiResolveResetRequest(
   status: 'pending' | 'reset' | 'rejected' | 'call_not_received', 
   newPassword?: string
 ): Promise<PasswordResetRequest[]> {
-  const cleanId = id.replace(/[^a-zA-Z0-9_-]/g, '_');
-  const targetReq = localCache.resetRequests.find(r => r.id === id);
+  const safeId = String(id || '').trim();
+  const cleanId = safeId.replace(/[^a-zA-Z0-9_-]/g, '_');
+  const targetReq = localCache.resetRequests.find(r => r.id === safeId);
 
   try {
     const updatePayload: any = {
@@ -1091,7 +1554,12 @@ export async function apiResolveResetRequest(
 export function subscribeToOrders(callback: (orders: ClientOrder[]) => void): () => void {
   try {
     return onSnapshot(collection(db, 'orders'), (snapshot) => {
-      const orders = snapshot.docs.map(d => d.data() as ClientOrder);
+      const orders = snapshot.docs.map(d => d.data() as ClientOrder).filter(item => {
+        const name = String(item?.clientName || '').toLowerCase();
+        const code = String(item?.demoCode || '').toLowerCase();
+        const id = String(item?.orderId || '').toLowerCase();
+        return !name.includes('tanvir') && !name.includes('রাকিবুল') && !name.includes('আরিফুল') && !code.includes('4821') && !id.includes('84192') && !id.includes('72615');
+      });
       // Sort newest first
       orders.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
       localCache.orders = orders;

@@ -94,36 +94,39 @@ export default function CategorySelectionLanding({
   return (
     <div className="min-h-screen w-full bg-[#FFFFFF] text-[#0D253D] flex flex-col justify-between font-sans select-none overflow-y-auto">
       {/* 1. Top Header */}
-      <header className="w-full bg-[#FFFFFF]/90 backdrop-blur-xl border-b border-[#E5EDF5] shadow-[0_1px_8px_rgba(13,37,61,0.03)] shrink-0 h-14 sm:h-16 px-4 sm:px-6 flex items-center justify-between">
+      <header className="w-full bg-white/90 backdrop-blur-xl border-b border-slate-200/80 shadow-[0_2px_16px_rgba(15,23,42,0.03)] shrink-0 h-16 sm:h-[68px] px-4 sm:px-6 lg:px-8 flex items-center justify-between transition-all">
         {/* Left Branding */}
         <div className="flex items-center gap-2.5 sm:gap-3 cursor-pointer group">
-          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-[#533AFD] to-[#694FFF] text-white flex items-center justify-center font-black text-xs sm:text-sm shadow-[0_3px_12px_rgba(83,58,253,0.32)] ring-1 ring-white/20 group-hover:scale-105 transition-transform">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-tr from-[#533AFD] via-[#6366F1] to-[#7C3AED] text-white flex items-center justify-center font-black text-xs sm:text-sm shadow-[0_4px_14px_rgba(83,58,253,0.32)] ring-2 ring-white/50 group-hover:scale-105 transition-transform duration-200">
             BW
           </div>
           <div className="flex flex-col justify-center">
             <div className="flex items-baseline leading-none">
-              <span className="text-lg sm:text-xl font-black tracking-tight text-[#0D253D] group-hover:text-[#533AFD] transition-colors">
+              <span className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 group-hover:text-[#533AFD] transition-colors">
                 BongoWeb
               </span>
               <span className="text-xs sm:text-sm font-black text-[#533AFD] ml-0.5">.xyz</span>
             </div>
-            <div className="flex items-center gap-1.5 text-[8px] sm:text-[9px] font-bold uppercase tracking-wider text-[#64748D] -mt-0.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#00B261] animate-pulse" />
+            <div className="flex items-center gap-1.5 text-[8.5px] sm:text-[9.5px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/80 shadow-2xs mt-1 w-fit">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00B261] opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#00B261]"></span>
+              </span>
               <span>{t('ভেরিফাইড প্ল্যাটফর্ম', 'Verified Platform')}</span>
             </div>
           </div>
         </div>
 
-        {/* Right Actions: STRICTLY LANGUAGE SELECTION BUTTON (Client login removed as requested) */}
+        {/* Right Actions: STRICTLY LANGUAGE SELECTION BUTTON */}
         <div className="flex items-center gap-2 sm:gap-3">
-          <div className="flex items-center gap-1 p-1 rounded-xl bg-[#F8FAFD] border border-[#E2E8F0] shadow-2xs">
+          <div className="flex items-center gap-1 p-1 rounded-2xl bg-slate-100/90 border border-slate-200/80 shadow-[inset_0_1px_2px_rgba(0,0,0,0.04)]">
             <button
               type="button"
               onClick={() => setLanguage('bn')}
-              className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+              className={`px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                 language === 'bn'
-                  ? 'bg-[#533AFD] text-white shadow-xs'
-                  : 'text-[#64748D] hover:text-[#0D253D]'
+                  ? 'bg-white text-slate-900 shadow-[0_2px_8px_rgba(0,0,0,0.06)] ring-1 ring-slate-900/5 font-extrabold'
+                  : 'text-slate-500 hover:text-slate-900 font-semibold'
               }`}
               title="বাংলা ভাষা নির্বাচন করুন"
             >
@@ -133,10 +136,10 @@ export default function CategorySelectionLanding({
             <button
               type="button"
               onClick={() => setLanguage('en')}
-              className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+              className={`px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                 language === 'en'
-                  ? 'bg-[#533AFD] text-white shadow-xs'
-                  : 'text-[#64748D] hover:text-[#0D253D]'
+                  ? 'bg-white text-slate-900 shadow-[0_2px_8px_rgba(0,0,0,0.06)] ring-1 ring-slate-900/5 font-extrabold'
+                  : 'text-slate-500 hover:text-slate-900 font-semibold'
               }`}
               title="Select English Language"
             >
@@ -148,14 +151,17 @@ export default function CategorySelectionLanding({
       </header>
 
       {/* 2. Main Viewport: All 4 categories with premium studio presence */}
-      <main className="flex-1 max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-10 w-full flex flex-col justify-center items-center relative overflow-hidden">
+      <main className="flex-1 max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12 w-full flex flex-col justify-center items-center relative overflow-hidden">
         {/* Subtle Ambient Background Spotlight */}
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[350px] bg-gradient-to-tr from-[#533AFD]/[0.04] via-transparent to-[#FF6118]/[0.03] rounded-full blur-3xl pointer-events-none -z-10" />
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[450px] bg-gradient-to-tr from-[#533AFD]/[0.07] via-[#7C3AED]/[0.04] to-[#00B261]/[0.05] rounded-full blur-3xl pointer-events-none -z-10" />
 
         {/* Hero Title Section */}
-        <div className="text-center mb-6 sm:mb-8 max-w-2xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#E2E4FF]/70 border border-[#533AFD]/20 text-[#533AFD] text-[11px] font-bold mb-3 shadow-2xs">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#533AFD] animate-pulse" />
+        <div className="text-center mb-7 sm:mb-9 max-w-2xl mx-auto">
+          <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-gradient-to-r from-indigo-50/90 to-violet-50/80 border border-indigo-200/80 text-[#533AFD] text-[11px] font-bold mb-4 shadow-xs select-none">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#533AFD] opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#533AFD]"></span>
+            </span>
             <span>
               {t(
                 '২৪ ঘণ্টা এক্সপ্রেস ডেলিভারি · ১০০% রেডি লাইভ ডিজাইন',
@@ -164,18 +170,18 @@ export default function CategorySelectionLanding({
             </span>
           </div>
 
-          <h1 className="text-2xl sm:text-4xl md:text-[40px] font-black text-[#0D253D] tracking-tight leading-tight">
+          <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-[1.15]">
             {language === 'bn' ? (
               <>
-                Select Your Website <span className="bg-gradient-to-r from-[#533AFD] via-[#665EFD] to-[#8B5CF6] bg-clip-text text-transparent">Category</span>
+                Select Your Website <span className="bg-gradient-to-r from-[#533AFD] via-[#6366F1] to-[#7C3AED] bg-clip-text text-transparent">Category</span>
               </>
             ) : (
               <>
-                Choose Your Website <span className="bg-gradient-to-r from-[#533AFD] via-[#665EFD] to-[#8B5CF6] bg-clip-text text-transparent">Category</span>
+                Choose Your Website <span className="bg-gradient-to-r from-[#533AFD] via-[#6366F1] to-[#7C3AED] bg-clip-text text-transparent">Category</span>
               </>
             )}
           </h1>
-          <p className="text-xs sm:text-sm md:text-base text-[#64748D] mt-2 max-w-xl mx-auto leading-relaxed">
+          <p className="text-xs sm:text-sm md:text-base text-slate-500 mt-2.5 max-w-xl mx-auto leading-relaxed font-normal">
             {t(
               'আপনার ব্যবসার জন্য প্রস্তুত সম্পূর্ণ রেডি লাইভ ডিজাইন বেছে নিন। সরাসরি ডেমো ব্রাউজ করুন এবং ১ ক্লিকে শুরু করুন।',
               'Select a ready-to-launch live design tailored for your business. Browse interactive previews and get started with 1 click.'
@@ -187,7 +193,7 @@ export default function CategorySelectionLanding({
             Row 1: E-Commerce & Restaurant side-by-side
             Row 2: Blogs & Groceries side-by-side
             Enhanced tactile depth, refined typography, and sleek hover elevation */}
-        <div className="grid grid-cols-2 gap-3.5 sm:gap-6 w-full max-w-3xl">
+        <div className="grid grid-cols-2 gap-4 sm:gap-6 w-full max-w-3xl">
           {categories.map((cat) => {
             const Icon = cat.icon;
             const isSelected = selectedId === cat.id;
@@ -196,29 +202,29 @@ export default function CategorySelectionLanding({
               <div
                 key={cat.id}
                 onClick={() => handleCardClick(cat.id)}
-                className={`group relative p-4 sm:p-6 sm:py-7 rounded-2xl sm:rounded-3xl border transition-all duration-300 cursor-pointer flex flex-col justify-between shadow-[0_2px_12px_rgba(13,37,61,0.04)] hover:shadow-[0_16px_36px_rgba(13,37,61,0.09)] min-h-[220px] sm:min-h-[265px] md:min-h-[280px] bg-gradient-to-b from-[#FFFFFF] to-[#FDFEFE] hover:-translate-y-1 overflow-hidden select-none ${
+                className={`group relative p-5 sm:p-6 sm:py-7 rounded-[24px] sm:rounded-[28px] border transition-all duration-300 cursor-pointer flex flex-col justify-between shadow-[0_4px_20px_rgba(15,23,42,0.04)] hover:shadow-[0_20px_45px_-10px_rgba(15,23,42,0.12)] min-h-[230px] sm:min-h-[275px] md:min-h-[290px] bg-white/95 backdrop-blur-md hover:-translate-y-1.5 overflow-hidden select-none ${
                   isSelected
-                    ? 'border-[#533AFD] ring-2 ring-[#533AFD]/20 shadow-[0_14px_34px_rgba(83,58,253,0.18)] scale-[1.01]'
-                    : `border-[#E5EDF5] ${cat.borderHover}`
+                    ? 'border-[#533AFD] ring-3 ring-[#533AFD]/20 shadow-[0_16px_36px_rgba(83,58,253,0.2)] scale-[1.01]'
+                    : `border-slate-200/90 ${cat.borderHover}`
                 }`}
               >
                 {/* Top Corner Ambient Glow on Hover */}
                 <div 
-                  className="absolute -top-12 -right-12 w-28 h-28 rounded-full opacity-0 group-hover:opacity-15 blur-xl transition-opacity duration-500 pointer-events-none"
+                  className="absolute -top-12 -right-12 w-32 h-32 rounded-full opacity-0 group-hover:opacity-20 blur-2xl transition-opacity duration-500 pointer-events-none"
                   style={{ backgroundColor: cat.accentColor }}
                 />
 
                 <div className="relative z-10">
                   {/* Top Bar: Icon + Status Indicator */}
-                  <div className="flex items-center justify-between mb-3 sm:mb-4">
+                  <div className="flex items-center justify-between mb-3.5 sm:mb-4">
                     <div
-                      className={`w-11 h-11 sm:w-13 sm:h-13 rounded-xl sm:rounded-2xl flex items-center justify-center transition-all duration-300 group-hover:scale-105 shadow-2xs border border-black/[0.04] ${cat.iconBg}`}
+                      className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center transition-all duration-300 group-hover:scale-110 shadow-xs border border-black/[0.03] ${cat.iconBg}`}
                       style={{ color: cat.accentColor }}
                     >
                       <Icon className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.2]" />
                     </div>
 
-                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#F8FAFD] border border-[#E5EDF5] text-[10px] sm:text-[11px] font-semibold text-[#64748D] group-hover:text-[#0D253D] transition-colors">
+                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-50 border border-slate-200/80 text-[10px] sm:text-[11px] font-bold text-slate-600 group-hover:text-slate-900 transition-colors shadow-2xs">
                       <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: cat.accentColor }} />
                       <span className="hidden xs:inline-block">
                         {language === 'en' ? cat.tagEn : cat.tagBn}
@@ -227,7 +233,7 @@ export default function CategorySelectionLanding({
                   </div>
 
                   {/* Titles */}
-                  <h3 className="text-base sm:text-lg md:text-xl font-extrabold text-[#0D253D] group-hover:text-[#533AFD] transition-colors leading-tight">
+                  <h3 className="text-base sm:text-lg md:text-xl font-black text-slate-900 group-hover:text-[#533AFD] transition-colors leading-tight">
                     {cat.titleEnglish}
                   </h3>
 
@@ -241,24 +247,24 @@ export default function CategorySelectionLanding({
                     </span>
                   )}
 
-                  <p className="text-[11px] sm:text-xs text-[#64748D] group-hover:text-[#475569] line-clamp-2 leading-relaxed mb-3">
+                  <p className="text-[11px] sm:text-xs text-slate-500 group-hover:text-slate-600 line-clamp-2 leading-relaxed mb-3">
                     {language === 'en' ? cat.subtitleEn : cat.subtitleBn}
                   </p>
 
                   {/* Micro features separator */}
-                  <div className="hidden sm:inline-flex items-center gap-1.5 text-[10px] sm:text-[11px] font-medium text-[#7D8BA4] bg-[#F8FAFD] px-2.5 py-1 rounded-lg border border-[#E5EDF5]/60">
+                  <div className="hidden sm:inline-flex items-center gap-1.5 text-[10px] sm:text-[11px] font-semibold text-slate-600 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200/70">
                     <span className="w-1 h-1 rounded-full bg-[#00B261]" />
                     <span>{language === 'en' ? cat.featuresEn : cat.featuresBn}</span>
                   </div>
                 </div>
 
                 {/* Bottom Action Bar */}
-                <div className="relative z-10 pt-3 sm:pt-4 mt-3 sm:mt-4 border-t border-[#E5EDF5] flex items-center justify-between text-xs sm:text-sm font-bold text-[#533AFD]">
+                <div className="relative z-10 pt-3.5 sm:pt-4 mt-3 sm:mt-4 border-t border-slate-100 flex items-center justify-between text-xs sm:text-sm font-bold text-[#533AFD]">
                   <span className="group-hover:text-[#3B25D4] transition-colors">
                     {t('ক্যাটালগ দেখুন', 'Explore Catalog')}
                   </span>
-                  <div className="w-7 h-7 rounded-lg bg-[#F8FAFD] group-hover:bg-[#533AFD] text-[#533AFD] group-hover:text-[#FFFFFF] flex items-center justify-center transition-all duration-200">
-                    <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-slate-50 group-hover:bg-[#533AFD] text-[#533AFD] group-hover:text-white flex items-center justify-center transition-all duration-200 shadow-2xs group-hover:shadow-md">
+                    <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 stroke-[2.5]" />
                   </div>
                 </div>
               </div>
@@ -267,17 +273,17 @@ export default function CategorySelectionLanding({
         </div>
 
         {/* View All Button & Reassurance Signals */}
-        <div className="mt-6 sm:mt-8 text-center flex flex-col items-center gap-3.5">
+        <div className="mt-7 sm:mt-9 text-center flex flex-col items-center gap-4">
           <button
             onClick={() => onSelectCategory('all')}
-            className="inline-flex items-center gap-2.5 px-5 py-2.5 sm:px-6 sm:py-3 rounded-xl bg-[#FFFFFF] hover:bg-[#F8FAFD] text-[#0D253D] hover:text-[#533AFD] border border-[#E5EDF5] hover:border-[#533AFD]/40 font-bold text-xs sm:text-sm transition-all shadow-xs hover:shadow-md cursor-pointer group"
+            className="inline-flex items-center gap-2.5 px-6 py-3 sm:px-7 sm:py-3.5 rounded-2xl bg-white hover:bg-slate-50 text-slate-800 hover:text-[#533AFD] border border-slate-200/90 hover:border-[#533AFD]/40 font-extrabold text-xs sm:text-sm transition-all shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_20px_-4px_rgba(83,58,253,0.18)] cursor-pointer group active:scale-[0.99]"
           >
             <span>{t('সবগুলো ক্যাটাগরি একসাথে ব্রাউজ করুন', 'Browse All Categories Together')}</span>
-            <ArrowRight className="w-4 h-4 text-[#533AFD] transition-transform group-hover:translate-x-1" />
+            <ArrowRight className="w-4 h-4 text-[#533AFD] transition-transform group-hover:translate-x-1 stroke-[2.5]" />
           </button>
 
           {/* Trust Reassurance Footnotes */}
-          <div className="flex items-center justify-center gap-4 sm:gap-6 text-[11px] font-semibold text-[#7D8BA4] flex-wrap pt-1">
+          <div className="flex items-center justify-center gap-4 sm:gap-6 text-[11px] font-medium text-slate-500 flex-wrap pt-1">
             <span className="flex items-center gap-1.5">
               <CheckCircle2 className="w-3.5 h-3.5 text-[#00B261]" />
               <span>{t('ফ্রি লাইভ সাপোর্ট', 'Free Live Support')}</span>

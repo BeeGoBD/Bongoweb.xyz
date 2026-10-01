@@ -232,6 +232,7 @@ interface DatabaseSchema {
     email: string;
     password?: string;
     registeredAt: string;
+    isRestricted?: boolean;
   }>;
   orders: Array<any>;
   supportChats: Array<{
@@ -245,6 +246,8 @@ interface DatabaseSchema {
     unreadClientCount: number;
     expiresAt?: number;
     isClosed?: boolean;
+    isArchived?: boolean;
+    archivedAt?: string;
     additionalMinutesAdded?: number;
     messages: Array<{
       id: string;
@@ -256,6 +259,7 @@ interface DatabaseSchema {
   customWebsites: Array<any>;
   deliveredCredentials: Array<any>;
   resetRequests: Array<any>;
+  reports: Array<any>;
 }
 
 // Default initial database
@@ -272,7 +276,8 @@ function getInitialDb(): DatabaseSchema {
     supportChats: [],
     customWebsites: [],
     deliveredCredentials: [],
-    resetRequests: []
+    resetRequests: [],
+    reports: []
   };
 }
 
@@ -548,16 +553,23 @@ async function startServer() {
   app.put('/api/orders/:orderId/status', (req: Request, res: Response) => {
     const db = readDb();
     const { orderId } = req.params;
-    const { status } = req.body;
-    const order = db.orders.find(o => o.orderId === orderId);
+    const { status, extraData } = req.body;
+    const cleanTargetId = String(orderId || '').replace(/[^a-zA-Z0-9_-]/g, '').toLowerCase();
+    const order = (db.orders || []).find(o => {
+      const currentClean = String(o.orderId || '').replace(/[^a-zA-Z0-9_-]/g, '').toLowerCase();
+      return o.orderId === orderId || (cleanTargetId && currentClean === cleanTargetId);
+    });
     if (order) {
       order.status = status;
+      if (extraData && typeof extraData === 'object') {
+        Object.assign(order, extraData);
+      }
       writeDb(db);
 
       // Broadcast order status update event
       broadcast({
         type: 'order:updated',
-        orderId,
+        orderId: order.orderId,
         status,
         orders: db.orders,
         timestamp: Date.now()
@@ -634,6 +646,140 @@ async function startServer() {
     } else {
       res.status(401).json({ success: false, error: 'মোবাইল নম্বর/ইমেইল অথবা পাসওয়ার্ড সঠিক নয়!' });
     }
+  });
+
+  // EMAIL OTP & DESCOPE AUTH ROUTES
+  interface EmailOtpRecord {
+    code: string;
+    expiresAt: number;
+    purpose: 'signup' | 'forgot_password';
+    verified: boolean;
+  }
+  const emailOtpStore = new Map<string, EmailOtpRecord>();
+
+  app.post('/api/auth/send-email-otp', (req: Request, res: Response) => {
+    const { email, purpose } = req.body;
+    const cleanEmail = String(email || '').trim().toLowerCase();
+    if (!cleanEmail || !cleanEmail.includes('@')) {
+      return res.status(400).json({ success: false, error: 'সঠিক ইমেইল এড্রেস লিখুন।' });
+    }
+
+    const db = readDb();
+    const existingUser = (db.users || []).find(u => (u.email || '').toLowerCase() === cleanEmail);
+
+    if (purpose === 'signup' && existingUser) {
+      return res.status(400).json({ success: false, error: 'এই ইমেইল দিয়ে ইতোমধ্যে একটি একাউন্ট খোলা আছে। অনুগ্রহ করে লগইন করুন।' });
+    }
+    if (purpose === 'forgot_password' && !existingUser) {
+      return res.status(404).json({ success: false, error: 'এই ইমেইল দিয়ে কোনো অ্যাকাউন্ট পাওয়া যায়নি।' });
+    }
+
+    // Generate 6-digit OTP
+    const code = String(Math.floor(100000 + Math.random() * 900000));
+    const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes
+
+    emailOtpStore.set(cleanEmail, {
+      code,
+      expiresAt,
+      purpose: purpose || 'signup',
+      verified: false
+    });
+
+    const parts = cleanEmail.split('@');
+    const masked = parts[0].slice(0, 2) + '***@' + (parts[1] || 'domain.com');
+
+    res.json({
+      success: true,
+      message: `৬ ডিজিটের ওটিপি কোড পাঠানো হয়েছে (${masked})।`,
+      maskedEmail: masked,
+      devCode: code
+    });
+  });
+
+  app.post('/api/auth/verify-email-otp', (req: Request, res: Response) => {
+    const { email, code } = req.body;
+    const cleanEmail = String(email || '').trim().toLowerCase();
+    const cleanCode = String(code || '').trim();
+
+    const record = emailOtpStore.get(cleanEmail);
+    if (!record) {
+      return res.status(400).json({ success: false, error: 'কোনো ওটিপি কোড পাঠানো হয়নি বা কোডের মেয়াদ শেষ হয়েছে। অনুগ্রহ করে আবার কোড পাঠান।' });
+    }
+
+    if (Date.now() > record.expiresAt) {
+      emailOtpStore.delete(cleanEmail);
+      return res.status(400).json({ success: false, error: 'ওটিপি কোডের মেয়াদ শেষ হয়ে গেছে। অনুগ্রহ করে আবার কোড পাঠান।' });
+    }
+
+    if (record.code !== cleanCode) {
+      return res.status(400).json({ success: false, error: 'ভুল ওটিপি কোড! অনুগ্রহ করে ইমেইলে পাওয়া কোডটি পুনরায় চেক করুন।' });
+    }
+
+    record.verified = true;
+    emailOtpStore.set(cleanEmail, record);
+
+    res.json({ success: true, message: 'ইমেইল সফলভাবে ভেরিফাই সম্পন্ন হয়েছে।' });
+  });
+
+  app.post('/api/auth/reset-password', (req: Request, res: Response) => {
+    const { email, code, newPassword } = req.body;
+    const cleanEmail = String(email || '').trim().toLowerCase();
+    const cleanCode = String(code || '').trim();
+    const cleanPass = String(newPassword || '').trim();
+
+    if (!cleanPass || cleanPass.length < 4) {
+      return res.status(400).json({ success: false, error: 'পাসওয়ার্ড কমপক্ষে ৪ অক্ষরের হতে হবে।' });
+    }
+
+    const record = emailOtpStore.get(cleanEmail);
+    if (!record || (!record.verified && record.code !== cleanCode)) {
+      return res.status(400).json({ success: false, error: 'ভুল ওটিপি কোড বা ভেরিফিকেশন ব্যর্থ হয়েছে।' });
+    }
+
+    const db = readDb();
+    const userIndex = (db.users || []).findIndex(u => (u.email || '').toLowerCase() === cleanEmail);
+    if (userIndex === -1) {
+      return res.status(404).json({ success: false, error: 'এই ইমেইল দিয়ে কোনো অ্যাকাউন্ট পাওয়া যায়নি।' });
+    }
+
+    db.users[userIndex].password = cleanPass;
+    writeDb(db);
+    emailOtpStore.delete(cleanEmail);
+
+    res.json({ success: true, message: 'পাসওয়ার্ড সফলভাবে পরিবর্তন করা হয়েছে। এখন নতুন পাসওয়ার্ড দিয়ে লগইন করুন।' });
+  });
+
+  app.post('/api/auth/descope-sync', (req: Request, res: Response) => {
+    const db = readDb();
+    const { email, name, phone } = req.body;
+    const cleanEmail = String(email || '').trim().toLowerCase();
+    const cleanPhone = String(phone || '').trim();
+    const cleanName = String(name || 'BongoWeb Member').trim();
+
+    let user = (db.users || []).find(u => 
+      (cleanEmail && (u.email || '').toLowerCase() === cleanEmail) ||
+      (cleanPhone && u.phone === cleanPhone)
+    );
+
+    if (!user) {
+      const generatedPhone = cleanPhone || `017${Math.floor(10000000 + Math.random() * 90000000)}`;
+      user = {
+        name: cleanName,
+        phone: generatedPhone,
+        email: cleanEmail,
+        registeredAt: new Date().toLocaleDateString('bn-BD')
+      };
+      db.users.push(user);
+      writeDb(db);
+      broadcast({
+        type: 'user:registered',
+        user,
+        totalUsers: db.users.length,
+        timestamp: Date.now()
+      });
+    }
+
+    res.json({ success: true, user });
   });
 
   // 3. LIVE CHAT SYSTEM
@@ -802,23 +948,92 @@ async function startServer() {
     }
   });
 
-  // End / Close chat
+  // End / Close chat (Archive, do not delete)
   app.post('/api/chat/end', (req: Request, res: Response) => {
     const db = readDb();
     const { phone } = req.body;
-    const idx = db.supportChats.findIndex(t => t.userPhone === phone);
-    if (idx >= 0) {
-      db.supportChats.splice(idx, 1);
+    const thread = db.supportChats.find(t => t.userPhone === phone);
+    const now = new Date().toLocaleString('bn-BD');
+    if (thread) {
+      thread.isClosed = true;
+      thread.isArchived = true;
+      thread.archivedAt = now;
       writeDb(db);
     }
 
     broadcast({
       type: 'chat:ended',
       phone,
+      isClosed: true,
       timestamp: Date.now()
     });
 
     res.json({ success: true });
+  });
+
+  // Reopen chat from archive
+  app.post('/api/chat/reopen', (req: Request, res: Response) => {
+    const db = readDb();
+    const { phone } = req.body;
+    const thread = db.supportChats.find(t => t.userPhone === phone);
+    if (thread) {
+      thread.isClosed = false;
+      thread.isArchived = false;
+      thread.expiresAt = Date.now() + 5 * 60 * 1000;
+      writeDb(db);
+
+      broadcast({
+        type: 'chat:activated',
+        thread,
+        timestamp: Date.now()
+      });
+    }
+
+    res.json({ success: true, thread });
+  });
+
+  // REPORTS
+  app.get('/api/reports', (req: Request, res: Response) => {
+    const db = readDb();
+    res.json(db.reports || []);
+  });
+
+  app.post('/api/reports', (req: Request, res: Response) => {
+    const db = readDb();
+    if (!db.reports) db.reports = [];
+    const report = {
+      ...req.body,
+      id: req.body.id || `REP-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`,
+      status: req.body.status || 'pending',
+      createdAt: req.body.createdAt || new Date().toLocaleString('bn-BD')
+    };
+    db.reports.unshift(report);
+    writeDb(db);
+    res.json(report);
+  });
+
+  app.put('/api/reports/:id/resolve', (req: Request, res: Response) => {
+    const db = readDb();
+    if (!db.reports) db.reports = [];
+    const rep = db.reports.find(r => r.id === req.params.id);
+    if (rep) {
+      rep.status = 'resolved';
+      rep.resolvedAt = new Date().toLocaleString('bn-BD');
+      writeDb(db);
+    }
+    res.json(db.reports);
+  });
+
+  // RESTRICT USER
+  app.put('/api/users/:phone/restrict', (req: Request, res: Response) => {
+    const db = readDb();
+    const cleanPhone = String(req.params.phone || '').replace(/[^0-9]/g, '');
+    const user = db.users.find(u => String(u.phone || '').replace(/[^0-9]/g, '') === cleanPhone);
+    if (user) {
+      user.isRestricted = Boolean(req.body.isRestricted);
+      writeDb(db);
+    }
+    res.json(db.users);
   });
 
   // 4. WEBSITES CATALOG & STOCKS (Full real edit, add, delete, persist)
@@ -1012,7 +1227,8 @@ async function startServer() {
         ? backupData.customWebsites 
         : [],
       deliveredCredentials: Array.isArray(backupData.deliveredCredentials) ? backupData.deliveredCredentials : [],
-      resetRequests: Array.isArray(backupData.resetRequests) ? backupData.resetRequests : []
+      resetRequests: Array.isArray(backupData.resetRequests) ? backupData.resetRequests : [],
+      reports: Array.isArray(backupData.reports) ? backupData.reports : []
     };
 
     writeDb(newDb);
@@ -1040,22 +1256,32 @@ async function startServer() {
   if (!isProduction) {
     const vite = await createViteServer({
       server: { middlewareMode: true },
-      appType: 'spa'
+      appType: 'custom'
     });
     app.use(vite.middlewares);
 
-    // Explicit fallback for client-side routing on page refresh
-    app.use('*', async (req: Request, res: Response, next) => {
-      if (req.method !== 'GET' || req.originalUrl.startsWith('/api') || req.originalUrl.startsWith('/ws')) {
+    // Reliable fallback for client-side routing on page refresh (custom appType gives Express full HTML routing control)
+    app.get('*', async (req: Request, res: Response, next) => {
+      if (req.originalUrl.startsWith('/api') || req.originalUrl.startsWith('/ws')) {
         return next();
       }
       try {
         const url = req.originalUrl;
-        let template = fs.readFileSync(path.resolve(__dirname, 'index.html'), 'utf-8');
-        template = await vite.transformIndexHtml(url, template);
-        res.status(200).set({ 'Content-Type': 'text/html' }).end(template);
+        const indexPath = path.resolve(__dirname, 'index.html');
+        let template = fs.readFileSync(indexPath, 'utf-8');
+        try {
+          template = await vite.transformIndexHtml(url, template);
+        } catch {
+          template = await vite.transformIndexHtml('/', template);
+        }
+        res.status(200).set({ 'Content-Type': 'text/html; charset=utf-8' }).end(template);
       } catch (e) {
-        next(e);
+        try {
+          const rawHtml = fs.readFileSync(path.resolve(__dirname, 'index.html'), 'utf-8');
+          res.status(200).set({ 'Content-Type': 'text/html; charset=utf-8' }).end(rawHtml);
+        } catch (err) {
+          next(e);
+        }
       }
     });
   } else {
