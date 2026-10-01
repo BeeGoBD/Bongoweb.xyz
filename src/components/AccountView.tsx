@@ -4,7 +4,7 @@ import {
   HelpCircle, CheckCircle2, Lock, ArrowRight, ArrowLeft, X, 
   Printer, AlertCircle, ShoppingBag, Eye, EyeOff, LogOut, PhoneCall, 
   Sparkles, Check, Server, Shield, Copy, Languages, CheckCheck,
-  AlertTriangle, Flag, Mail, Phone, RefreshCw
+  AlertTriangle, Flag, Mail, Phone, RefreshCw, UserPlus
 } from 'lucide-react';
 import { Descope, useDescope, useSession, useUser } from '@descope/react-sdk';
 import { ClientOrder, UserAccount, WebsiteDeliveryCredentials, PasswordResetRequest } from '../types';
@@ -239,7 +239,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
 
   const handleDescopeError = (err: any) => {
     console.error('Descope authentication error:', err);
-    setLoginError('Descope প্রমাণীকরণ ত্রুটি। অনুগ্রহ করে পুনরায় চেষ্টা করুন।');
+    setLoginError('Descope authentication error. Please try again.');
   };
 
   // Handle Client Login (or Secret Admin Login)
@@ -293,7 +293,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
 
       if (matchingUser) {
         if (matchingUser.isRestricted) {
-          setLoginError('🚫 আপনার অ্যাকাউন্টটি সাময়িকভাবে সীমাবদ্ধ (Restricted) করা হয়েছে। সহায়তার জন্য অ্যাডমিন বা লাইভ সাপোর্টের সাথে যোগাযোগ করুন।');
+          setLoginError('🚫 Your account has been temporarily restricted. Please contact support.');
           setLoginLoading(false);
           return;
         }
@@ -309,10 +309,10 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
           window.location.href = '/';
         }
       } else {
-        setLoginError('মোবাইল নম্বর/ইমেইল অথবা পাসওয়ার্ড সঠিক নয়!');
+        setLoginError('Invalid phone number/email or password!');
       }
     } catch (_) {
-      setLoginError('লগইন প্রক্রিয়ায় সমস্যা হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।');
+      setLoginError('Login process failed. Please check your credentials and try again.');
     } finally {
       setLoginLoading(false);
     }
@@ -322,14 +322,14 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
   const handleSendEmailOtp = async () => {
     const clean = regEmail.trim().toLowerCase();
     if (!clean || !clean.includes('@')) {
-      setRegError('অনুগ্রহ করে সঠিক ইমেইল এড্রেস লিখুন।');
+      setRegError('Please enter a valid email address.');
       return;
     }
 
     // Check duplicate email
     const allUsers = await apiGetUsers();
     if (allUsers.some(u => (u.email || '').toLowerCase() === clean)) {
-      setRegError('এই ইমেইল এড্রেস দিয়ে ইতোমধ্যে একটি অ্যাকাউন্ট রয়েছে। এক ইমেইলে একাধিক অ্যাকাউন্ট খোলা সম্ভব নয়।');
+      setRegError('An account with this email address already exists. Only one account per email is allowed.');
       return;
     }
 
@@ -358,10 +358,10 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
           setDevCodeHint(res.devCode);
         }
       } else {
-        setRegError(res.error || 'ওটিপি পাঠাতে সমস্যা হয়েছে।');
+        setRegError(res.error || 'Failed to send OTP code.');
       }
     } catch (err) {
-      setRegError('ওটিপি পাঠাতে সমস্যা হয়েছে। পুনরায় চেষ্টা করুন।');
+      setRegError('Failed to send OTP code. Please try again.');
     } finally {
       setOtpSending(false);
     }
@@ -371,7 +371,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
   const handleConfirmEmailOtp = async () => {
     const cleanCode = emailOtpCode.trim();
     if (!cleanCode || cleanCode.length < 6) {
-      setRegError('৬ ডিজিটের ওটিপি কোডটি লিখুন।');
+      setRegError('Please enter the 6-digit OTP code.');
       return;
     }
 
@@ -392,10 +392,10 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
         setEmailVerified(true);
         setDevCodeHint('');
       } else {
-        setRegError(res.error || 'ভুল ওটিপি কোড! অনুগ্রহ করে ইমেইলে পাওয়া কোডটি পুনরায় চেক করুন।');
+        setRegError(res.error || 'Invalid OTP code! Please verify the code received in your email.');
       }
     } catch (_) {
-      setRegError('কোড যাচাই ব্যর্থ হয়েছে।');
+      setRegError('Code verification failed.');
     } finally {
       setOtpConfirming(false);
     }
@@ -415,17 +415,17 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
         clientPhone: currentUser?.phone || '',
         clientEmail: currentUser?.email || '',
         message: reportMessage.trim(),
-        createdAt: new Date().toLocaleString('bn-BD'),
+        createdAt: new Date().toLocaleString('en-US'),
         status: 'pending'
       });
-      setReportSuccess('আপনার রিপোর্ট সফলভাবে জমা নেওয়া হয়েছে! আমাদের টিম শীঘ্রই এটি পর্যালোচনা করবে।');
+      setReportSuccess('Your report has been submitted successfully! Our team will review it shortly.');
       setTimeout(() => {
         setReportSuccess('');
         setReportMessage('');
         setShowReportModal(false);
       }, 2500);
     } catch (_) {
-      setReportSuccess('রিপোর্ট পাঠানো সম্পন্ন হয়েছে।');
+      setReportSuccess('Report submitted.');
       setTimeout(() => {
         setReportSuccess('');
         setReportMessage('');
@@ -442,42 +442,42 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
     setRegError('');
 
     if (!regName.trim()) {
-      setRegError('অনুগ্রহ করে আপনার নাম লিখুন।');
+      setRegError('Please enter your full name.');
       return;
     }
     const cleanPhone = regPhone.trim();
     if (!cleanPhone || cleanPhone.length < 10) {
-      setRegError('সঠিক মোবাইল নম্বর প্রদান করুন।');
+      setRegError('Please enter a valid mobile phone number.');
       return;
     }
     const cleanEmail = regEmail.trim().toLowerCase();
     if (!cleanEmail || !cleanEmail.includes('@')) {
-      setRegError('সঠিক ইমেইল এড্রেস প্রদান করুন।');
+      setRegError('Please enter a valid email address.');
       return;
     }
 
     // Check duplicate phone or email before proceeding (1 phone = 1 account, 1 email = 1 account)
     const allUsers = await apiGetUsers();
     if (allUsers.some(u => u.phone === cleanPhone)) {
-      setRegError('এই মোবাইল নম্বর দিয়ে ইতোমধ্যে একটি অ্যাকাউন্ট রয়েছে। এক ফোন নম্বরে একাধিক অ্যাকাউন্ট সম্ভব নয়।');
+      setRegError('An account with this mobile phone number already exists. Only one account per phone is allowed.');
       return;
     }
     if (allUsers.some(u => (u.email || '').toLowerCase() === cleanEmail)) {
-      setRegError('এই ইমেইল এড্রেস দিয়ে ইতোমধ্যে একটি অ্যাকাউন্ট তৈরি করা হয়েছে। এক ইমেইলে একাধিক অ্যাকাউন্ট সম্ভব নয়।');
+      setRegError('An account with this email address already exists. Only one account per email is allowed.');
       return;
     }
 
     if (!emailVerified) {
-      setRegError('অনুগ্রহ করে আগে ইমেইল ওটিপি কোড পাঠিয়ে ভেরিফাই করুন।');
+      setRegError('Please verify your email address with the OTP code first.');
       return;
     }
 
     if (!regPass || regPass.length < 4) {
-      setRegError('পাসওয়ার্ড কমপক্ষে ৪ অক্ষরের হতে হবে।');
+      setRegError('Password must be at least 4 characters long.');
       return;
     }
     if (regPass !== regConfirmPass) {
-      setRegError('পাসওয়ার্ড ও কনফার্ম পাসওয়ার্ড মিলছে না!');
+      setRegError('Password and Confirm Password do not match!');
       return;
     }
 
@@ -487,14 +487,14 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
       phone: cleanPhone,
       email: cleanEmail,
       password: regPass.trim(),
-      registeredAt: new Date().toLocaleDateString('bn-BD')
+      registeredAt: new Date().toLocaleDateString('en-US')
     };
 
     const result = await apiRegisterUser(newUser);
     setRegSubmitting(false);
 
     if (!result.success) {
-      setRegError(result.error || 'নিবন্ধন করা সম্ভব হয়নি!');
+      setRegError(result.error || 'Registration failed. Please try again.');
       return;
     }
 
@@ -514,7 +514,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
     e.preventDefault();
     const clean = forgotEmail.trim().toLowerCase();
     if (!clean || !clean.includes('@')) {
-      setForgotError('অনুগ্রহ করে সঠিক ইমেইল এড্রেস লিখুন।');
+      setForgotError('Please enter a valid email address.');
       return;
     }
 
@@ -529,10 +529,10 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
           setForgotDevCode(res.devCode);
         }
       } else {
-        setForgotError(res.error || 'এই ইমেইল দিয়ে কোনো অ্যাকাউন্ট পাওয়া যায়নি।');
+        setForgotError(res.error || 'No account found with this email address.');
       }
     } catch (_) {
-      setForgotError('ওটিপি পাঠাতে সমস্যা হয়েছে। পুনরায় চেষ্টা করুন।');
+      setForgotError('Failed to send OTP code. Please try again.');
     } finally {
       setForgotLoading(false);
     }
@@ -544,15 +544,15 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
     setForgotError('');
 
     if (!forgotOtpCode || forgotOtpCode.length < 6) {
-      setForgotError('৬ ডিজিটের ওটিপি কোডটি লিখুন।');
+      setForgotError('Please enter the 6-digit OTP code.');
       return;
     }
     if (!forgotNewPass || forgotNewPass.length < 4) {
-      setForgotError('পাসওয়ার্ড কমপক্ষে ৪ অক্ষরের হতে হবে।');
+      setForgotError('Password must be at least 4 characters long.');
       return;
     }
     if (forgotNewPass !== forgotConfirmPass) {
-      setForgotError('পাসওয়ার্ড ও কনফার্ম পাসওয়ার্ড মিলছে না!');
+      setForgotError('Password and Confirm Password do not match!');
       return;
     }
 
@@ -560,7 +560,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
     try {
       const res = await apiResetPasswordWithOtp(forgotEmail.trim().toLowerCase(), forgotOtpCode.trim(), forgotNewPass.trim());
       if (res.success) {
-        setForgotSuccess('পাসওয়ার্ড সফলভাবে পরিবর্তন করা হয়েছে! এখন লগইন করুন।');
+        setForgotSuccess('Password successfully reset! You can now log in.');
         setTimeout(() => {
           setShowForgotModal(false);
           setForgotSuccess('');
@@ -572,10 +572,10 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
           setAuthMode('login');
         }, 2200);
       } else {
-        setForgotError(res.error || 'পাসওয়ার্ড পরিবর্তন ব্যর্থ হয়েছে।');
+        setForgotError(res.error || 'Password reset failed.');
       }
     } catch (_) {
-      setForgotError('সার্ভারে সমস্যা হয়েছে। পুনরায় চেষ্টা করুন।');
+      setForgotError('Server error occurred. Please try again.');
     } finally {
       setForgotLoading(false);
     }
@@ -616,12 +616,12 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                 BW
               </div>
               <h1 className="text-xl sm:text-2xl font-black text-[#0D253D] tracking-tight">
-                {authMode === 'login' ? 'পুরাতন অ্যাকাউন্টে লগইন করুন (Log In)' : 'নতুন অ্যাকাউন্ট তৈরি করুন (Create Account)'}
+                {authMode === 'login' ? 'Log In to Existing Account' : 'Create New Account'}
               </h1>
               <p className="text-xs sm:text-[13px] text-slate-500 mt-1.5 leading-relaxed">
                 {authMode === 'login' 
-                  ? 'আপনার পুরাতন আইডি, মোবাইল নম্বর বা ইমেইল এবং পাসওয়ার্ড দিয়ে প্রবেশ করুন।' 
-                  : 'আপনার নাম, মোবাইল নম্বর এবং ভেরিফাইড ইমেইল দিয়ে মাত্র ১ মিনিটে নিবন্ধন করুন।'}
+                  ? 'Enter your registered phone, email, or account ID and password to access your account.' 
+                  : 'Enter your name, mobile number, and verified email to register in 1 minute.'}
               </p>
             </div>
 
@@ -631,14 +631,14 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                 <div className="flex items-center justify-between pb-2 border-b border-slate-200">
                   <div>
                     <span className="text-xs font-bold text-[#0D253D] block">Descope Sign-Up or Sign-In</span>
-                    <span className="text-[11px] text-slate-500">Email OTP অথবা সোশ্যাল লগইন সম্পন্ন করুন</span>
+                    <span className="text-[11px] text-slate-500">Complete authentication with Email OTP or Google</span>
                   </div>
                   <button
                     type="button"
                     onClick={() => setShowDescopeFlow(false)}
                     className="text-xs font-bold text-[#533AFD] hover:underline cursor-pointer"
                   >
-                    ← সাধারণ ফর্মে ফিরুন
+                    ← Return to Standard Form
                   </button>
                 </div>
                 <div className="min-h-[300px] flex items-center justify-center">
@@ -665,14 +665,14 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
 
                       <div>
                         <label className="block text-xs font-bold text-slate-800 mb-1.5">
-                          মোবাইল নম্বর অথবা ইমেইল এড্রেস
+                          Phone Number or Email Address
                         </label>
                         <div className="relative">
                           <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                           <input
                             type="text"
                             required
-                            placeholder="01XXXXXXXXX অথবা you@gmail.com"
+                            placeholder="01XXXXXXXXX or you@gmail.com"
                             value={loginIdentifier}
                             onChange={(e) => setLoginIdentifier(e.target.value)}
                             className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50/80 border border-slate-200 text-xs sm:text-sm text-[#0D253D] placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#533AFD] focus:ring-3 focus:ring-[#533AFD]/15 transition-all shadow-2xs"
@@ -683,7 +683,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                       <div>
                         <div className="flex items-center justify-between mb-1.5">
                           <label className="text-xs font-bold text-slate-800">
-                            অ্যাকাউন্ট পাসওয়ার্ড
+                            Account Password
                           </label>
                           <button
                             type="button"
@@ -696,7 +696,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                             }}
                             className="text-[11px] text-[#533AFD] hover:text-[#432BEE] hover:underline font-semibold cursor-pointer transition-colors"
                           >
-                            পাসওয়ার্ড ভুলে গেছেন? (Forgot Password?)
+                            Forgot Password?
                           </button>
                         </div>
                         <div className="relative">
@@ -704,7 +704,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                           <input
                             type={showLoginPass ? 'text' : 'password'}
                             required
-                            placeholder="আপনার পাসওয়ার্ড লিখুন"
+                            placeholder="Enter your password"
                             value={loginPassword}
                             onChange={(e) => setLoginPassword(e.target.value)}
                             className="w-full pl-10 pr-10 py-3 rounded-xl bg-slate-50/80 border border-slate-200 text-xs sm:text-sm text-[#0D253D] placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#533AFD] focus:ring-3 focus:ring-[#533AFD]/15 transition-all shadow-2xs font-mono"
@@ -726,10 +726,10 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                           className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#533AFD] to-[#432BEE] hover:from-[#432BEE] hover:to-[#3724C4] active:scale-[0.99] text-white text-xs sm:text-sm font-bold shadow-[0_8px_20px_-4px_rgba(83,58,253,0.35)] hover:shadow-[0_12px_28px_-4px_rgba(83,58,253,0.45)] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
                         >
                           {loginLoading ? (
-                            <span>প্রবেশ করা হচ্ছে...</span>
+                            <span>Signing in...</span>
                           ) : (
                             <>
-                              <span>অ্যাকাউন্টে প্রবেশ করুন (Log In)</span>
+                              <span>Log In</span>
                               <ArrowRight className="w-4 h-4" />
                             </>
                           )}
@@ -737,14 +737,40 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                       </div>
                     </form>
 
-                    {/* Subtle Divider: OR CONTINUE WITH GOOGLE */}
+                    {/* Divider: CREATE ACCOUNT FOR NEW USERS */}
                     <div className="relative my-4">
                       <div className="absolute inset-0 flex items-center">
                         <div className="w-full border-t border-slate-200/80" />
                       </div>
                       <div className="relative flex justify-center text-[11px] uppercase tracking-wider text-slate-400">
                         <span className="bg-white px-3 font-semibold">
-                          অথবা গুগল দিয়ে প্রবেশ করুন
+                          Create account for new users
+                        </span>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAuthMode('register');
+                        setLoginError('');
+                        setRegError('');
+                      }}
+                      className="w-full py-3.5 px-4 rounded-xl bg-slate-50 hover:bg-[#533AFD]/5 border border-slate-200/90 hover:border-[#533AFD]/40 text-[#533AFD] hover:text-[#432BEE] text-xs sm:text-sm font-bold shadow-2xs hover:shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99] group"
+                    >
+                      <UserPlus className="w-4 h-4 text-[#533AFD] transition-transform group-hover:scale-110" />
+                      <span>Create account for new users</span>
+                      <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                    </button>
+
+                    {/* Divider: OR CONTINUE WITH GOOGLE */}
+                    <div className="relative my-4">
+                      <div className="absolute inset-0 flex items-center">
+                        <div className="w-full border-t border-slate-200/80" />
+                      </div>
+                      <div className="relative flex justify-center text-[11px] uppercase tracking-wider text-slate-400">
+                        <span className="bg-white px-3 font-semibold">
+                          Or continue with Google
                         </span>
                       </div>
                     </div>
@@ -763,7 +789,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                           <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
                           <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
                         </svg>
-                        <span>{googleLoading ? 'গুগলে কানেক্ট হচ্ছে...' : 'Continue with Google (গুগল দিয়ে প্রবেশ করুন)'}</span>
+                        <span>{googleLoading ? 'Connecting to Google...' : 'Continue with Google'}</span>
                       </button>
 
                       {/* Optional Descope All-In-One Flow Toggle Link */}
@@ -774,28 +800,9 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                           className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-[11px] font-semibold text-[#533AFD] hover:text-[#432BEE] hover:bg-[#533AFD]/5 transition-colors cursor-pointer"
                         >
                           <Sparkles className="w-3.5 h-3.5 text-[#533AFD]" />
-                          <span>Descope অল-ইন-ওয়ান সাইন-ইন ব্যবহার করুন</span>
+                          <span>Use Descope All-In-One Sign-In</span>
                         </button>
                       </div>
-                    </div>
-
-                    {/* 3. BOTTOM PROMPT: NEW USER? CREATE AN ACCOUNT */}
-                    <div className="mt-5 pt-4 border-t border-slate-100 text-center">
-                      <p className="text-xs text-slate-500">
-                        নতুন ব্যবহারকারী?{' '}
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setAuthMode('register');
-                            setLoginError('');
-                            setRegError('');
-                          }}
-                          className="text-[#533AFD] hover:text-[#432BEE] font-bold hover:underline cursor-pointer inline-flex items-center gap-1.5 transition-colors ml-1"
-                        >
-                          <span>Create an account (নতুন অ্যাকাউন্ট তৈরি করুন)</span>
-                          <ArrowRight className="w-3.5 h-3.5" />
-                        </button>
-                      </p>
                     </div>
                   </div>
                 )}
@@ -813,14 +820,14 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                     {/* Full Name */}
                     <div>
                       <label className="block text-xs font-bold text-slate-800 mb-1.5">
-                        আপনার পূর্ণ নাম (Full Name) <span className="text-red-500">*</span>
+                        Full Name <span className="text-red-500">*</span>
                       </label>
                       <div className="relative">
                         <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                         <input
                           type="text"
                           required
-                          placeholder="যেমন: তানভীর আহমেদ"
+                          placeholder="e.g. John Doe"
                           value={regName}
                           onChange={(e) => setRegName(e.target.value)}
                           className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50/80 border border-slate-200 text-xs sm:text-sm text-[#0D253D] placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#533AFD] focus:ring-3 focus:ring-[#533AFD]/15 transition-all shadow-2xs"
@@ -832,16 +839,16 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                     <div>
                       <div className="flex items-center justify-between mb-1.5">
                         <label className="text-xs font-bold text-slate-800">
-                          মোবাইল নম্বর (Phone Number) <span className="text-red-500">*</span>
+                          Phone Number <span className="text-red-500">*</span>
                         </label>
-                        <span className="text-[10px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md font-medium">১ ফোন = ১ অ্যাকাউন্ট</span>
+                        <span className="text-[10px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md font-medium">1 Phone = 1 Account</span>
                       </div>
                       <div className="relative">
                         <Phone className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                         <input
                           type="tel"
                           required
-                          placeholder="যেমন: 01712345678"
+                          placeholder="e.g. 01712345678"
                           value={regPhone}
                           onChange={(e) => setRegPhone(e.target.value)}
                           className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50/80 border border-slate-200 text-xs sm:text-sm text-[#0D253D] placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#533AFD] focus:ring-3 focus:ring-[#533AFD]/15 transition-all shadow-2xs font-mono"
@@ -853,12 +860,12 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                     <div>
                       <div className="flex items-center justify-between mb-1.5">
                         <label className="text-xs font-bold text-slate-800">
-                          ইমেইল এড্রেস (Email Address) <span className="text-red-500">*</span>
+                          Email Address <span className="text-red-500">*</span>
                         </label>
                         {emailVerified && (
                           <span className="text-emerald-700 text-[11px] font-bold flex items-center gap-1 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
                             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                            <span>ইমেইল ভেরিফাইড (Verified)</span>
+                            <span>Email Verified</span>
                           </span>
                         )}
                       </div>
@@ -902,12 +909,12 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                           ) : emailVerified ? (
                             <>
                               <Check className="w-3.5 h-3.5 text-emerald-600 stroke-[3]" />
-                              <span>ভেরিফাইড</span>
+                              <span>Verified</span>
                             </>
                           ) : (
                             <>
                               <Key className="w-3.5 h-3.5" />
-                              <span>{otpCountdown > 0 ? `${otpCountdown}s অপেক্ষা` : otpSent ? 'আবার পাঠান' : 'কোড পাঠান (Send OTP)'}</span>
+                              <span>{otpCountdown > 0 ? `Wait ${otpCountdown}s` : otpSent ? 'Resend OTP' : 'Send OTP'}</span>
                             </>
                           )}
                         </button>
@@ -920,11 +927,11 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                         <div className="flex items-center justify-between text-xs text-indigo-900">
                           <span className="font-bold flex items-center gap-1.5">
                             <Key className="w-3.5 h-3.5 text-[#533AFD]" />
-                            <span>ইমেইলে পাঠানো ৬ ডিজিটের ওটিপি কোডটি লিখুন:</span>
+                            <span>Enter the 6-digit OTP code sent to your email:</span>
                           </span>
                           {devCodeHint && (
                             <span className="text-[10px] font-mono bg-white px-2 py-0.5 rounded border border-indigo-200 text-[#533AFD] font-bold shadow-2xs">
-                              কোড: {devCodeHint}
+                              Demo Code: {devCodeHint}
                             </span>
                           )}
                         </div>
@@ -933,7 +940,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                           <input
                             type="text"
                             maxLength={6}
-                            placeholder="৬ ডিজিট ওটিপি"
+                            placeholder="6-digit OTP"
                             value={emailOtpCode}
                             onChange={(e) => setEmailOtpCode(e.target.value.replace(/\D/g, ''))}
                             className="flex-1 px-4 py-2.5 rounded-xl bg-white border border-indigo-200 text-sm text-[#0D253D] font-mono tracking-[0.25em] sm:tracking-[0.35em] text-center font-bold focus:outline-none focus:border-[#533AFD] focus:ring-3 focus:ring-[#533AFD]/15 shadow-2xs"
@@ -945,17 +952,17 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                             className="px-4 py-2.5 rounded-xl bg-[#00B261] hover:bg-[#009E56] text-white text-xs font-bold transition-all shrink-0 cursor-pointer shadow-xs hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
                           >
                             {otpConfirming ? (
-                              <span>যাচাই হচ্ছে...</span>
+                              <span>Verifying...</span>
                             ) : (
                               <>
                                 <CheckCircle2 className="w-4 h-4" />
-                                <span>কনফার্ম করুন (Confirm Code)</span>
+                                <span>Confirm OTP</span>
                               </>
                             )}
                           </button>
                         </div>
                         <p className="text-[11px] text-indigo-700/80 leading-relaxed">
-                          আপনার ইমেইলের ইনবক্স বা স্প্যাম ফোল্ডার চেক করুন। কোডটি ১০ মিনিট কার্যকর থাকবে।
+                          Check your email inbox or spam folder. This code is valid for 10 minutes.
                         </p>
                       </div>
                     )}
@@ -964,14 +971,14 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
                         <label className="block text-xs font-bold text-slate-800 mb-1.5">
-                          পাসওয়ার্ড (Password) <span className="text-red-500">*</span>
+                          Password <span className="text-red-500">*</span>
                         </label>
                         <div className="relative">
                           <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                           <input
                             type={showRegPass ? 'text' : 'password'}
                             required
-                            placeholder="কমপক্ষে ৪ অক্ষর"
+                            placeholder="At least 4 characters"
                             value={regPass}
                             onChange={(e) => setRegPass(e.target.value)}
                             className="w-full pl-10 pr-9 py-3 rounded-xl bg-slate-50/80 border border-slate-200 text-xs sm:text-sm text-[#0D253D] placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#533AFD] focus:ring-3 focus:ring-[#533AFD]/15 transition-all shadow-2xs font-mono"
@@ -988,14 +995,14 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
 
                       <div>
                         <label className="block text-xs font-bold text-slate-800 mb-1.5">
-                          কনফার্ম পাসওয়ার্ড <span className="text-red-500">*</span>
+                          Confirm Password <span className="text-red-500">*</span>
                         </label>
                         <div className="relative">
                           <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                           <input
                             type={showRegPass ? 'text' : 'password'}
                             required
-                            placeholder="পাসওয়ার্ড পুনরায় লিখুন"
+                            placeholder="Re-enter password"
                             value={regConfirmPass}
                             onChange={(e) => setRegConfirmPass(e.target.value)}
                             className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50/80 border border-slate-200 text-xs sm:text-sm text-[#0D253D] placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#533AFD] focus:ring-3 focus:ring-[#533AFD]/15 transition-all shadow-2xs font-mono"
@@ -1016,17 +1023,17 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                         }`}
                       >
                         {regSubmitting ? (
-                          <span>অ্যাকাউন্ট তৈরি হচ্ছে...</span>
+                          <span>Creating account...</span>
                         ) : (
                           <>
-                            <span>একাউন্ট তৈরি করুন (Create Account)</span>
+                            <span>Create Account</span>
                             <ArrowRight className="w-4 h-4" />
                           </>
                         )}
                       </button>
                       {!emailVerified && (
                         <p className="text-[11px] text-center text-slate-500 mt-2">
-                          * অ্যাকাউন্ট তৈরির আগে ইমেইলে কোড পাঠিয়ে ভেরিফাই সম্পন্ন করুন।
+                          * Please verify your email before creating your account.
                         </p>
                       )}
                     </div>
@@ -1044,7 +1051,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                           }}
                           className="text-[#533AFD] hover:text-[#432BEE] font-bold hover:underline cursor-pointer inline-flex items-center gap-1.5 transition-colors ml-1"
                         >
-                          <span>Log In (লগইন করুন)</span>
+                          <span>Log In</span>
                           <ArrowRight className="w-3.5 h-3.5" />
                         </button>
                       </p>
@@ -1063,7 +1070,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
               className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white hover:bg-slate-50 active:scale-95 text-[#533AFD] border border-slate-200/90 hover:border-[#533AFD]/30 text-xs font-bold transition-all shadow-[0_2px_8px_rgba(0,0,0,0.03)] hover:shadow-xs cursor-pointer group"
             >
               <ShieldCheck className="w-4 h-4 text-[#533AFD] transition-transform group-hover:scale-110" />
-              <span>Security Code (কোড দেখুন)</span>
+              <span>View Security Code</span>
             </button>
           </div>
 
@@ -1071,15 +1078,15 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
           <div className="mt-5 flex items-center justify-center gap-3 text-[11px] font-medium text-slate-500 flex-wrap select-none">
             <span className="flex items-center gap-1.5">
               <ShieldCheck className="w-3.5 h-3.5 text-[#00B261]" />
-              <span>Descope ও 256-Bit SSL সুরক্ষিত</span>
+              <span>Descope & 256-Bit SSL Secured</span>
             </span>
             <span className="text-slate-300" aria-hidden="true">·</span>
             <span className="flex items-center gap-1.5">
               <CheckCircle2 className="w-3.5 h-3.5 text-[#533AFD]" />
-              <span>ভেরিফাইড ইমেইল ওটিপি</span>
+              <span>Verified Email OTP</span>
             </span>
             <span className="text-slate-300" aria-hidden="true">·</span>
-            <span>২৪/৭ লাইভ সাপোর্ট</span>
+            <span>24/7 Live Support</span>
           </div>
         </div>
 
@@ -1101,10 +1108,10 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                 </div>
                 <div>
                   <h3 className="text-base font-black text-[#0D253D]">
-                    পাসওয়ার্ড রিসেট (Email OTP)
+                    Reset Password (Email OTP)
                   </h3>
                   <p className="text-[11px] text-slate-500">
-                    আপনার রেজিস্ট্রেশনকৃত ইমেইলে ওটিপি কোড দিয়ে নতুন পাসওয়ার্ড সেট করুন
+                    Set a new password using the OTP code sent to your registered email
                   </p>
                 </div>
               </div>
@@ -1115,7 +1122,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                     <CheckCircle2 className="w-6 h-6" />
                   </div>
                   <h4 className="text-sm font-bold text-[#0D253D]">
-                    পাসওয়ার্ড পরিবর্তন সফল হয়েছে!
+                    Password Reset Successful!
                   </h4>
                   <p className="text-xs text-slate-500">
                     {forgotSuccess}
@@ -1133,7 +1140,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
 
                   <div>
                     <label className="block text-xs font-bold text-slate-800 mb-1.5">
-                      আপনার রেজিস্টার্ড ইমেইল এড্রেস
+                      Registered Email Address
                     </label>
                     <div className="relative">
                       <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -1155,11 +1162,11 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                       className="flex-1 py-3 rounded-xl bg-gradient-to-r from-[#533AFD] to-[#432BEE] text-white text-xs font-bold hover:from-[#432BEE] hover:to-[#3724C4] transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-60 shadow-xs"
                     >
                       {forgotLoading ? (
-                        <span>কোড পাঠানো হচ্ছে...</span>
+                        <span>Sending code...</span>
                       ) : (
                         <>
                           <Key className="w-3.5 h-3.5" />
-                          <span>রিসেট ওটিপি পাঠান (Send Code)</span>
+                          <span>Send Reset OTP</span>
                         </>
                       )}
                     </button>
@@ -1168,7 +1175,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                       onClick={() => setShowForgotModal(false)}
                       className="px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 hover:text-slate-900 cursor-pointer"
                     >
-                      বাতিল
+                      Cancel
                     </button>
                   </div>
                 </form>
@@ -1183,23 +1190,23 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                   )}
 
                   <div className="p-3 rounded-xl bg-indigo-50/80 border border-indigo-200 text-xs text-indigo-900 flex items-center justify-between">
-                    <span>{forgotEmail} এ কোড পাঠানো হয়েছে</span>
+                    <span>Code sent to {forgotEmail}</span>
                     {forgotDevCode && (
                       <span className="font-mono font-bold bg-white px-2 py-0.5 rounded border border-indigo-200 text-[#533AFD]">
-                        কোড: {forgotDevCode}
+                        Code: {forgotDevCode}
                       </span>
                     )}
                   </div>
 
                   <div>
                     <label className="block text-xs font-bold text-slate-800 mb-1.5">
-                      ইমেইলে পাওয়া ৬ ডিজিটের ওটিপি কোড <span className="text-red-500">*</span>
+                      6-Digit OTP Code from Email <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
                       maxLength={6}
                       required
-                      placeholder="৬ ডিজিটের কোড"
+                      placeholder="6-digit OTP"
                       value={forgotOtpCode}
                       onChange={(e) => setForgotOtpCode(e.target.value.replace(/\D/g, ''))}
                       className="w-full px-4 py-2.5 rounded-xl bg-slate-50/80 border border-slate-200 text-sm text-[#0D253D] font-mono tracking-[0.25em] text-center font-bold focus:outline-none focus:bg-white focus:border-[#533AFD] focus:ring-3 focus:ring-[#533AFD]/15 transition-all shadow-2xs"
@@ -1208,12 +1215,12 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
 
                   <div>
                     <label className="block text-xs font-bold text-slate-800 mb-1.5">
-                      নতুন পাসওয়ার্ড লিখুন <span className="text-red-500">*</span>
+                      New Password <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="password"
                       required
-                      placeholder="কমপক্ষে ৪ অক্ষর"
+                      placeholder="At least 4 characters"
                       value={forgotNewPass}
                       onChange={(e) => setForgotNewPass(e.target.value)}
                       className="w-full px-4 py-2.5 rounded-xl bg-slate-50/80 border border-slate-200 text-xs sm:text-sm text-[#0D253D] focus:outline-none focus:bg-white focus:border-[#533AFD] focus:ring-3 focus:ring-[#533AFD]/15 transition-all shadow-2xs font-mono"
@@ -1222,12 +1229,12 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
 
                   <div>
                     <label className="block text-xs font-bold text-slate-800 mb-1.5">
-                      নতুন পাসওয়ার্ড নিশ্চিত করুন <span className="text-red-500">*</span>
+                      Confirm New Password <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="password"
                       required
-                      placeholder="পাসওয়ার্ড পুনরায় লিখুন"
+                      placeholder="Re-enter password"
                       value={forgotConfirmPass}
                       onChange={(e) => setForgotConfirmPass(e.target.value)}
                       className="w-full px-4 py-2.5 rounded-xl bg-slate-50/80 border border-slate-200 text-xs sm:text-sm text-[#0D253D] focus:outline-none focus:bg-white focus:border-[#533AFD] focus:ring-3 focus:ring-[#533AFD]/15 transition-all shadow-2xs font-mono"
@@ -1241,11 +1248,11 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                       className="flex-1 py-3 rounded-xl bg-gradient-to-r from-[#00B261] to-[#009E56] text-white text-xs font-bold hover:from-[#009E56] hover:to-[#008749] transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-60 shadow-xs"
                     >
                       {forgotLoading ? (
-                        <span>রিসেট হচ্ছে...</span>
+                        <span>Resetting...</span>
                       ) : (
                         <>
                           <CheckCircle2 className="w-3.5 h-3.5" />
-                          <span>পাসওয়ার্ড পরিবর্তন সম্পন্ন করুন</span>
+                          <span>Complete Password Reset</span>
                         </>
                       )}
                     </button>
@@ -1254,7 +1261,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                       onClick={() => setForgotOtpSent(false)}
                       className="px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 hover:text-slate-900 cursor-pointer"
                     >
-                      কোড পুনরায় পাঠান
+                      Resend Code
                     </button>
                   </div>
                 </form>
