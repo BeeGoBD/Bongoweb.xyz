@@ -71,18 +71,16 @@ export default function App() {
 
     if (path.startsWith('/website')) {
       const code = path.replace(/^\/website\/?/, '').split('/')[0].split('?')[0];
-      const demo = findDemoByCode(code);
-      if (demo) {
-        setActiveDemo(demo);
-        setViewMode('website-detail');
-        return;
-      }
+      const demo = findDemoByCode(code) || WEBSITE_DEMOS[0];
+      setActiveDemo(demo);
+      setViewMode('website-detail');
+      return;
     }
 
     if (path.startsWith('/order')) {
       const code = path.replace(/^\/order\/?/, '').split('/')[0].split('?')[0];
-      const demo = findDemoByCode(code);
-      setActiveDemo(demo || WEBSITE_DEMOS[0]);
+      const demo = findDemoByCode(code) || WEBSITE_DEMOS[0];
+      setActiveDemo(demo);
       setViewMode('order-page');
       return;
     }
@@ -108,14 +106,26 @@ export default function App() {
     }
 
     // Default root path "/"
-    const savedCategory = sessionStorage.getItem('bongoweb_chosen_category');
-    if (savedCategory) {
-      setSelectedCategory(savedCategory as WebsiteCategory);
+    const savedView = sessionStorage.getItem('bongoweb_active_view') || localStorage.getItem('bongoweb_active_view');
+    const savedCategory = sessionStorage.getItem('bongoweb_chosen_category') || localStorage.getItem('bongoweb_chosen_category');
+    
+    if (savedView === 'category-picker') {
+      setViewMode('category-picker');
+    } else if (savedView === 'dashboard' || savedCategory) {
+      if (savedCategory) setSelectedCategory(savedCategory as WebsiteCategory);
       setViewMode('dashboard');
     } else {
       setViewMode('category-picker');
     }
   }, []);
+
+  // Synchronize current view mode to storage
+  useEffect(() => {
+    try {
+      localStorage.setItem('bongoweb_active_view', viewMode);
+      sessionStorage.setItem('bongoweb_active_view', viewMode);
+    } catch (_) {}
+  }, [viewMode]);
 
   // Initialize and listen to popstate
   useEffect(() => {
@@ -149,6 +159,9 @@ export default function App() {
   // Navigate to Category Picker (URL remains root "/")
   const handleBackToCategoryPicker = () => {
     sessionStorage.removeItem('bongoweb_chosen_category');
+    localStorage.removeItem('bongoweb_chosen_category');
+    localStorage.setItem('bongoweb_active_view', 'category-picker');
+    sessionStorage.setItem('bongoweb_active_view', 'category-picker');
     setViewMode('category-picker');
     window.history.pushState({}, '', '/');
     window.scrollTo({ top: 0, behavior: 'instant' });
@@ -158,6 +171,8 @@ export default function App() {
   const handleSelectCategory = (category: WebsiteCategory) => {
     setSelectedCategory(category);
     sessionStorage.setItem('bongoweb_chosen_category', category);
+    localStorage.setItem('bongoweb_chosen_category', category);
+    localStorage.setItem('bongoweb_active_view', 'dashboard');
     setViewMode('dashboard');
     window.history.pushState({}, '', '/');
     window.scrollTo({ top: 0, behavior: 'instant' });

@@ -5,9 +5,28 @@ import { createServer as createViteServer } from 'vite';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import nodemailer from 'nodemailer';
+import DescopeClient from '@descope/node-sdk';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Descope Authentication Client (Project ID: P3K6LwIDJRlYK19nBi2yewOjmo22)
+const DESCOPE_PROJECT_ID = process.env.DESCOPE_PROJECT_ID || 'P3K6LwIDJRlYK19nBi2yewOjmo22';
+const descopeClient = DescopeClient({ projectId: DESCOPE_PROJECT_ID });
+
+// Optional SMTP Mail Transporter for Live Email Dispatch
+const mailTransporter = process.env.SMTP_HOST
+  ? nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: Number(process.env.SMTP_PORT) || 587,
+      secure: process.env.SMTP_SECURE === 'true' || Number(process.env.SMTP_PORT) === 465,
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS
+      }
+    })
+  : null;
 
 const portArgIndex = process.argv.indexOf('--port');
 const portArg = portArgIndex !== -1 ? process.argv[portArgIndex + 1] : null;
@@ -233,6 +252,8 @@ interface DatabaseSchema {
     password?: string;
     registeredAt: string;
     isRestricted?: boolean;
+    photoUrl?: string;
+    clientId?: string;
   }>;
   orders: Array<any>;
   supportChats: Array<{
@@ -648,33 +669,41 @@ async function startServer() {
     }
   });
 
-  // EMAIL OTP & DESCOPE AUTH ROUTES
+  // EMAIL OTP & AUTH ROUTES
   interface EmailOtpRecord {
     code: string;
     expiresAt: number;
     purpose: 'signup' | 'forgot_password';
     verified: boolean;
+    isExistingUser?: boolean;
+    existingUser?: any;
   }
   const emailOtpStore = new Map<string, EmailOtpRecord>();
 
   app.post('/api/auth/send-email-otp', (req: Request, res: Response) => {
-    const { email, purpose } = req.body;
+    const { email, phone, purpose } = req.body;
     const cleanEmail = String(email || '').trim().toLowerCase();
+    const cleanPhone = String(phone || '').trim().replace(/\D/g, '');
+
     if (!cleanEmail || !cleanEmail.includes('@')) {
-      return res.status(400).json({ success: false, error: 'সঠিক ইমেইল এড্রেস লিখুন।' });
+      return res.status(400).json({ success: false, error: 'Please enter a valid email address.' });
     }
 
     const db = readDb();
-    const existingUser = (db.users || []).find(u => (u.email || '').toLowerCase() === cleanEmail);
+    const existingUser = (db.users || []).find(u => {
+      const uEmail = (u.email || '').toLowerCase();
+      const uPhone = (u.phone || '').replace(/\D/g, '');
+      return (uEmail && uEmail === cleanEmail) || (cleanPhone && uPhone && uPhone === cleanPhone);
+    });
 
-    if (purpose === 'signup' && existingUser) {
-      return res.status(400).json({ success: false, error: 'এই ইমেইল দিয়ে ইতোমধ্যে একটি একাউন্ট খোলা আছে। অনুগ্রহ করে লগইন করুন।' });
-    }
+    // Smart Registration System: If user already exists and tries to register, allow sending OTP to auto-login them!
+    const isExistingUser = !!(purpose === 'signup' && existingUser);
+
     if (purpose === 'forgot_password' && !existingUser) {
-      return res.status(404).json({ success: false, error: 'এই ইমেইল দিয়ে কোনো অ্যাকাউন্ট পাওয়া যায়নি।' });
+      return res.status(404).json({ success: false, error: 'No account found with this email address.' });
     }
 
-    // Generate 6-digit OTP
+    // Generate secure 6-digit OTP
     const code = String(Math.floor(100000 + Math.random() * 900000));
     const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes
 
@@ -682,17 +711,61 @@ async function startServer() {
       code,
       expiresAt,
       purpose: purpose || 'signup',
-      verified: false
+      verified: false,
+      isExistingUser,
+      existingUser: existingUser || undefined
     });
 
     const parts = cleanEmail.split('@');
     const masked = parts[0].slice(0, 2) + '***@' + (parts[1] || 'domain.com');
 
+    console.log(`[AUTH OTP] 6-digit OTP generated for ${cleanEmail}: ${code} (purpose: ${purpose}, existingUser: ${isExistingUser})`);
+
+    // Dispatch real email via nodemailer if SMTP transporter is configured
+    if (mailTransporter) {
+      mailTransporter.sendMail({
+        from: process.env.SMTP_FROM || `"BongoWeb Security" <noreply@bongoweb.xyz>`,
+        to: cleanEmail,
+        subject: isExistingUser
+          ? `[BongoWeb] Your Instant Login Verification Code: ${code}`
+          : `[BongoWeb] Your Email Verification OTP: ${code}`,
+        html: `
+          <div style="font-family: sans-serif; max-width: 520px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 16px; background: #ffffff;">
+            <div style="text-align: center; margin-bottom: 20px;">
+              <h2 style="color: #533AFD; margin: 0; font-size: 22px;">BongoWeb Authentication</h2>
+              <p style="color: #64748B; font-size: 13px; margin: 4px 0 0 0;">Official Security Code Service</p>
+            </div>
+            <p style="color: #1e293b; font-size: 14px; line-height: 1.5;">
+              ${isExistingUser 
+                ? 'We noticed you entered an email associated with an existing account. To log in securely without entering your password, use the 6-digit code below:' 
+                : 'Thank you for choosing BongoWeb. Please use the following 6-digit verification code to complete your verification:'}
+            </p>
+            <div style="text-align: center; margin: 24px 0;">
+              <div style="display: inline-block; padding: 14px 28px; background: #f1f3fd; border: 1px solid #c7d2fe; border-radius: 12px; font-family: monospace; font-size: 28px; font-weight: 800; letter-spacing: 6px; color: #4328eb;">
+                ${code}
+              </div>
+            </div>
+            <p style="color: #64748B; font-size: 12px; line-height: 1.5;">
+              This code will expire in 10 minutes. If you did not request this verification code, please ignore this email.
+            </p>
+            <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
+            <div style="text-align: center; color: #94a3b8; font-size: 11px;">
+              © ${new Date().getFullYear()} BongoWeb.xyz — All rights reserved.
+            </div>
+          </div>
+        `
+      }).catch(err => {
+        console.warn(`[AUTH OTP] Failed to send email via SMTP:`, err.message);
+      });
+    }
+
     res.json({
       success: true,
-      message: `৬ ডিজিটের ওটিপি কোড পাঠানো হয়েছে (${masked})।`,
+      isExistingUser,
       maskedEmail: masked,
-      devCode: code
+      message: isExistingUser
+        ? `Existing account found! A 6-digit login verification code was sent to ${masked}. Enter it to log into your account directly.`
+        : `A 6-digit OTP verification code was sent to ${masked}. Please check your inbox or spam folder.`
     });
   });
 
@@ -703,22 +776,37 @@ async function startServer() {
 
     const record = emailOtpStore.get(cleanEmail);
     if (!record) {
-      return res.status(400).json({ success: false, error: 'কোনো ওটিপি কোড পাঠানো হয়নি বা কোডের মেয়াদ শেষ হয়েছে। অনুগ্রহ করে আবার কোড পাঠান।' });
+      return res.status(400).json({ success: false, error: 'No OTP code was sent or the code has expired. Please request a new code.' });
     }
 
     if (Date.now() > record.expiresAt) {
       emailOtpStore.delete(cleanEmail);
-      return res.status(400).json({ success: false, error: 'ওটিপি কোডের মেয়াদ শেষ হয়ে গেছে। অনুগ্রহ করে আবার কোড পাঠান।' });
+      return res.status(400).json({ success: false, error: 'OTP code has expired. Please request a new code.' });
     }
 
+    // Verify OTP code matches
     if (record.code !== cleanCode) {
-      return res.status(400).json({ success: false, error: 'ভুল ওটিপি কোড! অনুগ্রহ করে ইমেইলে পাওয়া কোডটি পুনরায় চেক করুন।' });
+      return res.status(400).json({ success: false, error: 'Invalid OTP code! Please verify the code received in your email.' });
     }
 
     record.verified = true;
     emailOtpStore.set(cleanEmail, record);
 
-    res.json({ success: true, message: 'ইমেইল সফলভাবে ভেরিফাই সম্পন্ন হয়েছে।' });
+    // Smart Registration System: If this was an existing user, return the existing user object so client auto-logs in!
+    if (record.isExistingUser && record.existingUser) {
+      return res.json({
+        success: true,
+        isExistingUser: true,
+        user: record.existingUser,
+        message: 'OTP verified successfully! Welcome back to your account.'
+      });
+    }
+
+    res.json({ 
+      success: true, 
+      isExistingUser: false, 
+      message: 'Email verified successfully.' 
+    });
   });
 
   app.post('/api/auth/reset-password', (req: Request, res: Response) => {
@@ -728,33 +816,128 @@ async function startServer() {
     const cleanPass = String(newPassword || '').trim();
 
     if (!cleanPass || cleanPass.length < 4) {
-      return res.status(400).json({ success: false, error: 'পাসওয়ার্ড কমপক্ষে ৪ অক্ষরের হতে হবে।' });
+      return res.status(400).json({ success: false, error: 'Password must be at least 4 characters long.' });
     }
 
     const record = emailOtpStore.get(cleanEmail);
     if (!record || (!record.verified && record.code !== cleanCode)) {
-      return res.status(400).json({ success: false, error: 'ভুল ওটিপি কোড বা ভেরিফিকেশন ব্যর্থ হয়েছে।' });
+      return res.status(400).json({ success: false, error: 'Invalid OTP code or verification failed.' });
     }
 
     const db = readDb();
     const userIndex = (db.users || []).findIndex(u => (u.email || '').toLowerCase() === cleanEmail);
     if (userIndex === -1) {
-      return res.status(404).json({ success: false, error: 'এই ইমেইল দিয়ে কোনো অ্যাকাউন্ট পাওয়া যায়নি।' });
+      return res.status(404).json({ success: false, error: 'No account found with this email address.' });
     }
 
     db.users[userIndex].password = cleanPass;
     writeDb(db);
     emailOtpStore.delete(cleanEmail);
 
-    res.json({ success: true, message: 'পাসওয়ার্ড সফলভাবে পরিবর্তন করা হয়েছে। এখন নতুন পাসওয়ার্ড দিয়ে লগইন করুন।' });
+    res.json({ success: true, message: 'Password successfully changed. You can now log in with your new password.' });
   });
 
-  app.post('/api/auth/descope-sync', (req: Request, res: Response) => {
+  // GOOGLE AUTH DIRECT SYNC ROUTE
+  app.post('/api/auth/google-sync', (req: Request, res: Response) => {
     const db = readDb();
-    const { email, name, phone } = req.body;
+    const { email, name, phone, photoUrl } = req.body;
+    const cleanEmail = String(email || '').trim().toLowerCase();
+    if (!cleanEmail || !cleanEmail.includes('@')) {
+      return res.status(400).json({ success: false, error: 'Invalid Google email.' });
+    }
+
+    const cleanName = String(name || cleanEmail.split('@')[0] || 'Google User').trim();
+    const cleanPhone = String(phone || '').trim();
+
+    let user = (db.users || []).find(u => 
+      (u.email || '').toLowerCase() === cleanEmail ||
+      (cleanPhone && u.phone === cleanPhone)
+    );
+
+    if (!user) {
+      const generatedPhone = cleanPhone || `017${Math.floor(10000000 + Math.random() * 90000000)}`;
+      const newUser = {
+        name: cleanName,
+        phone: generatedPhone,
+        email: cleanEmail,
+        photoUrl: photoUrl || undefined,
+        registeredAt: new Date().toLocaleDateString('en-US')
+      };
+      db.users.push(newUser);
+      writeDb(db);
+      user = newUser;
+      broadcast({
+        type: 'user:registered',
+        user: newUser,
+        totalUsers: db.users.length,
+        timestamp: Date.now()
+      });
+    } else {
+      // Update name/photo if updated
+      let changed = false;
+      if (cleanName && (!user.name || user.name === 'Google User')) {
+        user.name = cleanName;
+        changed = true;
+      }
+      if (photoUrl && !user.photoUrl) {
+        user.photoUrl = photoUrl;
+        changed = true;
+      }
+      if (changed) writeDb(db);
+    }
+
+    res.json({ success: true, user });
+  });
+
+  // Descope Server-Side Session Validation Endpoint
+  // Validates sessionToken using descopeClient.validateSession
+  app.post('/api/auth/descope-validate', async (req: Request, res: Response) => {
+    try {
+      const sessionToken = req.body?.sessionToken || req.headers.authorization?.replace(/^Bearer\s+/i, '');
+      if (!sessionToken) {
+        return res.status(400).json({ success: false, error: 'sessionToken is required' });
+      }
+      const authInfo = await descopeClient.validateSession(sessionToken);
+      return res.json({ success: true, authInfo });
+    } catch (err: any) {
+      console.warn('[Descope] Session validation warning/error:', err?.message || err);
+      return res.status(401).json({ success: false, error: err?.message || 'Invalid or expired Descope session token' });
+    }
+  });
+
+  app.post('/api/auth/descope-sync', async (req: Request, res: Response) => {
+    const db = readDb();
+    let { email, name, phone, sessionToken } = req.body;
+
+    // If sessionToken is provided, attempt server-side verification with Descope
+    if (!sessionToken && req.headers.authorization) {
+      sessionToken = req.headers.authorization.replace(/^Bearer\s+/i, '');
+    }
+
+    if (sessionToken) {
+      try {
+        const authInfo = await descopeClient.validateSession(sessionToken);
+        const tokenData = authInfo?.token as any;
+        if (tokenData) {
+          if (!email && (tokenData.email || tokenData.sub)) {
+            email = tokenData.email || (tokenData.sub?.includes('@') ? tokenData.sub : email);
+          }
+          if (!name && (tokenData.name || tokenData.given_name)) {
+            name = tokenData.name || tokenData.given_name;
+          }
+          if (!phone && tokenData.phone) {
+            phone = tokenData.phone;
+          }
+        }
+      } catch (validationErr: any) {
+        // Fall back gracefully if offline or token expired
+        console.warn('[Descope] Token validation non-fatal warning during sync:', validationErr?.message);
+      }
+    }
+
     const cleanEmail = String(email || '').trim().toLowerCase();
     const cleanPhone = String(phone || '').trim();
-    const cleanName = String(name || 'BongoWeb Member').trim();
+    const cleanName = String(name || (cleanEmail ? cleanEmail.split('@')[0] : 'BongoWeb Member')).trim();
 
     let user = (db.users || []).find(u => 
       (cleanEmail && (u.email || '').toLowerCase() === cleanEmail) ||

@@ -83,9 +83,13 @@ export interface UserAccount {
   registeredAt: string;
   isRestricted?: boolean;
   clientId?: string;
+  photoUrl?: string;
+  username?: string;
+  whatsapp?: string;
 }
 
 export interface ClientOrder {
+  id?: string;
   orderId: string; // e.g. '#BW-84920'
   demoCode: string;
   demoTitle: string;
@@ -117,6 +121,7 @@ export interface ClientOrder {
 
 export interface WebsiteDeliveryCredentials {
   id: string;
+  orderId?: string;
   userPhone: string;
   websiteTitle: string;
   websiteCode: string;

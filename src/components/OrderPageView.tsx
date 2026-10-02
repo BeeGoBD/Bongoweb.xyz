@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   ArrowLeft, ArrowRight, CheckCircle2, ShieldCheck, 
   Copy, Check, Upload, HelpCircle, Lock, 
   FileText, Download, Printer, AlertCircle, Sparkles
 } from 'lucide-react';
 import { WebsiteDemo, ClientOrder, UserAccount } from '../types';
-import { apiCreateOrder, apiRegisterUser } from '../utils/api';
+import { apiCreateOrder, apiRegisterUser, apiGetUsers } from '../utils/api';
 
 interface OrderPageViewProps {
   demo: WebsiteDemo | string | null;
@@ -20,34 +20,115 @@ export default function OrderPageView({
   onBackToWebsite,
   onOrderCompleted
 }: OrderPageViewProps) {
+  const demoTitle = typeof demo === 'string' ? demo : demo?.title || 'প্রিমিয়াম বিজনেস ওয়েবসাইট';
+  const demoCode = (typeof demo === 'object' && demo?.fourDigitCode) ? demo.fourDigitCode : (typeof demo === 'string' ? demo : '#2085');
+  const cleanCode = String(demoCode || '').replace('#', '');
+  const storageKey = `bongoweb_order_state_${cleanCode}`;
+
+  // Safely restore state across page refreshes
+  const getSavedState = () => {
+    try {
+      const saved = sessionStorage.getItem(storageKey) || localStorage.getItem(storageKey);
+      if (saved) return JSON.parse(saved);
+    } catch (_) {}
+    return null;
+  };
+
+  const getLoggedInUser = (): UserAccount | null => {
+    try {
+      const raw = localStorage.getItem('bongoweb_user') || sessionStorage.getItem('bongoweb_user');
+      if (raw) return JSON.parse(raw);
+    } catch (_) {}
+    return null;
+  };
+
+  const saved = getSavedState();
+  const loggedIn = getLoggedInUser();
+
+  const getLatestSavedOrder = (): ClientOrder | null => {
+    if (saved?.createdOrder) return saved.createdOrder;
+    try {
+      const rawLatest = localStorage.getItem('bongoweb_latest_order');
+      if (rawLatest) return JSON.parse(rawLatest);
+    } catch (_) {}
+    return null;
+  };
+
+  // Check URL query for step e.g. /order/2085?step=2
+  const getInitialStep = (): 1 | 2 | 3 => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const urlStep = Number(params.get('step'));
+      if (urlStep === 2) return 2;
+      if (urlStep === 3) {
+        if (saved?.createdOrder || localStorage.getItem('bongoweb_latest_order')) return 3;
+        return 2;
+      }
+    } catch (_) {}
+    if (saved?.currentStep === 3 && (saved?.createdOrder || localStorage.getItem('bongoweb_latest_order'))) return 3;
+    if (saved?.currentStep === 2) return 2;
+    if (loggedIn) return 2; // If already logged in, skip account creation directly to step 2!
+    return 1;
+  };
+
   // Step 1: Account Creation; Step 2: Domain, Company & Payment; Step 3: Receipt
-  const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
+  const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(getInitialStep());
 
   // Step 1 Inputs (Account Creation)
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [name, setName] = useState(saved?.name || loggedIn?.name || '');
+  const [phone, setPhone] = useState(saved?.phone || loggedIn?.phone || '');
+  const [email, setEmail] = useState(saved?.email || loggedIn?.email || '');
+  const [password, setPassword] = useState(saved?.password || '');
+  const [confirmPassword, setConfirmPassword] = useState(saved?.confirmPassword || '');
   const [step1Error, setStep1Error] = useState('');
   const [emailNotification, setEmailNotification] = useState(false);
 
   // Step 2 Inputs (Company, Domain & Payment)
-  const [companyName, setCompanyName] = useState('');
-  const [domainOption, setDomainOption] = useState<'have_domain' | 'no_domain' | 'dont_know'>('no_domain');
-  const [customDomainName, setCustomDomainName] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState<'bkash' | 'nagad' | 'rocket' | 'upay'>('bkash');
-  const [transactionId, setTransactionId] = useState('');
-  const [screenshotName, setScreenshotName] = useState('');
+  const [companyName, setCompanyName] = useState(saved?.companyName || '');
+  const [domainOption, setDomainOption] = useState<'have_domain' | 'no_domain' | 'dont_know'>(saved?.domainOption || 'no_domain');
+  const [customDomainName, setCustomDomainName] = useState(saved?.customDomainName || '');
+  const [paymentMethod, setPaymentMethod] = useState<'bkash' | 'nagad' | 'rocket' | 'upay'>(saved?.paymentMethod || 'bkash');
+  const [transactionId, setTransactionId] = useState(saved?.transactionId || '');
+  const [screenshotName, setScreenshotName] = useState(saved?.screenshotName || '');
   const [step2Error, setStep2Error] = useState('');
   const [copiedNumber, setCopiedNumber] = useState(false);
 
   // Final Order Receipt
-  const [createdOrder, setCreatedOrder] = useState<ClientOrder | null>(null);
+  const [createdOrder, setCreatedOrder] = useState<ClientOrder | null>(getLatestSavedOrder());
 
-  const demoTitle = typeof demo === 'string' ? demo : demo?.title || 'প্রিমিয়াম বিজনেস ওয়েবসাইট';
-  const demoCode = (typeof demo === 'object' && demo?.fourDigitCode) ? demo.fourDigitCode : (typeof demo === 'string' ? demo : '#2085');
-  const cleanCode = String(demoCode || '').replace('#', '');
+  // Synchronize state to both sessionStorage and localStorage on every change to prevent any refresh errors
+  useEffect(() => {
+    try {
+      const stateToSave = {
+        currentStep,
+        name,
+        phone,
+        email,
+        password,
+        confirmPassword,
+        companyName,
+        domainOption,
+        customDomainName,
+        paymentMethod,
+        transactionId,
+        screenshotName,
+        createdOrder
+      };
+      sessionStorage.setItem(storageKey, JSON.stringify(stateToSave));
+      localStorage.setItem(storageKey, JSON.stringify(stateToSave));
+      if (createdOrder) {
+        localStorage.setItem('bongoweb_latest_order', JSON.stringify(createdOrder));
+      }
+      // Keep URL query in sync
+      const currentUrl = new URL(window.location.href);
+      if (currentStep > 1) {
+        currentUrl.searchParams.set('step', String(currentStep));
+      } else {
+        currentUrl.searchParams.delete('step');
+      }
+      window.history.replaceState({}, '', currentUrl.pathname + currentUrl.search);
+    } catch (_) {}
+  }, [currentStep, name, phone, email, password, confirmPassword, companyName, domainOption, customDomainName, paymentMethod, transactionId, screenshotName, createdOrder, storageKey]);
 
   // Payment Numbers
   const paymentNumbers: Record<'bkash' | 'nagad' | 'rocket' | 'upay', { number: string; type: string }> = {
@@ -95,10 +176,10 @@ export default function OrderPageView({
       phone: phone.trim(),
       email: email.trim(),
       password: password.trim(),
-      registeredAt: new Date().toLocaleDateString('bn-BD')
+      registeredAt: new Date().toLocaleDateString('en-US')
     };
 
-    apiRegisterUser(userAccount).catch(console.error);
+    apiRegisterUser(userAccount).catch(() => {});
 
     localStorage.setItem('bongoweb_user', JSON.stringify(userAccount));
     sessionStorage.setItem('bongoweb_user', JSON.stringify(userAccount));
@@ -161,6 +242,7 @@ export default function OrderPageView({
     }
 
     setCreatedOrder(newOrder);
+    localStorage.setItem('bongoweb_latest_order', JSON.stringify(newOrder));
     setCurrentStep(3);
     if (onOrderCompleted) onOrderCompleted(newOrder);
     window.scrollTo({ top: 0, behavior: 'instant' });
@@ -694,6 +776,37 @@ export default function OrderPageView({
                 className="flex-1 py-3 px-4 rounded-xl bg-[#F8FAFD] hover:bg-[#E2E4FF] text-[#533AFD] border border-[#E5EDF5] text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 <span>ড্যাশবোর্ডে ফিরুন</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 3 Fallback if refreshed without active order object */}
+        {currentStep === 3 && !createdOrder && (
+          <div className="bg-[#FFFFFF] border-2 border-[#E5EDF5] rounded-3xl p-6 sm:p-10 shadow-lg max-w-xl mx-auto animate-fadeIn text-center space-y-4">
+            <div className="w-14 h-14 rounded-full bg-[#00B261]/10 text-[#00B261] flex items-center justify-center mx-auto">
+              <CheckCircle2 className="w-8 h-8 stroke-[2.5]" />
+            </div>
+            <h2 className="text-xl font-black text-[#0D253D]">
+              অর্ডার রসিদ পৃষ্ঠা
+            </h2>
+            <p className="text-xs sm:text-sm text-[#64748D] leading-relaxed max-w-md mx-auto">
+              আপনার দেওয়া অর্ডারের রসিদ প্রস্তুত রয়েছে। নতুন অর্ডার করতে চাইলে আগের ধাপে ফিরে যেতে পারেন অথবা সরাসরি ড্যাশবোর্ড বা ক্যাটালগ দেখতে পারেন।
+            </p>
+            <div className="flex flex-col sm:flex-row gap-2.5 justify-center pt-2">
+              <button
+                type="button"
+                onClick={() => setCurrentStep(2)}
+                className="px-5 py-2.5 rounded-xl bg-[#F8FAFD] hover:bg-[#E2E4FF] text-[#533AFD] border border-[#E5EDF5] text-xs font-bold transition-all"
+              >
+                ← পেমেন্ট ধাপে ফিরে যান
+              </button>
+              <button
+                type="button"
+                onClick={onBackToDashboard}
+                className="px-5 py-2.5 rounded-xl bg-[#533AFD] hover:bg-[#432BEE] text-white text-xs font-bold transition-all"
+              >
+                ড্যাশবোর্ডে যান
               </button>
             </div>
           </div>

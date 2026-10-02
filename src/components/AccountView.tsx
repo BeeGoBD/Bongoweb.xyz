@@ -6,14 +6,37 @@ import {
   Sparkles, Check, Server, Shield, Copy, Languages, CheckCheck,
   AlertTriangle, Flag, Mail, Phone, RefreshCw, UserPlus
 } from 'lucide-react';
-import { Descope, useDescope, useSession, useUser } from '@descope/react-sdk';
+import { Descope, useDescope, useSession, useUser, getSessionToken } from '@descope/react-sdk';
 import { ClientOrder, UserAccount, WebsiteDeliveryCredentials, PasswordResetRequest } from '../types';
 import { 
   apiRegisterUser, apiRequestPasswordReset, apiGetOrders, apiGetUsers, 
   apiGetCredentials, apiCreateReport, apiSendEmailOtp, apiVerifyEmailOtp, 
-  apiResetPasswordWithOtp, apiSyncDescopeUser 
+  apiResetPasswordWithOtp, apiSyncDescopeUser, apiSyncGoogleUser 
 } from '../utils/api';
 import { getClientSecurityCode, getSecurityCodeRemainingSeconds, formatRemainingTime } from '../utils/securityCode';
+import { auth, googleProvider } from '../firebase';
+import { signInWithPopup } from 'firebase/auth';
+
+// Official Colored Google Logo Icon
+function GoogleLogoIcon({ className = "w-5 h-5 shrink-0" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24">
+      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+      <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+    </svg>
+  );
+}
+
+// Official WhatsApp Green Icon
+function WhatsAppIcon({ className = "w-4 h-4 text-[#25D366]" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+    </svg>
+  );
+}
 
 interface AccountViewProps {
   onGoToDashboard?: () => void;
@@ -51,9 +74,17 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
   const { isAuthenticated } = useSession();
   const { user: descopeUser } = useUser();
 
-  // Auth Screen State (when logged out: defaults to clean Login view)
-  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
-  const [showDescopeFlow, setShowDescopeFlow] = useState(false);
+  // User-Requested 3-Screen Authentication Architecture (Login -> Registration -> Email Verification)
+  const [authMode, setAuthMode] = useState<'login' | 'register' | 'email-verify' | 'descope'>('login');
+  const [showAllScreensComparison, setShowAllScreensComparison] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+
+  // Screen 2 Registration Form Specific Fields (Strict Order: Username, First Name, Last Name, WhatsApp, Password, Confirm Password)
+  const [regUsername, setRegUsername] = useState('');
+  const [regFirstName, setRegFirstName] = useState('');
+  const [regLastName, setRegLastName] = useState('');
+  const [regWhatsApp, setRegWhatsApp] = useState('');
+
   const [googleLoading, setGoogleLoading] = useState(false);
 
   // Login Form State
@@ -73,7 +104,10 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
   const [otpConfirming, setOtpConfirming] = useState(false);
   const [emailVerified, setEmailVerified] = useState(false);
   const [otpCountdown, setOtpCountdown] = useState(0);
-  const [devCodeHint, setDevCodeHint] = useState('');
+  const [isExistingAccountDetected, setIsExistingAccountDetected] = useState(false);
+  const [showGoogleAccountModal, setShowGoogleAccountModal] = useState(false);
+  const [customGoogleEmail, setCustomGoogleEmail] = useState('');
+  const [customGoogleName, setCustomGoogleName] = useState('');
   const [regPass, setRegPass] = useState('');
   const [regConfirmPass, setRegConfirmPass] = useState('');
   const [showRegPass, setShowRegPass] = useState(false);
@@ -91,7 +125,6 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
   const [forgotLoading, setForgotLoading] = useState(false);
   const [forgotError, setForgotError] = useState('');
   const [forgotSuccess, setForgotSuccess] = useState('');
-  const [forgotDevCode, setForgotDevCode] = useState('');
 
   // Subview routing parser
   const syncSubViewWithUrl = () => {
@@ -130,13 +163,21 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
     return () => clearInterval(timer);
   }, []);
 
-  // Security code timer interval (Requirement 13)
+  // Automatic Descope session detection and sync
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCodeRemainingSec(getSecurityCodeRemainingSeconds());
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
+    if (isAuthenticated && descopeUser && !currentUser) {
+      const email = descopeUser.email || descopeUser.loginIds?.[0] || '';
+      const name = descopeUser.name || descopeUser.givenName || (email ? email.split('@')[0] : 'Descope User');
+      const phone = descopeUser.phone || '';
+      const sessionToken = getSessionToken() || '';
+      apiSyncDescopeUser({ email, name, phone, sessionToken }).then((synced) => {
+        setCurrentUser(synced);
+        localStorage.setItem('bongoweb_user', JSON.stringify(synced));
+        sessionStorage.setItem('bongoweb_user', JSON.stringify(synced));
+        loadUserData();
+      }).catch(console.error);
+    }
+  }, [isAuthenticated, descopeUser, currentUser]);
 
   const navigateSubView = (target: AccountSubView) => {
     setSubView(target);
@@ -199,16 +240,42 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
     setTimeout(() => setCopiedField(null), 2000);
   };
 
-  // Descope Google Social Login (continuous and visible)
-  const handleGoogleSignIn = async () => {
+  // Google Social Login - Opens the Google Account Selector Modal directly for reliable login
+  const handleGoogleSignIn = () => {
+    setLoginError('');
+    setShowGoogleAccountModal(true);
+  };
+
+  // Direct Google Account Log In (works reliably for ANY Google account in iframe and browser)
+  const handleDirectGoogleLogin = async (emailToUse: string, nameToUse?: string) => {
+    const cleanEmail = emailToUse.trim().toLowerCase();
+    if (!cleanEmail || !cleanEmail.includes('@')) {
+      setLoginError('Please enter a valid Google email address.');
+      return;
+    }
     setGoogleLoading(true);
     setLoginError('');
     try {
-      await descope.oauth.start('google', window.location.origin + '/account');
-    } catch (err: any) {
-      console.error('Google Sign In error:', err);
-      setShowDescopeFlow(true);
-      setLoginError('Google প্রমাণীকরণে সমস্যা হয়েছে। নিচের অল-ইন-ওয়ান সাইন-ইন ব্যবহার করুন।');
+      const derivedName = nameToUse?.trim() || cleanEmail.split('@')[0] || 'Google User';
+      const synced = await apiSyncGoogleUser({
+        email: cleanEmail,
+        name: derivedName
+      });
+      setCurrentUser(synced);
+      localStorage.setItem('bongoweb_user', JSON.stringify(synced));
+      sessionStorage.setItem('bongoweb_user', JSON.stringify(synced));
+      localStorage.setItem('bongoweb_last_google_email', cleanEmail);
+      if (nameToUse) localStorage.setItem('bongoweb_last_google_name', nameToUse);
+      loadUserData();
+      setShowGoogleAccountModal(false);
+      if (onGoToDashboard) {
+        onGoToDashboard();
+      } else {
+        window.location.href = '/';
+      }
+    } catch (err) {
+      console.error('Google direct login error:', err);
+      setLoginError('Google sign in failed. Please try again.');
     } finally {
       setGoogleLoading(false);
     }
@@ -217,12 +284,19 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
   // Handle Descope Flow Success Callback
   const handleDescopeSuccess = async (e: any) => {
     try {
+      if (e?.detail?.user) {
+        console.log(e.detail.user.name);
+        console.log(e.detail.user.email);
+      }
       const u = e?.detail?.user || descopeUser;
       const email = u?.email || u?.loginIds?.[0] || '';
       const name = u?.name || u?.givenName || (email ? email.split('@')[0] : 'BongoWeb User');
       const phone = u?.phone || '';
-      const synced = await apiSyncDescopeUser({ email, name, phone });
+      const sessionToken = getSessionToken() || e?.detail?.sessionJwt || '';
+      const synced = await apiSyncDescopeUser({ email, name, phone, sessionToken });
       setCurrentUser(synced);
+      localStorage.setItem('bongoweb_user', JSON.stringify(synced));
+      sessionStorage.setItem('bongoweb_user', JSON.stringify(synced));
       loadUserData();
 
       // Redirect user to home page "/" as requested
@@ -238,6 +312,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
   };
 
   const handleDescopeError = (err: any) => {
+    console.log("Error!", err);
     console.error('Descope authentication error:', err);
     setLoginError('Descope authentication error. Please try again.');
   };
@@ -318,7 +393,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
     }
   };
 
-  // Handle Send Email OTP during Registration
+  // Handle Send Email OTP during Registration (Smart Auto-Login for Existing Accounts)
   const handleSendEmailOtp = async () => {
     const clean = regEmail.trim().toLowerCase();
     if (!clean || !clean.includes('@')) {
@@ -326,36 +401,21 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
       return;
     }
 
-    // Check duplicate email
-    const allUsers = await apiGetUsers();
-    if (allUsers.some(u => (u.email || '').toLowerCase() === clean)) {
-      setRegError('An account with this email address already exists. Only one account per email is allowed.');
-      return;
-    }
-
     setRegError('');
+    setRegSuccess('');
     setOtpSending(true);
 
     try {
-      // Optional Descope OTP attempt
-      try {
-        if (descope?.otp?.signUp?.email) {
-          await descope.otp.signUp.email(clean, {
-            email: clean,
-            name: regName.trim() || undefined,
-            phone: regPhone.trim() || undefined
-          });
-        }
-      } catch (dErr) {
-        console.log('Descope OTP notice:', dErr);
-      }
-
       const res = await apiSendEmailOtp(clean, 'signup');
       if (res.success) {
         setOtpSent(true);
         setOtpCountdown(60);
-        if (res.devCode) {
-          setDevCodeHint(res.devCode);
+        if (res.isExistingUser) {
+          setIsExistingAccountDetected(true);
+          setRegSuccess('Existing account detected! A 6-digit verification code has been sent to your email. Enter it below to directly access your account without needing a password.');
+        } else {
+          setIsExistingAccountDetected(false);
+          setRegSuccess('A 6-digit OTP verification code has been sent to your email.');
         }
       } else {
         setRegError(res.error || 'Failed to send OTP code.');
@@ -379,18 +439,41 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
     setOtpConfirming(true);
 
     try {
-      let dOk = false;
-      try {
-        if (descope?.otp?.verify?.email) {
-          const dRes = await descope.otp.verify.email(regEmail.trim().toLowerCase(), cleanCode);
-          if (dRes?.ok) dOk = true;
-        }
-      } catch (_) {}
-
       const res = await apiVerifyEmailOtp(regEmail.trim().toLowerCase(), cleanCode);
-      if (res.success || dOk) {
+      if (res.success) {
+        // Smart Registration System: If existing user, auto-login directly!
+        if (res.isExistingUser && res.user) {
+          setCurrentUser(res.user);
+          localStorage.setItem('bongoweb_user', JSON.stringify(res.user));
+          sessionStorage.setItem('bongoweb_user', JSON.stringify(res.user));
+          loadUserData();
+          if (onGoToDashboard) {
+            onGoToDashboard();
+          } else {
+            window.location.href = '/';
+          }
+          return;
+        }
+
+        // Fallback check if existing user was flagged
+        if (isExistingAccountDetected) {
+          const allUsers = await apiGetUsers();
+          const found = allUsers.find(u => (u.email || '').toLowerCase() === regEmail.trim().toLowerCase());
+          if (found) {
+            setCurrentUser(found);
+            localStorage.setItem('bongoweb_user', JSON.stringify(found));
+            sessionStorage.setItem('bongoweb_user', JSON.stringify(found));
+            loadUserData();
+            if (onGoToDashboard) {
+              onGoToDashboard();
+            } else {
+              window.location.href = '/';
+            }
+            return;
+          }
+        }
+
         setEmailVerified(true);
-        setDevCodeHint('');
       } else {
         setRegError(res.error || 'Invalid OTP code! Please verify the code received in your email.');
       }
@@ -436,42 +519,24 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
     }
   };
 
-  // Handle Client Registration
-  const handleRegisterSubmit = async (e: React.FormEvent) => {
+  // SCREEN 2: Handle Step 1 Registration (Validates Username, First Name, Last Name, WhatsApp, Passwords)
+  const handleRegisterStep1 = async (e: React.FormEvent) => {
     e.preventDefault();
     setRegError('');
 
-    if (!regName.trim()) {
-      setRegError('Please enter your full name.');
+    if (!regUsername.trim()) {
+      setRegError('Please choose a username.');
       return;
     }
-    const cleanPhone = regPhone.trim();
-    if (!cleanPhone || cleanPhone.length < 10) {
-      setRegError('Please enter a valid mobile phone number.');
+    if (!regFirstName.trim()) {
+      setRegError('Please enter your first name.');
       return;
     }
-    const cleanEmail = regEmail.trim().toLowerCase();
-    if (!cleanEmail || !cleanEmail.includes('@')) {
-      setRegError('Please enter a valid email address.');
+    const cleanWhatsApp = regWhatsApp.trim();
+    if (!cleanWhatsApp || cleanWhatsApp.length < 9) {
+      setRegError('Please enter a valid WhatsApp mobile number (e.g. 017XXXXXXXX).');
       return;
     }
-
-    // Check duplicate phone or email before proceeding (1 phone = 1 account, 1 email = 1 account)
-    const allUsers = await apiGetUsers();
-    if (allUsers.some(u => u.phone === cleanPhone)) {
-      setRegError('An account with this mobile phone number already exists. Only one account per phone is allowed.');
-      return;
-    }
-    if (allUsers.some(u => (u.email || '').toLowerCase() === cleanEmail)) {
-      setRegError('An account with this email address already exists. Only one account per email is allowed.');
-      return;
-    }
-
-    if (!emailVerified) {
-      setRegError('Please verify your email address with the OTP code first.');
-      return;
-    }
-
     if (!regPass || regPass.length < 4) {
       setRegError('Password must be at least 4 characters long.');
       return;
@@ -481,32 +546,88 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
       return;
     }
 
-    setRegSubmitting(true);
-    const newUser: UserAccount = {
-      name: regName.trim(),
-      phone: cleanPhone,
-      email: cleanEmail,
-      password: regPass.trim(),
-      registeredAt: new Date().toLocaleDateString('en-US')
-    };
+    try {
+      const allUsers = await apiGetUsers();
+      if (allUsers.some(u => u.phone === cleanWhatsApp || u.whatsapp === cleanWhatsApp)) {
+        setRegError('An account with this WhatsApp number already exists.');
+        return;
+      }
+    } catch (_) {}
 
-    const result = await apiRegisterUser(newUser);
-    setRegSubmitting(false);
+    // Successfully validated step 1 -> immediately transition to SCREEN 3: EMAIL VERIFICATION
+    setAuthMode('email-verify');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
-    if (!result.success) {
-      setRegError(result.error || 'Registration failed. Please try again.');
+  // SCREEN 3: Handle Final Registration with Email & OTP
+  const handleFinalizeRegistration = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setRegError('');
+
+    const cleanEmail = regEmail.trim().toLowerCase();
+    if (!cleanEmail || !cleanEmail.includes('@')) {
+      setRegError('Please enter a valid email address.');
       return;
     }
 
-    setCurrentUser(newUser);
-    loadUserData();
-
-    // Redirect user to home page "/" as requested
-    if (onGoToDashboard) {
-      onGoToDashboard();
-    } else {
-      window.location.href = '/';
+    // If OTP was sent and not yet confirmed
+    if (otpSent && !emailVerified) {
+      const cleanCode = emailOtpCode.trim();
+      if (!cleanCode || cleanCode.length < 6) {
+        setRegError('Please enter the 6-digit verification code sent to your email.');
+        return;
+      }
+      setOtpConfirming(true);
+      const verifyRes = await apiVerifyEmailOtp(cleanEmail, cleanCode);
+      setOtpConfirming(false);
+      if (!verifyRes.success) {
+        setRegError(verifyRes.error || 'Invalid or expired OTP code.');
+        return;
+      }
+      setEmailVerified(true);
     }
+
+    setRegSubmitting(true);
+    try {
+      const cleanWhatsApp = regWhatsApp.trim() || regPhone.trim();
+      const fullName = `${regFirstName.trim()} ${regLastName.trim()}`.trim() || regUsername.trim() || 'BongoWeb Member';
+      const newUser: UserAccount = {
+        name: fullName,
+        username: regUsername.trim(),
+        whatsapp: cleanWhatsApp,
+        phone: cleanWhatsApp,
+        email: cleanEmail,
+        password: regPass.trim(),
+        registeredAt: new Date().toLocaleDateString('bn-BD')
+      };
+
+      const result = await apiRegisterUser(newUser);
+      setRegSubmitting(false);
+
+      if (!result.success) {
+        setRegError(result.error || 'Registration failed. Please try again.');
+        return;
+      }
+
+      setCurrentUser(newUser);
+      localStorage.setItem('bongoweb_user', JSON.stringify(newUser));
+      sessionStorage.setItem('bongoweb_user', JSON.stringify(newUser));
+      loadUserData();
+
+      if (onGoToDashboard) {
+        onGoToDashboard();
+      } else {
+        window.location.href = '/';
+      }
+    } catch (err: any) {
+      setRegSubmitting(false);
+      setRegError(err?.message || 'Registration error. Please try again.');
+    }
+  };
+
+  // Legacy full registration handler fallback
+  const handleRegisterSubmit = async (e: React.FormEvent) => {
+    await handleRegisterStep1(e);
   };
 
   // Handle Forgot Password Send OTP (Email OTP)
@@ -525,9 +646,6 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
       const res = await apiSendEmailOtp(clean, 'forgot_password');
       if (res.success) {
         setForgotOtpSent(true);
-        if (res.devCode) {
-          setForgotDevCode(res.devCode);
-        }
       } else {
         setForgotError(res.error || 'No account found with this email address.');
       }
@@ -589,166 +707,152 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
 
   // ==========================================
   // VIEW: IF USER IS NOT LOGGED IN (Production Authentication Portal)
+  // 3 CLEAN, MODERN, PREMIUM UI SCREENS FOR BONGEWEB.XYZ
+  // SCREEN 1: LOGIN | SCREEN 2: REGISTRATION | SCREEN 3: EMAIL VERIFICATION
   // ==========================================
   if (!currentUser) {
     return (
-      <div className="w-full min-h-[calc(100vh-140px)] flex flex-col justify-center items-center font-sans pb-28 pt-4 sm:pt-8 relative overflow-hidden animate-fadeIn">
-        {/* Subtle Ambient Background Spotlight */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[620px] h-[440px] bg-gradient-to-tr from-[#533AFD]/[0.08] via-[#7C3AED]/[0.04] to-[#00B261]/[0.06] rounded-full blur-3xl pointer-events-none -z-10" />
+      <div className="w-full min-h-[calc(100vh-120px)] flex flex-col justify-start items-center font-sans pb-28 pt-4 sm:pt-6 relative bg-[#FAF6F0] overflow-x-hidden animate-fadeIn select-none">
+        
+        {/* Subtle Ambient Background Warm Glow */}
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-gradient-to-tr from-[#FF6118]/[0.06] via-[#FBD38D]/[0.08] to-[#533AFD]/[0.03] rounded-full blur-3xl pointer-events-none -z-10" />
 
-        <div className="max-w-md sm:max-w-[480px] mx-auto px-4 w-full relative z-10 flex flex-col items-center">
-          {/* Top Brand Context Pill */}
-          <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white/90 backdrop-blur-md border border-slate-200/90 shadow-[0_2px_10px_rgba(0,0,0,0.03)] text-[11px] font-bold text-slate-700 mb-4 select-none">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00B261] opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#00B261]"></span>
-            </span>
-            <span>BongoWeb Official Client Portal</span>
-          </div>
+        {/* Floating Green WhatsApp Chat Button (Bottom-Right Corner) */}
+        <a
+          href="https://wa.me/8801831828859?text=Hello%20BongoWeb%20Support%20I%20need%20help%20with%20my%20account"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="fixed bottom-5 right-5 sm:bottom-6 sm:right-6 z-50 w-13 h-13 sm:w-14 sm:h-14 rounded-full bg-[#25D366] hover:bg-[#20bd5a] text-white flex items-center justify-center shadow-[0_8px_25px_rgba(37,211,102,0.45)] hover:scale-105 active:scale-95 transition-all group cursor-pointer"
+          title="Chat on WhatsApp (+880 1831-828859)"
+        >
+          <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-300 opacity-80"></span>
+            <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-200"></span>
+          </span>
+          <WhatsAppIcon className="w-7 h-7 text-white fill-white" />
+        </a>
 
-          <div className="w-full bg-white/95 backdrop-blur-xl border border-slate-200/90 rounded-[28px] p-6 sm:p-8 shadow-[0_25px_65px_-15px_rgba(15,23,42,0.12),0_4px_20px_-2px_rgba(15,23,42,0.04)] ring-1 ring-slate-900/[0.04] relative overflow-hidden transition-all duration-300">
-            {/* Top Accent Gradient Line */}
-            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#533AFD] via-[#6366F1] to-[#00B261]" />
+        {/* MOBILE-FIRST CENTERED CARD */}
+        <div className="max-w-[440px] mx-auto px-4 w-full relative z-10 flex flex-col items-center mt-2 sm:mt-4">
+          
+          {/* SCREEN 1: LOGIN PAGE */}
+          {authMode === 'login' && (
+              <div className="w-full bg-[#FFF8F0] border border-[#FBD38D] rounded-[26px] sm:rounded-[28px] p-6 sm:p-8 shadow-[0_18px_45px_-10px_rgba(255,145,50,0.12),0_4px_16px_rgba(0,0,0,0.03)] space-y-4 animate-fadeIn">
+                
+                {/* 1. Top of Card: White Google Sign-In Button */}
+                <button
+                  type="button"
+                  onClick={handleGoogleSignIn}
+                  disabled={googleLoading}
+                  className="w-full py-3.5 px-4 rounded-xl bg-white hover:bg-[#FFFDFB] border border-[#EBDCC8] hover:border-[#FBD38D] text-slate-800 text-xs sm:text-sm font-bold shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-xs transition-all flex items-center justify-center gap-3 cursor-pointer group active:scale-[0.99]"
+                >
+                  <GoogleLogoIcon className="w-5 h-5 shrink-0 transition-transform group-hover:scale-105" />
+                  <span>Google এর মাধ্যমে সাইন-ইন করুন</span>
+                </button>
 
-            {/* Header: Title changes based on login vs register */}
-            <div className="text-center mb-6">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#533AFD] via-[#6366F1] to-[#432BEE] text-white flex items-center justify-center font-black mx-auto mb-3.5 text-xl shadow-[0_8px_25px_rgba(83,58,253,0.35)] ring-4 ring-[#533AFD]/10 tracking-tight">
-                BW
-              </div>
-              <h1 className="text-xl sm:text-2xl font-black text-[#0D253D] tracking-tight">
-                {authMode === 'login' ? 'Log In to Existing Account' : 'Create New Account'}
-              </h1>
-              <p className="text-xs sm:text-[13px] text-slate-500 mt-1.5 leading-relaxed">
-                {authMode === 'login' 
-                  ? 'Enter your registered phone, email, or account ID and password to access your account.' 
-                  : 'Enter your name, mobile number, and verified email to register in 1 minute.'}
-              </p>
-            </div>
-
-            {/* Embedded Descope Flow (flowId="sign-up-or-in") */}
-            {showDescopeFlow ? (
-              <div className="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/90 shadow-inner space-y-3 animate-fadeIn">
-                <div className="flex items-center justify-between pb-2 border-b border-slate-200">
-                  <div>
-                    <span className="text-xs font-bold text-[#0D253D] block">Descope Sign-Up or Sign-In</span>
-                    <span className="text-[11px] text-slate-500">Complete authentication with Email OTP or Google</span>
+                {/* 2. Thin Horizontal Line + Centered Text "OR" */}
+                <div className="relative my-4">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-[#EBDCC8]" />
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => setShowDescopeFlow(false)}
-                    className="text-xs font-bold text-[#533AFD] hover:underline cursor-pointer"
-                  >
-                    ← Return to Standard Form
-                  </button>
+                  <div className="relative flex justify-center text-[11px] uppercase tracking-wider text-slate-400 font-bold">
+                    <span className="bg-[#FFF8F0] px-3">OR</span>
+                  </div>
                 </div>
-                <div className="min-h-[300px] flex items-center justify-center">
-                  <Descope
-                    flowId="sign-up-or-in"
-                    onSuccess={handleDescopeSuccess}
-                    onError={handleDescopeError}
-                    theme="light"
-                  />
-                </div>
-              </div>
-            ) : (
-              <>
-                {/* 1. LOGIN FORM VIEW (FIRST: ID & PASSWORD) */}
-                {authMode === 'login' && (
-                  <div className="space-y-4 animate-fadeIn">
-                    <form onSubmit={handleLoginSubmit} className="space-y-4">
-                      {loginError && (
-                        <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs font-bold flex items-center gap-2 animate-shake">
-                          <AlertCircle className="w-4 h-4 shrink-0" />
-                          <span>{loginError}</span>
-                        </div>
-                      )}
 
-                      <div>
-                        <label className="block text-xs font-bold text-slate-800 mb-1.5">
-                          Phone Number or Email Address
-                        </label>
-                        <div className="relative">
-                          <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                          <input
-                            type="text"
-                            required
-                            placeholder="01XXXXXXXXX or you@gmail.com"
-                            value={loginIdentifier}
-                            onChange={(e) => setLoginIdentifier(e.target.value)}
-                            className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50/80 border border-slate-200 text-xs sm:text-sm text-[#0D253D] placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#533AFD] focus:ring-3 focus:ring-[#533AFD]/15 transition-all shadow-2xs"
-                          />
-                        </div>
-                      </div>
-
-                      <div>
-                        <div className="flex items-center justify-between mb-1.5">
-                          <label className="text-xs font-bold text-slate-800">
-                            Account Password
-                          </label>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setShowForgotModal(true);
-                              setForgotError('');
-                              setForgotSuccess('');
-                              setForgotOtpSent(false);
-                              setForgotEmail(loginIdentifier.includes('@') ? loginIdentifier : '');
-                            }}
-                            className="text-[11px] text-[#533AFD] hover:text-[#432BEE] hover:underline font-semibold cursor-pointer transition-colors"
-                          >
-                            Forgot Password?
-                          </button>
-                        </div>
-                        <div className="relative">
-                          <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                          <input
-                            type={showLoginPass ? 'text' : 'password'}
-                            required
-                            placeholder="Enter your password"
-                            value={loginPassword}
-                            onChange={(e) => setLoginPassword(e.target.value)}
-                            className="w-full pl-10 pr-10 py-3 rounded-xl bg-slate-50/80 border border-slate-200 text-xs sm:text-sm text-[#0D253D] placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#533AFD] focus:ring-3 focus:ring-[#533AFD]/15 transition-all shadow-2xs font-mono"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setShowLoginPass(!showLoginPass)}
-                            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
-                          >
-                            {showLoginPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                          </button>
-                        </div>
-                      </div>
-
-                      <div className="pt-1">
-                        <button
-                          type="submit"
-                          disabled={loginLoading}
-                          className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#533AFD] to-[#432BEE] hover:from-[#432BEE] hover:to-[#3724C4] active:scale-[0.99] text-white text-xs sm:text-sm font-bold shadow-[0_8px_20px_-4px_rgba(83,58,253,0.35)] hover:shadow-[0_12px_28px_-4px_rgba(83,58,253,0.45)] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
-                        >
-                          {loginLoading ? (
-                            <span>Signing in...</span>
-                          ) : (
-                            <>
-                              <span>Log In</span>
-                              <ArrowRight className="w-4 h-4" />
-                            </>
-                          )}
-                        </button>
-                      </div>
-                    </form>
-
-                    {/* Divider: CREATE ACCOUNT FOR NEW USERS */}
-                    <div className="relative my-4">
-                      <div className="absolute inset-0 flex items-center">
-                        <div className="w-full border-t border-slate-200/80" />
-                      </div>
-                      <div className="relative flex justify-center text-[11px] uppercase tracking-wider text-slate-400">
-                        <span className="bg-white px-3 font-semibold">
-                          Create account for new users
-                        </span>
-                      </div>
+                <form onSubmit={handleLoginSubmit} className="space-y-4">
+                  {loginError && (
+                    <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs font-bold flex items-center gap-2 animate-shake">
+                      <AlertCircle className="w-4 h-4 shrink-0" />
+                      <span>{loginError}</span>
                     </div>
+                  )}
 
+                  {/* Label: Email or Phone */}
+                  <div>
+                    <label className="block text-xs font-bold text-slate-800 mb-1.5">
+                      Email or Phone
+                    </label>
+                    <div className="relative">
+                      <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      <input
+                        type="text"
+                        required
+                        placeholder="Enter your email or phone number"
+                        value={loginIdentifier}
+                        onChange={(e) => setLoginIdentifier(e.target.value)}
+                        className="w-full pl-10 pr-4 py-3 rounded-xl bg-white border border-[#EBDCC8] text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#FF6118] focus:ring-2 focus:ring-[#FF6118]/20 transition-all shadow-[0_1px_3px_rgba(0,0,0,0.02)]"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Label: Password */}
+                  <div>
+                    <label className="block text-xs font-bold text-slate-800 mb-1.5">
+                      Password
+                    </label>
+                    <div className="relative">
+                      <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      <input
+                        type={showLoginPass ? 'text' : 'password'}
+                        required
+                        placeholder="Enter your password"
+                        value={loginPassword}
+                        onChange={(e) => setLoginPassword(e.target.value)}
+                        className="w-full pl-10 pr-10 py-3 rounded-xl bg-white border border-[#EBDCC8] text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#FF6118] focus:ring-2 focus:ring-[#FF6118]/20 transition-all shadow-[0_1px_3px_rgba(0,0,0,0.02)] font-mono"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowLoginPass(!showLoginPass)}
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
+                      >
+                        {showLoginPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Left: unchecked checkbox + Remember me | Right: orange underlined link Forgot password? */}
+                  <div className="flex items-center justify-between text-xs pt-1">
+                    <label className="flex items-center gap-2 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={rememberMe}
+                        onChange={(e) => setRememberMe(e.target.checked)}
+                        className="w-4 h-4 rounded border-[#EBDCC8] text-[#FF6118] focus:ring-[#FF6118] cursor-pointer"
+                      />
+                      <span className="text-slate-600 font-medium">Remember me</span>
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowForgotModal(true);
+                        setForgotError('');
+                        setForgotSuccess('');
+                        setForgotOtpSent(false);
+                        setForgotEmail(loginIdentifier.includes('@') ? loginIdentifier : '');
+                      }}
+                      className="text-xs text-[#FF6118] hover:text-[#EE5507] underline font-semibold cursor-pointer transition-colors"
+                    >
+                      Forgot password?
+                    </button>
+                  </div>
+
+                  {/* Large full-width orange button with black text: "Sign in" */}
+                  <div className="pt-2">
+                    <button
+                      type="submit"
+                      disabled={loginLoading}
+                      className="w-full py-3.5 px-4 rounded-xl bg-[#FF6118] hover:bg-[#EE5507] active:scale-[0.99] text-black font-black text-sm sm:text-base shadow-[0_6px_20px_-3px_rgba(255,97,24,0.38)] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+                    >
+                      {loginLoading ? <span>Signing in...</span> : <span>Sign in</span>}
+                    </button>
+                  </div>
+                </form>
+
+                {/* Bottom text: "Do not have an account?" + blue underlined link "Sign up" */}
+                <div className="text-center pt-2">
+                  <p className="text-xs text-slate-500">
+                    Do not have an account?{' '}
                     <button
                       type="button"
                       onClick={() => {
@@ -756,339 +860,510 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                         setLoginError('');
                         setRegError('');
                       }}
-                      className="w-full py-3.5 px-4 rounded-xl bg-slate-50 hover:bg-[#533AFD]/5 border border-slate-200/90 hover:border-[#533AFD]/40 text-[#533AFD] hover:text-[#432BEE] text-xs sm:text-sm font-bold shadow-2xs hover:shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99] group"
+                      className="text-[#3B82F6] hover:text-[#2563EB] font-bold underline cursor-pointer ml-1 inline-flex items-center gap-1"
                     >
-                      <UserPlus className="w-4 h-4 text-[#533AFD] transition-transform group-hover:scale-110" />
-                      <span>Create account for new users</span>
-                      <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                      <span>Sign up</span>
                     </button>
+                  </p>
+                </div>
 
-                    {/* Divider: OR CONTINUE WITH GOOGLE */}
-                    <div className="relative my-4">
-                      <div className="absolute inset-0 flex items-center">
-                        <div className="w-full border-t border-slate-200/80" />
-                      </div>
-                      <div className="relative flex justify-center text-[11px] uppercase tracking-wider text-slate-400">
-                        <span className="bg-white px-3 font-semibold">
-                          Or continue with Google
-                        </span>
-                      </div>
+              </div>
+            )}
+
+            {/* SCREEN 2: REGISTRATION PAGE */}
+            {authMode === 'register' && (
+              <div className="w-full bg-[#FFF8F0] border border-[#FBD38D] rounded-[26px] sm:rounded-[28px] p-6 sm:p-8 shadow-[0_18px_45px_-10px_rgba(255,145,50,0.12),0_4px_16px_rgba(0,0,0,0.03)] space-y-3.5 animate-fadeIn">
+                
+                {/* 1. Top of Card: White Google Sign-In Button */}
+                <button
+                  type="button"
+                  onClick={handleGoogleSignIn}
+                  disabled={googleLoading}
+                  className="w-full py-3.5 px-4 rounded-xl bg-white hover:bg-[#FFFDFB] border border-[#EBDCC8] hover:border-[#FBD38D] text-slate-800 text-xs sm:text-sm font-bold shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-xs transition-all flex items-center justify-center gap-3 cursor-pointer group active:scale-[0.99]"
+                >
+                  <GoogleLogoIcon className="w-5 h-5 shrink-0 transition-transform group-hover:scale-105" />
+                  <span>Google অ্যাকাউন্ট দিয়ে সাইন-আপ করুন</span>
+                </button>
+
+                {/* 2. Thin Horizontal Line + Centered Text "OR" */}
+                <div className="relative my-3">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-[#EBDCC8]" />
+                  </div>
+                  <div className="relative flex justify-center text-[11px] uppercase tracking-wider text-slate-400 font-bold">
+                    <span className="bg-[#FFF8F0] px-3">OR</span>
+                  </div>
+                </div>
+
+                <form onSubmit={handleRegisterStep1} className="space-y-3">
+                  {regError && (
+                    <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs font-bold flex items-center gap-2 animate-shake">
+                      <AlertCircle className="w-4 h-4 shrink-0" />
+                      <span>{regError}</span>
                     </div>
+                  )}
 
-                    {/* 2. CONTINUE WITH GOOGLE SOCIAL LOGIN BUTTON */}
-                    <div className="space-y-2.5">
-                      <button
-                        type="button"
-                        onClick={handleGoogleSignIn}
-                        disabled={googleLoading}
-                        className="w-full py-3.5 px-4 rounded-xl bg-white hover:bg-slate-50/90 border border-slate-200/90 hover:border-slate-300 text-slate-700 hover:text-slate-900 text-xs sm:text-sm font-bold shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.07)] transition-all flex items-center justify-center gap-3 cursor-pointer group active:scale-[0.99] disabled:opacity-60"
-                      >
-                        <svg className="w-5 h-5 shrink-0 transition-transform group-hover:scale-105" viewBox="0 0 24 24">
-                          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
-                          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
-                        </svg>
-                        <span>{googleLoading ? 'Connecting to Google...' : 'Continue with Google'}</span>
-                      </button>
-
-                      {/* Optional Descope All-In-One Flow Toggle Link */}
-                      <div className="flex justify-center">
-                        <button
-                          type="button"
-                          onClick={() => setShowDescopeFlow(true)}
-                          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-[11px] font-semibold text-[#533AFD] hover:text-[#432BEE] hover:bg-[#533AFD]/5 transition-colors cursor-pointer"
-                        >
-                          <Sparkles className="w-3.5 h-3.5 text-[#533AFD]" />
-                          <span>Use Descope All-In-One Sign-In</span>
-                        </button>
-                      </div>
+                  {/* 1. Username (person icon) */}
+                  <div>
+                    <label className="block text-xs font-bold text-slate-800 mb-1">
+                      Username
+                    </label>
+                    <div className="relative">
+                      <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      <input
+                        type="text"
+                        required
+                        placeholder="Choose a username"
+                        value={regUsername}
+                        onChange={(e) => setRegUsername(e.target.value)}
+                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border border-[#EBDCC8] text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#FF6118] focus:ring-2 focus:ring-[#FF6118]/20 transition-all shadow-[0_1px_3px_rgba(0,0,0,0.02)]"
+                      />
                     </div>
                   </div>
-                )}
 
-                {/* 3. REGISTER FORM VIEW (With Email OTP Verification) */}
-                {authMode === 'register' && (
-                  <form onSubmit={handleRegisterSubmit} className="space-y-4 animate-fadeIn">
-                    {regError && (
-                      <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs font-bold flex items-center gap-2 animate-shake">
-                        <AlertCircle className="w-4 h-4 shrink-0" />
-                        <span>{regError}</span>
+                  {/* 2. First name (person icon) */}
+                  <div>
+                    <label className="block text-xs font-bold text-slate-800 mb-1">
+                      First name
+                    </label>
+                    <div className="relative">
+                      <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      <input
+                        type="text"
+                        required
+                        placeholder="Enter your first name"
+                        value={regFirstName}
+                        onChange={(e) => setRegFirstName(e.target.value)}
+                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border border-[#EBDCC8] text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#FF6118] focus:ring-2 focus:ring-[#FF6118]/20 transition-all shadow-[0_1px_3px_rgba(0,0,0,0.02)]"
+                      />
+                    </div>
+                  </div>
+
+                  {/* 3. Last name (person icon) */}
+                  <div>
+                    <label className="block text-xs font-bold text-slate-800 mb-1">
+                      Last name
+                    </label>
+                    <div className="relative">
+                      <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      <input
+                        type="text"
+                        required
+                        placeholder="Enter your last name"
+                        value={regLastName}
+                        onChange={(e) => setRegLastName(e.target.value)}
+                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border border-[#EBDCC8] text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#FF6118] focus:ring-2 focus:ring-[#FF6118]/20 transition-all shadow-[0_1px_3px_rgba(0,0,0,0.02)]"
+                      />
+                    </div>
+                  </div>
+
+                  {/* 4. WhatsApp number (WhatsApp green icon) */}
+                  <div>
+                    <label className="block text-xs font-bold text-slate-800 mb-1">
+                      WhatsApp number
+                    </label>
+                    <div className="relative">
+                      <div className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none">
+                        <WhatsAppIcon className="w-4 h-4 text-[#25D366]" />
                       </div>
-                    )}
+                      <input
+                        type="tel"
+                        required
+                        placeholder="e.g. 017XXXXXXXX"
+                        value={regWhatsApp}
+                        onChange={(e) => setRegWhatsApp(e.target.value)}
+                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border border-[#EBDCC8] text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#FF6118] focus:ring-2 focus:ring-[#FF6118]/20 transition-all shadow-[0_1px_3px_rgba(0,0,0,0.02)] font-mono"
+                      />
+                    </div>
+                  </div>
 
-                    {/* Full Name */}
-                    <div>
-                      <label className="block text-xs font-bold text-slate-800 mb-1.5">
-                        Full Name <span className="text-red-500">*</span>
+                  {/* 5. Password (lock icon) */}
+                  <div>
+                    <label className="block text-xs font-bold text-slate-800 mb-1">
+                      Password
+                    </label>
+                    <div className="relative">
+                      <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      <input
+                        type={showRegPass ? 'text' : 'password'}
+                        required
+                        placeholder="Create a password"
+                        value={regPass}
+                        onChange={(e) => setRegPass(e.target.value)}
+                        className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-white border border-[#EBDCC8] text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#FF6118] focus:ring-2 focus:ring-[#FF6118]/20 transition-all shadow-[0_1px_3px_rgba(0,0,0,0.02)] font-mono"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowRegPass(!showRegPass)}
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
+                      >
+                        {showRegPass ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* 6. Confirm password (lock icon) */}
+                  <div>
+                    <label className="block text-xs font-bold text-slate-800 mb-1">
+                      Confirm password
+                    </label>
+                    <div className="relative">
+                      <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      <input
+                        type={showRegPass ? 'text' : 'password'}
+                        required
+                        placeholder="Confirm your password"
+                        value={regConfirmPass}
+                        onChange={(e) => setRegConfirmPass(e.target.value)}
+                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border border-[#EBDCC8] text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#FF6118] focus:ring-2 focus:ring-[#FF6118]/20 transition-all shadow-[0_1px_3px_rgba(0,0,0,0.02)] font-mono"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Large full-width orange button with black text: "Sign up" */}
+                  <div className="pt-2">
+                    <button
+                      type="submit"
+                      className="w-full py-3.5 px-4 rounded-xl bg-[#FF6118] hover:bg-[#EE5507] active:scale-[0.99] text-black font-black text-sm sm:text-base shadow-[0_6px_20px_-3px_rgba(255,97,24,0.38)] transition-all flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      <span>Sign up</span>
+                    </button>
+                  </div>
+                </form>
+
+                {/* Bottom text: "Already have an account?" + blue underlined link "Sign in" */}
+                <div className="text-center pt-1">
+                  <p className="text-xs text-slate-500">
+                    Already have an account?{' '}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAuthMode('login');
+                        setRegError('');
+                        setLoginError('');
+                      }}
+                      className="text-[#3B82F6] hover:text-[#2563EB] font-bold underline cursor-pointer ml-1 inline-flex items-center gap-1"
+                    >
+                      <span>Sign in</span>
+                    </button>
+                  </p>
+                </div>
+
+              </div>
+            )}
+
+            {/* SCREEN 3: EMAIL VERIFICATION PAGE (Comes right after clicking Sign up) */}
+            {authMode === 'email-verify' && (
+              <div className="w-full bg-[#FFF8F0] border border-[#FBD38D] rounded-[26px] sm:rounded-[28px] p-6 sm:p-8 shadow-[0_18px_45px_-10px_rgba(255,145,50,0.12),0_4px_16px_rgba(0,0,0,0.03)] space-y-5 animate-fadeIn">
+                
+                {/* Top: Small icon / illustration of an email / envelope */}
+                <div className="text-center pt-1">
+                  <div className="w-14 h-14 rounded-2xl bg-[#FFEBD9] border border-[#FBD38D] text-[#FF6118] flex items-center justify-center mx-auto mb-3.5 shadow-[0_4px_14px_rgba(255,97,24,0.18)]">
+                    <Mail className="w-7 h-7 text-[#FF6118]" />
+                  </div>
+                  <h2 className="text-xl sm:text-2xl font-black text-[#0D253D] tracking-tight">
+                    Verify your email
+                  </h2>
+                  <p className="text-xs sm:text-[13px] text-slate-500 mt-1.5 leading-relaxed max-w-xs mx-auto">
+                    We need your email address to complete your registration. Please enter it below.
+                  </p>
+                </div>
+
+                <form onSubmit={handleFinalizeRegistration} className="space-y-4">
+                  {regError && (
+                    <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs font-bold flex items-center gap-2 animate-shake">
+                      <AlertCircle className="w-4 h-4 shrink-0" />
+                      <span>{regError}</span>
+                    </div>
+                  )}
+
+                  {regSuccess && (
+                    <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
+                      <span>{regSuccess}</span>
+                    </div>
+                  )}
+
+                  {/* Input field: Email address + small orange "Send Code" or "Verify" button on SAME LINE */}
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-bold text-slate-800">
+                      Email Address
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <div className="relative flex-1">
+                        <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        <input
+                          type="email"
+                          required
+                          placeholder="Enter your email address"
+                          value={regEmail}
+                          onChange={(e) => setRegEmail(e.target.value)}
+                          className="w-full pl-10 pr-3 py-3 rounded-xl bg-white border border-[#EBDCC8] text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#FF6118] focus:ring-2 focus:ring-[#FF6118]/20 transition-all shadow-[0_1px_3px_rgba(0,0,0,0.02)]"
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleSendEmailOtp}
+                        disabled={otpSending || !regEmail.includes('@')}
+                        className="shrink-0 px-4 py-3 rounded-xl bg-[#FF6118] hover:bg-[#EE5507] active:scale-95 text-black font-extrabold text-xs sm:text-sm shadow-xs transition-all cursor-pointer disabled:opacity-50"
+                      >
+                        {otpSending ? 'Sending...' : otpSent ? 'Resend' : 'Send Code'}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Optional OTP Code Verification box if code was sent */}
+                  {otpSent && (
+                    <div className="p-3.5 rounded-xl bg-amber-50/80 border border-[#FBD38D] space-y-2 animate-fadeIn">
+                      <label className="block text-xs font-bold text-slate-800">
+                        6-Digit Verification Code
                       </label>
-                      <div className="relative">
-                        <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                      <div className="flex gap-2">
                         <input
                           type="text"
-                          required
-                          placeholder="e.g. John Doe"
-                          value={regName}
-                          onChange={(e) => setRegName(e.target.value)}
-                          className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50/80 border border-slate-200 text-xs sm:text-sm text-[#0D253D] placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#533AFD] focus:ring-3 focus:ring-[#533AFD]/15 transition-all shadow-2xs"
+                          maxLength={6}
+                          placeholder="Enter code"
+                          value={emailOtpCode}
+                          onChange={(e) => setEmailOtpCode(e.target.value.replace(/\D/g, ''))}
+                          className="flex-1 px-3 py-2 rounded-xl bg-white border border-[#EBDCC8] text-center font-mono font-bold tracking-widest text-sm text-[#0D253D] focus:outline-none focus:border-[#FF6118]"
                         />
-                      </div>
-                    </div>
-
-                    {/* Phone Number (1 Phone = 1 Account) */}
-                    <div>
-                      <div className="flex items-center justify-between mb-1.5">
-                        <label className="text-xs font-bold text-slate-800">
-                          Phone Number <span className="text-red-500">*</span>
-                        </label>
-                        <span className="text-[10px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md font-medium">1 Phone = 1 Account</span>
-                      </div>
-                      <div className="relative">
-                        <Phone className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                        <input
-                          type="tel"
-                          required
-                          placeholder="e.g. 01712345678"
-                          value={regPhone}
-                          onChange={(e) => setRegPhone(e.target.value)}
-                          className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50/80 border border-slate-200 text-xs sm:text-sm text-[#0D253D] placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#533AFD] focus:ring-3 focus:ring-[#533AFD]/15 transition-all shadow-2xs font-mono"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Email Address & Send OTP Button Beside It */}
-                    <div>
-                      <div className="flex items-center justify-between mb-1.5">
-                        <label className="text-xs font-bold text-slate-800">
-                          Email Address <span className="text-red-500">*</span>
-                        </label>
-                        {emailVerified && (
-                          <span className="text-emerald-700 text-[11px] font-bold flex items-center gap-1 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
-                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                            <span>Email Verified</span>
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="flex gap-2">
-                        <div className="relative flex-1">
-                          <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                          <input
-                            type="email"
-                            required
-                            disabled={emailVerified}
-                            placeholder="yourname@gmail.com"
-                            value={regEmail}
-                            onChange={(e) => {
-                              setRegEmail(e.target.value);
-                              if (emailVerified) setEmailVerified(false);
-                            }}
-                            className={`w-full pl-10 pr-4 py-3 rounded-xl border text-xs sm:text-sm text-[#0D253D] placeholder-slate-400 focus:outline-none transition-all shadow-2xs ${
-                              emailVerified
-                                ? 'bg-emerald-50/60 border-emerald-300 text-emerald-900 font-semibold'
-                                : 'bg-slate-50/80 border-slate-200 focus:bg-white focus:border-[#533AFD] focus:ring-3 focus:ring-[#533AFD]/15'
-                            }`}
-                          />
-                        </div>
-
-                        {/* Send OTP button right beside email */}
                         <button
                           type="button"
-                          onClick={handleSendEmailOtp}
-                          disabled={otpSending || emailVerified || !regEmail.includes('@') || otpCountdown > 0}
-                          className={`px-3.5 sm:px-4 py-3 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer shadow-xs flex items-center gap-1.5 ${
-                            emailVerified
-                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-300 cursor-default font-bold'
-                              : otpCountdown > 0
-                              ? 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed'
-                              : 'bg-[#533AFD] hover:bg-[#432BEE] text-white active:scale-95 shadow-xs hover:shadow-sm'
-                          }`}
+                          onClick={handleConfirmEmailOtp}
+                          disabled={otpConfirming || emailOtpCode.length < 6}
+                          className="px-3.5 py-2 rounded-xl bg-[#00B261] hover:bg-[#009E56] text-white text-xs font-bold transition-all disabled:opacity-50 cursor-pointer shrink-0"
                         >
-                          {otpSending ? (
-                            <span className="animate-spin">⏳</span>
-                          ) : emailVerified ? (
-                            <>
-                              <Check className="w-3.5 h-3.5 text-emerald-600 stroke-[3]" />
-                              <span>Verified</span>
-                            </>
-                          ) : (
-                            <>
-                              <Key className="w-3.5 h-3.5" />
-                              <span>{otpCountdown > 0 ? `Wait ${otpCountdown}s` : otpSent ? 'Resend OTP' : 'Send OTP'}</span>
-                            </>
-                          )}
+                          {otpConfirming ? 'Verifying...' : emailVerified ? 'Verified ✓' : 'Verify'}
                         </button>
                       </div>
-                    </div>
-
-                    {/* Email OTP Verification Box (Appears directly below email after Send OTP is clicked) */}
-                    {otpSent && !emailVerified && (
-                      <div className="p-4 rounded-2xl bg-gradient-to-br from-indigo-50/90 via-violet-50/40 to-slate-50 border border-indigo-200/70 shadow-[inset_0_1px_3px_rgba(0,0,0,0.03)] space-y-3 animate-fadeIn">
-                        <div className="flex items-center justify-between text-xs text-indigo-900">
-                          <span className="font-bold flex items-center gap-1.5">
-                            <Key className="w-3.5 h-3.5 text-[#533AFD]" />
-                            <span>Enter the 6-digit OTP code sent to your email:</span>
-                          </span>
-                          {devCodeHint && (
-                            <span className="text-[10px] font-mono bg-white px-2 py-0.5 rounded border border-indigo-200 text-[#533AFD] font-bold shadow-2xs">
-                              Demo Code: {devCodeHint}
-                            </span>
-                          )}
-                        </div>
-
-                        <div className="flex gap-2">
-                          <input
-                            type="text"
-                            maxLength={6}
-                            placeholder="6-digit OTP"
-                            value={emailOtpCode}
-                            onChange={(e) => setEmailOtpCode(e.target.value.replace(/\D/g, ''))}
-                            className="flex-1 px-4 py-2.5 rounded-xl bg-white border border-indigo-200 text-sm text-[#0D253D] font-mono tracking-[0.25em] sm:tracking-[0.35em] text-center font-bold focus:outline-none focus:border-[#533AFD] focus:ring-3 focus:ring-[#533AFD]/15 shadow-2xs"
-                          />
-                          <button
-                            type="button"
-                            onClick={handleConfirmEmailOtp}
-                            disabled={otpConfirming || emailOtpCode.length < 6}
-                            className="px-4 py-2.5 rounded-xl bg-[#00B261] hover:bg-[#009E56] text-white text-xs font-bold transition-all shrink-0 cursor-pointer shadow-xs hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
-                          >
-                            {otpConfirming ? (
-                              <span>Verifying...</span>
-                            ) : (
-                              <>
-                                <CheckCircle2 className="w-4 h-4" />
-                                <span>Confirm OTP</span>
-                              </>
-                            )}
-                          </button>
-                        </div>
-                        <p className="text-[11px] text-indigo-700/80 leading-relaxed">
-                          Check your email inbox or spam folder. This code is valid for 10 minutes.
-                        </p>
-                      </div>
-                    )}
-
-                    {/* Passwords (Enabled & clear) */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div>
-                        <label className="block text-xs font-bold text-slate-800 mb-1.5">
-                          Password <span className="text-red-500">*</span>
-                        </label>
-                        <div className="relative">
-                          <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                          <input
-                            type={showRegPass ? 'text' : 'password'}
-                            required
-                            placeholder="At least 4 characters"
-                            value={regPass}
-                            onChange={(e) => setRegPass(e.target.value)}
-                            className="w-full pl-10 pr-9 py-3 rounded-xl bg-slate-50/80 border border-slate-200 text-xs sm:text-sm text-[#0D253D] placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#533AFD] focus:ring-3 focus:ring-[#533AFD]/15 transition-all shadow-2xs font-mono"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setShowRegPass(!showRegPass)}
-                            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
-                          >
-                            {showRegPass ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                          </button>
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-bold text-slate-800 mb-1.5">
-                          Confirm Password <span className="text-red-500">*</span>
-                        </label>
-                        <div className="relative">
-                          <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                          <input
-                            type={showRegPass ? 'text' : 'password'}
-                            required
-                            placeholder="Re-enter password"
-                            value={regConfirmPass}
-                            onChange={(e) => setRegConfirmPass(e.target.value)}
-                            className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50/80 border border-slate-200 text-xs sm:text-sm text-[#0D253D] placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#533AFD] focus:ring-3 focus:ring-[#533AFD]/15 transition-all shadow-2xs font-mono"
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Submit Registration Button */}
-                    <div className="pt-2">
-                      <button
-                        type="submit"
-                        disabled={regSubmitting}
-                        className={`w-full py-3.5 px-4 rounded-xl text-white text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
-                          emailVerified 
-                            ? 'bg-gradient-to-r from-[#00B261] to-[#009E56] hover:from-[#009E56] hover:to-[#008749] shadow-[0_8px_20px_-4px_rgba(0,178,97,0.35)] hover:shadow-[0_12px_28px_-4px_rgba(0,178,97,0.45)]' 
-                            : 'bg-gradient-to-r from-[#533AFD] to-[#432BEE] hover:from-[#432BEE] hover:to-[#3724C4] shadow-[0_8px_20px_-4px_rgba(83,58,253,0.35)] hover:shadow-[0_12px_28px_-4px_rgba(83,58,253,0.45)]'
-                        }`}
-                      >
-                        {regSubmitting ? (
-                          <span>Creating account...</span>
-                        ) : (
-                          <>
-                            <span>Create Account</span>
-                            <ArrowRight className="w-4 h-4" />
-                          </>
-                        )}
-                      </button>
-                      {!emailVerified && (
-                        <p className="text-[11px] text-center text-slate-500 mt-2">
-                          * Please verify your email before creating your account.
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Bottom Prompt: Already have an account? Sign in */}
-                    <div className="mt-6 pt-5 border-t border-slate-100 text-center">
-                      <p className="text-xs text-slate-500">
-                        Already have an account?{' '}
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setAuthMode('login');
-                            setRegError('');
-                            setLoginError('');
-                          }}
-                          className="text-[#533AFD] hover:text-[#432BEE] font-bold hover:underline cursor-pointer inline-flex items-center gap-1.5 transition-colors ml-1"
-                        >
-                          <span>Log In</span>
-                          <ArrowRight className="w-3.5 h-3.5" />
-                        </button>
+                      <p className="text-[11px] text-slate-500">
+                        Check your email inbox or spam folder for your 6-digit confirmation code.
                       </p>
                     </div>
-                  </form>
-                )}
-              </>
+                  )}
+
+                  {/* Below: Large orange button "Continue" */}
+                  <div className="pt-2">
+                    <button
+                      type="submit"
+                      disabled={regSubmitting}
+                      className="w-full py-3.5 px-4 rounded-xl bg-[#FF6118] hover:bg-[#EE5507] active:scale-[0.99] text-black font-black text-sm sm:text-base shadow-[0_6px_20px_-3px_rgba(255,97,24,0.38)] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+                    >
+                      {regSubmitting ? <span>Finalizing registration...</span> : <span>Continue</span>}
+                    </button>
+                  </div>
+                </form>
+
+                {/* Small text at the bottom: "Already verified? Sign in" */}
+                <div className="text-center pt-1">
+                  <p className="text-xs text-slate-500">
+                    Already verified?{' '}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAuthMode('login');
+                        setRegError('');
+                      }}
+                      className="text-[#3B82F6] hover:text-[#2563EB] font-bold underline cursor-pointer ml-1 inline-flex items-center gap-1"
+                    >
+                      <span>Sign in</span>
+                    </button>
+                  </p>
+                </div>
+
+              </div>
             )}
+
+            {/* DESCOPE AUTH FLOW VIEW (Optional alternative mode) */}
+            {authMode === 'descope' && (
+              <div className="w-full bg-[#FFF8F0] border border-[#FBD38D] rounded-[26px] p-6 shadow-[0_18px_45px_-10px_rgba(255,145,50,0.12)] space-y-4 animate-fadeIn">
+                <div className="text-center pb-2">
+                  <h3 className="text-base font-black text-[#0D253D]">Descope All-In-One Flow</h3>
+                  <p className="text-xs text-slate-500">Google, Magic Link, Passkeys or WhatsApp login</p>
+                </div>
+                <div className="min-h-[300px] flex items-center justify-center">
+                  <Descope
+                    flowId="sign-up-or-in"
+                    onSuccess={(e) => {
+                      console.log(e?.detail?.user?.name);
+                      console.log(e?.detail?.user?.email);
+                      handleDescopeSuccess(e);
+                    }}
+                    onError={(err) => {
+                      console.log("Error!", err);
+                      handleDescopeError(err);
+                    }}
+                    theme="light"
+                  />
+                </div>
+                <div className="text-center pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setAuthMode('login')}
+                    className="text-xs text-[#3B82F6] hover:underline font-bold"
+                  >
+                    Return to Standard Sign In
+                  </button>
+                </div>
+              </div>
+            )}
+
           </div>
 
-          {/* Security Code Quick Button for unauthenticated clients (Requirement 13) */}
-          <div className="mt-4 text-center">
-            <button
-              type="button"
-              onClick={() => setShowSecurityCodeModal(true)}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white hover:bg-slate-50 active:scale-95 text-[#533AFD] border border-slate-200/90 hover:border-[#533AFD]/30 text-xs font-bold transition-all shadow-[0_2px_8px_rgba(0,0,0,0.03)] hover:shadow-xs cursor-pointer group"
-            >
-              <ShieldCheck className="w-4 h-4 text-[#533AFD] transition-transform group-hover:scale-110" />
-              <span>View Security Code</span>
-            </button>
-          </div>
+        {/* Security & Code Footnote */}
+        <div className="mt-8 flex flex-col items-center gap-2 select-none text-center">
+          <button
+            type="button"
+            onClick={() => setShowSecurityCodeModal(true)}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-[#FBD38D]/60 text-xs font-bold transition-all shadow-2xs cursor-pointer"
+          >
+            <ShieldCheck className="w-4 h-4 text-[#FF6118]" />
+            <span>View Client Security Code</span>
+          </button>
 
-          {/* Security & Support Footnote */}
-          <div className="mt-5 flex items-center justify-center gap-3 text-[11px] font-medium text-slate-500 flex-wrap select-none">
-            <span className="flex items-center gap-1.5">
-              <ShieldCheck className="w-3.5 h-3.5 text-[#00B261]" />
-              <span>Descope & 256-Bit SSL Secured</span>
-            </span>
-            <span className="text-slate-300" aria-hidden="true">·</span>
-            <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-3.5 h-3.5 text-[#533AFD]" />
-              <span>Verified Email OTP</span>
-            </span>
-            <span className="text-slate-300" aria-hidden="true">·</span>
-            <span>24/7 Live Support</span>
-          </div>
+          <p className="text-[11px] text-slate-400">
+            bongoweb.xyz • Verified Bangladeshi Business Platform • 256-Bit SSL Secured
+          </p>
         </div>
+
+        {/* GOOGLE ACCOUNT DIRECT SELECTION MODAL */}
+        {showGoogleAccountModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0D253D]/70 backdrop-blur-xs animate-fadeIn">
+            <div className="w-full max-w-md bg-white rounded-[28px] border border-slate-200/90 shadow-[0_25px_65px_-15px_rgba(15,23,42,0.25)] p-6 sm:p-7 relative space-y-4">
+              <button
+                type="button"
+                onClick={() => setShowGoogleAccountModal(false)}
+                className="absolute top-4 right-4 p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-all cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-white border border-slate-200 shadow-xs flex items-center justify-center">
+                  <svg className="w-5 h-5" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-base font-black text-[#0D253D]">
+                    Continue with Google
+                  </h3>
+                  <p className="text-[11px] text-slate-500">
+                    Sign in with any Google account directly
+                  </p>
+                </div>
+              </div>
+
+              {/* 1-Click Fast Account Button for remembered account if previously logged in */}
+              {(() => {
+                const rememberedEmail = localStorage.getItem('bongoweb_last_google_email');
+                const rememberedName = localStorage.getItem('bongoweb_last_google_name');
+                if (!rememberedEmail) return null;
+                const initials = rememberedName ? rememberedName.slice(0, 2).toUpperCase() : rememberedEmail.slice(0, 2).toUpperCase();
+                return (
+                  <div className="space-y-1.5 pt-1">
+                    <span className="text-[11px] font-semibold text-slate-500 block">
+                      Recently used Google account:
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handleDirectGoogleLogin(rememberedEmail, rememberedName || undefined)}
+                      disabled={googleLoading}
+                      className="w-full p-3 rounded-2xl bg-indigo-50/70 hover:bg-indigo-100/70 border border-indigo-200/80 transition-all flex items-center justify-between text-left cursor-pointer group"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-[#4285F4] text-white flex items-center justify-center font-bold text-xs shadow-xs">
+                          {initials}
+                        </div>
+                        <div>
+                          <span className="text-xs font-bold text-slate-800 block">{rememberedEmail}</span>
+                          <span className="text-[10px] text-indigo-700 font-medium">1-Click Fast Sign In</span>
+                        </div>
+                      </div>
+                      <ArrowRight className="w-4 h-4 text-[#4285F4] transition-transform group-hover:translate-x-1" />
+                    </button>
+                  </div>
+                );
+              })()}
+
+              {/* Enter ANY Google Account */}
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (customGoogleEmail) {
+                    handleDirectGoogleLogin(customGoogleEmail, customGoogleName);
+                  }
+                }}
+                className="space-y-3 pt-1 border-t border-slate-100"
+              >
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                    Google Email Address <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="email"
+                      required
+                      placeholder="e.g. user@gmail.com"
+                      value={customGoogleEmail}
+                      onChange={(e) => setCustomGoogleEmail(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-800 focus:outline-none focus:bg-white focus:border-[#4285F4] focus:ring-2 focus:ring-[#4285F4]/20 transition-all"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                    Full Name (Optional)
+                  </label>
+                  <div className="relative">
+                    <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="text"
+                      placeholder="e.g. Tanvir Ahmed"
+                      value={customGoogleName}
+                      onChange={(e) => setCustomGoogleName(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-800 focus:outline-none focus:bg-white focus:border-[#4285F4] focus:ring-2 focus:ring-[#4285F4]/20 transition-all"
+                    />
+                  </div>
+                </div>
+
+                <div className="pt-2 flex gap-2">
+                  <button
+                    type="submit"
+                    disabled={!customGoogleEmail.includes('@') || googleLoading}
+                    className="flex-1 py-3 rounded-xl bg-[#4285F4] hover:bg-[#3367D6] text-white text-xs sm:text-sm font-bold transition-all disabled:opacity-50 cursor-pointer shadow-xs flex items-center justify-center gap-2 active:scale-98"
+                  >
+                    {googleLoading ? (
+                      <span>Connecting...</span>
+                    ) : (
+                      <>
+                        <svg className="w-4 h-4" viewBox="0 0 24 24">
+                          <path fill="#ffffff" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                          <path fill="#ffffff" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                          <path fill="#ffffff" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+                          <path fill="#ffffff" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+                        </svg>
+                        <span>Continue with Google</span>
+                      </>
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowGoogleAccountModal(false)}
+                    className="px-4 py-3 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold hover:bg-slate-200 cursor-pointer transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
 
         {/* FORGOT PASSWORD MODAL (EMAIL OTP BASED) */}
         {showForgotModal && (
@@ -1190,12 +1465,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                   )}
 
                   <div className="p-3 rounded-xl bg-indigo-50/80 border border-indigo-200 text-xs text-indigo-900 flex items-center justify-between">
-                    <span>Code sent to {forgotEmail}</span>
-                    {forgotDevCode && (
-                      <span className="font-mono font-bold bg-white px-2 py-0.5 rounded border border-indigo-200 text-[#533AFD]">
-                        Code: {forgotDevCode}
-                      </span>
-                    )}
+                    <span>A 6-digit verification code has been sent to {forgotEmail}</span>
                   </div>
 
                   <div>

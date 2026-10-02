@@ -536,20 +536,14 @@ export async function apiRegisterUser(user: UserAccount): Promise<{ success: boo
 }
 
 // Local backup OTP map for offline/direct preview reliability
-const localOtpStore = new Map<string, { code: string; expiresAt: number; verified: boolean }>();
+const localOtpStore = new Map<string, { code: string; expiresAt: number; verified: boolean; isExistingUser?: boolean; existingUser?: UserAccount }>();
 
-export async function apiSendEmailOtp(email: string, purpose: 'signup' | 'forgot_password' = 'signup'): Promise<{ success: boolean; message?: string; error?: string; devCode?: string }> {
+export async function apiSendEmailOtp(email: string, purpose: 'signup' | 'forgot_password' = 'signup', phone?: string): Promise<{ success: boolean; message?: string; error?: string; isExistingUser?: boolean }> {
   const cleanEmail = String(email || '').trim().toLowerCase();
-  if (!cleanEmail || !cleanEmail.includes('@')) {
-    return { success: false, error: 'অনুগ্রহ করে একটি সঠিক ইমেইল এড্রেস লিখুন।' };
-  }
+  const cleanPhone = String(phone || '').trim().replace(/\D/g, '');
 
-  // Check duplicate on signup
-  if (purpose === 'signup') {
-    const exists = (localCache.users || []).some(u => (u.email || '').toLowerCase() === cleanEmail);
-    if (exists) {
-      return { success: false, error: 'এই ইমেইল দিয়ে ইতোমধ্যে একটি অ্যাকাউন্ট রয়েছে। অনুগ্রহ করে লগইন করুন।' };
-    }
+  if (!cleanEmail || !cleanEmail.includes('@')) {
+    return { success: false, error: 'Please enter a valid email address.' };
   }
 
   // 1. Call server endpoint
@@ -557,38 +551,55 @@ export async function apiSendEmailOtp(email: string, purpose: 'signup' | 'forgot
     const res = await fetch('/api/auth/send-email-otp', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: cleanEmail, purpose })
+      body: JSON.stringify({ email: cleanEmail, purpose, phone: cleanPhone })
     });
     const data = await res.json();
     if (res.ok && data.success) {
-      if (data.devCode) {
-        localOtpStore.set(cleanEmail, { code: data.devCode, expiresAt: Date.now() + 10 * 60 * 1000, verified: false });
-      }
-      return { success: true, message: data.message, devCode: data.devCode };
+      return { 
+        success: true, 
+        message: data.message, 
+        isExistingUser: data.isExistingUser 
+      };
     } else if (data.error) {
       return { success: false, error: data.error };
     }
   } catch (_) {}
 
-  // 2. Fallback in-client OTP generator for instant delivery
+  // 2. Fallback in-client OTP generator for reliability
   const fallbackCode = String(Math.floor(100000 + Math.random() * 900000));
-  localOtpStore.set(cleanEmail, { code: fallbackCode, expiresAt: Date.now() + 10 * 60 * 1000, verified: false });
+  const existingUser = (localCache.users || []).find(u => {
+    const uEmail = (u.email || '').toLowerCase();
+    const uPhone = (u.phone || '').replace(/\D/g, '');
+    return (uEmail && uEmail === cleanEmail) || (cleanPhone && uPhone && uPhone === cleanPhone);
+  });
+  const isExistingUser = !!(purpose === 'signup' && existingUser);
+
+  localOtpStore.set(cleanEmail, { 
+    code: fallbackCode, 
+    expiresAt: Date.now() + 10 * 60 * 1000, 
+    verified: false,
+    isExistingUser,
+    existingUser
+  });
+  
   const parts = cleanEmail.split('@');
   const masked = parts[0].slice(0, 2) + '***@' + (parts[1] || 'domain.com');
 
   return {
     success: true,
-    message: `৬ ডিজিটের ওটিপি কোড পাঠানো হয়েছে (${masked})।`,
-    devCode: fallbackCode
+    isExistingUser,
+    message: isExistingUser
+      ? `Existing account found! A 6-digit login verification code was sent to ${masked}. Enter it to log into your account directly.`
+      : `A 6-digit OTP verification code was sent to ${masked}. Please check your inbox or spam folder.`
   };
 }
 
-export async function apiVerifyEmailOtp(email: string, code: string): Promise<{ success: boolean; message?: string; error?: string }> {
+export async function apiVerifyEmailOtp(email: string, code: string): Promise<{ success: boolean; message?: string; error?: string; isExistingUser?: boolean; user?: UserAccount }> {
   const cleanEmail = String(email || '').trim().toLowerCase();
   const cleanCode = String(code || '').trim();
 
   if (!cleanCode || cleanCode.length < 6) {
-    return { success: false, error: '৬ ডিজিটের ওটিপি কোডটি লিখুন।' };
+    return { success: false, error: 'Please enter the 6-digit OTP code.' };
   }
 
   // 1. Call server endpoint
@@ -602,7 +613,14 @@ export async function apiVerifyEmailOtp(email: string, code: string): Promise<{ 
     if (res.ok && data.success) {
       const rec = localOtpStore.get(cleanEmail);
       if (rec) rec.verified = true;
-      return { success: true, message: data.message };
+      return { 
+        success: true, 
+        message: data.message,
+        isExistingUser: data.isExistingUser,
+        user: data.user
+      };
+    } else if (data.error) {
+      return { success: false, error: data.error };
     }
   } catch (_) {}
 
@@ -611,10 +629,59 @@ export async function apiVerifyEmailOtp(email: string, code: string): Promise<{ 
   if (rec && rec.code === cleanCode && Date.now() <= rec.expiresAt) {
     rec.verified = true;
     localOtpStore.set(cleanEmail, rec);
-    return { success: true, message: 'ইমেইল সফলভাবে ভেরিফাই সম্পন্ন হয়েছে।' };
+    return { 
+      success: true, 
+      message: 'OTP verified successfully.',
+      isExistingUser: rec.isExistingUser,
+      user: rec.existingUser
+    };
   }
 
-  return { success: false, error: 'ভুল ওটিপি কোড! অনুগ্রহ করে ইমেইলে পাওয়া কোডটি পুনরায় চেক করুন।' };
+  return { success: false, error: 'Invalid OTP code! Please verify the code received in your email.' };
+}
+
+// Google Auth User Sync to Database
+export async function apiSyncGoogleUser(profile: { email: string; name?: string; phone?: string; photoUrl?: string }): Promise<UserAccount> {
+  const cleanEmail = profile.email.trim().toLowerCase();
+  const cleanName = profile.name || cleanEmail.split('@')[0] || 'Google User';
+  const cleanPhone = profile.phone || '';
+
+  try {
+    const res = await fetch('/api/auth/google-sync', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: cleanEmail,
+        name: cleanName,
+        phone: cleanPhone,
+        photoUrl: profile.photoUrl
+      })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.user) {
+        if (!localCache.users) localCache.users = [];
+        const idx = localCache.users.findIndex(u => (u.email || '').toLowerCase() === cleanEmail);
+        if (idx >= 0) localCache.users[idx] = data.user;
+        else localCache.users.push(data.user);
+        return data.user;
+      }
+    }
+  } catch (err) {
+    console.error('Google sync error:', err);
+  }
+
+  // Local fallback
+  const user: UserAccount = {
+    name: cleanName,
+    phone: cleanPhone || `017${Math.floor(10000000 + Math.random() * 90000000)}`,
+    email: cleanEmail,
+    photoUrl: profile.photoUrl,
+    registeredAt: new Date().toLocaleDateString('en-US')
+  };
+  if (!localCache.users) localCache.users = [];
+  localCache.users.push(user);
+  return user;
 }
 
 export async function apiResetPasswordWithOtp(email: string, code: string, newPass: string): Promise<{ success: boolean; message?: string; error?: string }> {
@@ -659,10 +726,27 @@ export async function apiResetPasswordWithOtp(email: string, code: string, newPa
   return { success: true, message: 'পাসওয়ার্ড সফলভাবে পরিবর্তন করা হয়েছে। এখন নতুন পাসওয়ার্ড দিয়ে লগইন করুন।' };
 }
 
-export async function apiSyncDescopeUser(profile: { email: string; name?: string; phone?: string }): Promise<UserAccount> {
+export async function apiValidateDescopeSession(sessionToken: string): Promise<{ success: boolean; authInfo?: any; error?: string }> {
+  try {
+    const res = await fetch('/api/auth/descope-validate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${sessionToken}`
+      },
+      body: JSON.stringify({ sessionToken })
+    });
+    return await res.json();
+  } catch (err: any) {
+    return { success: false, error: err?.message || 'Failed to validate Descope session' };
+  }
+}
+
+export async function apiSyncDescopeUser(profile: { email: string; name?: string; phone?: string; sessionToken?: string }): Promise<UserAccount> {
   const cleanEmail = String(profile.email || '').trim().toLowerCase();
   const cleanPhone = String(profile.phone || '').trim();
-  const cleanName = String(profile.name || cleanEmail.split('@')[0] || 'BongoWeb Member').trim();
+  const cleanName = String(profile.name || (cleanEmail ? cleanEmail.split('@')[0] : 'BongoWeb Member')).trim();
+  const sessionToken = profile.sessionToken || '';
 
   // Try finding existing user
   let existing = (localCache.users || []).find(u => 
@@ -685,20 +769,25 @@ export async function apiSyncDescopeUser(profile: { email: string; name?: string
 
     localCache.users.push(existing);
     localStorage.setItem('bongoweb_registered_users', JSON.stringify(localCache.users));
-
-    try {
-      fetch('/api/auth/descope-sync', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: cleanEmail, name: cleanName, phone: assignedPhone })
-      }).catch(() => {});
-    } catch (_) {}
   }
+
+  try {
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (sessionToken) {
+      headers['Authorization'] = `Bearer ${sessionToken}`;
+    }
+    fetch('/api/auth/descope-sync', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ email: cleanEmail, name: cleanName, phone: existing.phone, sessionToken })
+    }).catch(() => {});
+  } catch (_) {}
 
   localStorage.setItem('bongoweb_user', JSON.stringify(existing));
   sessionStorage.setItem('bongoweb_user', JSON.stringify(existing));
   return existing;
 }
+
 
 export async function apiLoginUser(identifier: string, password: string): Promise<{ success: boolean; user?: UserAccount; error?: string }> {
   const cleanId = (identifier || '').trim().toLowerCase();
