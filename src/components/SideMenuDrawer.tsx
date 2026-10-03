@@ -3,6 +3,7 @@ import {
   X, ClipboardCheck, MessageCircle, 
   CheckCircle2, Send, Ticket, Star, Quote, Key
 } from 'lucide-react';
+import BongoWebLogo from './BongoWebLogo';
 import { BottomTabType } from './FixedBottomNav';
 import { TESTIMONIALS } from '../data/mockData';
 
@@ -67,15 +68,7 @@ export default function SideMenuDrawer({
         <div className="relative w-full max-w-sm sm:max-w-md bg-[#FFFFFF] h-full shadow-2xl flex flex-col justify-between z-10 animate-slideLeft border-l border-[#E5EDF5]">
           {/* Drawer Top Header */}
           <div className="p-4 sm:p-5 border-b border-[#E5EDF5] flex items-center justify-between bg-[#F8FAFD]">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-[#533AFD] text-[#FFFFFF] flex items-center justify-center font-black text-xs">
-                BW
-              </div>
-              <div>
-                <h3 className="text-sm font-black text-[#0D253D]">BongoWeb.xyz</h3>
-                <p className="text-[10px] text-[#64748D]">ক্লায়েন্ট মেনু ও সেবা</p>
-              </div>
-            </div>
+            <BongoWebLogo size="sm" />
 
             <button
               onClick={onClose}
@@ -190,7 +183,7 @@ export default function SideMenuDrawer({
           {/* Drawer Clean Footer (No WhatsApp button) */}
           <div className="p-4 border-t border-[#E5EDF5] bg-[#F8FAFD] text-center">
             <p className="text-[11px] font-bold text-[#0D253D]">
-              BongoWeb.xyz • Enterprise Solutions
+              BongoWeb • Enterprise Solutions
             </p>
             <p className="text-[10px] text-[#7D8BA4] mt-0.5">
               ২৪ ঘণ্টা লাইভ ডেলিভারি ও সাপোর্ট সিস্টেম

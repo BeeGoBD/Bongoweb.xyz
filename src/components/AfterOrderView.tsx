@@ -432,7 +432,7 @@ export default function AfterOrderView({ onGoToDashboard, onOpenLiveChat }: Afte
                 {selectedReceiptOrder.orderId}
               </span>
               <h3 className="text-lg font-black text-[#0D253D]">অফিসিয়াল অর্ডার রসিদ (Receipt)</h3>
-              <p className="text-[11px] text-[#64748D]">BongoWeb.xyz — ২৪ ঘণ্টা এক্সপ্রেস ডেলিভারি</p>
+              <p className="text-[11px] text-[#64748D]">BongoWeb — ২৪ ঘণ্টা এক্সপ্রেস ডেলিভারি</p>
             </div>
 
             <div className="space-y-2 text-xs">

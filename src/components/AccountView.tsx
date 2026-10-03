@@ -16,6 +16,7 @@ import {
 import { getClientSecurityCode, getSecurityCodeRemainingSeconds, formatRemainingTime } from '../utils/securityCode';
 import { auth, googleProvider } from '../firebase';
 import { signInWithPopup } from 'firebase/auth';
+import BongoWebLogo from './BongoWebLogo';
 
 // Official Colored Google Logo Icon
 function GoogleLogoIcon({ className = "w-5 h-5 shrink-0" }: { className?: string }) {
@@ -105,9 +106,6 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
   const [emailVerified, setEmailVerified] = useState(false);
   const [otpCountdown, setOtpCountdown] = useState(0);
   const [isExistingAccountDetected, setIsExistingAccountDetected] = useState(false);
-  const [showGoogleAccountModal, setShowGoogleAccountModal] = useState(false);
-  const [customGoogleEmail, setCustomGoogleEmail] = useState('');
-  const [customGoogleName, setCustomGoogleName] = useState('');
   const [regPass, setRegPass] = useState('');
   const [regConfirmPass, setRegConfirmPass] = useState('');
   const [showRegPass, setShowRegPass] = useState(false);
@@ -240,42 +238,46 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
     setTimeout(() => setCopiedField(null), 2000);
   };
 
-  // Google Social Login - Opens the Google Account Selector Modal directly for reliable login
-  const handleGoogleSignIn = () => {
+  // Google Social Login - Real Professional Google Account Chooser
+  const handleGoogleSignIn = async () => {
     setLoginError('');
-    setShowGoogleAccountModal(true);
-  };
-
-  // Direct Google Account Log In (works reliably for ANY Google account in iframe and browser)
-  const handleDirectGoogleLogin = async (emailToUse: string, nameToUse?: string) => {
-    const cleanEmail = emailToUse.trim().toLowerCase();
-    if (!cleanEmail || !cleanEmail.includes('@')) {
-      setLoginError('Please enter a valid Google email address.');
-      return;
-    }
     setGoogleLoading(true);
-    setLoginError('');
     try {
-      const derivedName = nameToUse?.trim() || cleanEmail.split('@')[0] || 'Google User';
-      const synced = await apiSyncGoogleUser({
-        email: cleanEmail,
-        name: derivedName
-      });
-      setCurrentUser(synced);
-      localStorage.setItem('bongoweb_user', JSON.stringify(synced));
-      sessionStorage.setItem('bongoweb_user', JSON.stringify(synced));
-      localStorage.setItem('bongoweb_last_google_email', cleanEmail);
-      if (nameToUse) localStorage.setItem('bongoweb_last_google_name', nameToUse);
-      loadUserData();
-      setShowGoogleAccountModal(false);
-      if (onGoToDashboard) {
-        onGoToDashboard();
-      } else {
-        window.location.href = '/';
+      const result = await signInWithPopup(auth, googleProvider);
+      const gUser = result.user;
+      if (gUser && gUser.email) {
+        const cleanEmail = gUser.email.toLowerCase();
+        const cleanName = gUser.displayName || cleanEmail.split('@')[0] || 'Google User';
+        const photoUrl = gUser.photoURL || undefined;
+
+        const synced = await apiSyncGoogleUser({
+          email: cleanEmail,
+          name: cleanName,
+          photoUrl
+        });
+
+        setCurrentUser(synced);
+        localStorage.setItem('bongoweb_user', JSON.stringify(synced));
+        sessionStorage.setItem('bongoweb_user', JSON.stringify(synced));
+        loadUserData();
+
+        setSubView('overview');
+        if (onGoToDashboard) {
+          onGoToDashboard();
+        } else {
+          window.location.href = '/account';
+        }
+        return;
       }
-    } catch (err) {
-      console.error('Google direct login error:', err);
-      setLoginError('Google sign in failed. Please try again.');
+    } catch (err: any) {
+      console.warn('Google Popup Sign-In notice:', err?.code, err?.message);
+      if (err?.code === 'auth/popup-closed-by-user') {
+        setLoginError('Google sign-in popup was closed before completing.');
+      } else if (err?.code === 'auth/cancelled-popup-request') {
+        // Ignored
+      } else {
+        setLoginError(err?.message || 'Google sign-in encountered an issue. Please try again.');
+      }
     } finally {
       setGoogleLoading(false);
     }
@@ -439,11 +441,17 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
       return;
     }
 
+    const cleanEmail = regEmail.trim().toLowerCase();
+    if (!cleanEmail || !cleanEmail.includes('@')) {
+      setRegError('Please enter a valid Gmail / Email address.');
+      return;
+    }
+
     setRegError('');
     setOtpConfirming(true);
 
     try {
-      const res = await apiVerifyEmailOtp(regEmail.trim().toLowerCase(), cleanCode);
+      const res = await apiVerifyEmailOtp(cleanEmail, cleanCode);
       if (res.success) {
         // Smart Registration System: If existing user, auto-login directly!
         if (res.isExistingUser && res.user) {
@@ -451,33 +459,59 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
           localStorage.setItem('bongoweb_user', JSON.stringify(res.user));
           sessionStorage.setItem('bongoweb_user', JSON.stringify(res.user));
           loadUserData();
-          if (onGoToDashboard) {
-            onGoToDashboard();
-          } else {
-            window.location.href = '/';
-          }
+          setEmailVerified(true);
+          setSubView('overview');
+          window.history.pushState({}, '', '/account');
           return;
         }
 
         // Fallback check if existing user was flagged
         if (isExistingAccountDetected) {
           const allUsers = await apiGetUsers();
-          const found = allUsers.find(u => (u.email || '').toLowerCase() === regEmail.trim().toLowerCase());
+          const found = allUsers.find(u => (u.email || '').toLowerCase() === cleanEmail);
           if (found) {
             setCurrentUser(found);
             localStorage.setItem('bongoweb_user', JSON.stringify(found));
             sessionStorage.setItem('bongoweb_user', JSON.stringify(found));
             loadUserData();
-            if (onGoToDashboard) {
-              onGoToDashboard();
-            } else {
-              window.location.href = '/';
-            }
+            setEmailVerified(true);
+            setSubView('overview');
+            window.history.pushState({}, '', '/account');
             return;
           }
         }
 
         setEmailVerified(true);
+
+        // Immediate Account Activation and Dashboard Navigation upon OTP verification
+        const fullName = `${regFirstName.trim()} ${regLastName.trim()}`.trim() || regUsername.trim() || cleanEmail.split('@')[0] || 'BongoWeb Member';
+        const username = regUsername.trim() || cleanEmail.split('@')[0];
+        const newUser: UserAccount = {
+          name: fullName,
+          username: username,
+          whatsapp: '',
+          phone: '',
+          email: cleanEmail,
+          password: regPass.trim() || 'activePass123',
+          registeredAt: new Date().toLocaleDateString('bn-BD')
+        };
+
+        try {
+          await apiRegisterUser(newUser);
+        } catch (regErr) {
+          console.warn('Backend user registration sync note:', regErr);
+        }
+
+        // Activate user in local state and persistent storage
+        setCurrentUser(newUser);
+        localStorage.setItem('bongoweb_user', JSON.stringify(newUser));
+        sessionStorage.setItem('bongoweb_user', JSON.stringify(newUser));
+        loadUserData();
+
+        // Immediately switch into account dashboard view
+        setSubView('overview');
+        window.history.pushState({}, '', '/account');
+        return;
       } else {
         setRegError(res.error || 'Invalid OTP code! Please verify the code received in your email.');
       }
@@ -611,12 +645,9 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
       localStorage.setItem('bongoweb_user', JSON.stringify(newUser));
       sessionStorage.setItem('bongoweb_user', JSON.stringify(newUser));
       loadUserData();
-
-      if (onGoToDashboard) {
-        onGoToDashboard();
-      } else {
-        window.location.href = '/';
-      }
+      setSubView('overview');
+      window.history.pushState({}, '', '/account');
+      return;
     } catch (err: any) {
       setRegSubmitting(false);
       setRegError(err?.message || 'Registration error. Please try again.');
@@ -712,8 +743,8 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
     return (
       <div className="w-full min-h-[calc(100vh-120px)] flex flex-col justify-start items-center font-sans pb-28 pt-4 sm:pt-6 relative bg-[#FAF6F0] overflow-x-hidden animate-fadeIn select-none">
         
-        {/* Subtle Ambient Background Warm Glow */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-gradient-to-tr from-[#FF6118]/[0.06] via-[#FBD38D]/[0.08] to-[#533AFD]/[0.03] rounded-full blur-3xl pointer-events-none -z-10" />
+        {/* Subtle Ambient Background Brand Glow */}
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-gradient-to-tr from-[#2B47EE]/[0.08] via-[#7C3AED]/[0.05] to-[#4F46E5]/[0.05] rounded-full blur-3xl pointer-events-none -z-10" />
 
         {/* Floating Green WhatsApp Chat Button (Bottom-Right Corner) */}
         <a
@@ -733,28 +764,33 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
         {/* MOBILE-FIRST CENTERED CARD */}
         <div className="max-w-[440px] mx-auto px-4 w-full relative z-10 flex flex-col items-center mt-2 sm:mt-4">
           
+          {/* Official Brand Logo */}
+          <div className="mb-4 sm:mb-5 flex flex-col items-center select-none">
+            <BongoWebLogo size="lg" />
+          </div>
+
           {/* SCREEN 1: LOGIN PAGE */}
           {authMode === 'login' && (
-              <div className="w-full bg-[#FFF8F0] border border-[#FBD38D] rounded-[26px] sm:rounded-[28px] p-6 sm:p-8 shadow-[0_18px_45px_-10px_rgba(255,145,50,0.12),0_4px_16px_rgba(0,0,0,0.03)] space-y-4 animate-fadeIn">
+              <div className="w-full bg-white border border-slate-200/90 rounded-[28px] p-6 sm:p-8 shadow-[0_20px_50px_-12px_rgba(43,71,238,0.12),0_4px_16px_rgba(0,0,0,0.03)] space-y-4 animate-fadeIn">
                 
                 {/* 1. Top of Card: White Google Sign-In Button */}
                 <button
                   type="button"
                   onClick={handleGoogleSignIn}
                   disabled={googleLoading}
-                  className="w-full py-3.5 px-4 rounded-xl bg-white hover:bg-[#FFFDFB] border border-[#EBDCC8] hover:border-[#FBD38D] text-slate-800 text-xs sm:text-sm font-bold shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-xs transition-all flex items-center justify-center gap-3 cursor-pointer group active:scale-[0.99]"
+                  className="w-full py-3.5 px-4 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-300 text-slate-800 text-xs sm:text-sm font-bold shadow-xs hover:shadow-sm transition-all flex items-center justify-center gap-3 cursor-pointer group active:scale-[0.99]"
                 >
                   <GoogleLogoIcon className="w-5 h-5 shrink-0 transition-transform group-hover:scale-105" />
-                  <span>Google এর মাধ্যমে সাইন-ইন করুন</span>
+                  <span>{googleLoading ? 'Connecting to Google...' : 'Continue with Google'}</span>
                 </button>
 
                 {/* 2. Thin Horizontal Line + Centered Text "OR" */}
                 <div className="relative my-4">
                   <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-[#EBDCC8]" />
+                    <div className="w-full border-t border-slate-200" />
                   </div>
                   <div className="relative flex justify-center text-[11px] uppercase tracking-wider text-slate-400 font-bold">
-                    <span className="bg-[#FFF8F0] px-3">OR</span>
+                    <span className="bg-white px-3">OR</span>
                   </div>
                 </div>
 
@@ -779,7 +815,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                         placeholder="Enter your Gmail or email address"
                         value={loginIdentifier}
                         onChange={(e) => setLoginIdentifier(e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 rounded-xl bg-white border border-[#EBDCC8] text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#FF6118] focus:ring-2 focus:ring-[#FF6118]/20 transition-all shadow-[0_1px_3px_rgba(0,0,0,0.02)]"
+                        className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50/70 border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#2B47EE] focus:ring-2 focus:ring-[#2B47EE]/20 transition-all shadow-2xs"
                       />
                     </div>
                   </div>
@@ -797,7 +833,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                         placeholder="Enter your password"
                         value={loginPassword}
                         onChange={(e) => setLoginPassword(e.target.value)}
-                        className="w-full pl-10 pr-10 py-3 rounded-xl bg-white border border-[#EBDCC8] text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#FF6118] focus:ring-2 focus:ring-[#FF6118]/20 transition-all shadow-[0_1px_3px_rgba(0,0,0,0.02)] font-mono"
+                        className="w-full pl-10 pr-10 py-3 rounded-xl bg-slate-50/70 border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#2B47EE] focus:ring-2 focus:ring-[#2B47EE]/20 transition-all shadow-2xs font-mono"
                       />
                       <button
                         type="button"
@@ -809,14 +845,14 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                     </div>
                   </div>
 
-                  {/* Left: unchecked checkbox + Remember me | Right: orange underlined link Forgot password? */}
+                  {/* Left: unchecked checkbox + Remember me | Right: underlined link Forgot password? */}
                   <div className="flex items-center justify-between text-xs pt-1">
                     <label className="flex items-center gap-2 cursor-pointer select-none">
                       <input
                         type="checkbox"
                         checked={rememberMe}
                         onChange={(e) => setRememberMe(e.target.checked)}
-                        className="w-4 h-4 rounded border-[#EBDCC8] text-[#FF6118] focus:ring-[#FF6118] cursor-pointer"
+                        className="w-4 h-4 rounded border-slate-300 text-[#2B47EE] focus:ring-[#2B47EE] cursor-pointer"
                       />
                       <span className="text-slate-600 font-medium">Remember me</span>
                     </label>
@@ -829,18 +865,18 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                         setForgotOtpSent(false);
                         setForgotEmail(loginIdentifier.includes('@') ? loginIdentifier : '');
                       }}
-                      className="text-xs text-[#FF6118] hover:text-[#EE5507] underline font-semibold cursor-pointer transition-colors"
+                      className="text-xs text-[#2B47EE] hover:text-[#7C3AED] underline font-semibold cursor-pointer transition-colors"
                     >
                       Forgot password?
                     </button>
                   </div>
 
-                  {/* Large full-width orange button with black text: "Sign in" */}
+                  {/* Large full-width button with brand gradient: "Sign in" */}
                   <div className="pt-2">
                     <button
                       type="submit"
                       disabled={loginLoading}
-                      className="w-full py-3.5 px-4 rounded-xl bg-[#FF6118] hover:bg-[#EE5507] active:scale-[0.99] text-black font-black text-sm sm:text-base shadow-[0_6px_20px_-3px_rgba(255,97,24,0.38)] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+                      className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#2B47EE] to-[#7C3AED] hover:from-[#203CD4] hover:to-[#6D28D9] active:scale-[0.99] text-white font-black text-sm sm:text-base shadow-[0_6px_22px_-4px_rgba(43,71,238,0.4)] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
                     >
                       {loginLoading ? <span>Signing in...</span> : <span>Sign in</span>}
                     </button>
@@ -858,7 +894,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                         setLoginError('');
                         setRegError('');
                       }}
-                      className="text-[#3B82F6] hover:text-[#2563EB] font-bold underline cursor-pointer ml-1 inline-flex items-center gap-1"
+                      className="text-[#2B47EE] hover:text-[#7C3AED] font-bold underline cursor-pointer ml-1 inline-flex items-center gap-1"
                     >
                       <span>Sign up</span>
                     </button>
@@ -870,26 +906,26 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
 
             {/* SCREEN 2: REGISTRATION PAGE */}
             {authMode === 'register' && (
-              <div className="w-full bg-[#FFF8F0] border border-[#FBD38D] rounded-[26px] sm:rounded-[28px] p-6 sm:p-8 shadow-[0_18px_45px_-10px_rgba(255,145,50,0.12),0_4px_16px_rgba(0,0,0,0.03)] space-y-3.5 animate-fadeIn">
+              <div className="w-full bg-white border border-slate-200/90 rounded-[28px] p-6 sm:p-8 shadow-[0_20px_50px_-12px_rgba(43,71,238,0.12),0_4px_16px_rgba(0,0,0,0.03)] space-y-3.5 animate-fadeIn">
                 
                 {/* 1. Top of Card: White Google Sign-In Button */}
                 <button
                   type="button"
                   onClick={handleGoogleSignIn}
                   disabled={googleLoading}
-                  className="w-full py-3.5 px-4 rounded-xl bg-white hover:bg-[#FFFDFB] border border-[#EBDCC8] hover:border-[#FBD38D] text-slate-800 text-xs sm:text-sm font-bold shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-xs transition-all flex items-center justify-center gap-3 cursor-pointer group active:scale-[0.99]"
+                  className="w-full py-3.5 px-4 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-300 text-slate-800 text-xs sm:text-sm font-bold shadow-xs hover:shadow-sm transition-all flex items-center justify-center gap-3 cursor-pointer group active:scale-[0.99]"
                 >
                   <GoogleLogoIcon className="w-5 h-5 shrink-0 transition-transform group-hover:scale-105" />
-                  <span>Google অ্যাকাউন্ট দিয়ে সাইন-আপ করুন</span>
+                  <span>{googleLoading ? 'Connecting to Google...' : 'Continue with Google'}</span>
                 </button>
 
                 {/* 2. Thin Horizontal Line + Centered Text "OR" */}
                 <div className="relative my-3">
                   <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-[#EBDCC8]" />
+                    <div className="w-full border-t border-slate-200" />
                   </div>
                   <div className="relative flex justify-center text-[11px] uppercase tracking-wider text-slate-400 font-bold">
-                    <span className="bg-[#FFF8F0] px-3">OR</span>
+                    <span className="bg-white px-3">OR</span>
                   </div>
                 </div>
 
@@ -914,7 +950,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                         placeholder="Choose a username"
                         value={regUsername}
                         onChange={(e) => setRegUsername(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border border-[#EBDCC8] text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#FF6118] focus:ring-2 focus:ring-[#FF6118]/20 transition-all shadow-[0_1px_3px_rgba(0,0,0,0.02)]"
+                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50/70 border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#2B47EE] focus:ring-2 focus:ring-[#2B47EE]/20 transition-all shadow-2xs"
                       />
                     </div>
                   </div>
@@ -932,7 +968,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                         placeholder="Enter your first name"
                         value={regFirstName}
                         onChange={(e) => setRegFirstName(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border border-[#EBDCC8] text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#FF6118] focus:ring-2 focus:ring-[#FF6118]/20 transition-all shadow-[0_1px_3px_rgba(0,0,0,0.02)]"
+                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50/70 border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#2B47EE] focus:ring-2 focus:ring-[#2B47EE]/20 transition-all shadow-2xs"
                       />
                     </div>
                   </div>
@@ -950,7 +986,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                         placeholder="Enter your last name"
                         value={regLastName}
                         onChange={(e) => setRegLastName(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border border-[#EBDCC8] text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#FF6118] focus:ring-2 focus:ring-[#FF6118]/20 transition-all shadow-[0_1px_3px_rgba(0,0,0,0.02)]"
+                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50/70 border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#2B47EE] focus:ring-2 focus:ring-[#2B47EE]/20 transition-all shadow-2xs"
                       />
                     </div>
                   </div>
@@ -968,7 +1004,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                         placeholder="Create a password"
                         value={regPass}
                         onChange={(e) => setRegPass(e.target.value)}
-                        className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-white border border-[#EBDCC8] text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#FF6118] focus:ring-2 focus:ring-[#FF6118]/20 transition-all shadow-[0_1px_3px_rgba(0,0,0,0.02)] font-mono"
+                        className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-slate-50/70 border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#2B47EE] focus:ring-2 focus:ring-[#2B47EE]/20 transition-all shadow-2xs font-mono"
                       />
                       <button
                         type="button"
@@ -993,16 +1029,16 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                         placeholder="Confirm your password"
                         value={regConfirmPass}
                         onChange={(e) => setRegConfirmPass(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border border-[#EBDCC8] text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#FF6118] focus:ring-2 focus:ring-[#FF6118]/20 transition-all shadow-[0_1px_3px_rgba(0,0,0,0.02)] font-mono"
+                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50/70 border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#2B47EE] focus:ring-2 focus:ring-[#2B47EE]/20 transition-all shadow-2xs font-mono"
                       />
                     </div>
                   </div>
 
-                  {/* Large full-width orange button with black text: "Sign up" */}
+                  {/* Large full-width button with brand gradient: "Sign up" */}
                   <div className="pt-2">
                     <button
                       type="submit"
-                      className="w-full py-3.5 px-4 rounded-xl bg-[#FF6118] hover:bg-[#EE5507] active:scale-[0.99] text-black font-black text-sm sm:text-base shadow-[0_6px_20px_-3px_rgba(255,97,24,0.38)] transition-all flex items-center justify-center gap-2 cursor-pointer"
+                      className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#2B47EE] to-[#7C3AED] hover:from-[#203CD4] hover:to-[#6D28D9] active:scale-[0.99] text-white font-black text-sm sm:text-base shadow-[0_6px_22px_-4px_rgba(43,71,238,0.4)] transition-all flex items-center justify-center gap-2 cursor-pointer"
                     >
                       <span>Sign up</span>
                     </button>
@@ -1020,7 +1056,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                         setRegError('');
                         setLoginError('');
                       }}
-                      className="text-[#3B82F6] hover:text-[#2563EB] font-bold underline cursor-pointer ml-1 inline-flex items-center gap-1"
+                      className="text-[#2B47EE] hover:text-[#7C3AED] font-bold underline cursor-pointer ml-1 inline-flex items-center gap-1"
                     >
                       <span>Sign in</span>
                     </button>
@@ -1032,12 +1068,12 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
 
             {/* SCREEN 3: EMAIL VERIFICATION PAGE (Comes right after clicking Sign up) */}
             {authMode === 'email-verify' && (
-              <div className="w-full bg-[#FFF8F0] border border-[#FBD38D] rounded-[26px] sm:rounded-[28px] p-6 sm:p-8 shadow-[0_18px_45px_-10px_rgba(255,145,50,0.12),0_4px_16px_rgba(0,0,0,0.03)] space-y-5 animate-fadeIn">
+              <div className="w-full bg-white border border-slate-200/90 rounded-[28px] p-6 sm:p-8 shadow-[0_20px_50px_-12px_rgba(43,71,238,0.12),0_4px_16px_rgba(0,0,0,0.03)] space-y-5 animate-fadeIn">
                 
                 {/* Top: Small icon / illustration of an email / envelope */}
                 <div className="text-center pt-1">
-                  <div className="w-14 h-14 rounded-2xl bg-[#FFEBD9] border border-[#FBD38D] text-[#FF6118] flex items-center justify-center mx-auto mb-3.5 shadow-[0_4px_14px_rgba(255,97,24,0.18)]">
-                    <Mail className="w-7 h-7 text-[#FF6118]" />
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#2B47EE]/10 to-[#7C3AED]/15 border border-[#2B47EE]/20 text-[#2B47EE] flex items-center justify-center mx-auto mb-3.5 shadow-xs">
+                    <Mail className="w-7 h-7 text-[#2B47EE]" />
                   </div>
                   <h2 className="text-xl sm:text-2xl font-black text-[#0D253D] tracking-tight">
                     Verify your Gmail
@@ -1062,13 +1098,13 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                     </div>
                   )}
 
-                  {/* Input field: Gmail address + small orange "Send Code" or "Verify" button on SAME LINE */}
+                  {/* Input field: Gmail address + "Send Code" button on SAME LINE */}
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between">
                       <label className="block text-xs font-bold text-slate-800">
                         Gmail Address
                       </label>
-                      <span className="text-[10px] text-emerald-700 font-semibold bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+                      <span className="text-[10px] text-indigo-700 font-semibold bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded-full">
                         Descope OTP Protected
                       </span>
                     </div>
@@ -1081,14 +1117,14 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                           placeholder="yourname@gmail.com"
                           value={regEmail}
                           onChange={(e) => setRegEmail(e.target.value)}
-                          className="w-full pl-10 pr-3 py-3 rounded-xl bg-white border border-[#EBDCC8] text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#FF6118] focus:ring-2 focus:ring-[#FF6118]/20 transition-all shadow-[0_1px_3px_rgba(0,0,0,0.02)]"
+                          className="w-full pl-10 pr-3 py-3 rounded-xl bg-slate-50/70 border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#2B47EE] focus:ring-2 focus:ring-[#2B47EE]/20 transition-all shadow-2xs"
                         />
                       </div>
                       <button
                         type="button"
                         onClick={handleSendEmailOtp}
                         disabled={otpSending || !regEmail.includes('@')}
-                        className="shrink-0 px-4 py-3 rounded-xl bg-[#FF6118] hover:bg-[#EE5507] active:scale-95 text-black font-extrabold text-xs sm:text-sm shadow-xs transition-all cursor-pointer disabled:opacity-50"
+                        className="shrink-0 px-4 py-3 rounded-xl bg-gradient-to-r from-[#2B47EE] to-[#7C3AED] hover:from-[#203CD4] hover:to-[#6D28D9] active:scale-95 text-white font-bold text-xs sm:text-sm shadow-xs transition-all cursor-pointer disabled:opacity-50"
                       >
                         {otpSending ? 'Sending...' : otpSent ? 'Resend' : 'Send Code'}
                       </button>
@@ -1097,7 +1133,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
 
                   {/* Optional OTP Code Verification box if code was sent */}
                   {otpSent && (
-                    <div className="p-3.5 rounded-xl bg-amber-50/80 border border-[#FBD38D] space-y-2 animate-fadeIn">
+                    <div className="p-3.5 rounded-xl bg-indigo-50/60 border border-indigo-200/80 space-y-2 animate-fadeIn">
                       <label className="block text-xs font-bold text-slate-800">
                         6-Digit Verification Code
                       </label>
@@ -1108,13 +1144,13 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                           placeholder="Enter code"
                           value={emailOtpCode}
                           onChange={(e) => setEmailOtpCode(e.target.value.replace(/\D/g, ''))}
-                          className="flex-1 px-3 py-2 rounded-xl bg-white border border-[#EBDCC8] text-center font-mono font-bold tracking-widest text-sm text-[#0D253D] focus:outline-none focus:border-[#FF6118]"
+                          className="flex-1 px-3 py-2 rounded-xl bg-white border border-slate-200 text-center font-mono font-bold tracking-widest text-sm text-[#0D253D] focus:outline-none focus:border-[#2B47EE]"
                         />
                         <button
                           type="button"
                           onClick={handleConfirmEmailOtp}
                           disabled={otpConfirming || emailOtpCode.length < 6}
-                          className="px-3.5 py-2 rounded-xl bg-[#00B261] hover:bg-[#009E56] text-white text-xs font-bold transition-all disabled:opacity-50 cursor-pointer shrink-0"
+                          className="px-3.5 py-2 rounded-xl bg-[#00B261] hover:bg-[#009E56] text-white text-xs font-bold transition-all disabled:opacity-50 cursor-pointer shrink-0 shadow-2xs"
                         >
                           {otpConfirming ? 'Verifying...' : emailVerified ? 'Verified ✓' : 'Verify'}
                         </button>
@@ -1125,12 +1161,12 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                     </div>
                   )}
 
-                  {/* Below: Large orange button "Continue" */}
+                  {/* Below: Large button with brand gradient "Continue" */}
                   <div className="pt-2">
                     <button
                       type="submit"
                       disabled={regSubmitting}
-                      className="w-full py-3.5 px-4 rounded-xl bg-[#FF6118] hover:bg-[#EE5507] active:scale-[0.99] text-black font-black text-sm sm:text-base shadow-[0_6px_20px_-3px_rgba(255,97,24,0.38)] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+                      className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#2B47EE] to-[#7C3AED] hover:from-[#203CD4] hover:to-[#6D28D9] active:scale-[0.99] text-white font-black text-sm sm:text-base shadow-[0_6px_22px_-4px_rgba(43,71,238,0.4)] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
                     >
                       {regSubmitting ? <span>Finalizing registration...</span> : <span>Continue</span>}
                     </button>
@@ -1147,7 +1183,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                         setAuthMode('login');
                         setRegError('');
                       }}
-                      className="text-[#3B82F6] hover:text-[#2563EB] font-bold underline cursor-pointer ml-1 inline-flex items-center gap-1"
+                      className="text-[#2B47EE] hover:text-[#7C3AED] font-bold underline cursor-pointer ml-1 inline-flex items-center gap-1"
                     >
                       <span>Sign in</span>
                     </button>
@@ -1158,145 +1194,6 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
             )}
 
           </div>
-
-        {/* GOOGLE ACCOUNT DIRECT SELECTION MODAL */}
-        {showGoogleAccountModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0D253D]/70 backdrop-blur-xs animate-fadeIn">
-            <div className="w-full max-w-md bg-white rounded-[28px] border border-slate-200/90 shadow-[0_25px_65px_-15px_rgba(15,23,42,0.25)] p-6 sm:p-7 relative space-y-4">
-              <button
-                type="button"
-                onClick={() => setShowGoogleAccountModal(false)}
-                className="absolute top-4 right-4 p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-all cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-white border border-slate-200 shadow-xs flex items-center justify-center">
-                  <svg className="w-5 h-5" viewBox="0 0 24 24">
-                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
-                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="text-base font-black text-[#0D253D]">
-                    Continue with Google
-                  </h3>
-                  <p className="text-[11px] text-slate-500">
-                    Sign in with any Google account directly
-                  </p>
-                </div>
-              </div>
-
-              {/* 1-Click Fast Account Button for remembered account if previously logged in */}
-              {(() => {
-                const rememberedEmail = localStorage.getItem('bongoweb_last_google_email');
-                const rememberedName = localStorage.getItem('bongoweb_last_google_name');
-                if (!rememberedEmail) return null;
-                const initials = rememberedName ? rememberedName.slice(0, 2).toUpperCase() : rememberedEmail.slice(0, 2).toUpperCase();
-                return (
-                  <div className="space-y-1.5 pt-1">
-                    <span className="text-[11px] font-semibold text-slate-500 block">
-                      Recently used Google account:
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => handleDirectGoogleLogin(rememberedEmail, rememberedName || undefined)}
-                      disabled={googleLoading}
-                      className="w-full p-3 rounded-2xl bg-indigo-50/70 hover:bg-indigo-100/70 border border-indigo-200/80 transition-all flex items-center justify-between text-left cursor-pointer group"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-[#4285F4] text-white flex items-center justify-center font-bold text-xs shadow-xs">
-                          {initials}
-                        </div>
-                        <div>
-                          <span className="text-xs font-bold text-slate-800 block">{rememberedEmail}</span>
-                          <span className="text-[10px] text-indigo-700 font-medium">1-Click Fast Sign In</span>
-                        </div>
-                      </div>
-                      <ArrowRight className="w-4 h-4 text-[#4285F4] transition-transform group-hover:translate-x-1" />
-                    </button>
-                  </div>
-                );
-              })()}
-
-              {/* Enter ANY Google Account */}
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  if (customGoogleEmail) {
-                    handleDirectGoogleLogin(customGoogleEmail, customGoogleName);
-                  }
-                }}
-                className="space-y-3 pt-1 border-t border-slate-100"
-              >
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                    Google Email Address <span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                    <input
-                      type="email"
-                      required
-                      placeholder="e.g. user@gmail.com"
-                      value={customGoogleEmail}
-                      onChange={(e) => setCustomGoogleEmail(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-800 focus:outline-none focus:bg-white focus:border-[#4285F4] focus:ring-2 focus:ring-[#4285F4]/20 transition-all"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                    Full Name (Optional)
-                  </label>
-                  <div className="relative">
-                    <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                    <input
-                      type="text"
-                      placeholder="e.g. Tanvir Ahmed"
-                      value={customGoogleName}
-                      onChange={(e) => setCustomGoogleName(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-800 focus:outline-none focus:bg-white focus:border-[#4285F4] focus:ring-2 focus:ring-[#4285F4]/20 transition-all"
-                    />
-                  </div>
-                </div>
-
-                <div className="pt-2 flex gap-2">
-                  <button
-                    type="submit"
-                    disabled={!customGoogleEmail.includes('@') || googleLoading}
-                    className="flex-1 py-3 rounded-xl bg-[#4285F4] hover:bg-[#3367D6] text-white text-xs sm:text-sm font-bold transition-all disabled:opacity-50 cursor-pointer shadow-xs flex items-center justify-center gap-2 active:scale-98"
-                  >
-                    {googleLoading ? (
-                      <span>Connecting...</span>
-                    ) : (
-                      <>
-                        <svg className="w-4 h-4" viewBox="0 0 24 24">
-                          <path fill="#ffffff" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                          <path fill="#ffffff" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                          <path fill="#ffffff" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
-                          <path fill="#ffffff" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
-                        </svg>
-                        <span>Continue with Google</span>
-                      </>
-                    )}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setShowGoogleAccountModal(false)}
-                    className="px-4 py-3 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold hover:bg-slate-200 cursor-pointer transition-colors"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
 
         {/* FORGOT PASSWORD MODAL (EMAIL OTP BASED) */}
         {showForgotModal && (
@@ -1743,7 +1640,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
               <ArrowLeft className="w-4 h-4" />
               <span>← অ্যাকাউন্টে ফিরে যান</span>
             </button>
-            <span className="text-xs font-bold text-[#64748D]">BongoWeb.xyz পলিসি</span>
+            <span className="text-xs font-bold text-[#64748D]">BongoWeb পলিসি</span>
           </div>
 
           <div className="bg-[#FFFFFF] border border-[#E5EDF5] rounded-3xl p-6 sm:p-8 shadow-xs space-y-4">
@@ -1756,7 +1653,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
 
             <div className="space-y-4 text-xs sm:text-sm text-[#273951] leading-relaxed">
               <p>
-                BongoWeb.xyz গ্রাহকদের তথ্যের গোপনীয়তা ও নিরাপত্তাকে সর্বোচ্চ প্রাধান্য দেয়। আপনি যখন আমাদের ওয়েবসাইট সেবা গ্রহণ করেন, আপনার প্রদত্ত ফোন নম্বর, ইমেইল ও ব্যবসার তথ্য শুধুমাত্র ওয়েবসাইট কনফিগারেশন ও অফিসিয়াল ডেলিভারির উদ্দেশ্যে সংরক্ষিত থাকে।
+                BongoWeb গ্রাহকদের তথ্যের গোপনীয়তা ও নিরাপত্তাকে সর্বোচ্চ প্রাধান্য দেয়। আপনি যখন আমাদের ওয়েবসাইট সেবা গ্রহণ করেন, আপনার প্রদত্ত ফোন নম্বর, ইমেইল ও ব্যবসার তথ্য শুধুমাত্র ওয়েবসাইট কনফিগারেশন ও অফিসিয়াল ডেলিভারির উদ্দেশ্যে সংরক্ষিত থাকে।
               </p>
               <h3 className="text-sm font-bold text-[#0D253D]">১. তথ্য সংগ্রহ ও সুরক্ষা</h3>
               <p>
@@ -1792,7 +1689,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
               <ArrowLeft className="w-4 h-4" />
               <span>← অ্যাকাউন্টে ফিরে যান</span>
             </button>
-            <span className="text-xs font-bold text-[#64748D]">BongoWeb.xyz টার্মস</span>
+            <span className="text-xs font-bold text-[#64748D]">BongoWeb টার্মস</span>
           </div>
 
           <div className="bg-[#FFFFFF] border border-[#E5EDF5] rounded-3xl p-6 sm:p-8 shadow-xs space-y-4">
@@ -1844,7 +1741,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
               অফিসিয়াল অর্ডার রসিদ (Official Receipt)
             </h3>
             <p className="text-[11px] text-[#64748D]">
-              BongoWeb.xyz — ২৪ ঘণ্টা এক্সপ্রেস ডেলিভারি
+              BongoWeb — ২৪ ঘণ্টা এক্সপ্রেস ডেলিভারি
             </p>
           </div>
 
@@ -2220,7 +2117,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
               অ্যাকাউন্ট সেটিংস ও নীতিমালা (Account Settings & Policies)
             </h3>
             <p className="text-xs text-[#64748D]">
-              BongoWeb.xyz সার্ভিস ব্যবহারের নিয়মাবলি, ভাষা নির্বাচন ও নীতিসমূহ:
+              BongoWeb সার্ভিস ব্যবহারের নিয়মাবলি, ভাষা নির্বাচন ও নীতিসমূহ:
             </p>
           </div>
 

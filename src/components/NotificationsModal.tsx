@@ -195,7 +195,7 @@ export default function NotificationsModal({
         {/* Footer */}
         <div className="p-3 bg-[#F8FAFD] border-t border-[#E5EDF5] text-center">
           <p className="text-[11px] text-[#64748D]">
-            BongoWeb.xyz রিয়েল-টাইম এনক্রিপ্টেড নোটিফিকেশন সিস্টেম
+            BongoWeb রিয়েল-টাইম এনক্রিপ্টেড নোটিফিকেশন সিস্টেম
           </p>
         </div>
       </div>

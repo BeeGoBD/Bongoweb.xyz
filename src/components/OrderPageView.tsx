@@ -705,7 +705,7 @@ export default function OrderPageView({
                 অফিসিয়াল অর্ডার রসিদ (Official Receipt)
               </h1>
               <p className="text-xs text-[#64748D] mt-1">
-                BongoWeb.xyz • ২৪ ঘণ্টার মধ্যে সম্পূর্ণ লাইভ ডেলিভারি গ্যারান্টি
+                BongoWeb • ২৪ ঘণ্টার মধ্যে সম্পূর্ণ লাইভ ডেলিভারি গ্যারান্টি
               </p>
             </div>
 

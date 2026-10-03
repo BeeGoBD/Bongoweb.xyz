@@ -6,6 +6,7 @@ import {
   Menu, X, ChevronRight, ChevronUp, Zap, Eye, Laptop, Clock, Smartphone, MessageCircle, User,
   Play, Film
 } from 'lucide-react';
+import BongoWebLogo from './BongoWebLogo';
 import { TESTIMONIALS } from '../data/mockData';
 import { WebsiteDemo } from '../types';
 
@@ -42,33 +43,14 @@ export default function MainPreviewZone({
         className="sticky top-0 z-40 w-full bg-[#FBF9F5]/90 backdrop-blur-xl border-b border-[#E7E0D6] shadow-[0_2px_16px_rgba(0,0,0,0.03)] transition-all"
       >
         <div className="max-w-6xl lg:max-w-7xl xl:max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-[68px] flex items-center justify-between gap-4 relative">
-          {/* Top Left: Upgraded Designer Logo for BongoWeb */}
+          {/* Top Left: Official BongoWeb Logo */}
           <div 
             onClick={onBackToWizard}
             id="bongo-web-logo"
-            className="flex items-center gap-2.5 sm:gap-3 cursor-pointer select-none group py-1"
+            className="flex items-center cursor-pointer select-none group py-1"
             title="BongoWeb — Home"
           >
-            {/* Maroon Tech Emblem */}
-            <div className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#800020] text-white shadow-sm group-hover:scale-105 transition-all duration-200 shrink-0 flex items-center justify-center font-black text-xs sm:text-sm">
-              BW
-            </div>
-
-            {/* Typographic Wordmark */}
-            <div className="flex flex-col justify-center">
-              <div className="flex items-baseline leading-none">
-                <span className="text-xl sm:text-2xl font-black tracking-tight text-[#1C1614] transition-colors">
-                  Bongo
-                </span>
-                <span className="text-xl sm:text-2xl font-black tracking-tight text-[#800020] transition-colors ml-0.5">
-                  Web
-                </span>
-                <span className="w-1.5 h-1.5 rounded-full bg-[#800020] ml-1 mb-0.5 shrink-0 animate-pulse ring-1 ring-[#800020]/40" />
-              </div>
-              <span className="text-[8.5px] font-bold tracking-widest text-[#7A6A66] uppercase -mt-0.5 hidden sm:block font-mono">
-                Website Platform
-              </span>
-            </div>
+            <BongoWebLogo size="md" />
           </div>
 
           {/* Desktop Center Navigation Links (>= 1024px) */}

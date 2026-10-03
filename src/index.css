@@ -2,12 +2,13 @@
 
 @layer base {
   :root {
-    /* Exact Stripe Live Design System (2026) Tokens */
-    --color-primary: #533AFD;
-    --color-primary-hover: #665EFD;
-    --color-primary-active: #4032C8;
-    --color-primary-dark: #2E2B8C;
-    --color-brand-deep: #1C1E54;
+    /* Exact BongoWeb Official Brand Colors from Logo */
+    --color-primary: #2B47EE;
+    --color-primary-hover: #203CD4;
+    --color-primary-active: #1E3A8A;
+    --color-primary-dark: #1E293B;
+    --color-brand-deep: #0B132B;
+    --color-accent-violet: #7C3AED;
     
     --color-text-primary: #0D253D;
     --color-text-secondary: #273951;
@@ -18,16 +19,16 @@
     --color-bg-main: #FFFFFF;
     --color-bg-quiet: #F8FAFD;
     --color-bg-subdued: #E5EDF5;
-    --color-bg-accent-subdued: #E2E4FF;
+    --color-bg-accent-subdued: #EEF2FF;
     --color-bg-soft-neutral: #D4DEE9;
     
     --color-success: #00B261;
     --color-error: #D8351E;
-    --color-warning: #FF6118;
+    --color-warning: #F59E0B;
 
-    --gradient-primary: linear-gradient(135deg, #533AFD 0%, #7F7DFC 50%, #BDB4FF 100%);
-    --gradient-accent-magenta: linear-gradient(135deg, #F44BCC 0%, #F96BEE 100%);
-    --gradient-accent-orange: linear-gradient(135deg, #FF6118 0%, #FFD552 100%);
+    --gradient-primary: linear-gradient(135deg, #2B47EE 0%, #7C3AED 100%);
+    --gradient-accent-magenta: linear-gradient(135deg, #A855F7 0%, #7C3AED 100%);
+    --gradient-accent-orange: linear-gradient(135deg, #3B82F6 0%, #2B47EE 100%);
   }
 
   * {

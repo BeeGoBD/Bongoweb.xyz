@@ -336,7 +336,7 @@ export default function WebsiteDetailPage({
 
       {/* Footer */}
       <footer className="w-full py-6 border-t border-[#E5EDF5] bg-[#FFFFFF] text-center text-xs text-[#64748D] mt-12">
-        <p>© 2026 BongoWeb.xyz — All Rights Reserved. Stripe Design System Standards.</p>
+        <p>© 2026 BongoWeb — All Rights Reserved. Stripe Design System Standards.</p>
       </footer>
     </div>
   );

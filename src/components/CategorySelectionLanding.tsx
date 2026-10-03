@@ -3,6 +3,7 @@ import {
   ShoppingBasket, UtensilsCrossed, Newspaper, Store, 
   ChevronRight, ArrowRight, CheckCircle2, Globe
 } from 'lucide-react';
+import BongoWebLogo from './BongoWebLogo';
 import { WebsiteCategory, UserAccount } from '../types';
 import { useLanguage } from '../utils/LanguageContext';
 
@@ -97,23 +98,13 @@ export default function CategorySelectionLanding({
       <header className="w-full bg-white/90 backdrop-blur-xl border-b border-slate-200/80 shadow-[0_2px_16px_rgba(15,23,42,0.03)] shrink-0 h-16 sm:h-[68px] px-4 sm:px-6 lg:px-8 flex items-center justify-between transition-all">
         {/* Left Branding */}
         <div className="flex items-center gap-2.5 sm:gap-3 cursor-pointer group">
-          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-tr from-[#533AFD] via-[#6366F1] to-[#7C3AED] text-white flex items-center justify-center font-black text-xs sm:text-sm shadow-[0_4px_14px_rgba(83,58,253,0.32)] ring-2 ring-white/50 group-hover:scale-105 transition-transform duration-200">
-            BW
-          </div>
-          <div className="flex flex-col justify-center">
-            <div className="flex items-baseline leading-none">
-              <span className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 group-hover:text-[#533AFD] transition-colors">
-                BongoWeb
-              </span>
-              <span className="text-xs sm:text-sm font-black text-[#533AFD] ml-0.5">.xyz</span>
-            </div>
-            <div className="flex items-center gap-1.5 text-[8.5px] sm:text-[9.5px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/80 shadow-2xs mt-1 w-fit">
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00B261] opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#00B261]"></span>
-              </span>
-              <span>{t('ভেরিফাইড প্ল্যাটফর্ম', 'Verified Platform')}</span>
-            </div>
+          <BongoWebLogo size="md" />
+          <div className="hidden sm:flex items-center gap-1.5 text-[8.5px] sm:text-[9.5px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200/80 shadow-2xs">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00B261] opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#00B261]"></span>
+            </span>
+            <span>{t('ভেরিফাইড প্ল্যাটফর্ম', 'Verified Platform')}</span>
           </div>
         </div>
 
@@ -302,7 +293,7 @@ export default function CategorySelectionLanding({
 
       {/* 3. Clean Footer */}
       <footer className="w-full py-2.5 shrink-0 border-t border-[#E5EDF5] bg-[#FFFFFF] text-center text-[10px] sm:text-xs text-[#64748D]">
-        <p>© 2026 BongoWeb.xyz — All Rights Reserved.</p>
+        <p>© 2026 BongoWeb — All Rights Reserved.</p>
       </footer>
     </div>
   );
