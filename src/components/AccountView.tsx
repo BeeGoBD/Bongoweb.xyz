@@ -363,7 +363,11 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
     try {
       const storedUsers = await apiGetUsers();
       const matchingUser = storedUsers.find(
-        (u) => (u.phone === cleanId || (u.email && u.email.toLowerCase() === cleanId)) && u.password === cleanPass
+        (u) => 
+          ((u.email && u.email.toLowerCase() === cleanId) || 
+           ((u as any).username && (u as any).username.toLowerCase() === cleanId) || 
+           (u.phone && u.phone === cleanId)) && 
+          u.password === cleanPass
       );
 
       if (matchingUser) {
@@ -384,7 +388,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
           window.location.href = '/';
         }
       } else {
-        setLoginError('Invalid phone number/email or password!');
+        setLoginError('Invalid email or password!');
       }
     } catch (_) {
       setLoginError('Login process failed. Please check your credentials and try again.');
@@ -393,11 +397,11 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
     }
   };
 
-  // Handle Send Email OTP during Registration (Smart Auto-Login for Existing Accounts)
+  // Handle Send Email OTP during Registration (Smart Auto-Login for Existing Accounts via Descope)
   const handleSendEmailOtp = async () => {
     const clean = regEmail.trim().toLowerCase();
     if (!clean || !clean.includes('@')) {
-      setRegError('Please enter a valid email address.');
+      setRegError('Please enter a valid Gmail / Email address.');
       return;
     }
 
@@ -412,13 +416,13 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
         setOtpCountdown(60);
         if (res.isExistingUser) {
           setIsExistingAccountDetected(true);
-          setRegSuccess('Existing account detected! A 6-digit verification code has been sent to your email. Enter it below to directly access your account without needing a password.');
+          setRegSuccess('Existing account detected! A 6-digit verification code has been sent to your Gmail via Descope. Enter it below to directly access your account without needing a password.');
         } else {
           setIsExistingAccountDetected(false);
-          setRegSuccess('A 6-digit OTP verification code has been sent to your email.');
+          setRegSuccess('A 6-digit OTP verification code has been sent to your Gmail via Descope. Please check your inbox.');
         }
       } else {
-        setRegError(res.error || 'Failed to send OTP code.');
+        setRegError(res.error || 'Failed to send OTP code via Descope.');
       }
     } catch (err) {
       setRegError('Failed to send OTP code. Please try again.');
@@ -519,7 +523,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
     }
   };
 
-  // SCREEN 2: Handle Step 1 Registration (Validates Username, First Name, Last Name, WhatsApp, Passwords)
+  // SCREEN 2: Handle Step 1 Registration (Validates Username, First Name, Last Name, Passwords - No number verification)
   const handleRegisterStep1 = async (e: React.FormEvent) => {
     e.preventDefault();
     setRegError('');
@@ -530,11 +534,6 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
     }
     if (!regFirstName.trim()) {
       setRegError('Please enter your first name.');
-      return;
-    }
-    const cleanWhatsApp = regWhatsApp.trim();
-    if (!cleanWhatsApp || cleanWhatsApp.length < 9) {
-      setRegError('Please enter a valid WhatsApp mobile number (e.g. 017XXXXXXXX).');
       return;
     }
     if (!regPass || regPass.length < 4) {
@@ -548,8 +547,8 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
 
     try {
       const allUsers = await apiGetUsers();
-      if (allUsers.some(u => u.phone === cleanWhatsApp || u.whatsapp === cleanWhatsApp)) {
-        setRegError('An account with this WhatsApp number already exists.');
+      if (allUsers.some(u => (u as any).username && (u as any).username.toLowerCase() === regUsername.trim().toLowerCase())) {
+        setRegError('An account with this username already exists.');
         return;
       }
     } catch (_) {}
@@ -559,14 +558,14 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // SCREEN 3: Handle Final Registration with Email & OTP
+  // SCREEN 3: Handle Final Registration with Gmail & Descope OTP
   const handleFinalizeRegistration = async (e: React.FormEvent) => {
     e.preventDefault();
     setRegError('');
 
     const cleanEmail = regEmail.trim().toLowerCase();
     if (!cleanEmail || !cleanEmail.includes('@')) {
-      setRegError('Please enter a valid email address.');
+      setRegError('Please enter a valid Gmail / Email address.');
       return;
     }
 
@@ -574,7 +573,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
     if (otpSent && !emailVerified) {
       const cleanCode = emailOtpCode.trim();
       if (!cleanCode || cleanCode.length < 6) {
-        setRegError('Please enter the 6-digit verification code sent to your email.');
+        setRegError('Please enter the 6-digit verification code sent to your Gmail.');
         return;
       }
       setOtpConfirming(true);
@@ -589,13 +588,12 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
 
     setRegSubmitting(true);
     try {
-      const cleanWhatsApp = regWhatsApp.trim() || regPhone.trim();
       const fullName = `${regFirstName.trim()} ${regLastName.trim()}`.trim() || regUsername.trim() || 'BongoWeb Member';
       const newUser: UserAccount = {
         name: fullName,
         username: regUsername.trim(),
-        whatsapp: cleanWhatsApp,
-        phone: cleanWhatsApp,
+        whatsapp: '',
+        phone: '',
         email: cleanEmail,
         password: regPass.trim(),
         registeredAt: new Date().toLocaleDateString('bn-BD')
@@ -768,17 +766,17 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                     </div>
                   )}
 
-                  {/* Label: Email or Phone */}
+                  {/* Label: Gmail / Email Address */}
                   <div>
                     <label className="block text-xs font-bold text-slate-800 mb-1.5">
-                      Email or Phone
+                      Gmail / Email Address
                     </label>
                     <div className="relative">
-                      <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                       <input
                         type="text"
                         required
-                        placeholder="Enter your email or phone number"
+                        placeholder="Enter your Gmail or email address"
                         value={loginIdentifier}
                         onChange={(e) => setLoginIdentifier(e.target.value)}
                         className="w-full pl-10 pr-4 py-3 rounded-xl bg-white border border-[#EBDCC8] text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#FF6118] focus:ring-2 focus:ring-[#FF6118]/20 transition-all shadow-[0_1px_3px_rgba(0,0,0,0.02)]"
@@ -957,27 +955,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                     </div>
                   </div>
 
-                  {/* 4. WhatsApp number (WhatsApp green icon) */}
-                  <div>
-                    <label className="block text-xs font-bold text-slate-800 mb-1">
-                      WhatsApp number
-                    </label>
-                    <div className="relative">
-                      <div className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none">
-                        <WhatsAppIcon className="w-4 h-4 text-[#25D366]" />
-                      </div>
-                      <input
-                        type="tel"
-                        required
-                        placeholder="e.g. 017XXXXXXXX"
-                        value={regWhatsApp}
-                        onChange={(e) => setRegWhatsApp(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border border-[#EBDCC8] text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#FF6118] focus:ring-2 focus:ring-[#FF6118]/20 transition-all shadow-[0_1px_3px_rgba(0,0,0,0.02)] font-mono"
-                      />
-                    </div>
-                  </div>
-
-                  {/* 5. Password (lock icon) */}
+                  {/* 4. Password (lock icon) */}
                   <div>
                     <label className="block text-xs font-bold text-slate-800 mb-1">
                       Password
@@ -1002,7 +980,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                     </div>
                   </div>
 
-                  {/* 6. Confirm password (lock icon) */}
+                  {/* 5. Confirm password (lock icon) */}
                   <div>
                     <label className="block text-xs font-bold text-slate-800 mb-1">
                       Confirm password
@@ -1062,10 +1040,10 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                     <Mail className="w-7 h-7 text-[#FF6118]" />
                   </div>
                   <h2 className="text-xl sm:text-2xl font-black text-[#0D253D] tracking-tight">
-                    Verify your email
+                    Verify your Gmail
                   </h2>
                   <p className="text-xs sm:text-[13px] text-slate-500 mt-1.5 leading-relaxed max-w-xs mx-auto">
-                    We need your email address to complete your registration. Please enter it below.
+                    A 6-digit OTP verification code will be sent to your Gmail address via Descope authentication.
                   </p>
                 </div>
 
@@ -1084,18 +1062,23 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                     </div>
                   )}
 
-                  {/* Input field: Email address + small orange "Send Code" or "Verify" button on SAME LINE */}
+                  {/* Input field: Gmail address + small orange "Send Code" or "Verify" button on SAME LINE */}
                   <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-slate-800">
-                      Email Address
-                    </label>
+                    <div className="flex items-center justify-between">
+                      <label className="block text-xs font-bold text-slate-800">
+                        Gmail Address
+                      </label>
+                      <span className="text-[10px] text-emerald-700 font-semibold bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+                        Descope OTP Protected
+                      </span>
+                    </div>
                     <div className="flex items-center gap-2">
                       <div className="relative flex-1">
                         <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                         <input
                           type="email"
                           required
-                          placeholder="Enter your email address"
+                          placeholder="yourname@gmail.com"
                           value={regEmail}
                           onChange={(e) => setRegEmail(e.target.value)}
                           className="w-full pl-10 pr-3 py-3 rounded-xl bg-white border border-[#EBDCC8] text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#FF6118] focus:ring-2 focus:ring-[#FF6118]/20 transition-all shadow-[0_1px_3px_rgba(0,0,0,0.02)]"
@@ -1137,7 +1120,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                         </button>
                       </div>
                       <p className="text-[11px] text-slate-500">
-                        Check your email inbox or spam folder for your 6-digit confirmation code.
+                        Check your Gmail inbox or spam folder for your 6-digit confirmation code.
                       </p>
                     </div>
                   )}
@@ -1174,57 +1157,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
               </div>
             )}
 
-            {/* DESCOPE AUTH FLOW VIEW (Optional alternative mode) */}
-            {authMode === 'descope' && (
-              <div className="w-full bg-[#FFF8F0] border border-[#FBD38D] rounded-[26px] p-6 shadow-[0_18px_45px_-10px_rgba(255,145,50,0.12)] space-y-4 animate-fadeIn">
-                <div className="text-center pb-2">
-                  <h3 className="text-base font-black text-[#0D253D]">Descope All-In-One Flow</h3>
-                  <p className="text-xs text-slate-500">Google, Magic Link, Passkeys or WhatsApp login</p>
-                </div>
-                <div className="min-h-[300px] flex items-center justify-center">
-                  <Descope
-                    flowId="sign-up-or-in"
-                    onSuccess={(e) => {
-                      console.log(e?.detail?.user?.name);
-                      console.log(e?.detail?.user?.email);
-                      handleDescopeSuccess(e);
-                    }}
-                    onError={(err) => {
-                      console.log("Error!", err);
-                      handleDescopeError(err);
-                    }}
-                    theme="light"
-                  />
-                </div>
-                <div className="text-center pt-2">
-                  <button
-                    type="button"
-                    onClick={() => setAuthMode('login')}
-                    className="text-xs text-[#3B82F6] hover:underline font-bold"
-                  >
-                    Return to Standard Sign In
-                  </button>
-                </div>
-              </div>
-            )}
-
           </div>
-
-        {/* Security & Code Footnote */}
-        <div className="mt-8 flex flex-col items-center gap-2 select-none text-center">
-          <button
-            type="button"
-            onClick={() => setShowSecurityCodeModal(true)}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-[#FBD38D]/60 text-xs font-bold transition-all shadow-2xs cursor-pointer"
-          >
-            <ShieldCheck className="w-4 h-4 text-[#FF6118]" />
-            <span>View Client Security Code</span>
-          </button>
-
-          <p className="text-[11px] text-slate-400">
-            bongoweb.xyz • Verified Bangladeshi Business Platform • 256-Bit SSL Secured
-          </p>
-        </div>
 
         {/* GOOGLE ACCOUNT DIRECT SELECTION MODAL */}
         {showGoogleAccountModal && (

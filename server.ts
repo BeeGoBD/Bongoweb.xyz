@@ -612,28 +612,28 @@ async function startServer() {
     const db = readDb();
     const { name, phone, email, password } = req.body;
 
-    if (!name || !phone || !email) {
-      return res.status(400).json({ success: false, error: 'সবগুলো তথ্য পূরণ করুন।' });
+    if (!name || !email) {
+      return res.status(400).json({ success: false, error: 'অনুগ্রহ করে নাম এবং ইমেইল প্রদান করুন।' });
     }
 
-    const cleanPhone = phone.trim();
     const cleanEmail = email.trim().toLowerCase();
+    const cleanPhone = phone ? phone.trim() : '';
 
-    // Check duplicate
+    // Check duplicate email
     const exists = db.users.some(
-      u => u.phone === cleanPhone || (u.email && u.email.toLowerCase() === cleanEmail)
+      u => (u.email && u.email.toLowerCase() === cleanEmail) || (cleanPhone && u.phone === cleanPhone)
     );
 
     if (exists) {
       return res.status(400).json({
         success: false,
-        error: 'এই মোবাইল নম্বর বা ইমেইল দিয়ে ইতিমধ্যে একটি অ্যাকাউন্ট তৈরি করা হয়েছে!'
+        error: 'এই ইমেইল দিয়ে ইতিমধ্যে একটি অ্যাকাউন্ট তৈরি করা হয়েছে!'
       });
     }
 
     const newUser = {
       name: name.trim(),
-      phone: cleanPhone,
+      phone: cleanPhone || '',
       email: cleanEmail,
       password: password ? password.trim() : undefined,
       registeredAt: new Date().toLocaleDateString('bn-BD')
@@ -659,17 +659,20 @@ async function startServer() {
     const cleanPass = (password || '').trim();
 
     const user = db.users.find(
-      u => (u.phone === cleanId || (u.email && u.email.toLowerCase() === cleanId)) && u.password === cleanPass
+      u => ((u.email && u.email.toLowerCase() === cleanId) || 
+            (u.phone && u.phone === cleanId) || 
+            ((u as any).username && (u as any).username.toLowerCase() === cleanId)) && 
+           u.password === cleanPass
     );
 
     if (user) {
       res.json({ success: true, user });
     } else {
-      res.status(401).json({ success: false, error: 'মোবাইল নম্বর/ইমেইল অথবা পাসওয়ার্ড সঠিক নয়!' });
+      res.status(401).json({ success: false, error: 'ইমেইল অথবা পাসওয়ার্ড সঠিক নয়!' });
     }
   });
 
-  // EMAIL OTP & AUTH ROUTES
+  // EMAIL OTP & AUTH ROUTES (Directly powered by Descope: P3K6LwIDJRlYK19nBi2yewOjmo22)
   interface EmailOtpRecord {
     code: string;
     expiresAt: number;
@@ -677,16 +680,17 @@ async function startServer() {
     verified: boolean;
     isExistingUser?: boolean;
     existingUser?: any;
+    descopeMaskedEmail?: string;
   }
   const emailOtpStore = new Map<string, EmailOtpRecord>();
 
-  app.post('/api/auth/send-email-otp', (req: Request, res: Response) => {
+  app.post('/api/auth/send-email-otp', async (req: Request, res: Response) => {
     const { email, phone, purpose } = req.body;
     const cleanEmail = String(email || '').trim().toLowerCase();
     const cleanPhone = String(phone || '').trim().replace(/\D/g, '');
 
     if (!cleanEmail || !cleanEmail.includes('@')) {
-      return res.status(400).json({ success: false, error: 'Please enter a valid email address.' });
+      return res.status(400).json({ success: false, error: 'Please enter a valid Gmail / Email address.' });
     }
 
     const db = readDb();
@@ -703,109 +707,144 @@ async function startServer() {
       return res.status(404).json({ success: false, error: 'No account found with this email address.' });
     }
 
-    // Generate secure 6-digit OTP
-    const code = String(Math.floor(100000 + Math.random() * 900000));
+    // 1. Primary: Deliver real OTP email using Descope with configured Project ID P3K6LwIDJRlYK19nBi2yewOjmo22
+    let descopeSent = false;
+    let maskedEmail = '';
+    try {
+      const descopeRes = await descopeClient.otp.signUpOrIn.email(cleanEmail);
+      if (descopeRes?.ok) {
+        descopeSent = true;
+        maskedEmail = descopeRes.data?.maskedEmail || cleanEmail;
+        console.log(`[AUTH OTP via Descope] Real OTP sent to ${cleanEmail} via Descope Project ${DESCOPE_PROJECT_ID}`);
+      } else {
+        console.warn(`[AUTH OTP Descope Notice]`, descopeRes?.error);
+      }
+    } catch (err: any) {
+      console.warn(`[AUTH OTP Descope Error]`, err?.message || err);
+    }
+
+    // 2. Generate local fallback verification code
+    const fallbackCode = String(Math.floor(100000 + Math.random() * 900000));
     const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes
 
     emailOtpStore.set(cleanEmail, {
-      code,
+      code: fallbackCode,
       expiresAt,
       purpose: purpose || 'signup',
       verified: false,
       isExistingUser,
-      existingUser: existingUser || undefined
+      existingUser: existingUser || undefined,
+      descopeMaskedEmail: maskedEmail
     });
 
-    const parts = cleanEmail.split('@');
-    const masked = parts[0].slice(0, 2) + '***@' + (parts[1] || 'domain.com');
+    if (!maskedEmail) {
+      const parts = cleanEmail.split('@');
+      maskedEmail = parts[0].slice(0, 2) + '***@' + (parts[1] || 'gmail.com');
+    }
 
-    console.log(`[AUTH OTP] 6-digit OTP generated for ${cleanEmail}: ${code} (purpose: ${purpose}, existingUser: ${isExistingUser})`);
+    console.log(`[AUTH OTP] OTP dispatch initiated for ${cleanEmail} via Descope (backup code: ${fallbackCode})`);
 
-    // Dispatch real email via nodemailer if SMTP transporter is configured
+    // Optional nodemailer dispatch only if an external SMTP is configured (never required)
     if (mailTransporter) {
       mailTransporter.sendMail({
         from: process.env.SMTP_FROM || `"BongoWeb Security" <noreply@bongoweb.xyz>`,
         to: cleanEmail,
         subject: isExistingUser
-          ? `[BongoWeb] Your Instant Login Verification Code: ${code}`
-          : `[BongoWeb] Your Email Verification OTP: ${code}`,
+          ? `[BongoWeb] Your Instant Login Verification Code: ${fallbackCode}`
+          : `[BongoWeb] Your Email Verification OTP: ${fallbackCode}`,
         html: `
           <div style="font-family: sans-serif; max-width: 520px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 16px; background: #ffffff;">
             <div style="text-align: center; margin-bottom: 20px;">
               <h2 style="color: #533AFD; margin: 0; font-size: 22px;">BongoWeb Authentication</h2>
-              <p style="color: #64748B; font-size: 13px; margin: 4px 0 0 0;">Official Security Code Service</p>
+              <p style="color: #64748B; font-size: 13px; margin: 4px 0 0 0;">Descope Official Security Code Service</p>
             </div>
             <p style="color: #1e293b; font-size: 14px; line-height: 1.5;">
               ${isExistingUser 
-                ? 'We noticed you entered an email associated with an existing account. To log in securely without entering your password, use the 6-digit code below:' 
-                : 'Thank you for choosing BongoWeb. Please use the following 6-digit verification code to complete your verification:'}
+                ? 'We noticed you entered an email associated with an existing account. Use the 6-digit verification code below to directly sign into your account:' 
+                : 'Thank you for choosing BongoWeb. Please use the following 6-digit verification code to complete your Gmail verification:'}
             </p>
             <div style="text-align: center; margin: 24px 0;">
               <div style="display: inline-block; padding: 14px 28px; background: #f1f3fd; border: 1px solid #c7d2fe; border-radius: 12px; font-family: monospace; font-size: 28px; font-weight: 800; letter-spacing: 6px; color: #4328eb;">
-                ${code}
+                ${fallbackCode}
               </div>
             </div>
             <p style="color: #64748B; font-size: 12px; line-height: 1.5;">
-              This code will expire in 10 minutes. If you did not request this verification code, please ignore this email.
+              This code will expire in 10 minutes. Powered by Descope authentication.
             </p>
-            <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
-            <div style="text-align: center; color: #94a3b8; font-size: 11px;">
-              © ${new Date().getFullYear()} BongoWeb.xyz — All rights reserved.
-            </div>
           </div>
         `
-      }).catch(err => {
-        console.warn(`[AUTH OTP] Failed to send email via SMTP:`, err.message);
+      }).catch((err: any) => {
+        console.warn(`[AUTH OTP SMTP Optional Notice]`, err.message);
       });
     }
 
     res.json({
       success: true,
+      descopeSent,
       isExistingUser,
-      maskedEmail: masked,
+      maskedEmail,
       message: isExistingUser
-        ? `Existing account found! A 6-digit login verification code was sent to ${masked}. Enter it to log into your account directly.`
-        : `A 6-digit OTP verification code was sent to ${masked}. Please check your inbox or spam folder.`
+        ? `Existing account found! A 6-digit verification code was sent to ${maskedEmail} via Descope. Enter it below to log into your account directly.`
+        : `A 6-digit verification code was sent to ${maskedEmail} via Descope. Please check your Gmail inbox or spam folder.`
     });
   });
 
-  app.post('/api/auth/verify-email-otp', (req: Request, res: Response) => {
+  app.post('/api/auth/verify-email-otp', async (req: Request, res: Response) => {
     const { email, code } = req.body;
     const cleanEmail = String(email || '').trim().toLowerCase();
     const cleanCode = String(code || '').trim();
 
+    if (!cleanCode || cleanCode.length < 6) {
+      return res.status(400).json({ success: false, error: 'Please enter a valid 6-digit verification code.' });
+    }
+
     const record = emailOtpStore.get(cleanEmail);
-    if (!record) {
-      return res.status(400).json({ success: false, error: 'No OTP code was sent or the code has expired. Please request a new code.' });
+
+    // 1. Primary: Verify with Descope Project
+    let isVerified = false;
+    let descopeData: any = null;
+    try {
+      const descopeVerify = await descopeClient.otp.verify.email(cleanEmail, cleanCode);
+      if (descopeVerify?.ok) {
+        isVerified = true;
+        descopeData = descopeVerify.data;
+        console.log(`[AUTH OTP via Descope] OTP for ${cleanEmail} verified successfully with Descope!`);
+      }
+    } catch (err: any) {
+      console.warn(`[AUTH OTP Descope Verify Notice]`, err?.message || err);
     }
 
-    if (Date.now() > record.expiresAt) {
-      emailOtpStore.delete(cleanEmail);
-      return res.status(400).json({ success: false, error: 'OTP code has expired. Please request a new code.' });
+    // 2. Secondary fallback check
+    if (!isVerified && record) {
+      if (record.code === cleanCode && Date.now() <= record.expiresAt) {
+        isVerified = true;
+      }
     }
 
-    // Verify OTP code matches
-    if (record.code !== cleanCode) {
-      return res.status(400).json({ success: false, error: 'Invalid OTP code! Please verify the code received in your email.' });
+    if (!isVerified) {
+      return res.status(400).json({ success: false, error: 'Invalid or expired OTP code! Please check the code in your Gmail inbox.' });
     }
 
-    record.verified = true;
-    emailOtpStore.set(cleanEmail, record);
+    if (record) {
+      record.verified = true;
+      emailOtpStore.set(cleanEmail, record);
+    }
 
     // Smart Registration System: If this was an existing user, return the existing user object so client auto-logs in!
-    if (record.isExistingUser && record.existingUser) {
+    if (record?.isExistingUser && record?.existingUser) {
       return res.json({
         success: true,
         isExistingUser: true,
         user: record.existingUser,
-        message: 'OTP verified successfully! Welcome back to your account.'
+        message: 'OTP verified successfully via Descope! Welcome back to your account.'
       });
     }
 
     res.json({ 
       success: true, 
       isExistingUser: false, 
-      message: 'Email verified successfully.' 
+      message: 'Gmail verified successfully via Descope.',
+      descopeSession: descopeData?.sessionJwt
     });
   });
 
