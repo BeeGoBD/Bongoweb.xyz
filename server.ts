@@ -281,6 +281,7 @@ interface DatabaseSchema {
   deliveredCredentials: Array<any>;
   resetRequests: Array<any>;
   reports: Array<any>;
+  logoConfig?: any;
 }
 
 // Default initial database
@@ -298,7 +299,17 @@ function getInitialDb(): DatabaseSchema {
     customWebsites: [],
     deliveredCredentials: [],
     resetRequests: [],
-    reports: []
+    reports: [],
+    logoConfig: {
+      logoType: 'image',
+      imageUrl: '',
+      imageSizePx: 36,
+      showBrandTextWithImage: true,
+      typedLogoText: 'BongoWeb',
+      typedSubtitle: '.xyz',
+      textGradientTheme: 'royal',
+      updatedAt: new Date().toISOString()
+    }
   };
 }
 
@@ -1350,6 +1361,24 @@ async function startServer() {
     db.deliveredCredentials = db.deliveredCredentials.filter(c => c.id !== id);
     writeDb(db);
     res.json(db.deliveredCredentials);
+  });
+
+  // LOGO & BRAND SETTINGS ENDPOINTS
+  app.get('/api/settings/logo', (req: Request, res: Response) => {
+    const db = readDb();
+    res.json(db.logoConfig || null);
+  });
+
+  app.post('/api/settings/logo', (req: Request, res: Response) => {
+    const db = readDb();
+    db.logoConfig = req.body;
+    writeDb(db);
+    broadcast({
+      type: 'logo:updated',
+      config: req.body,
+      timestamp: Date.now()
+    });
+    res.json({ success: true, config: req.body });
   });
 
   // 6. PASSWORD RESET REQUESTS

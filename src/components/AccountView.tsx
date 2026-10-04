@@ -149,8 +149,19 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
       syncSubViewWithUrl();
     };
 
+    const handleCredsChange = () => {
+      loadUserData();
+    };
+
     window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
+    window.addEventListener('bongoweb_credentials_updated', handleCredsChange);
+    window.addEventListener('storage', handleCredsChange);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      window.removeEventListener('bongoweb_credentials_updated', handleCredsChange);
+      window.removeEventListener('storage', handleCredsChange);
+    };
   }, []);
 
   // Security code timer interval (Requirement 13)
@@ -195,7 +206,11 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
       if (storedUser) {
         const parsed: UserAccount = JSON.parse(storedUser);
         const allUsers = await apiGetUsers();
-        const latest = allUsers.find(u => u.phone === parsed.phone) || parsed;
+        const latest = allUsers.find(u => 
+          (parsed.phone && u.phone === parsed.phone) || 
+          (parsed.email && u.email && u.email.toLowerCase() === parsed.email.toLowerCase()) || 
+          (parsed.username && (u as any).username && (u as any).username === parsed.username)
+        ) || parsed;
         if (latest.isRestricted) {
           handleLogout();
           setLoginError('🚫 আপনার অ্যাকাউন্টটি সাময়িকভাবে সীমাবদ্ধ (Restricted) করা হয়েছে।');
@@ -205,7 +220,10 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
 
         // Check delivered credentials for this user
         const credsList = await apiGetCredentials();
-        const found = credsList.filter((c) => c.userPhone === parsed.phone);
+        const found = credsList.filter((c) => 
+          (parsed.phone && c.userPhone === parsed.phone) || 
+          (parsed.email && ((c.userEmail && c.userEmail.toLowerCase() === parsed.email.toLowerCase()) || ((c as any).clientEmail && (c as any).clientEmail.toLowerCase() === parsed.email.toLowerCase())))
+        );
         setUserCredentialsList(found);
       } else {
         setCurrentUser(null);
@@ -461,7 +479,11 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
           loadUserData();
           setEmailVerified(true);
           setSubView('overview');
-          window.history.pushState({}, '', '/account');
+          if (onGoToDashboard) {
+            onGoToDashboard();
+          } else {
+            window.history.pushState({}, '', '/account');
+          }
           return;
         }
 
@@ -476,7 +498,11 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
             loadUserData();
             setEmailVerified(true);
             setSubView('overview');
-            window.history.pushState({}, '', '/account');
+            if (onGoToDashboard) {
+              onGoToDashboard();
+            } else {
+              window.history.pushState({}, '', '/account');
+            }
             return;
           }
         }
@@ -489,8 +515,8 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
         const newUser: UserAccount = {
           name: fullName,
           username: username,
-          whatsapp: '',
-          phone: '',
+          whatsapp: regWhatsApp.trim(),
+          phone: regPhone.trim() || regWhatsApp.trim(),
           email: cleanEmail,
           password: regPass.trim() || 'activePass123',
           registeredAt: new Date().toLocaleDateString('bn-BD')
@@ -508,9 +534,13 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
         sessionStorage.setItem('bongoweb_user', JSON.stringify(newUser));
         loadUserData();
 
-        // Immediately switch into account dashboard view
+        // Immediately switch into account dashboard view and redirect to dashboard
         setSubView('overview');
-        window.history.pushState({}, '', '/account');
+        if (onGoToDashboard) {
+          onGoToDashboard();
+        } else {
+          window.history.pushState({}, '', '/account');
+        }
         return;
       } else {
         setRegError(res.error || 'Invalid OTP code! Please verify the code received in your email.');
@@ -626,8 +656,8 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
       const newUser: UserAccount = {
         name: fullName,
         username: regUsername.trim(),
-        whatsapp: '',
-        phone: '',
+        whatsapp: regWhatsApp.trim(),
+        phone: regPhone.trim() || regWhatsApp.trim(),
         email: cleanEmail,
         password: regPass.trim(),
         registeredAt: new Date().toLocaleDateString('bn-BD')
@@ -646,7 +676,11 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
       sessionStorage.setItem('bongoweb_user', JSON.stringify(newUser));
       loadUserData();
       setSubView('overview');
-      window.history.pushState({}, '', '/account');
+      if (onGoToDashboard) {
+        onGoToDashboard();
+      } else {
+        window.history.pushState({}, '', '/account');
+      }
       return;
     } catch (err: any) {
       setRegSubmitting(false);
@@ -730,7 +764,10 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
 
   // Filter orders for the logged-in client
   const userOrders = currentUser 
-    ? orders.filter((o) => o.phone === currentUser.phone || o.email.toLowerCase() === currentUser.email.toLowerCase())
+    ? orders.filter((o) => 
+        (currentUser.phone && o.phone === currentUser.phone) || 
+        (currentUser.email && o.email && o.email.toLowerCase() === currentUser.email.toLowerCase())
+      )
     : [];
   const pendingOrders = userOrders.filter((o) => o.status === 'pending');
 

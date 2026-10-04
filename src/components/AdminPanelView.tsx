@@ -6,12 +6,12 @@ import {
   RefreshCw, MessageSquare, ArrowRight, Check, X, FileText, Globe,
   Send, Sparkles, Clock, CheckCheck, User, Zap, Terminal, Activity,
   Sliders, ChevronRight, Edit3, Save, Power, LogOut, Info,
-  Flag, RotateCcw, Ban
+  Flag, RotateCcw, Ban, Image, Type, SlidersHorizontal, UploadCloud
 } from 'lucide-react';
 import { 
   UserAccount, ClientOrder, WebsiteDeliveryCredentials, 
   PasswordResetRequest, AdminConfig, WebsiteDemo, SupportChatThread, SupportChatMessage,
-  UserReport
+  UserReport, BrandLogoConfig
 } from '../types';
 import { WEBSITE_DEMOS } from '../data/mockData';
 import { 
@@ -24,10 +24,12 @@ import {
   subscribeToOrders, subscribeToChatThreads, subscribeToUsers,
   subscribeToDeliveredCredentials, subscribeToResetRequests, subscribeToWebsites,
   normalizePhone, apiGetLiveChatEnabled, apiSetLiveChatEnabled,
-  apiRestrictUser, apiGetReports, apiResolveReport, subscribeToReports
+  apiRestrictUser, apiGetReports, apiResolveReport, subscribeToReports,
+  apiGetLogoConfig, apiSaveLogoConfig, DEFAULT_LOGO_CONFIG
 } from '../utils/api';
 import { realtimeManager } from '../utils/realtime';
 import { getClientSecurityCode } from '../utils/securityCode';
+import BongoWebLogo from './BongoWebLogo';
 
 interface AdminPanelViewProps {
   onBackToApp: () => void;
@@ -58,8 +60,20 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
     masterKey: 'MASTER-BONGO-2026'
   });
 
-  // Active Admin Tab
-  const [activeTab, setActiveTab] = useState<'overview' | 'chat' | 'orders' | 'users' | 'reports' | 'resets' | 'catalog'>('overview');
+  // Active Admin Tab (8 Total Executive Sections)
+  const [activeTab, setActiveTab] = useState<'overview' | 'chat' | 'orders' | 'users' | 'reports' | 'resets' | 'catalog' | 'settings'>('overview');
+
+  // Website Settings & Logo Configuration State
+  const [logoConfig, setLogoConfig] = useState<BrandLogoConfig>(() => {
+    try {
+      const local = localStorage.getItem('bongoweb_logo_config');
+      if (local) return JSON.parse(local);
+    } catch (_) {}
+    return DEFAULT_LOGO_CONFIG;
+  });
+  const [logoSaveSuccess, setLogoSaveSuccess] = useState(false);
+  const [logoSaving, setLogoSaving] = useState(false);
+  const [previewChatText, setPreviewChatText] = useState('');
 
   // Real Database Collections
   const [users, setUsers] = useState<UserAccount[]>([]);
@@ -577,31 +591,201 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
     });
   };
 
-  // 3. Mark as Completed: moves from Approved to Completed Orders section
-  const handleMarkOrderCompleted = (orderId?: string) => {
+  // 3. Mark as Completed: moves from Approved to Completed Orders section (No double approval prompt)
+  const handleMarkOrderCompleted = async (orderId?: string) => {
     const idToUse = String(orderId || '').trim();
     if (!idToUse) return;
-    requestProtectedAction(async () => {
-      const updated = await apiUpdateOrderStatus(idToUse, 'completed');
+
+    try {
+      const targetOrder = orders.find(o => o.orderId === idToUse || (o as any).id === idToUse);
+
+      // Ensure credentials are sent to client dashboard in their menu details
+      if (targetOrder) {
+        const adminId = targetOrder.deliveredAdminId || deliveryAdminId.trim() || `admin_${String(targetOrder.phone || '9999').slice(-4)}`;
+        const adminPass = targetOrder.deliveredAdminPass || deliveryAdminPass.trim() || `pass${Math.floor(1000 + Math.random() * 9000)}`;
+        const websiteCode = targetOrder.demoCode || '#BW-ONLINE';
+        const websiteTitle = targetOrder.companyName || targetOrder.demoTitle || 'বিজনেস ওয়েবসাইট অ্যাডমিন প্যানেল';
+
+        const alreadyExists = deliveredCreds.some(c => 
+          (c.orderId && c.orderId === idToUse) || 
+          (c.userPhone === targetOrder.phone && (c.websiteCode === websiteCode || !c.websiteCode))
+        );
+
+        if (!alreadyExists) {
+          const newCred: WebsiteDeliveryCredentials = {
+            id: `DELIV-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+            orderId: idToUse,
+            userPhone: targetOrder.phone,
+            userEmail: targetOrder.email || '',
+            websiteTitle,
+            websiteCode,
+            websiteAdminId: adminId,
+            websiteAdminPass: adminPass,
+            notes: 'আপনার ওয়েবসাইট সম্পূর্ণ তৈরি ও রেডি। অ্যাডমিন প্যানেলে লগইন করুন।',
+            deliveredAt: new Date().toLocaleString('bn-BD')
+          };
+          const updatedCreds = [newCred, ...deliveredCreds];
+          setDeliveredCreds(updatedCreds);
+          saveDeliveredCreds(updatedCreds);
+          await apiDeliverCredentials(newCred);
+        }
+      }
+
+      const updated = await apiUpdateOrderStatus(idToUse, 'completed', { 
+        hasDeliveredCredentials: true,
+        ...(targetOrder?.deliveredAdminId ? { deliveredAdminId: targetOrder.deliveredAdminId } : {}),
+        ...(targetOrder?.deliveredAdminPass ? { deliveredAdminPass: targetOrder.deliveredAdminPass } : {})
+      });
       setOrders([...updated]);
-      setMasterSuccessMsg(`অর্ডার ${idToUse} সফলভাবে সম্পূর্ণ (Completed) করা হয়েছে এবং সম্পূর্ণ ওয়েবসাইট ও অর্ডার সেকশনে যুক্ত হয়েছে!`);
+      setMasterSuccessMsg(`✓ অর্ডার ${idToUse} সফলভাবে সম্পূর্ণ (Completed) করা হয়েছে এবং গ্রাহকের ড্যাশবোর্ডে আইডি ও পাসওয়ার্ড ডেলিভারি সম্পন্ন হয়েছে!`);
       setTimeout(() => setMasterSuccessMsg(''), 4500);
       setOrderFilterTab('completed');
       loadAllDatabaseCollections();
-    });
+    } catch (err) {
+      console.error('Mark completed error:', err);
+    }
   };
 
-  // 4. Move Order to Bin (Requires Admin Action Password)
+  // 4. Move Order to Bin (Removes ID & Pass from customer dashboard and sends to trash)
   const handleMoveOrderToBin = (orderId?: string) => {
     const idToUse = String(orderId || '').trim();
     if (!idToUse) return;
     requestProtectedAction(async () => {
-      const updated = await apiUpdateOrderStatus(idToUse, 'bin');
+      const targetOrder = orders.find(o => o.orderId === idToUse || (o as any).id === idToUse);
+
+      // If credentials existed for this order, remove them completely so they disappear from client's dashboard!
+      if (targetOrder) {
+        const credsToRemove = deliveredCreds.filter(c => 
+          (c.orderId && c.orderId === idToUse) ||
+          (c.userPhone === targetOrder.phone && (c.websiteCode === targetOrder.demoCode || !c.websiteCode)) ||
+          (targetOrder.email && c.userEmail && c.userEmail.toLowerCase() === targetOrder.email.toLowerCase())
+        );
+        for (const cred of credsToRemove) {
+          try {
+            await apiDeleteCredential(cred.id);
+          } catch (_) {}
+        }
+        const updatedCreds = deliveredCreds.filter(c => !credsToRemove.some(r => r.id === c.id));
+        setDeliveredCreds(updatedCreds);
+        saveDeliveredCreds(updatedCreds);
+      }
+
+      const updated = await apiUpdateOrderStatus(idToUse, 'bin', { hasDeliveredCredentials: false });
       setOrders([...updated]);
-      setMasterSuccessMsg(`অর্ডার ${idToUse} সফলভাবে রিমুভ করে ট্র্যাশ (বিন)-এ স্থানান্তর করা হয়েছে!`);
+      setMasterSuccessMsg(`অর্ডার ${idToUse} রিসাইকেল বিনে স্থানান্তর করা হয়েছে এবং গ্রাহকের অ্যাকাউন্ট থেকে আইডি-পাসওয়ার্ড মুছে ফেলা হয়েছে!`);
+      setTimeout(() => setMasterSuccessMsg(''), 4500);
+      loadAllDatabaseCollections();
+    });
+  };
+
+  // Move All Completed Orders to Bin (Clean batch removal from client dashboards)
+  const handleMoveAllCompletedToBin = () => {
+    const completedList = orders.filter((o) => o.status === 'completed');
+    if (completedList.length === 0) return;
+    requestProtectedAction(async () => {
+      let currentOrders = [...orders];
+      let currentCreds = [...deliveredCreds];
+
+      for (const ord of completedList) {
+        const ordId = ord.orderId || (ord as any).id;
+        const credsToRemove = currentCreds.filter(c => 
+          (c.orderId && c.orderId === ordId) ||
+          (c.userPhone === ord.phone && (c.websiteCode === ord.demoCode || !c.websiteCode)) ||
+          (ord.email && c.userEmail && c.userEmail.toLowerCase() === ord.email.toLowerCase())
+        );
+        for (const cred of credsToRemove) {
+          try {
+            await apiDeleteCredential(cred.id);
+          } catch (_) {}
+        }
+        currentCreds = currentCreds.filter(c => !credsToRemove.some(r => r.id === c.id));
+        currentOrders = currentOrders.map(o => (o.orderId === ordId || (o as any).id === ordId) ? { ...o, status: 'bin', hasDeliveredCredentials: false } : o);
+        await apiUpdateOrderStatus(ordId, 'bin', { hasDeliveredCredentials: false });
+      }
+
+      setDeliveredCreds(currentCreds);
+      saveDeliveredCreds(currentCreds);
+      setOrders(currentOrders);
+      saveOrders(currentOrders);
+      setMasterSuccessMsg(`সমস্ত সম্পূর্ণ অর্ডার রিসাইকেল বিনে সরানো হয়েছে এবং গ্রাহকদের ড্যাশবোর্ড থেকে আইডি-পাসওয়ার্ড প্রত্যাহার করা হয়েছে।`);
+      setTimeout(() => setMasterSuccessMsg(''), 4500);
+      loadAllDatabaseCollections();
+    });
+  };
+
+  // Empty Entire Recycle Bin
+  const handleEmptyBin = () => {
+    const binList = orders.filter((o) => o.status === 'bin');
+    if (binList.length === 0) return;
+    requestProtectedAction(async () => {
+      const remaining = orders.filter(o => o.status !== 'bin');
+      setOrders(remaining);
+      await apiSaveOrders(remaining);
+      setMasterSuccessMsg(`রিসাইকেল বিন সফলভাবে সম্পূর্ণ খালি করা হয়েছে।`);
       setTimeout(() => setMasterSuccessMsg(''), 4000);
       loadAllDatabaseCollections();
     });
+  };
+
+  // Logo Settings Handlers
+  const handleLogoImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      alert('ইমেজ ফাইলটি খুব বড় (সর্বোচ্চ ২ মেগাবাইট অনুমোদনযোগ্য)');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (uploadEvent) => {
+      const base64 = uploadEvent.target?.result as string;
+      setLogoConfig((prev) => ({
+        ...prev,
+        logoType: 'image',
+        imageUrl: base64,
+        imageName: file.name
+      }));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSaveLogoSettings = async () => {
+    setLogoSaving(true);
+    try {
+      const saved = await apiSaveLogoConfig(logoConfig);
+      setLogoConfig(saved);
+      setLogoSaveSuccess(true);
+      setMasterSuccessMsg('✓ ব্র্যান্ড লোগো সেটিংস সফলভাবে সেভ ও সম্পূর্ণ ওয়েবসাইটে লাইভ করা হয়েছে!');
+      setTimeout(() => {
+        setLogoSaveSuccess(false);
+        setMasterSuccessMsg('');
+      }, 4000);
+    } catch (err: any) {
+      alert('লোগো সেভ করতে সমস্যা হয়েছে: ' + (err?.message || ''));
+    } finally {
+      setLogoSaving(false);
+    }
+  };
+
+  const handleResetLogoToDefault = async () => {
+    if (!window.confirm('আপনি কি মূল ডিফল্ট লোগোতে (Flame Ribbon Emblem + BongoWeb) ফিরে যেতে চান?')) return;
+    setLogoSaving(true);
+    try {
+      const saved = await apiSaveLogoConfig(DEFAULT_LOGO_CONFIG);
+      setLogoConfig(saved);
+      setPreviewChatText(DEFAULT_LOGO_CONFIG.typedLogoText);
+      setLogoSaveSuccess(true);
+      setMasterSuccessMsg('✓ মূল ডিফল্ট লোগো সফলভাবে রিস্টোর করা হয়েছে!');
+      setTimeout(() => {
+        setLogoSaveSuccess(false);
+        setMasterSuccessMsg('');
+      }, 4000);
+    } catch (err: any) {
+      alert('রিসেট করতে ব্যর্থ হয়েছে: ' + (err?.message || ''));
+    } finally {
+      setLogoSaving(false);
+    }
   };
 
   // 5. Restore Order from Bin (Reactivate immediately without password)
@@ -782,7 +966,9 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
 
     const newCred: WebsiteDeliveryCredentials = {
       id: `DELIV-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      orderId: chosenOrder?.orderId || selectedDeliveryOrder || '',
       userPhone: selectedUserForDelivery.phone,
+      userEmail: selectedUserForDelivery.email || chosenOrder?.email || '',
       websiteTitle,
       websiteCode,
       websiteAdminId: deliveryAdminId.trim(),
@@ -794,6 +980,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
     // Keep separate credentials for each website
     const updated = [newCred, ...deliveredCreds.filter((c) => !(c.userPhone === selectedUserForDelivery.phone && c.websiteCode === websiteCode))];
     saveDeliveredCreds(updated);
+    apiDeliverCredentials(newCred);
 
     // Update order with delivered credentials so Mark Complete is immediately unlocked
     const updatedOrders = orders.map((o) => {
@@ -829,6 +1016,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
     }
 
     setDeliverySuccess(true);
+    setMasterSuccessMsg(`✓ আইডি ও পাসওয়ার্ড সফলভাবে সংরক্ষিত হয়েছে! এবার ধাপ ২: "সম্পূর্ণ করুন" বাটনে ক্লিক করুন।`);
     setTimeout(() => {
       setDeliverySuccess(false);
       setSelectedUserForDelivery(null);
@@ -836,7 +1024,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
       setDeliveryAdminId('');
       setDeliveryAdminPass('');
       setDeliveryNotes('');
-    }, 1800);
+    }, 1200);
   };
 
   const handleDeleteCredentials = (credId: string) => {
@@ -1362,6 +1550,18 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
             {reports.filter((r) => r.status === 'pending').length > 0 && (
               <span className="w-2 h-2 rounded-full bg-[#E53935] animate-ping" />
             )}
+          </button>
+
+          <button
+            onClick={() => setActiveTab('settings')}
+            className={`px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 shrink-0 ${
+              activeTab === 'settings'
+                ? 'bg-[#533AFD] text-white shadow-xs'
+                : 'text-[#94A3B8] hover:bg-[#1E293B] hover:text-white'
+            }`}
+          >
+            <Sliders className="w-3.5 h-3.5" />
+            <span>সেটিংস ও লোগো (Settings)</span>
           </button>
         </div>
       </header>
@@ -1981,6 +2181,47 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                 </button>
               </div>
 
+              {/* Batch Action Toolbar for Completed Orders */}
+              {orderFilterTab === 'completed' && completedOrders.length > 0 && (
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-2xl bg-[#091A11] border border-[#00B261]/30">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-[#00E575]" />
+                    <span className="text-xs text-[#8BB99F] font-bold">
+                      মোট ডেলিভারিকৃত সম্পূর্ণ ওয়েবসাইট: {completedOrders.length} টি
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleMoveAllCompletedToBin}
+                    className="px-3.5 py-2 rounded-xl bg-[#E53935]/15 hover:bg-[#E53935]/25 text-[#FF8A80] hover:text-white border border-[#E53935]/30 text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+                    title="সব সম্পূর্ণ ওয়েবসাইট একসাথে রিমুভ করে রিসাইকেল বিনে পাঠান (গ্রাহকের প্রোফাইল থেকেও আইডি-পাসওয়ার্ড মুছে যাবে)"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>সব সম্পূর্ণ অর্ডার রিসাইকেল বিনে পাঠান (Move All to Trash)</span>
+                  </button>
+                </div>
+              )}
+
+              {/* Batch Action Toolbar for Bin */}
+              {orderFilterTab === 'bin' && binOrders.length > 0 && (
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-2xl bg-rose-950/30 border border-rose-900/40">
+                  <div className="flex items-center gap-2">
+                    <Trash2 className="w-4 h-4 text-rose-400" />
+                    <span className="text-xs text-rose-300 font-bold">
+                      রিসাইকেল বিনে আছে: {binOrders.length} টি মুছে ফেলা অর্ডার
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleEmptyBin}
+                    className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>বিন সম্পূর্ণ খালি করুন (Empty Trash Permanently)</span>
+                  </button>
+                </div>
+              )}
+
               {/* Order Cards List */}
               {displayedOrders.length === 0 ? (
                 <div className="p-12 rounded-3xl bg-[#091A11] border border-[#173826] text-center space-y-2">
@@ -2211,12 +2452,13 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                                     </span>
                                   </button>
 
-                                  {/* 2. Send / Dispatch Button (100% visible, fully clickable and responsive) */}
+                                  {/* 2. Complete Button (Moves to Completed List) */}
                                   <button
                                     type="button"
                                     onClick={() => {
                                       if (!hasCredentialsSent) {
-                                        // Guide admin smoothly to fill credentials first
+                                        setMasterSuccessMsg('⚠️ অনুগ্রহ করে প্রথমে ধাপ ১: আইডি ও পাসওয়ার্ড প্রদান করুন!');
+                                        setTimeout(() => setMasterSuccessMsg(''), 3500);
                                         const matchingUser = users.find(u => u.phone === ord.phone || (u.email && ord.email && u.email.toLowerCase() === ord.email.toLowerCase())) || {
                                           name: ord.clientName,
                                           phone: ord.phone,
@@ -2235,12 +2477,12 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                                     className={`w-full min-h-[44px] py-2.5 px-3 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs active:scale-[0.98] ${
                                       hasCredentialsSent
                                         ? 'bg-[#008A4B] hover:bg-[#009E56] text-white shadow-[0_4px_16px_rgba(0,178,97,0.4)]'
-                                        : 'bg-[#008A4B]/80 hover:bg-[#008A4B] text-white border border-[#008A4B]'
+                                        : 'bg-[#173826] text-[#8BB99F] border border-[#173826] hover:bg-[#1a422c]'
                                     }`}
-                                    title="সম্পূর্ণ অর্ডার পাঠানো ও সম্পন্ন করুন"
+                                    title="সম্পূর্ণ অর্ডার সম্পন্ন করুন ও ডেলিভারি তালিকায় যুক্ত করুন"
                                   >
                                     <CheckCircle2 className="w-4 h-4 shrink-0 text-white" />
-                                    <span>২. পাঠানো / সম্পূর্ণ করুন</span>
+                                    <span>২. সম্পূর্ণ করুন (Complete Order)</span>
                                   </button>
 
                                   {/* 3. Remove Button -> Moves to Bin */}
@@ -2260,26 +2502,39 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
 
                             {/* COMPLETED STAGE ACTIONS */}
                             {isCompleted && (
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  const matchingUser = users.find(u => u.phone === ord.phone) || {
-                                    name: ord.clientName,
-                                    phone: ord.phone,
-                                    email: ord.email,
-                                    registeredAt: 'অর্ডারকারী'
-                                  };
-                                  setSelectedUserForDelivery(matchingUser);
-                                  setSelectedDeliveryOrder(ord.demoCode);
-                                  const safeDigits = ord.phone ? String(ord.phone).replace(/\D/g, '').slice(-4) : Math.floor(1000 + Math.random() * 9000);
-                                  setDeliveryAdminId(`admin_${safeDigits}`);
-                                  setDeliveryAdminPass(`pass${Math.floor(1000 + Math.random() * 9000)}`);
-                                }}
-                                className="px-3 py-1.5 rounded-xl bg-[#0E2417] hover:bg-[#173826] text-[#4EEDB0] border border-[#173826] text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
-                              >
-                                <Key className="w-3.5 h-3.5" />
-                                <span>ক্রেডেনশিয়াল পাঠান / পরিবর্তন</span>
-                              </button>
+                              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 w-full pt-1">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const matchingUser = users.find(u => u.phone === ord.phone || (u.email && ord.email && u.email.toLowerCase() === ord.email.toLowerCase())) || {
+                                      name: ord.clientName,
+                                      phone: ord.phone,
+                                      email: ord.email,
+                                      registeredAt: 'অর্ডারকারী'
+                                    };
+                                    setSelectedUserForDelivery(matchingUser);
+                                    setSelectedDeliveryOrder(ord.orderId || (ord as any).id || ord.demoCode);
+                                    const safeDigits = ord.phone ? String(ord.phone).replace(/\D/g, '').slice(-4) : Math.floor(1000 + Math.random() * 9000);
+                                    setDeliveryAdminId(ord.deliveredAdminId || `admin_${safeDigits}`);
+                                    setDeliveryAdminPass(ord.deliveredAdminPass || `pass${Math.floor(1000 + Math.random() * 9000)}`);
+                                  }}
+                                  className="py-2.5 px-3.5 rounded-xl bg-[#0E2417] hover:bg-[#173826] text-[#4EEDB0] border border-[#173826] text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
+                                  title="গ্রাহকের ওয়েবসাইটের আইডি ও পাসওয়ার্ড পরিবর্তন করুন"
+                                >
+                                  <Key className="w-3.5 h-3.5" />
+                                  <span>আইডি-পাসওয়ার্ড পরিবর্তন (Edit ID-Pass)</span>
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => handleMoveOrderToBin(activeOrdId)}
+                                  className="py-2.5 px-3.5 rounded-xl bg-[#E53935]/15 hover:bg-[#E53935]/25 text-[#FF8A80] hover:text-white border border-[#E53935]/30 text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs sm:ml-auto"
+                                  title="অর্ডারটি মুছুন ও রিসাইকেল বিনে পাঠান (গ্রাহকের মেনু ডিটেইলস থেকেও আইডি-পাসওয়ার্ড মুছে যাবে)"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                  <span>রিসাইকেল বিনে পাঠান (মুছুন)</span>
+                                </button>
+                              </div>
                             )}
 
                             {/* BIN / TRASH STAGE ACTIONS */}
@@ -3538,6 +3793,473 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
         </div>
       )}
 
+      {/* ================= TAB 8: SETTINGS & BRAND LOGO MANAGEMENT ================= */}
+      {activeTab === 'settings' && (
+        <div className="space-y-6 animate-fadeIn">
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-black text-white flex items-center gap-2">
+                <Sliders className="w-5 h-5 text-[#533AFD]" />
+                <span>ওয়েবসাইট সেটিংস ও ব্র্যান্ড লোগো কনফিগারেশন</span>
+              </h2>
+              <p className="text-xs text-[#94A3B8] mt-0.5">
+                সাইটের লোগো মোড নিয়ন্ত্রণ করুন: ইমেজ লোগো (ছবি আপলোড) অথবা চ্যাটবক্স টেক্সট লোগো।
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleResetLogoToDefault}
+                className="px-3.5 py-2 rounded-xl bg-[#1E293B] hover:bg-[#334155] text-xs font-bold text-[#E2E8F0] border border-[#334155] transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>মূল ডিফল্ট লোগোতে রিসেট</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleSaveLogoSettings}
+                disabled={logoSaving}
+                className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#2B47EE] to-[#7C3AED] hover:from-[#203CD4] hover:to-[#6D28D9] text-white text-xs font-black transition-all flex items-center gap-2 cursor-pointer shadow-md disabled:opacity-50"
+              >
+                <Save className="w-4 h-4" />
+                <span>{logoSaving ? 'সংরক্ষণ হচ্ছে...' : 'সেটিংস সেভ করুন (Save Settings)'}</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Success Notification Banner */}
+          {logoSaveSuccess && (
+            <div className="p-3.5 rounded-2xl bg-[#00B261]/20 border border-[#00B261] text-[#4EEDB0] text-xs font-bold flex items-center gap-2 animate-fadeIn">
+              <CheckCircle2 className="w-4 h-4 text-[#00E575]" />
+              <span>✓ ব্র্যান্ড লোগো সফলভাবে আপডেট ও সম্পূর্ণ ওয়েবসাইটে লাইভ করা হয়েছে!</span>
+            </div>
+          )}
+
+          {/* 1. Original / Default Brand Identity Reference Card */}
+          <div className="p-5 sm:p-6 rounded-3xl bg-[#0B0F19] border border-[#1E293B] space-y-4">
+            <div className="flex items-center justify-between border-b border-[#1E293B] pb-3">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-[#818CF8]" />
+                <h3 className="text-sm font-bold text-white">
+                  আমাদের মূল অফিসিয়াল লোগো ও ব্র্যান্ড রূপরেখা (Original Official Logo)
+                </h3>
+              </div>
+              <span className="px-2.5 py-0.5 rounded-full bg-[#533AFD]/20 text-[#A5B4FC] text-[10px] font-mono font-bold border border-[#533AFD]/30">
+                ডিফল্ট লোগো
+              </span>
+            </div>
+
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl bg-[#111827] border border-[#1E293B]/80">
+              <div className="flex items-center gap-3.5">
+                <div className="p-3 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
+                  <div className="flex items-center gap-2.5">
+                    <svg width="36" height="36" viewBox="0 0 120 120" fill="none">
+                      <path d="M 58 112 C 34 112 16 93 16 68 C 16 52 24 38 36 29 C 38 27 42 30 40 33 C 33 42 28 53 28 66 C 28 85 41 99 59 99 C 75 99 88 88 91 73 C 92 68 97 67 98 71 C 99 74 97 81 95 86 C 88 101 74 112 58 112 Z" fill="#2B47EE" />
+                      <path d="M 36 29 C 33 33 31 38 30 44 C 29 42 30 38 32 34 C 36 26 44 18 52 14 C 54 13 56 16 55 18 C 51 25 45 35 46 44 C 47 48 50 51 54 49 C 60 46 64 36 67 27 C 70 18 73 11 74 8 C 75 6 78 8 78 11 C 77 19 72 32 76 41 C 78 45 83 46 87 42 C 92 37 94 28 95 22 C 95 20 98 21 98 23 C 98 32 94 43 97 52 C 99 57 104 60 106 66 C 109 74 107 83 102 90 C 100 93 96 91 97 88 C 100 81 100 73 97 67 C 94 62 89 60 86 64 C 81 71 80 81 74 87 C 67 94 57 97 47 95 C 37 93 29 84 29 73 C 29 63 35 55 42 49 C 45 47 48 51 45 54 C 38 60 38 71 44 78 C 50 84 60 84 66 79 C 71 75 73 68 76 62 C 78 57 82 54 84 59 C 85 62 84 66 82 69 C 78 77 72 82 64 84 C 55 86 46 83 42 75 C 39 70 40 62 44 57 C 48 52 54 48 58 44 C 61 41 59 36 55 36 C 50 36 44 41 41 46 C 39 49 35 48 35 45 C 35 39 40 31 46 25 C 48 23 51 21 54 19 C 55 18 54 16 53 16 C 45 20 38 24 36 29 Z" fill="#7C3AED" />
+                    </svg>
+                    <span className="font-black text-xl text-[#2B47EE]">BongoWeb</span>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-xs font-bold text-white">অফিসিয়াল ফ্লেইম-রিবন ক্রেস্ট (Official Flame & Ribbon Crest)</h4>
+                  <p className="text-[11px] text-[#94A3B8] mt-0.5">
+                    ডিফল্ট ব্র্যান্ড টেক্সট: <strong className="text-white">BongoWeb</strong> | কালার কোড: <code className="text-[#818CF8]">#A855F7</code> (ভায়োলেট) থেকে <code className="text-[#818CF8]">#2B47EE</code> (রয়্যাল ব্লু)
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-full font-bold">
+                  ✓ সার্বজনীন সাপোর্ট সক্রিয়
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* 2. LOGO MODE TOGGLE SWITCH: ON (IMAGE LOGO) vs OFF (TYPED TEXT LOGO) */}
+          <div className="p-5 sm:p-6 rounded-3xl bg-[#0B0F19] border border-[#1E293B] space-y-5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#1E293B] pb-4">
+              <div>
+                <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                  <Power className="w-4 h-4 text-[#533AFD]" />
+                  <span>লোগো মোড নির্বাচন (Logo Type Selector Switch)</span>
+                </h3>
+                <p className="text-xs text-[#94A3B8] mt-0.5">
+                  বাটনটি ON রাখলে ইমেজ লোগো (ছবি আপলোড) কাজ করবে। আর OFF করলে ফটো আপলোড বন্ধ হয়ে চ্যাটবক্স টেক্সট মোড চালু হবে।
+                </p>
+              </div>
+
+              {/* The Interactive Switch Button */}
+              <div className="flex items-center gap-3">
+                <span className={`text-xs font-bold ${logoConfig.logoType === 'image' ? 'text-emerald-400' : 'text-[#818CF8]'}`}>
+                  {logoConfig.logoType === 'image' ? 'ON (ইমেজ লোগো)' : 'OFF (টাইপ করা লোগো)'}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLogoConfig((prev) => ({
+                      ...prev,
+                      logoType: prev.logoType === 'image' ? 'text' : 'image'
+                    }));
+                  }}
+                  className={`w-14 h-8 rounded-full p-1 transition-all cursor-pointer relative shadow-inner ${
+                    logoConfig.logoType === 'image'
+                      ? 'bg-gradient-to-r from-[#00B261] to-[#00E575]'
+                      : 'bg-[#334155]'
+                  }`}
+                  title={logoConfig.logoType === 'image' ? 'ইমেজ মোড বন্ধ করে চ্যাটবক্স টেক্সট মোডে যান' : 'টেক্সট মোড বন্ধ করে ইমেজ মোডে যান'}
+                >
+                  <div
+                    className={`w-6 h-6 rounded-full bg-white shadow-md transition-transform duration-200 flex items-center justify-center ${
+                      logoConfig.logoType === 'image' ? 'translate-x-6' : 'translate-x-0'
+                    }`}
+                  >
+                    {logoConfig.logoType === 'image' ? (
+                      <Image className="w-3.5 h-3.5 text-[#008A4B]" />
+                    ) : (
+                      <Type className="w-3.5 h-3.5 text-slate-700" />
+                    )}
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            {/* Status Message based on mode */}
+            <div className={`p-3 rounded-2xl text-xs font-semibold flex items-center gap-2 ${
+              logoConfig.logoType === 'image'
+                ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-300'
+                : 'bg-indigo-500/10 border border-indigo-500/30 text-indigo-300'
+            }`}>
+              {logoConfig.logoType === 'image' ? (
+                <>
+                  <Image className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>
+                    <strong>ইমেজ লোগো মোড (Image Mode ON):</strong> গ্যালারি বা ডিভাইস থেকে ছবি আপলোড করুন অথবা বিল্ট-ইন লোগো ব্যবহার করুন। সাইজ ও পরিমাপ কাস্টমাইজ করতে পারবেন।
+                  </span>
+                </>
+              ) : (
+                <>
+                  <Type className="w-4 h-4 text-indigo-400 shrink-0" />
+                  <span>
+                    <strong>চ্যাটবক্স টেক্সট লোগো মোড (Text Mode OFF):</strong> ফটো আপলোডিং বন্ধ রয়েছে। নিম্নের চ্যাটবক্স ফিল্ডে আপনার ব্র্যান্ড নাম লিখলেই রিয়েল-টাইমে লোগো আপডেট হবে!
+                  </span>
+                </>
+              )}
+            </div>
+
+            {/* ============================================================== */}
+            {/* SECTION A: WHEN ON -> IMAGE LOGO CONFIGURATION                 */}
+            {/* ============================================================== */}
+            {logoConfig.logoType === 'image' && (
+              <div className="space-y-5 animate-fadeIn">
+                {/* File Upload Box */}
+                <div>
+                  <label className="block text-xs font-bold text-[#A8D7BD] mb-1.5">
+                    ১. গ্যালারি বা ডিভাইস থেকে ছবি আপলোড করুন (Upload Image Logo)
+                  </label>
+                  <div className="flex flex-col sm:flex-row items-center gap-4 p-5 rounded-2xl bg-[#111827] border-2 border-dashed border-[#1E293B] hover:border-[#533AFD] transition-all">
+                    {/* Live Image Preview */}
+                    <div className="w-24 h-24 rounded-2xl bg-[#0B0F19] border border-[#1E293B] flex items-center justify-center overflow-hidden shrink-0 relative group p-2">
+                      {logoConfig.imageUrl ? (
+                        <img
+                          src={logoConfig.imageUrl}
+                          alt="Custom Logo Preview"
+                          className="max-w-full max-h-full object-contain"
+                        />
+                      ) : (
+                        <div className="flex flex-col items-center justify-center text-center p-1">
+                          <Image className="w-8 h-8 text-[#64748D]" />
+                          <span className="text-[9px] text-[#64748D] mt-1">ডিফল্ট লোগো</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Upload Controls & Specs */}
+                    <div className="flex-1 space-y-2 text-center sm:text-left">
+                      <div className="flex flex-wrap items-center gap-2 justify-center sm:justify-start">
+                        <label className="px-4 py-2 rounded-xl bg-[#533AFD] hover:bg-[#4329d9] text-white text-xs font-bold transition-all cursor-pointer flex items-center gap-2 shadow-xs">
+                          <Upload className="w-4 h-4" />
+                          <span>গ্যালারি থেকে ফটো বাছুন (Browse Image)</span>
+                          <input
+                            type="file"
+                            accept="image/png,image/svg+xml,image/jpeg,image/webp"
+                            onChange={handleLogoImageUpload}
+                            className="hidden"
+                          />
+                        </label>
+
+                        {logoConfig.imageUrl && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setLogoConfig((prev) => ({
+                                ...prev,
+                                imageUrl: '',
+                                imageName: ''
+                              }));
+                            }}
+                            className="px-3 py-2 rounded-xl bg-[#E53935]/15 hover:bg-[#E53935]/25 text-[#FF8A80] text-xs font-bold transition-all cursor-pointer"
+                          >
+                            রিমুভ করুন
+                          </button>
+                        )}
+                      </div>
+
+                      <p className="text-[11px] text-[#94A3B8]">
+                        প্রস্তাবিত ফরম্যাট: <strong>PNG বা SVG (স্বচ্ছ ব্যাকগ্রাউন্ড)</strong> | সাইজ: <strong>৫১২×৫১২ পিক্সেল</strong> | সর্বোচ্চ সাইজ: ২ মেগাবাইট।
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Size & Dimension Details */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="p-4 rounded-2xl bg-[#111827] border border-[#1E293B] space-y-3">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-bold text-white">
+                        ২. লোগোর আইকন সাইজ (Icon Size Details)
+                      </label>
+                      <span className="px-2 py-0.5 rounded-md bg-[#533AFD]/20 text-[#A5B4FC] text-xs font-mono font-bold">
+                        {logoConfig.imageSizePx || 36}px
+                      </span>
+                    </div>
+
+                    <input
+                      type="range"
+                      min="24"
+                      max="64"
+                      step="2"
+                      value={logoConfig.imageSizePx || 36}
+                      onChange={(e) => {
+                        const val = Number(e.target.value);
+                        setLogoConfig((prev) => ({ ...prev, imageSizePx: val }));
+                      }}
+                      className="w-full accent-[#533AFD] cursor-pointer"
+                    />
+
+                    <div className="flex items-center justify-between text-[10px] text-[#64748D] font-mono">
+                      <span>ছোট (24px)</span>
+                      <span>স্ট্যান্ডার্ড (36px)</span>
+                      <span>বড় (48px)</span>
+                      <span>সর্বোচ্চ (64px)</span>
+                    </div>
+
+                    <div className="p-2.5 rounded-xl bg-[#0B0F19] text-[11px] text-[#94A3B8] space-y-0.5 font-mono">
+                      <div>উচ্চতা (Height): <strong>{logoConfig.imageSizePx || 36}px</strong></div>
+                      <div>প্রস্থ (Width): <strong>প্রপোর্শনাল রেশিও (Aspect Auto)</strong></div>
+                      <div>ডিসপ্লে: <strong>Retina Display Ready (High DPI)</strong></div>
+                    </div>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-[#111827] border border-[#1E293B] space-y-3">
+                    <label className="text-xs font-bold text-white block">
+                      ৩. লোগো টেক্সট ও ব্র্যান্ড নাম প্রদর্শন
+                    </label>
+
+                    <div className="flex items-center justify-between p-3 rounded-xl bg-[#0B0F19] border border-[#1E293B]">
+                      <span className="text-xs text-[#E2E8F0]">ছবির সাথে ব্র্যান্ড নাম দেখাবেন?</span>
+                      <input
+                        type="checkbox"
+                        checked={logoConfig.showBrandTextWithImage !== false}
+                        onChange={(e) => {
+                          setLogoConfig((prev) => ({
+                            ...prev,
+                            showBrandTextWithImage: e.target.checked
+                          }));
+                        }}
+                        className="w-4 h-4 accent-[#533AFD] cursor-pointer"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-[11px] text-[#94A3B8] block mb-1">
+                        ব্র্যান্ড নাম (Brand Text):
+                      </label>
+                      <input
+                        type="text"
+                        value={logoConfig.typedLogoText || 'BongoWeb'}
+                        onChange={(e) => {
+                          setLogoConfig((prev) => ({
+                            ...prev,
+                            typedLogoText: e.target.value
+                          }));
+                        }}
+                        className="w-full px-3 py-2 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-xs text-white focus:outline-none focus:border-[#533AFD]"
+                        placeholder="BongoWeb"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ============================================================== */}
+            {/* SECTION B: WHEN OFF -> CHATBOX TYPED TEXT LOGO MODE            */}
+            {/* ============================================================== */}
+            {logoConfig.logoType === 'text' && (
+              <div className="space-y-5 animate-fadeIn">
+                {/* Chatbox style Input field where admin types the logo */}
+                <div className="p-5 rounded-2xl bg-[#111827] border border-[#533AFD]/50 space-y-3 shadow-lg">
+                  <div className="flex items-center gap-2">
+                    <Type className="w-4 h-4 text-[#818CF8]" />
+                    <label className="text-xs font-bold text-white">
+                      চ্যাটবক্স: এখানে ওয়েবসাইটের লোগো টেক্সট টাইপ করুন (Type Website Logo Text)
+                    </label>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={logoConfig.typedLogoText || ''}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setLogoConfig((prev) => ({
+                          ...prev,
+                          typedLogoText: val
+                        }));
+                        setPreviewChatText(val);
+                      }}
+                      placeholder="এখানে ওয়েবসাইটের নাম টাইপ করুন (যেমন: BongoWeb, mywebsite, ইত্যাদি)..."
+                      className="flex-1 px-4 py-3 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-sm text-white placeholder-[#64748D] focus:outline-none focus:border-[#533AFD] focus:ring-2 focus:ring-[#533AFD]/20 font-bold"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleSaveLogoSettings}
+                      className="px-4 py-3 rounded-xl bg-[#533AFD] hover:bg-[#4329d9] text-white text-xs font-black transition-all cursor-pointer shrink-0 shadow-xs flex items-center gap-1.5"
+                    >
+                      <Check className="w-4 h-4" />
+                      <span>আপডেট</span>
+                    </button>
+                  </div>
+
+                  <p className="text-[11px] text-[#94A3B8]">
+                    এখানে টাইপ করা টেক্সটটিই স্বয়ংক্রিয়ভাবে ওয়েবসাইটের হেডার এবং ড্রয়ারে অফিসিয়াল লোগো হিসেবে প্রদর্শিত হবে।
+                  </p>
+                </div>
+
+                {/* Subtitle / Extension and Theme Options */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Subtitle / Domain Badge */}
+                  <div className="p-4 rounded-2xl bg-[#111827] border border-[#1E293B] space-y-2.5">
+                    <label className="text-xs font-bold text-white block">
+                      সাবটাইটেল / এক্সটেনশন ব্যাজ (ঐচ্ছিক)
+                    </label>
+                    <input
+                      type="text"
+                      value={logoConfig.typedSubtitle || ''}
+                      onChange={(e) => {
+                        setLogoConfig((prev) => ({
+                          ...prev,
+                          typedSubtitle: e.target.value
+                        }));
+                      }}
+                      placeholder="যেমন: .xyz, SOLUTIONS, ইত্যাদি"
+                      className="w-full px-3 py-2 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-xs text-white focus:outline-none focus:border-[#533AFD] font-mono"
+                    />
+                    <span className="text-[10px] text-[#64748D] block">
+                      লোগোর পাশে ছোট ব্যাজ হিসেবে প্রদর্শিত হবে। খালি রাখতে চাইলে মুছে দিন।
+                    </span>
+                  </div>
+
+                  {/* Gradient Themes */}
+                  <div className="p-4 rounded-2xl bg-[#111827] border border-[#1E293B] space-y-2.5">
+                    <label className="text-xs font-bold text-white block">
+                      কালার গ্রেডিয়েন্ট থিম (Color Theme)
+                    </label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {[
+                        { id: 'royal', label: 'রয়্যাল ব্লু ও পার্পল', colors: 'from-[#2B47EE] to-[#7C3AED]' },
+                        { id: 'violet', label: 'ইলেকট্রিক ভায়োলেট', colors: 'from-[#A855F7] to-[#3B82F6]' },
+                        { id: 'emerald', label: 'লাক্সারি এমারেল্ড', colors: 'from-[#00B261] to-[#0D9488]' },
+                        { id: 'sunset', label: 'সানসেট অ্যাম্বার', colors: 'from-[#FF6118] to-[#F59E0B]' },
+                      ].map((t) => (
+                        <button
+                          key={t.id}
+                          type="button"
+                          onClick={() => {
+                            setLogoConfig((prev) => ({
+                              ...prev,
+                              textGradientTheme: t.id as any
+                            }));
+                          }}
+                          className={`p-2 rounded-xl border text-xs font-bold transition-all text-left flex items-center gap-2 cursor-pointer ${
+                            logoConfig.textGradientTheme === t.id
+                              ? 'bg-[#1E293B] border-[#533AFD] text-white shadow-xs'
+                              : 'bg-[#0B0F19] border-[#1E293B] text-[#94A3B8] hover:text-white'
+                          }`}
+                        >
+                          <span className={`w-3.5 h-3.5 rounded-full bg-gradient-to-r ${t.colors} shrink-0`} />
+                          <span className="truncate text-[11px]">{t.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 3. LIVE WEBSITE HEADER PREVIEW */}
+            <div className="pt-2 border-t border-[#1E293B] space-y-3">
+              <div className="flex items-center justify-between">
+                <h4 className="text-xs font-bold text-white flex items-center gap-2">
+                  <Eye className="w-4 h-4 text-[#533AFD]" />
+                  <span>লাইভ ওয়েবসাইট হেডার প্রিভিউ (Live Header Preview)</span>
+                </h4>
+                <span className="text-[10px] text-[#64748D] font-mono">
+                  রিয়েল-টাইম রেন্ডার
+                </span>
+              </div>
+
+              {/* Simulated White Navbar Preview */}
+              <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-md flex items-center justify-between">
+                <BongoWebLogo size="md" />
+
+                <div className="flex items-center gap-2 text-xs font-bold text-slate-600">
+                  <span className="hidden sm:inline px-3 py-1.5 rounded-lg bg-slate-100">হোম</span>
+                  <span className="hidden sm:inline px-3 py-1.5 rounded-lg bg-slate-100">ক্যাটালগ</span>
+                  <span className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-[#2B47EE] to-[#7C3AED] text-white text-xs">
+                    অর্ডার করুন
+                  </span>
+                </div>
+              </div>
+
+              {/* Simulated Dark Navbar Preview */}
+              <div className="p-4 sm:p-5 rounded-2xl bg-[#0D253D] border border-slate-700 shadow-md flex items-center justify-between">
+                <BongoWebLogo size="md" textColor="#FFFFFF" />
+
+                <div className="flex items-center gap-2 text-xs font-bold text-slate-300">
+                  <span className="hidden sm:inline px-3 py-1.5 rounded-lg bg-white/10">Home</span>
+                  <span className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-[#2B47EE] to-[#7C3AED] text-white text-xs">
+                    Get Started
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Action Footer */}
+            <div className="pt-3 border-t border-[#1E293B] flex flex-col sm:flex-row items-center justify-between gap-3">
+              <p className="text-xs text-[#94A3B8]">
+                সেভ বাটনে চাপ দিলে আপনার নির্বাচন সম্পূর্ণ ওয়েবসাইটে কার্যকর হয়ে যাবে।
+              </p>
+
+              <button
+                type="button"
+                onClick={handleSaveLogoSettings}
+                disabled={logoSaving}
+                className="w-full sm:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-[#008A4B] to-[#00B261] hover:from-[#00733E] hover:to-[#009E56] text-white text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md disabled:opacity-50"
+              >
+                <Save className="w-4 h-4" />
+                <span>{logoSaving ? 'সংরক্ষণ হচ্ছে...' : 'সেভ ও লাইভ করুন (Save & Apply Live)'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Action Password Modal (Requirement 11) */}
       {showActionPasswordModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
@@ -3762,7 +4484,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
 
               <div>
                 <span className="px-2.5 py-0.5 rounded-full bg-[#008A4B] text-white text-xs font-bold">
-                  Client কে Details পাঠান
+                  ধাপ ১: আইডি ও পাসওয়ার্ড দিন
                 </span>
                 <h3 className="text-lg font-black text-white mt-1">
                   {selectedUserForDelivery.name}
@@ -3770,11 +4492,14 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                 <p className="text-xs text-[#8BB99F] font-mono">
                   মোবাইল নম্বর: {selectedUserForDelivery.phone}
                 </p>
+                <p className="text-[11px] text-[#94A3B8] mt-1">
+                  এখানে আইডি ও পাসওয়ার্ড লিখে সংরক্ষণ করার পর ধাপ ২: "সম্পূর্ণ করুন" বাটনে ক্লিক করলেই অর্ডারটি সফলভাবে গ্রাহকের প্রোফাইলে যুক্ত হবে।
+                </p>
               </div>
 
               {deliverySuccess && (
                 <div className="p-3 rounded-xl bg-[#00B261]/20 border border-[#00B261] text-[#4EEDB0] text-xs font-bold">
-                  ✓ সফলভাবে গ্রাহকের প্রোফাইলে ওয়েবসাইট ডিটেইলস পাঠানো হয়েছে!
+                  ✓ সফলভাবে আইডি ও পাসওয়ার্ড সংরক্ষণ করা হয়েছে! এবার ধাপ ২: "সম্পূর্ণ করুন" এ ক্লিক করুন।
                 </div>
               )}
 
@@ -3845,7 +4570,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                     type="submit"
                     className="flex-1 py-2.5 rounded-xl bg-[#008A4B] text-white text-xs font-bold hover:bg-[#009E56] transition-all cursor-pointer shadow-xs"
                   >
-                    Details পাঠান
+                    ১. আইডি ও পাসওয়ার্ড সংরক্ষণ করুন (Save ID & Pass)
                   </button>
                   <button
                     type="button"

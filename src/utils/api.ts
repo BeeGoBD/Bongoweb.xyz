@@ -1,6 +1,7 @@
 import { 
   UserAccount, ClientOrder, SupportChatThread, SupportChatMessage, 
-  WebsiteDemo, WebsiteDeliveryCredentials, PasswordResetRequest, AdminConfig, UserReport 
+  WebsiteDemo, WebsiteDeliveryCredentials, PasswordResetRequest, AdminConfig, UserReport,
+  BrandLogoConfig
 } from '../types';
 import { WEBSITE_DEMOS } from '../data/mockData';
 import { 
@@ -1367,6 +1368,10 @@ export async function apiAddDeliveredCredentials(cred: WebsiteDeliveryCredential
     }).catch(() => {});
   } catch (_) {}
 
+  try {
+    window.dispatchEvent(new CustomEvent('bongoweb_credentials_updated', { detail: localCache.deliveredCredentials }));
+  } catch (_) {}
+
   return localCache.deliveredCredentials;
 }
 
@@ -1389,6 +1394,27 @@ export async function apiDeleteCredentials(id: string): Promise<WebsiteDeliveryC
       method: 'DELETE'
     }).catch(() => {});
   } catch (_) {}
+
+  try {
+    window.dispatchEvent(new CustomEvent('bongoweb_credentials_updated', { detail: localCache.deliveredCredentials }));
+  } catch (_) {}
+
+  return localCache.deliveredCredentials;
+}
+
+export async function apiDeleteCredentialsByOrder(orderId: string, phone?: string, websiteCode?: string): Promise<WebsiteDeliveryCredentials[]> {
+  const safeOrderId = String(orderId || '').trim();
+  const cleanPhone = String(phone || '').trim();
+  const cleanCode = String(websiteCode || '').trim();
+
+  const toRemove = localCache.deliveredCredentials.filter(c => 
+    (safeOrderId && c.orderId === safeOrderId) ||
+    (cleanPhone && c.userPhone === cleanPhone && (!cleanCode || c.websiteCode === cleanCode))
+  );
+
+  for (const cred of toRemove) {
+    await apiDeleteCredentials(cred.id);
+  }
 
   return localCache.deliveredCredentials;
 }
@@ -1871,3 +1897,72 @@ export async function apiRestoreCompleteBackup(backupData: any): Promise<{ succe
     };
   }
 }
+
+// ---------------- LOGO & BRAND SETTINGS ----------------
+export const DEFAULT_LOGO_CONFIG: BrandLogoConfig = {
+  logoType: 'image',
+  imageUrl: '', // default official SVG crest
+  imageName: 'official-crest.svg',
+  imageSizePx: 36,
+  showBrandTextWithImage: true,
+  typedLogoText: 'BongoWeb',
+  typedSubtitle: '.xyz',
+  textGradientTheme: 'royal',
+  textFontSizePx: 26,
+  updatedAt: new Date().toISOString()
+};
+
+export async function apiGetLogoConfig(): Promise<BrandLogoConfig> {
+  try {
+    const local = localStorage.getItem('bongoweb_logo_config');
+    if (local) {
+      return JSON.parse(local);
+    }
+  } catch (_) {}
+
+  try {
+    const res = await fetch('/api/settings/logo');
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.logoType) {
+        localStorage.setItem('bongoweb_logo_config', JSON.stringify(data));
+        return data;
+      }
+    }
+  } catch (_) {}
+
+  return DEFAULT_LOGO_CONFIG;
+}
+
+export async function apiSaveLogoConfig(config: BrandLogoConfig): Promise<BrandLogoConfig> {
+  const safeConfig: BrandLogoConfig = {
+    ...config,
+    updatedAt: new Date().toISOString()
+  };
+
+  try {
+    localStorage.setItem('bongoweb_logo_config', JSON.stringify(safeConfig));
+  } catch (_) {}
+
+  try {
+    // Also save in Cloud Firestore if available
+    await setDoc(doc(db, 'systemSettings', 'logoConfig'), safeConfig);
+  } catch (err) {
+    console.warn('Firestore save logo config note:', err);
+  }
+
+  try {
+    await fetch('/api/settings/logo', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(safeConfig)
+    });
+  } catch (_) {}
+
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('bongoweb_logo_updated', { detail: safeConfig }));
+  }
+
+  return safeConfig;
+}
+

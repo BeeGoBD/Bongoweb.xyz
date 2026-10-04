@@ -123,6 +123,7 @@ export interface WebsiteDeliveryCredentials {
   id: string;
   orderId?: string;
   userPhone: string;
+  userEmail?: string;
   websiteTitle: string;
   websiteCode: string;
   websiteAdminId: string;
@@ -182,6 +183,23 @@ export interface UserReport {
   status: 'pending' | 'resolved';
   resolvedAt?: string;
 }
+
+export interface BrandLogoConfig {
+  logoType: 'image' | 'text'; // 'image' = On, 'text' = Off
+  // Image mode settings:
+  imageUrl?: string; // base64, SVG, or URL. Empty string means official SVG insignia
+  imageName?: string;
+  imageSizePx?: number; // icon size in px (e.g., 28, 36, 44, 52, 60)
+  showBrandTextWithImage?: boolean; // whether to show text next to image
+  // Text mode settings:
+  typedLogoText: string; // typed logo text e.g. "BongoWeb", "MyBrand"
+  typedSubtitle?: string; // e.g. ".xyz", "Solutions"
+  textGradientTheme: 'royal' | 'violet' | 'sunset' | 'emerald' | 'monochrome';
+  textFontSizePx?: number;
+  textLetterSpacing?: string;
+  updatedAt?: string;
+}
+
 
 
 
