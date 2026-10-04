@@ -34,9 +34,9 @@ export default function CategorySelectionLanding({
       icon: ShoppingBasket,
       tagBn: 'সর্বাধিক জনপ্রিয়',
       tagEn: 'Most Popular',
-      accentColor: '#DC2626',
+      accentColor: '#533AFD',
       iconBg: 'bg-[#F0EEFF]',
-      borderHover: 'hover:border-[#DC2626]'
+      borderHover: 'hover:border-[#533AFD]'
     },
     {
       id: 'restaurant' as WebsiteCategory,
@@ -144,14 +144,14 @@ export default function CategorySelectionLanding({
       {/* 2. Main Viewport: All 4 categories with premium studio presence */}
       <main className="flex-1 max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12 w-full flex flex-col justify-center items-center relative overflow-hidden">
         {/* Subtle Ambient Background Spotlight */}
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[450px] bg-gradient-to-tr from-[#DC2626]/[0.07] via-[#F59E0B]/[0.05] to-[#C026D3]/[0.04] rounded-full blur-3xl pointer-events-none -z-10" />
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[450px] bg-gradient-to-tr from-[#533AFD]/[0.07] via-[#7C3AED]/[0.04] to-[#00B261]/[0.05] rounded-full blur-3xl pointer-events-none -z-10" />
 
         {/* Hero Title Section */}
         <div className="text-center mb-7 sm:mb-9 max-w-2xl mx-auto">
-          <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-gradient-to-r from-rose-50/90 to-amber-50/80 border border-rose-200/80 text-[#DC2626] text-[11px] font-bold mb-4 shadow-xs select-none">
+          <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-gradient-to-r from-indigo-50/90 to-violet-50/80 border border-indigo-200/80 text-[#533AFD] text-[11px] font-bold mb-4 shadow-xs select-none">
             <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#DC2626] opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#DC2626]"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#533AFD] opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#533AFD]"></span>
             </span>
             <span>
               {t(
@@ -164,11 +164,11 @@ export default function CategorySelectionLanding({
           <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-[1.15]">
             {language === 'bn' ? (
               <>
-                Select Your Website <span className="bg-gradient-to-r from-[#DC2626] via-[#E11D48] to-[#D97706] bg-clip-text text-transparent">Category</span>
+                Select Your Website <span className="bg-gradient-to-r from-[#533AFD] via-[#6366F1] to-[#7C3AED] bg-clip-text text-transparent">Category</span>
               </>
             ) : (
               <>
-                Choose Your Website <span className="bg-gradient-to-r from-[#DC2626] via-[#E11D48] to-[#D97706] bg-clip-text text-transparent">Category</span>
+                Choose Your Website <span className="bg-gradient-to-r from-[#533AFD] via-[#6366F1] to-[#7C3AED] bg-clip-text text-transparent">Category</span>
               </>
             )}
           </h1>
@@ -195,7 +195,7 @@ export default function CategorySelectionLanding({
                 onClick={() => handleCardClick(cat.id)}
                 className={`group relative p-5 sm:p-6 sm:py-7 rounded-[24px] sm:rounded-[28px] border transition-all duration-300 cursor-pointer flex flex-col justify-between shadow-[0_4px_20px_rgba(15,23,42,0.04)] hover:shadow-[0_20px_45px_-10px_rgba(15,23,42,0.12)] min-h-[230px] sm:min-h-[275px] md:min-h-[290px] bg-white/95 backdrop-blur-md hover:-translate-y-1.5 overflow-hidden select-none ${
                   isSelected
-                    ? 'border-[#DC2626] ring-3 ring-[#DC2626]/20 shadow-[0_16px_36px_rgba(220,38,38,0.2)] scale-[1.01]'
+                    ? 'border-[#533AFD] ring-3 ring-[#533AFD]/20 shadow-[0_16px_36px_rgba(83,58,253,0.2)] scale-[1.01]'
                     : `border-slate-200/90 ${cat.borderHover}`
                 }`}
               >
@@ -224,16 +224,16 @@ export default function CategorySelectionLanding({
                   </div>
 
                   {/* Titles */}
-                  <h3 className="text-base sm:text-lg md:text-xl font-black text-slate-900 group-hover:text-[#DC2626] transition-colors leading-tight">
+                  <h3 className="text-base sm:text-lg md:text-xl font-black text-slate-900 group-hover:text-[#533AFD] transition-colors leading-tight">
                     {cat.titleEnglish}
                   </h3>
 
                   {language === 'bn' ? (
-                    <span className="text-xs sm:text-sm font-bold text-[#DC2626] block mt-0.5 mb-1.5 sm:mb-2">
+                    <span className="text-xs sm:text-sm font-bold text-[#533AFD] block mt-0.5 mb-1.5 sm:mb-2">
                       {cat.titleBangla}
                     </span>
                   ) : (
-                    <span className="text-xs sm:text-sm font-bold text-[#DC2626] block mt-0.5 mb-1.5 sm:mb-2">
+                    <span className="text-xs sm:text-sm font-bold text-[#533AFD] block mt-0.5 mb-1.5 sm:mb-2">
                       {cat.tagEn}
                     </span>
                   )}
@@ -250,11 +250,11 @@ export default function CategorySelectionLanding({
                 </div>
 
                 {/* Bottom Action Bar */}
-                <div className="relative z-10 pt-3.5 sm:pt-4 mt-3 sm:mt-4 border-t border-slate-100 flex items-center justify-between text-xs sm:text-sm font-bold text-[#DC2626]">
-                  <span className="group-hover:text-[#B91C1C] transition-colors">
+                <div className="relative z-10 pt-3.5 sm:pt-4 mt-3 sm:mt-4 border-t border-slate-100 flex items-center justify-between text-xs sm:text-sm font-bold text-[#533AFD]">
+                  <span className="group-hover:text-[#3B25D4] transition-colors">
                     {t('ক্যাটালগ দেখুন', 'Explore Catalog')}
                   </span>
-                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-slate-50 group-hover:bg-[#DC2626] text-[#DC2626] group-hover:text-white flex items-center justify-center transition-all duration-200 shadow-2xs group-hover:shadow-md">
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-slate-50 group-hover:bg-[#533AFD] text-[#533AFD] group-hover:text-white flex items-center justify-center transition-all duration-200 shadow-2xs group-hover:shadow-md">
                     <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 stroke-[2.5]" />
                   </div>
                 </div>
@@ -267,10 +267,10 @@ export default function CategorySelectionLanding({
         <div className="mt-7 sm:mt-9 text-center flex flex-col items-center gap-4">
           <button
             onClick={() => onSelectCategory('all')}
-            className="inline-flex items-center gap-2.5 px-6 py-3 sm:px-7 sm:py-3.5 rounded-2xl bg-white hover:bg-slate-50 text-slate-800 hover:text-[#DC2626] border border-slate-200/90 hover:border-[#DC2626]/40 font-extrabold text-xs sm:text-sm transition-all shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_20px_-4px_rgba(220,38,38,0.18)] cursor-pointer group active:scale-[0.99]"
+            className="inline-flex items-center gap-2.5 px-6 py-3 sm:px-7 sm:py-3.5 rounded-2xl bg-white hover:bg-slate-50 text-slate-800 hover:text-[#533AFD] border border-slate-200/90 hover:border-[#533AFD]/40 font-extrabold text-xs sm:text-sm transition-all shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_20px_-4px_rgba(83,58,253,0.18)] cursor-pointer group active:scale-[0.99]"
           >
             <span>{t('সবগুলো ক্যাটাগরি একসাথে ব্রাউজ করুন', 'Browse All Categories Together')}</span>
-            <ArrowRight className="w-4 h-4 text-[#DC2626] transition-transform group-hover:translate-x-1 stroke-[2.5]" />
+            <ArrowRight className="w-4 h-4 text-[#533AFD] transition-transform group-hover:translate-x-1 stroke-[2.5]" />
           </button>
 
           {/* Trust Reassurance Footnotes */}
