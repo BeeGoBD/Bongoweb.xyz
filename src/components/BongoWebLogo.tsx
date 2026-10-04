@@ -105,28 +105,29 @@ export default function BongoWebLogo({
   const configuredH = config.imageSizePx && config.imageSizePx >= 40 ? config.imageSizePx : 0;
   const effectiveMaxHeight = configuredH || dimensions.maxImgH;
   const effectiveIconPx = configuredH || dimensions.iconPx;
+  const effectiveImageUrl = config.imageUrl || '/uploaded-brand-logo.png';
 
-  // Determine text gradient class
+  // Determine text gradient class using official brand colors from logo
   const getGradientClass = (theme?: string) => {
     switch (theme) {
       case 'sunset':
-        return 'bg-gradient-to-r from-[#FF6118] via-[#F97316] to-[#F59E0B]';
+        return 'bg-gradient-to-r from-[#DC2626] via-[#EA580C] to-[#F59E0B]';
       case 'emerald':
         return 'bg-gradient-to-r from-[#00B261] via-[#059669] to-[#0D9488]';
       case 'monochrome':
         return 'bg-gradient-to-r from-[#0F172A] via-[#334155] to-[#475569]';
       case 'violet':
-        return 'bg-gradient-to-r from-[#8B5CF6] via-[#7C3AED] to-[#4F46E5]';
+        return 'bg-gradient-to-r from-[#BE123C] via-[#E11D48] to-[#D97706]';
       case 'royal':
       default:
-        return 'bg-gradient-to-r from-[#7C3AED] via-[#6366F1] to-[#2563EB]';
+        return 'bg-gradient-to-r from-[#DC2626] via-[#E11D48] to-[#D97706]';
     }
   };
 
   // ==========================================
-  // MODE 1: TYPED TEXT LOGO (When Logo Image is Turned OFF)
+  // MODE 1: TYPED TEXT LOGO (Only if explicitly set to text AND no image URL)
   // ==========================================
-  if (config.logoType === 'text') {
+  if (config.logoType === 'text' && !config.imageUrl) {
     const textToShow = config.typedLogoText || 'BongoWeb';
     const gradientClass = getGradientClass(config.textGradientTheme);
 
@@ -137,13 +138,13 @@ export default function BongoWebLogo({
       >
         <div className="flex items-center gap-2 flex-wrap">
           <span 
-            className={`font-black tracking-[-0.03em] ${dimensions.chatTextSize} font-sans leading-none ${gradientClass} bg-clip-text text-transparent drop-shadow-xs`}
+            className={`font-black tracking-[-0.03em] ${dimensions.chatTextSize} font-sans leading-none ${gradientClass} bg-clip-text text-transparent drop-shadow-[0_2px_10px_rgba(220,38,38,0.2)]`}
           >
             {textToShow}
           </span>
 
           {config.typedSubtitle && (
-            <span className="px-2 py-0.5 rounded-lg bg-[#7C3AED]/10 text-[#7C3AED] text-xs sm:text-sm font-black tracking-wider uppercase border border-[#7C3AED]/20 font-mono shadow-2xs">
+            <span className="px-2 py-0.5 rounded-lg bg-[#DC2626]/10 text-[#DC2626] text-xs sm:text-sm font-black tracking-wider uppercase border border-[#DC2626]/20 font-mono shadow-2xs">
               {config.typedSubtitle}
             </span>
           )}
@@ -153,44 +154,44 @@ export default function BongoWebLogo({
   }
 
   // ==========================================
-  // MODE 2: IMAGE / VECTOR OFFICIAL LOGO (01-removebg-preview.png)
+  // MODE 2: OFFICIAL BRAND LOGO IMAGE (Always stays online, perfect size)
   // ==========================================
   const brandName = config.typedLogoText || 'BongoWeb';
 
   return (
     <div className={`inline-flex items-center gap-2.5 sm:gap-3.5 select-none ${dimensions.containerH} ${className}`}>
-      {/* 1. Official Image Logo (Universal Cloud Sync across all devices) */}
-      {config.imageUrl ? (
+      {/* 1. Official Image Logo (Universal Cloud Sync across all devices, perfectly sized) */}
+      {effectiveImageUrl ? (
         <img
-          src={config.imageUrl}
+          src={effectiveImageUrl}
           alt={brandName}
           style={{ 
-            maxHeight: `${Math.max(effectiveMaxHeight, 74)}px`,
+            maxHeight: `${Math.max(effectiveMaxHeight, 68)}px`,
             width: 'auto'
           }}
-          className="shrink-0 object-contain rounded-xl drop-shadow-[0_4px_16px_rgba(99,102,241,0.22)] transition-transform duration-300 hover:scale-105 h-14 sm:h-18 md:h-[76px] lg:h-[82px] max-h-[74px] sm:max-h-[82px] md:max-h-[88px] w-auto max-w-[280px] sm:max-w-[400px] md:max-w-[500px]"
+          className="shrink-0 object-contain rounded-lg drop-shadow-[0_2px_12px_rgba(220,38,38,0.18)] transition-all duration-300 hover:scale-105 h-12 sm:h-16 md:h-[72px] max-h-[64px] sm:max-h-[72px] md:max-h-[78px] w-auto max-w-[260px] sm:max-w-[360px] md:max-w-[460px]"
         />
       ) : (
-        /* 2. Official Circular Emblem & Wordmark (Exact vector reproducing 01-removebg-preview.png) */
+        /* 2. Official Vector Logo */
         <svg
           viewBox="0 0 490 110"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className="shrink-0 drop-shadow-[0_4px_14px_rgba(99,102,241,0.25)] transition-transform duration-300 hover:scale-105 h-14 sm:h-18 md:h-[76px] w-auto max-w-[280px] sm:max-w-[400px] md:max-w-[500px]"
+          className="shrink-0 drop-shadow-[0_4px_14px_rgba(220,38,38,0.25)] transition-transform duration-300 hover:scale-105 h-14 sm:h-18 md:h-[76px] w-auto max-w-[280px] sm:max-w-[400px] md:max-w-[500px]"
         >
           <defs>
             <linearGradient id="bwCircleGradient" x1="10" y1="10" x2="100" y2="100" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stopColor="#6D28D9" />
-              <stop offset="35%" stopColor="#7C3AED" />
-              <stop offset="70%" stopColor="#4F46E5" />
-              <stop offset="100%" stopColor="#2563EB" />
+              <stop offset="0%" stopColor="#DC2626" />
+              <stop offset="35%" stopColor="#E11D48" />
+              <stop offset="70%" stopColor="#D97706" />
+              <stop offset="100%" stopColor="#F59E0B" />
             </linearGradient>
 
             <linearGradient id="bwTextGradient" x1="130" y1="20" x2="470" y2="90" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stopColor="#6D28D9" />
-              <stop offset="25%" stopColor="#7C3AED" />
-              <stop offset="60%" stopColor="#4F46E5" />
-              <stop offset="100%" stopColor="#2563EB" />
+              <stop offset="0%" stopColor="#DC2626" />
+              <stop offset="25%" stopColor="#E11D48" />
+              <stop offset="60%" stopColor="#D97706" />
+              <stop offset="100%" stopColor="#F59E0B" />
             </linearGradient>
           </defs>
 

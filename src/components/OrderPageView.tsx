@@ -268,13 +268,13 @@ export default function OrderPageView({
                   onBackToDashboard();
                 }
               }}
-              className="px-3 py-1.5 rounded-xl bg-[#F8FAFD] hover:bg-[#EEF2FF] text-[#2563EB] border border-[#E5EDF5] text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
+              className="px-3 py-1.5 rounded-xl bg-[#F8FAFD] hover:bg-[#EEF2FF] text-[#DC2626] border border-[#E5EDF5] text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>পেছনে ফিরুন</span>
             </button>
 
-            <span className="px-3 py-1 rounded-xl bg-[#2563EB] text-white text-xs font-mono font-black shadow-xs">
+            <span className="px-3 py-1 rounded-xl bg-[#DC2626] text-white text-xs font-mono font-black shadow-xs">
               {demoCode}
             </span>
             <span className="text-xs sm:text-sm font-black text-[#0D253D] hidden xs:inline">
@@ -292,7 +292,7 @@ export default function OrderPageView({
       {/* Floating Email Sent Notification (Step 1 -> Step 2 transition) */}
       {emailNotification && (
         <div className="sticky top-16 z-50 max-w-xl mx-auto px-4 py-2 animate-slideDown">
-          <div className="p-3 sm:p-4 rounded-2xl bg-[#2563EB] text-white text-xs sm:text-sm font-bold shadow-xl flex items-center gap-2.5">
+          <div className="p-3 sm:p-4 rounded-2xl bg-[#DC2626] text-white text-xs sm:text-sm font-bold shadow-xl flex items-center gap-2.5">
             <Sparkles className="w-5 h-5 text-[#FFD552] shrink-0" />
             <div className="flex-1">
               <span>কনফার্মেশন লিংক আপনার ইমেইল এড্রেসে ({email}) পাঠানো হয়েছে।</span>
@@ -311,7 +311,7 @@ export default function OrderPageView({
           <div className="flex items-center justify-center gap-2 sm:gap-4 mb-8">
             <div className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-black transition-all ${
               currentStep === 1 
-                ? 'bg-[#2563EB] text-white shadow-xs' 
+                ? 'bg-[#DC2626] text-white shadow-xs' 
                 : 'bg-[#00B261]/15 text-[#00B261]'
             }`}>
               <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-[10px]">১</span>
@@ -322,7 +322,7 @@ export default function OrderPageView({
 
             <div className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-black transition-all ${
               currentStep === 2 
-                ? 'bg-[#2563EB] text-white shadow-xs' 
+                ? 'bg-[#DC2626] text-white shadow-xs' 
                 : 'bg-[#F8FAFD] text-[#64748D] border border-[#E5EDF5]'
             }`}>
               <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-[10px]">২</span>
@@ -335,7 +335,7 @@ export default function OrderPageView({
         {currentStep === 1 && (
           <div className="bg-[#FFFFFF] border border-[#E5EDF5] rounded-3xl p-6 sm:p-10 shadow-sm max-w-2xl mx-auto animate-fadeIn">
             <div className="text-center mb-6">
-              <span className="px-3 py-1 rounded-full bg-[#EEF2FF] text-[#2563EB] text-xs font-bold inline-block mb-2">
+              <span className="px-3 py-1 rounded-full bg-[#EEF2FF] text-[#DC2626] text-xs font-bold inline-block mb-2">
                 ধাপ ১ • একাউন্ট তৈরি
               </span>
               <h1 className="text-xl sm:text-2xl font-black text-[#0D253D]">
@@ -364,7 +364,7 @@ export default function OrderPageView({
                   placeholder="যেমন: মোঃ সাকিব হাসান"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs sm:text-sm text-[#0D253D] placeholder-[#7D8BA4] focus:outline-none focus:bg-[#FFFFFF] focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] transition-all"
+                  className="w-full px-4 py-2.5 rounded-xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs sm:text-sm text-[#0D253D] placeholder-[#7D8BA4] focus:outline-none focus:bg-[#FFFFFF] focus:border-[#DC2626] focus:ring-1 focus:ring-[#DC2626] transition-all"
                 />
               </div>
 
@@ -378,7 +378,7 @@ export default function OrderPageView({
                   placeholder="017xxxxxxxx"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs sm:text-sm text-[#0D253D] placeholder-[#7D8BA4] focus:outline-none focus:bg-[#FFFFFF] focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] transition-all font-mono"
+                  className="w-full px-4 py-2.5 rounded-xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs sm:text-sm text-[#0D253D] placeholder-[#7D8BA4] focus:outline-none focus:bg-[#FFFFFF] focus:border-[#DC2626] focus:ring-1 focus:ring-[#DC2626] transition-all font-mono"
                 />
               </div>
 
@@ -392,7 +392,7 @@ export default function OrderPageView({
                   placeholder="name@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs sm:text-sm text-[#0D253D] placeholder-[#7D8BA4] focus:outline-none focus:bg-[#FFFFFF] focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] transition-all font-mono"
+                  className="w-full px-4 py-2.5 rounded-xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs sm:text-sm text-[#0D253D] placeholder-[#7D8BA4] focus:outline-none focus:bg-[#FFFFFF] focus:border-[#DC2626] focus:ring-1 focus:ring-[#DC2626] transition-all font-mono"
                 />
               </div>
 
@@ -407,7 +407,7 @@ export default function OrderPageView({
                     placeholder="পাসওয়ার্ড দিন"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs sm:text-sm text-[#0D253D] placeholder-[#7D8BA4] focus:outline-none focus:bg-[#FFFFFF] focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] transition-all"
+                    className="w-full px-4 py-2.5 rounded-xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs sm:text-sm text-[#0D253D] placeholder-[#7D8BA4] focus:outline-none focus:bg-[#FFFFFF] focus:border-[#DC2626] focus:ring-1 focus:ring-[#DC2626] transition-all"
                   />
                 </div>
 
@@ -421,21 +421,21 @@ export default function OrderPageView({
                     placeholder="পাসওয়ার্ড পুনরায় লিখুন"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs sm:text-sm text-[#0D253D] placeholder-[#7D8BA4] focus:outline-none focus:bg-[#FFFFFF] focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] transition-all"
+                    className="w-full px-4 py-2.5 rounded-xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs sm:text-sm text-[#0D253D] placeholder-[#7D8BA4] focus:outline-none focus:bg-[#FFFFFF] focus:border-[#DC2626] focus:ring-1 focus:ring-[#DC2626] transition-all"
                   />
                 </div>
               </div>
 
               {/* Price Reminder */}
               <div className="p-3 rounded-2xl bg-[#F8FAFD] border border-[#E5EDF5] flex items-center justify-between text-xs mt-3">
-                <span className="text-[#64748D]">এককালীন মেকিং চার্জ: <strong className="text-[#2563EB]">১,৯৯০ ৳</strong></span>
-                <span className="text-[#64748D]">মাসিক মেইনটেন্যান্স: <strong className="text-[#2563EB]">১২০ ৳</strong></span>
+                <span className="text-[#64748D]">এককালীন মেকিং চার্জ: <strong className="text-[#DC2626]">১,৯৯০ ৳</strong></span>
+                <span className="text-[#64748D]">মাসিক মেইনটেন্যান্স: <strong className="text-[#DC2626]">১২০ ৳</strong></span>
               </div>
 
               <div className="pt-3">
                 <button
                   type="submit"
-                  className="w-full py-3 px-4 rounded-xl bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white text-xs sm:text-sm font-bold shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.01]"
+                  className="w-full py-3 px-4 rounded-xl bg-[#DC2626] hover:bg-[#B91C1C] active:bg-[#991B1B] text-white text-xs sm:text-sm font-bold shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.01]"
                 >
                   <span>পরবর্তী ধাপ (ডোমেইন ও পেমেন্ট)</span>
                   <ArrowRight className="w-4 h-4" />
@@ -449,7 +449,7 @@ export default function OrderPageView({
         {currentStep === 2 && (
           <div className="bg-[#FFFFFF] border border-[#E5EDF5] rounded-3xl p-6 sm:p-10 shadow-sm max-w-3xl mx-auto animate-fadeIn space-y-6">
             <div className="text-center">
-              <span className="px-3 py-1 rounded-full bg-[#EEF2FF] text-[#2563EB] text-xs font-bold inline-block mb-2">
+              <span className="px-3 py-1 rounded-full bg-[#EEF2FF] text-[#DC2626] text-xs font-bold inline-block mb-2">
                 ধাপ ২ • ডোমেইন ও পেমেন্ট
               </span>
               <h1 className="text-xl sm:text-2xl font-black text-[#0D253D]">
@@ -476,7 +476,7 @@ export default function OrderPageView({
                   placeholder="যেমন: স্টাইল মার্ট / টেক জোন"
                   value={companyName}
                   onChange={(e) => setCompanyName(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs sm:text-sm text-[#0D253D] placeholder-[#7D8BA4] focus:outline-none focus:bg-[#FFFFFF] focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] transition-all"
+                  className="w-full px-4 py-2.5 rounded-xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs sm:text-sm text-[#0D253D] placeholder-[#7D8BA4] focus:outline-none focus:bg-[#FFFFFF] focus:border-[#DC2626] focus:ring-1 focus:ring-[#DC2626] transition-all"
                 />
               </div>
 
@@ -497,8 +497,8 @@ export default function OrderPageView({
                     onClick={() => setDomainOption('have_domain')}
                     className={`p-3 rounded-xl border text-xs font-bold transition-all text-left cursor-pointer ${
                       domainOption === 'have_domain'
-                        ? 'bg-[#2563EB] text-white border-[#2563EB] shadow-xs'
-                        : 'bg-white text-[#0D253D] border-[#E5EDF5] hover:border-[#2563EB]/40'
+                        ? 'bg-[#DC2626] text-white border-[#DC2626] shadow-xs'
+                        : 'bg-white text-[#0D253D] border-[#E5EDF5] hover:border-[#DC2626]/40'
                     }`}
                   >
                     আমার ডোমেন আছে
@@ -509,8 +509,8 @@ export default function OrderPageView({
                     onClick={() => setDomainOption('no_domain')}
                     className={`p-3 rounded-xl border text-xs font-bold transition-all text-left cursor-pointer ${
                       domainOption === 'no_domain'
-                        ? 'bg-[#2563EB] text-white border-[#2563EB] shadow-xs'
-                        : 'bg-white text-[#0D253D] border-[#E5EDF5] hover:border-[#2563EB]/40'
+                        ? 'bg-[#DC2626] text-white border-[#DC2626] shadow-xs'
+                        : 'bg-white text-[#0D253D] border-[#E5EDF5] hover:border-[#DC2626]/40'
                     }`}
                   >
                     আমার ডোমেন নেই
@@ -521,8 +521,8 @@ export default function OrderPageView({
                     onClick={() => setDomainOption('dont_know')}
                     className={`p-3 rounded-xl border text-xs font-bold transition-all text-left cursor-pointer ${
                       domainOption === 'dont_know'
-                        ? 'bg-[#2563EB] text-white border-[#2563EB] shadow-xs'
-                        : 'bg-white text-[#0D253D] border-[#E5EDF5] hover:border-[#2563EB]/40'
+                        ? 'bg-[#DC2626] text-white border-[#DC2626] shadow-xs'
+                        : 'bg-white text-[#0D253D] border-[#E5EDF5] hover:border-[#DC2626]/40'
                     }`}
                   >
                     ডোমেন কী আমি জানি না
@@ -540,7 +540,7 @@ export default function OrderPageView({
                       placeholder="যেমন: mybrand.com বা myshop.xyz"
                       value={customDomainName}
                       onChange={(e) => setCustomDomainName(e.target.value)}
-                      className="w-full px-3.5 py-2 rounded-xl bg-white border border-[#E5EDF5] text-xs font-mono text-[#0D253D] placeholder-[#7D8BA4] focus:outline-none focus:border-[#2563EB]"
+                      className="w-full px-3.5 py-2 rounded-xl bg-white border border-[#E5EDF5] text-xs font-mono text-[#0D253D] placeholder-[#7D8BA4] focus:outline-none focus:border-[#DC2626]"
                     />
                   </div>
                 )}
@@ -553,7 +553,7 @@ export default function OrderPageView({
 
                 {domainOption === 'dont_know' && (
                   <div className="p-3 rounded-xl bg-white border border-[#E5EDF5] text-xs text-[#273951] leading-relaxed animate-fadeIn">
-                    <span className="font-bold text-[#2563EB]">ডোমেন কী?</span> ডোমেন হলো ইন্টারনেটে আপনার ওয়েবসাইটের সুনির্দিষ্ট ঠিকানা (যেমন: daraz.com.bd বা bikroy.com) যার মাধ্যমে গ্রাহকরা আপনার ওয়েবসাইটে প্রবেশ করবে। প্যাকেজের সাথে ১ বছরের ফ্রি ডোমেইন অন্তর্ভুক্ত রয়েছে, যা আমাদের ইঞ্জিনিয়ার সরাসরি আপনার সাথে কথা বলে আপনার কোম্পানির নামে রেজিস্টার করে দেবে।
+                    <span className="font-bold text-[#DC2626]">ডোমেন কী?</span> ডোমেন হলো ইন্টারনেটে আপনার ওয়েবসাইটের সুনির্দিষ্ট ঠিকানা (যেমন: daraz.com.bd বা bikroy.com) যার মাধ্যমে গ্রাহকরা আপনার ওয়েবসাইটে প্রবেশ করবে। প্যাকেজের সাথে ১ বছরের ফ্রি ডোমেইন অন্তর্ভুক্ত রয়েছে, যা আমাদের ইঞ্জিনিয়ার সরাসরি আপনার সাথে কথা বলে আপনার কোম্পানির নামে রেজিস্টার করে দেবে।
                   </div>
                 )}
               </div>
@@ -585,8 +585,8 @@ export default function OrderPageView({
                         onClick={() => setPaymentMethod(method)}
                         className={`p-3 rounded-xl border text-xs font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                           isSelected
-                            ? 'bg-[#2563EB] text-white border-[#2563EB] shadow-xs'
-                            : 'bg-[#F8FAFD] text-[#0D253D] border-[#E5EDF5] hover:border-[#2563EB]/40'
+                            ? 'bg-[#DC2626] text-white border-[#DC2626] shadow-xs'
+                            : 'bg-[#F8FAFD] text-[#0D253D] border-[#E5EDF5] hover:border-[#DC2626]/40'
                         }`}
                       >
                         {labels[method]}
@@ -596,7 +596,7 @@ export default function OrderPageView({
                 </div>
 
                 {/* Dedicated Payment Box with 1-Click Copy Number */}
-                <div className="p-4 sm:p-5 rounded-2xl bg-[#F8FAFD] border-2 border-[#2563EB]/30 space-y-4">
+                <div className="p-4 sm:p-5 rounded-2xl bg-[#F8FAFD] border-2 border-[#DC2626]/30 space-y-4">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-3.5 rounded-xl border border-[#E5EDF5]">
                     <div>
                       <span className="text-[10px] font-bold text-[#64748D] block uppercase">
@@ -610,7 +610,7 @@ export default function OrderPageView({
                     <button
                       type="button"
                       onClick={handleCopyNumber}
-                      className="px-3.5 py-1.5 rounded-xl bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+                      className="px-3.5 py-1.5 rounded-xl bg-[#DC2626] hover:bg-[#B91C1C] text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
                     >
                       {copiedNumber ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                       <span>{copiedNumber ? 'কপি হয়েছে!' : 'নাম্বার কপি করুন'}</span>
@@ -628,7 +628,7 @@ export default function OrderPageView({
                         placeholder="যেমন: 8N7X2Q9L"
                         value={transactionId}
                         onChange={(e) => setTransactionId(e.target.value)}
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#E5EDF5] text-xs font-mono font-bold text-[#0D253D] placeholder-[#7D8BA4] uppercase focus:outline-none focus:border-[#2563EB]"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#E5EDF5] text-xs font-mono font-bold text-[#0D253D] placeholder-[#7D8BA4] uppercase focus:outline-none focus:border-[#DC2626]"
                       />
                     </div>
 
@@ -643,7 +643,7 @@ export default function OrderPageView({
                           const file = e.target.files?.[0];
                           if (file) setScreenshotName(file.name);
                         }}
-                        className="w-full text-xs text-[#64748D] file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-[#EEF2FF] file:text-[#2563EB] hover:file:bg-[#2563EB] hover:file:text-white cursor-pointer"
+                        className="w-full text-xs text-[#64748D] file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-[#EEF2FF] file:text-[#DC2626] hover:file:bg-[#DC2626] hover:file:text-white cursor-pointer"
                       />
                     </div>
                   </div>
@@ -672,7 +672,7 @@ export default function OrderPageView({
                 </div>
                 <div className="text-right">
                   <span className="text-[#64748D] block">মাসিক মেইনটেন্যান্স খরচ</span>
-                  <span className="text-sm font-black text-[#2563EB]">১২০ ৳ / মাস</span>
+                  <span className="text-sm font-black text-[#DC2626]">১২০ ৳ / মাস</span>
                 </div>
               </div>
 
@@ -698,7 +698,7 @@ export default function OrderPageView({
               <div className="w-14 h-14 rounded-full bg-[#00B261]/10 text-[#00B261] flex items-center justify-center mx-auto mb-3">
                 <CheckCircle2 className="w-8 h-8 stroke-[2.5]" />
               </div>
-              <span className="px-3 py-1 rounded-full bg-[#EEF2FF] text-[#2563EB] text-xs font-black font-mono inline-block mb-1">
+              <span className="px-3 py-1 rounded-full bg-[#EEF2FF] text-[#DC2626] text-xs font-black font-mono inline-block mb-1">
                 অর্ডার আইডি: {createdOrder.orderId}
               </span>
               <h1 className="text-2xl font-black text-[#0D253D]">
@@ -737,7 +737,7 @@ export default function OrderPageView({
               </div>
               <div className="flex justify-between py-2 border-b border-[#E5EDF5]">
                 <span className="text-[#64748D]">নির্বাচিত ওয়েবসাইট কোড:</span>
-                <span className="font-bold font-mono text-[#2563EB]">{createdOrder.demoCode}</span>
+                <span className="font-bold font-mono text-[#DC2626]">{createdOrder.demoCode}</span>
               </div>
               <div className="flex justify-between py-2 border-b border-[#E5EDF5]">
                 <span className="text-[#64748D]">পেমেন্ট মেথড:</span>
@@ -753,7 +753,7 @@ export default function OrderPageView({
               </div>
               <div className="flex justify-between py-2 border-b border-[#E5EDF5]">
                 <span className="text-[#64748D]">মাসিক মেইনটেন্যান্স খরচ:</span>
-                <span className="font-bold text-[#2563EB]">১২০ ৳ / মাস</span>
+                <span className="font-bold text-[#DC2626]">১২০ ৳ / মাস</span>
               </div>
               <div className="flex justify-between py-2">
                 <span className="text-[#64748D]">অর্ডার স্ট্যাটাস:</span>
@@ -765,7 +765,7 @@ export default function OrderPageView({
             <div className="pt-4 border-t border-[#E5EDF5] flex flex-col sm:flex-row gap-3">
               <button
                 onClick={handlePrintReceipt}
-                className="flex-1 py-3 px-4 rounded-xl bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+                className="flex-1 py-3 px-4 rounded-xl bg-[#DC2626] hover:bg-[#B91C1C] text-white text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
               >
                 <Printer className="w-4 h-4" />
                 <span>রসিদ প্রিন্ট / ডাউনলোড করুন</span>
@@ -773,7 +773,7 @@ export default function OrderPageView({
 
               <button
                 onClick={onBackToDashboard}
-                className="flex-1 py-3 px-4 rounded-xl bg-[#F8FAFD] hover:bg-[#EEF2FF] text-[#2563EB] border border-[#E5EDF5] text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer"
+                className="flex-1 py-3 px-4 rounded-xl bg-[#F8FAFD] hover:bg-[#EEF2FF] text-[#DC2626] border border-[#E5EDF5] text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 <span>ড্যাশবোর্ডে ফিরুন</span>
               </button>
@@ -797,14 +797,14 @@ export default function OrderPageView({
               <button
                 type="button"
                 onClick={() => setCurrentStep(2)}
-                className="px-5 py-2.5 rounded-xl bg-[#F8FAFD] hover:bg-[#EEF2FF] text-[#2563EB] border border-[#E5EDF5] text-xs font-bold transition-all"
+                className="px-5 py-2.5 rounded-xl bg-[#F8FAFD] hover:bg-[#EEF2FF] text-[#DC2626] border border-[#E5EDF5] text-xs font-bold transition-all"
               >
                 ← পেমেন্ট ধাপে ফিরে যান
               </button>
               <button
                 type="button"
                 onClick={onBackToDashboard}
-                className="px-5 py-2.5 rounded-xl bg-[#2563EB] hover:bg-[#432BEE] text-white text-xs font-bold transition-all"
+                className="px-5 py-2.5 rounded-xl bg-[#DC2626] hover:bg-[#432BEE] text-white text-xs font-bold transition-all"
               >
                 ড্যাশবোর্ডে যান
               </button>

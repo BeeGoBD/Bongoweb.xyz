@@ -2,16 +2,16 @@
 
 @layer base {
   :root {
-    /* Exact BongoWeb Official Brand Colors from Logo (01-removebg-preview.png) */
-    --color-primary: #2563EB;
-    --color-primary-hover: #1D4ED8;
-    --color-primary-active: #1E40AF;
+    /* Exact BongoWeb Official Brand Colors from Logo */
+    --color-primary: #DC2626;
+    --color-primary-hover: #B91C1C;
+    --color-primary-active: #991B1B;
     --color-primary-dark: #0F172A;
     --color-brand-deep: #0B0F19;
-    --color-accent-purple: #7C3AED;
-    --color-accent-violet: #6D28D9;
-    --color-accent-indigo: #6366F1;
-    --color-accent-blue: #3B82F6;
+    --color-accent-purple: #E11D48;
+    --color-accent-violet: #BE123C;
+    --color-accent-indigo: #D97706;
+    --color-accent-blue: #EF4444;
     
     --color-text-primary: #0F172A;
     --color-text-secondary: #1E293B;
@@ -20,18 +20,18 @@
     --color-text-on-primary: #FFFFFF;
     
     --color-bg-main: #FFFFFF;
-    --color-bg-quiet: #F8FAFC;
-    --color-bg-subdued: #F1F5F9;
-    --color-bg-accent-subdued: #EEF2FF;
-    --color-bg-soft-neutral: #E0E7FF;
+    --color-bg-quiet: #FAFAFA;
+    --color-bg-subdued: #F4F4F5;
+    --color-bg-accent-subdued: #FEF2F2;
+    --color-bg-soft-neutral: #FEE2E2;
     
     --color-success: #10B981;
     --color-error: #EF4444;
     --color-warning: #F59E0B;
 
-    --gradient-primary: linear-gradient(135deg, #7C3AED 0%, #6366F1 45%, #2563EB 100%);
-    --gradient-accent-magenta: linear-gradient(135deg, #8B5CF6 0%, #6366F1 100%);
-    --gradient-accent-orange: linear-gradient(135deg, #6366F1 0%, #2563EB 100%);
+    --gradient-primary: linear-gradient(135deg, #DC2626 0%, #E11D48 45%, #D97706 100%);
+    --gradient-accent-magenta: linear-gradient(135deg, #E11D48 0%, #C026D3 100%);
+    --gradient-accent-orange: linear-gradient(135deg, #DC2626 0%, #F59E0B 100%);
   }
 
   * {
@@ -75,43 +75,43 @@
   }
 
   ::selection {
-    background-color: #EDE9FE;
-    color: #7C3AED;
+    background-color: #FEE2E2;
+    color: #DC2626;
   }
 }
 
 /* BongoWeb Official Logo Gradient & Button Classes */
 .bg-stripe-primary {
-  background-color: #2563EB;
+  background-color: #DC2626;
 }
 .bg-stripe-primary:hover {
-  background-color: #1D4ED8;
+  background-color: #B91C1C;
 }
 .bg-stripe-primary:active {
-  background-color: #1E40AF;
+  background-color: #991B1B;
 }
 
 .text-stripe-primary {
-  color: #2563EB;
+  color: #DC2626;
 }
 .text-stripe-primary:hover {
-  color: #1D4ED8;
+  color: #B91C1C;
 }
 
 .bg-stripe-gradient {
-  background: linear-gradient(135deg, #7C3AED 0%, #6366F1 45%, #2563EB 100%);
+  background: linear-gradient(135deg, #DC2626 0%, #E11D48 45%, #D97706 100%);
 }
 
 .bg-stripe-gradient-subtle {
-  background: linear-gradient(180deg, #F8FAFC 0%, #FFFFFF 100%);
+  background: linear-gradient(180deg, #FAFAFA 0%, #FFFFFF 100%);
 }
 
 .bg-stripe-accent-orange {
-  background: linear-gradient(135deg, #FF6118 0%, #FFD552 100%);
+  background: linear-gradient(135deg, #DC2626 0%, #F59E0B 100%);
 }
 
 .bg-stripe-accent-magenta {
-  background: linear-gradient(135deg, #F44BCC 0%, #F96BEE 100%);
+  background: linear-gradient(135deg, #E11D48 0%, #C026D3 100%);
 }
 
 /* Fluid responsive grid & line-length typography classes */

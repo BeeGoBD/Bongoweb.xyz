@@ -52,7 +52,7 @@ export default function OrderModal({ demo, onClose }: OrderModalProps) {
               অর্ডার রিকোয়েস্ট সফলভাবে গৃহীত হয়েছে!
             </h3>
             <p className="text-xs sm:text-sm text-[#273951] leading-relaxed max-w-sm mx-auto">
-              আমাদের একজন টেকনিক্যাল ম্যানেজার আগামী ১৫ মিনিটের মধ্যে <span className="font-bold text-[#2563EB]">{phoneNumber}</span> নম্বরে ফোন করে আপনার প্রজেক্ট শুরু করবেন।
+              আমাদের একজন টেকনিক্যাল ম্যানেজার আগামী ১৫ মিনিটের মধ্যে <span className="font-bold text-[#DC2626]">{phoneNumber}</span> নম্বরে ফোন করে আপনার প্রজেক্ট শুরু করবেন।
             </p>
             <div className="pt-2">
               <span className="text-[11px] font-semibold text-[#00B261] bg-[#F8FAFD] px-3 py-1 rounded-full border border-[#E5EDF5]">
@@ -64,7 +64,7 @@ export default function OrderModal({ demo, onClose }: OrderModalProps) {
           <div>
             {/* Header */}
             <div className="mb-5">
-              <span className="px-2.5 py-0.5 rounded-full bg-[#EEF2FF] text-[#2563EB] text-[11px] font-bold border border-[#2563EB]/20">
+              <span className="px-2.5 py-0.5 rounded-full bg-[#EEF2FF] text-[#DC2626] text-[11px] font-bold border border-[#DC2626]/20">
                 {demoCode} • Express 24h Setup
               </span>
               <h2 className="text-xl sm:text-2xl font-black text-[#0D253D] mt-2 line-clamp-1">
@@ -72,7 +72,7 @@ export default function OrderModal({ demo, onClose }: OrderModalProps) {
               </h2>
               <div className="flex items-center justify-between mt-1 text-xs">
                 <span className="text-[#64748D]">প্যাকেজ রেট:</span>
-                <span className="font-black text-[#2563EB] text-sm">{priceTag}</span>
+                <span className="font-black text-[#DC2626] text-sm">{priceTag}</span>
               </div>
             </div>
 
@@ -96,7 +96,7 @@ export default function OrderModal({ demo, onClose }: OrderModalProps) {
                   placeholder="যেমন: আহসান হাবিব / হাবিব ফ্যাশন"
                   value={clientName}
                   onChange={(e) => setClientName(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs sm:text-sm text-[#0D253D] focus:outline-none focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB]"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs sm:text-sm text-[#0D253D] focus:outline-none focus:border-[#DC2626] focus:ring-1 focus:ring-[#DC2626]"
                 />
               </div>
 
@@ -110,7 +110,7 @@ export default function OrderModal({ demo, onClose }: OrderModalProps) {
                   placeholder="যেমন: 01700-000000"
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs sm:text-sm text-[#0D253D] focus:outline-none focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB]"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs sm:text-sm text-[#0D253D] focus:outline-none focus:border-[#DC2626] focus:ring-1 focus:ring-[#DC2626]"
                 />
               </div>
 
@@ -123,7 +123,7 @@ export default function OrderModal({ demo, onClose }: OrderModalProps) {
                   placeholder="যেমন: yourbrand.com"
                   value={preferredDomain}
                   onChange={(e) => setPreferredDomain(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs sm:text-sm text-[#0D253D] focus:outline-none focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB]"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs sm:text-sm text-[#0D253D] focus:outline-none focus:border-[#DC2626] focus:ring-1 focus:ring-[#DC2626]"
                 />
               </div>
 
@@ -131,7 +131,7 @@ export default function OrderModal({ demo, onClose }: OrderModalProps) {
               <div className="pt-2">
                 <button
                   type="submit"
-                  className="w-full py-3 px-4 rounded-xl bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-[#FFFFFF] text-xs sm:text-sm font-bold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full py-3 px-4 rounded-xl bg-[#DC2626] hover:bg-[#B91C1C] active:bg-[#991B1B] text-[#FFFFFF] text-xs sm:text-sm font-bold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <span>অর্ডার কনফার্ম করুন (ফ্রি কল ব্যাক)</span>
                   <ArrowRight className="w-4 h-4" />

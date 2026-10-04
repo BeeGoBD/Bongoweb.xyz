@@ -39,19 +39,19 @@ export default function StepProgress({ currentStep, onStepClick }: StepProgressP
               id={`step-indicator-${s.step}`}
               className={`group relative flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 cursor-pointer focus:outline-hidden ${
                 isActive
-                  ? 'bg-gradient-to-r from-[#2563EB] to-[#7C3AED] text-white shadow-[0_2px_10px_rgba(99,102,241,0.3)]'
+                  ? 'bg-gradient-to-r from-[#DC2626] to-[#7C3AED] text-white shadow-[0_2px_10px_rgba(220,38,38,0.3)]'
                   : isCompleted
-                  ? 'text-[#2563EB] hover:bg-[#2563EB]/10'
-                  : 'text-[#7A6A66] hover:text-[#1C1614] hover:bg-[#2563EB]/5'
+                  ? 'text-[#DC2626] hover:bg-[#DC2626]/10'
+                  : 'text-[#7A6A66] hover:text-[#1C1614] hover:bg-[#DC2626]/5'
               }`}
               title={`Step ${s.step}: ${s.label}`}
             >
               <span className={`w-4 h-4 rounded-md flex items-center justify-center text-[10px] font-bold transition-colors ${
                 isActive
-                  ? 'bg-white text-[#2563EB]'
+                  ? 'bg-white text-[#DC2626]'
                   : isCompleted
-                  ? 'bg-[#2563EB] text-white'
-                  : 'bg-[#2563EB]/10 text-[#2563EB]'
+                  ? 'bg-[#DC2626] text-white'
+                  : 'bg-[#DC2626]/10 text-[#DC2626]'
               }`}>
                 {isCompleted ? <Check className="w-3 h-3 stroke-[2.5]" /> : s.short}
               </span>

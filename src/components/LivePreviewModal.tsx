@@ -33,7 +33,7 @@ export default function LivePreviewModal({
         <div className="p-3 sm:p-4 bg-[#F8FAFD] border-b border-[#E5EDF5] flex flex-wrap items-center justify-between gap-3">
           {/* Left Title & 4-Digit Code */}
           <div className="flex items-center gap-3">
-            <span className="px-2.5 py-1 rounded-lg bg-[#2563EB] text-[#FFFFFF] text-xs font-mono font-bold">
+            <span className="px-2.5 py-1 rounded-lg bg-[#DC2626] text-[#FFFFFF] text-xs font-mono font-bold">
               {demo.fourDigitCode}
             </span>
             <div>
@@ -52,7 +52,7 @@ export default function LivePreviewModal({
               onClick={() => setDeviceMode('desktop')}
               className={`px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                 deviceMode === 'desktop'
-                  ? 'bg-[#2563EB] text-[#FFFFFF] shadow-xs'
+                  ? 'bg-[#DC2626] text-[#FFFFFF] shadow-xs'
                   : 'text-[#64748D] hover:text-[#0D253D]'
               }`}
             >
@@ -63,7 +63,7 @@ export default function LivePreviewModal({
               onClick={() => setDeviceMode('mobile')}
               className={`px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                 deviceMode === 'mobile'
-                  ? 'bg-[#2563EB] text-[#FFFFFF] shadow-xs'
+                  ? 'bg-[#DC2626] text-[#FFFFFF] shadow-xs'
                   : 'text-[#64748D] hover:text-[#0D253D]'
               }`}
             >
@@ -76,7 +76,7 @@ export default function LivePreviewModal({
           <div className="flex items-center gap-2">
             <button
               onClick={() => onOrderThis(demo)}
-              className="px-4 py-2 rounded-xl bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-[#FFFFFF] text-xs font-bold transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
+              className="px-4 py-2 rounded-xl bg-[#DC2626] hover:bg-[#B91C1C] active:bg-[#991B1B] text-[#FFFFFF] text-xs font-bold transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
             >
               <span>এই সাইটটি অর্ডার করুন</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -107,7 +107,7 @@ export default function LivePreviewModal({
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0D253D] via-[#0D253D]/40 to-transparent p-6 sm:p-8 flex flex-col justify-end text-white">
-                <span className="px-3 py-1 rounded-full bg-[#2563EB] text-white text-xs font-bold w-fit mb-2">
+                <span className="px-3 py-1 rounded-full bg-[#DC2626] text-white text-xs font-bold w-fit mb-2">
                   {demo.categoryLabel} • Verified Template
                 </span>
                 <h2 className="text-xl sm:text-2xl md:text-3xl font-black leading-tight text-white mb-2">
@@ -141,7 +141,7 @@ export default function LivePreviewModal({
                 {demo.mockData?.items.map((item, idx) => (
                   <div
                     key={idx}
-                    className="p-3.5 rounded-2xl bg-[#F8FAFD] border border-[#E5EDF5] hover:border-[#2563EB] transition-all flex flex-col justify-between"
+                    className="p-3.5 rounded-2xl bg-[#F8FAFD] border border-[#E5EDF5] hover:border-[#DC2626] transition-all flex flex-col justify-between"
                   >
                     <div className="aspect-[4/3] rounded-xl overflow-hidden mb-3 bg-[#E5EDF5]">
                       <img
@@ -154,13 +154,13 @@ export default function LivePreviewModal({
                       <p className="text-xs font-bold text-[#0D253D] line-clamp-1">
                         {item.name}
                       </p>
-                      <p className="text-xs font-black text-[#2563EB] mt-1">
+                      <p className="text-xs font-black text-[#DC2626] mt-1">
                         {item.price}
                       </p>
                     </div>
                     <button
                       onClick={() => handleTestAddToCart(item.name)}
-                      className="mt-3 w-full py-1.5 px-3 rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] text-[#FFFFFF] text-xs font-bold transition-all"
+                      className="mt-3 w-full py-1.5 px-3 rounded-lg bg-[#DC2626] hover:bg-[#B91C1C] text-[#FFFFFF] text-xs font-bold transition-all"
                     >
                       Add to Order
                     </button>
@@ -169,7 +169,7 @@ export default function LivePreviewModal({
               </div>
 
               {/* Bottom Reassurance in Simulator */}
-              <div className="mt-6 p-4 rounded-xl bg-[#EEF2FF]/40 border border-[#2563EB]/20 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+              <div className="mt-6 p-4 rounded-xl bg-[#EEF2FF]/40 border border-[#DC2626]/20 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
                 <div>
                   <h5 className="text-xs font-bold text-[#0D253D]">
                     পছন্দ হয়েছে? এই ডিজাইনটি দিয়ে আজই আপনার ওয়েবসাইট চালু করুন
@@ -180,7 +180,7 @@ export default function LivePreviewModal({
                 </div>
                 <button
                   onClick={() => onOrderThis(demo)}
-                  className="px-4 py-2 rounded-xl bg-[#2563EB] hover:bg-[#1D4ED8] text-[#FFFFFF] text-xs font-bold transition-all shadow-xs shrink-0"
+                  className="px-4 py-2 rounded-xl bg-[#DC2626] hover:bg-[#B91C1C] text-[#FFFFFF] text-xs font-bold transition-all shadow-xs shrink-0"
                 >
                   কনফার্ম করুন
                 </button>

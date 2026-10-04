@@ -781,7 +781,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
       <div className="w-full min-h-[calc(100vh-120px)] flex flex-col justify-start items-center font-sans pb-28 pt-4 sm:pt-6 relative bg-[#FAF6F0] overflow-x-hidden animate-fadeIn select-none">
         
         {/* Subtle Ambient Background Brand Glow */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-gradient-to-tr from-[#2563EB]/[0.08] via-[#7C3AED]/[0.05] to-[#4F46E5]/[0.05] rounded-full blur-3xl pointer-events-none -z-10" />
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-gradient-to-tr from-[#DC2626]/[0.08] via-[#7C3AED]/[0.05] to-[#4F46E5]/[0.05] rounded-full blur-3xl pointer-events-none -z-10" />
 
         {/* Floating Green WhatsApp Chat Button (Bottom-Right Corner) */}
         <a
@@ -808,7 +808,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
 
           {/* SCREEN 1: LOGIN PAGE */}
           {authMode === 'login' && (
-              <div className="w-full bg-white border border-slate-200/90 rounded-[28px] p-6 sm:p-8 shadow-[0_20px_50px_-12px_rgba(99,102,241,0.12),0_4px_16px_rgba(0,0,0,0.03)] space-y-4 animate-fadeIn">
+              <div className="w-full bg-white border border-slate-200/90 rounded-[28px] p-6 sm:p-8 shadow-[0_20px_50px_-12px_rgba(220,38,38,0.12),0_4px_16px_rgba(0,0,0,0.03)] space-y-4 animate-fadeIn">
                 
                 {/* 1. Top of Card: White Google Sign-In Button */}
                 <button
@@ -852,7 +852,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                         placeholder="Enter your Gmail or email address"
                         value={loginIdentifier}
                         onChange={(e) => setLoginIdentifier(e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50/70 border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/20 transition-all shadow-2xs"
+                        className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50/70 border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#DC2626] focus:ring-2 focus:ring-[#DC2626]/20 transition-all shadow-2xs"
                       />
                     </div>
                   </div>
@@ -870,7 +870,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                         placeholder="Enter your password"
                         value={loginPassword}
                         onChange={(e) => setLoginPassword(e.target.value)}
-                        className="w-full pl-10 pr-10 py-3 rounded-xl bg-slate-50/70 border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/20 transition-all shadow-2xs font-mono"
+                        className="w-full pl-10 pr-10 py-3 rounded-xl bg-slate-50/70 border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#DC2626] focus:ring-2 focus:ring-[#DC2626]/20 transition-all shadow-2xs font-mono"
                       />
                       <button
                         type="button"
@@ -889,7 +889,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                         type="checkbox"
                         checked={rememberMe}
                         onChange={(e) => setRememberMe(e.target.checked)}
-                        className="w-4 h-4 rounded border-slate-300 text-[#2563EB] focus:ring-[#2563EB] cursor-pointer"
+                        className="w-4 h-4 rounded border-slate-300 text-[#DC2626] focus:ring-[#DC2626] cursor-pointer"
                       />
                       <span className="text-slate-600 font-medium">Remember me</span>
                     </label>
@@ -902,7 +902,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                         setForgotOtpSent(false);
                         setForgotEmail(loginIdentifier.includes('@') ? loginIdentifier : '');
                       }}
-                      className="text-xs text-[#2563EB] hover:text-[#7C3AED] underline font-semibold cursor-pointer transition-colors"
+                      className="text-xs text-[#DC2626] hover:text-[#7C3AED] underline font-semibold cursor-pointer transition-colors"
                     >
                       Forgot password?
                     </button>
@@ -913,7 +913,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                     <button
                       type="submit"
                       disabled={loginLoading}
-                      className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#2563EB] to-[#7C3AED] hover:from-[#1D4ED8] hover:to-[#6D28D9] active:scale-[0.99] text-white font-black text-sm sm:text-base shadow-[0_6px_22px_-4px_rgba(99,102,241,0.4)] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+                      className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#DC2626] to-[#7C3AED] hover:from-[#B91C1C] hover:to-[#6D28D9] active:scale-[0.99] text-white font-black text-sm sm:text-base shadow-[0_6px_22px_-4px_rgba(220,38,38,0.4)] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
                     >
                       {loginLoading ? <span>Signing in...</span> : <span>Sign in</span>}
                     </button>
@@ -931,7 +931,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                         setLoginError('');
                         setRegError('');
                       }}
-                      className="text-[#2563EB] hover:text-[#7C3AED] font-bold underline cursor-pointer ml-1 inline-flex items-center gap-1"
+                      className="text-[#DC2626] hover:text-[#7C3AED] font-bold underline cursor-pointer ml-1 inline-flex items-center gap-1"
                     >
                       <span>Sign up</span>
                     </button>
@@ -943,7 +943,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
 
             {/* SCREEN 2: REGISTRATION PAGE */}
             {authMode === 'register' && (
-              <div className="w-full bg-white border border-slate-200/90 rounded-[28px] p-6 sm:p-8 shadow-[0_20px_50px_-12px_rgba(99,102,241,0.12),0_4px_16px_rgba(0,0,0,0.03)] space-y-3.5 animate-fadeIn">
+              <div className="w-full bg-white border border-slate-200/90 rounded-[28px] p-6 sm:p-8 shadow-[0_20px_50px_-12px_rgba(220,38,38,0.12),0_4px_16px_rgba(0,0,0,0.03)] space-y-3.5 animate-fadeIn">
                 
                 {/* 1. Top of Card: White Google Sign-In Button */}
                 <button
@@ -987,7 +987,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                         placeholder="Choose a username"
                         value={regUsername}
                         onChange={(e) => setRegUsername(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50/70 border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/20 transition-all shadow-2xs"
+                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50/70 border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#DC2626] focus:ring-2 focus:ring-[#DC2626]/20 transition-all shadow-2xs"
                       />
                     </div>
                   </div>
@@ -1005,7 +1005,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                         placeholder="Enter your first name"
                         value={regFirstName}
                         onChange={(e) => setRegFirstName(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50/70 border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/20 transition-all shadow-2xs"
+                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50/70 border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#DC2626] focus:ring-2 focus:ring-[#DC2626]/20 transition-all shadow-2xs"
                       />
                     </div>
                   </div>
@@ -1023,7 +1023,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                         placeholder="Enter your last name"
                         value={regLastName}
                         onChange={(e) => setRegLastName(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50/70 border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/20 transition-all shadow-2xs"
+                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50/70 border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#DC2626] focus:ring-2 focus:ring-[#DC2626]/20 transition-all shadow-2xs"
                       />
                     </div>
                   </div>
@@ -1041,7 +1041,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                         placeholder="Create a password"
                         value={regPass}
                         onChange={(e) => setRegPass(e.target.value)}
-                        className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-slate-50/70 border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/20 transition-all shadow-2xs font-mono"
+                        className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-slate-50/70 border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#DC2626] focus:ring-2 focus:ring-[#DC2626]/20 transition-all shadow-2xs font-mono"
                       />
                       <button
                         type="button"
@@ -1066,7 +1066,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                         placeholder="Confirm your password"
                         value={regConfirmPass}
                         onChange={(e) => setRegConfirmPass(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50/70 border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/20 transition-all shadow-2xs font-mono"
+                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50/70 border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#DC2626] focus:ring-2 focus:ring-[#DC2626]/20 transition-all shadow-2xs font-mono"
                       />
                     </div>
                   </div>
@@ -1075,7 +1075,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                   <div className="pt-2">
                     <button
                       type="submit"
-                      className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#2563EB] to-[#7C3AED] hover:from-[#1D4ED8] hover:to-[#6D28D9] active:scale-[0.99] text-white font-black text-sm sm:text-base shadow-[0_6px_22px_-4px_rgba(99,102,241,0.4)] transition-all flex items-center justify-center gap-2 cursor-pointer"
+                      className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#DC2626] to-[#7C3AED] hover:from-[#B91C1C] hover:to-[#6D28D9] active:scale-[0.99] text-white font-black text-sm sm:text-base shadow-[0_6px_22px_-4px_rgba(220,38,38,0.4)] transition-all flex items-center justify-center gap-2 cursor-pointer"
                     >
                       <span>Sign up</span>
                     </button>
@@ -1093,7 +1093,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                         setRegError('');
                         setLoginError('');
                       }}
-                      className="text-[#2563EB] hover:text-[#7C3AED] font-bold underline cursor-pointer ml-1 inline-flex items-center gap-1"
+                      className="text-[#DC2626] hover:text-[#7C3AED] font-bold underline cursor-pointer ml-1 inline-flex items-center gap-1"
                     >
                       <span>Sign in</span>
                     </button>
@@ -1105,12 +1105,12 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
 
             {/* SCREEN 3: EMAIL VERIFICATION PAGE (Comes right after clicking Sign up) */}
             {authMode === 'email-verify' && (
-              <div className="w-full bg-white border border-slate-200/90 rounded-[28px] p-6 sm:p-8 shadow-[0_20px_50px_-12px_rgba(99,102,241,0.12),0_4px_16px_rgba(0,0,0,0.03)] space-y-5 animate-fadeIn">
+              <div className="w-full bg-white border border-slate-200/90 rounded-[28px] p-6 sm:p-8 shadow-[0_20px_50px_-12px_rgba(220,38,38,0.12),0_4px_16px_rgba(0,0,0,0.03)] space-y-5 animate-fadeIn">
                 
                 {/* Top: Small icon / illustration of an email / envelope */}
                 <div className="text-center pt-1">
-                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#2563EB]/10 to-[#7C3AED]/15 border border-[#2563EB]/20 text-[#2563EB] flex items-center justify-center mx-auto mb-3.5 shadow-xs">
-                    <Mail className="w-7 h-7 text-[#2563EB]" />
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#DC2626]/10 to-[#7C3AED]/15 border border-[#DC2626]/20 text-[#DC2626] flex items-center justify-center mx-auto mb-3.5 shadow-xs">
+                    <Mail className="w-7 h-7 text-[#DC2626]" />
                   </div>
                   <h2 className="text-xl sm:text-2xl font-black text-[#0D253D] tracking-tight">
                     Verify your Gmail
@@ -1154,14 +1154,14 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                           placeholder="yourname@gmail.com"
                           value={regEmail}
                           onChange={(e) => setRegEmail(e.target.value)}
-                          className="w-full pl-10 pr-3 py-3 rounded-xl bg-slate-50/70 border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/20 transition-all shadow-2xs"
+                          className="w-full pl-10 pr-3 py-3 rounded-xl bg-slate-50/70 border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#DC2626] focus:ring-2 focus:ring-[#DC2626]/20 transition-all shadow-2xs"
                         />
                       </div>
                       <button
                         type="button"
                         onClick={handleSendEmailOtp}
                         disabled={otpSending || !regEmail.includes('@')}
-                        className="shrink-0 px-4 py-3 rounded-xl bg-gradient-to-r from-[#2563EB] to-[#7C3AED] hover:from-[#1D4ED8] hover:to-[#6D28D9] active:scale-95 text-white font-bold text-xs sm:text-sm shadow-xs transition-all cursor-pointer disabled:opacity-50"
+                        className="shrink-0 px-4 py-3 rounded-xl bg-gradient-to-r from-[#DC2626] to-[#7C3AED] hover:from-[#B91C1C] hover:to-[#6D28D9] active:scale-95 text-white font-bold text-xs sm:text-sm shadow-xs transition-all cursor-pointer disabled:opacity-50"
                       >
                         {otpSending ? 'Sending...' : otpSent ? 'Resend' : 'Send Code'}
                       </button>
@@ -1181,7 +1181,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                           placeholder="Enter code"
                           value={emailOtpCode}
                           onChange={(e) => setEmailOtpCode(e.target.value.replace(/\D/g, ''))}
-                          className="flex-1 px-3 py-2 rounded-xl bg-white border border-slate-200 text-center font-mono font-bold tracking-widest text-sm text-[#0D253D] focus:outline-none focus:border-[#2563EB]"
+                          className="flex-1 px-3 py-2 rounded-xl bg-white border border-slate-200 text-center font-mono font-bold tracking-widest text-sm text-[#0D253D] focus:outline-none focus:border-[#DC2626]"
                         />
                         <button
                           type="button"
@@ -1203,7 +1203,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                     <button
                       type="submit"
                       disabled={regSubmitting}
-                      className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#2563EB] to-[#7C3AED] hover:from-[#1D4ED8] hover:to-[#6D28D9] active:scale-[0.99] text-white font-black text-sm sm:text-base shadow-[0_6px_22px_-4px_rgba(99,102,241,0.4)] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+                      className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#DC2626] to-[#7C3AED] hover:from-[#B91C1C] hover:to-[#6D28D9] active:scale-[0.99] text-white font-black text-sm sm:text-base shadow-[0_6px_22px_-4px_rgba(220,38,38,0.4)] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
                     >
                       {regSubmitting ? <span>Finalizing registration...</span> : <span>Continue</span>}
                     </button>
@@ -1220,7 +1220,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                         setAuthMode('login');
                         setRegError('');
                       }}
-                      className="text-[#2563EB] hover:text-[#7C3AED] font-bold underline cursor-pointer ml-1 inline-flex items-center gap-1"
+                      className="text-[#DC2626] hover:text-[#7C3AED] font-bold underline cursor-pointer ml-1 inline-flex items-center gap-1"
                     >
                       <span>Sign in</span>
                     </button>
@@ -1245,7 +1245,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
               </button>
 
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-indigo-50 text-[#2563EB] flex items-center justify-center shadow-xs">
+                <div className="w-10 h-10 rounded-2xl bg-indigo-50 text-[#DC2626] flex items-center justify-center shadow-xs">
                   <Key className="w-5 h-5" />
                 </div>
                 <div>
@@ -1292,7 +1292,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                         placeholder="yourname@gmail.com"
                         value={forgotEmail}
                         onChange={(e) => setForgotEmail(e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50/80 border border-slate-200 text-xs sm:text-sm text-[#0D253D] placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#2563EB] focus:ring-3 focus:ring-[#2563EB]/15 transition-all shadow-2xs"
+                        className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50/80 border border-slate-200 text-xs sm:text-sm text-[#0D253D] placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#DC2626] focus:ring-3 focus:ring-[#DC2626]/15 transition-all shadow-2xs"
                       />
                     </div>
                   </div>
@@ -1301,7 +1301,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                     <button
                       type="submit"
                       disabled={forgotLoading || !forgotEmail.includes('@')}
-                      className="flex-1 py-3 rounded-xl bg-gradient-to-r from-[#2563EB] to-[#1D4ED8] text-white text-xs font-bold hover:from-[#1D4ED8] hover:to-[#1E40AF] transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-60 shadow-xs"
+                      className="flex-1 py-3 rounded-xl bg-gradient-to-r from-[#DC2626] to-[#B91C1C] text-white text-xs font-bold hover:from-[#B91C1C] hover:to-[#991B1B] transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-60 shadow-xs"
                     >
                       {forgotLoading ? (
                         <span>Sending code...</span>
@@ -1346,7 +1346,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                       placeholder="6-digit OTP"
                       value={forgotOtpCode}
                       onChange={(e) => setForgotOtpCode(e.target.value.replace(/\D/g, ''))}
-                      className="w-full px-4 py-2.5 rounded-xl bg-slate-50/80 border border-slate-200 text-sm text-[#0D253D] font-mono tracking-[0.25em] text-center font-bold focus:outline-none focus:bg-white focus:border-[#2563EB] focus:ring-3 focus:ring-[#2563EB]/15 transition-all shadow-2xs"
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-50/80 border border-slate-200 text-sm text-[#0D253D] font-mono tracking-[0.25em] text-center font-bold focus:outline-none focus:bg-white focus:border-[#DC2626] focus:ring-3 focus:ring-[#DC2626]/15 transition-all shadow-2xs"
                     />
                   </div>
 
@@ -1360,7 +1360,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                       placeholder="At least 4 characters"
                       value={forgotNewPass}
                       onChange={(e) => setForgotNewPass(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl bg-slate-50/80 border border-slate-200 text-xs sm:text-sm text-[#0D253D] focus:outline-none focus:bg-white focus:border-[#2563EB] focus:ring-3 focus:ring-[#2563EB]/15 transition-all shadow-2xs font-mono"
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-50/80 border border-slate-200 text-xs sm:text-sm text-[#0D253D] focus:outline-none focus:bg-white focus:border-[#DC2626] focus:ring-3 focus:ring-[#DC2626]/15 transition-all shadow-2xs font-mono"
                     />
                   </div>
 
@@ -1374,7 +1374,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                       placeholder="Re-enter password"
                       value={forgotConfirmPass}
                       onChange={(e) => setForgotConfirmPass(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl bg-slate-50/80 border border-slate-200 text-xs sm:text-sm text-[#0D253D] focus:outline-none focus:bg-white focus:border-[#2563EB] focus:ring-3 focus:ring-[#2563EB]/15 transition-all shadow-2xs font-mono"
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-50/80 border border-slate-200 text-xs sm:text-sm text-[#0D253D] focus:outline-none focus:bg-white focus:border-[#DC2626] focus:ring-3 focus:ring-[#DC2626]/15 transition-all shadow-2xs font-mono"
                     />
                   </div>
 
@@ -1421,13 +1421,13 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
           <div className="flex items-center justify-between">
             <button
               onClick={() => navigateSubView('overview')}
-              className="px-3.5 py-2 rounded-xl bg-[#F8FAFD] hover:bg-[#EEF2FF] text-[#2563EB] border border-[#E5EDF5] text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
+              className="px-3.5 py-2 rounded-xl bg-[#F8FAFD] hover:bg-[#EEF2FF] text-[#DC2626] border border-[#E5EDF5] text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>← অ্যাকাউন্টে ফিরে যান</span>
             </button>
 
-            <span className="px-3 py-1 rounded-full bg-[#EEF2FF] text-[#2563EB] text-xs font-bold font-mono">
+            <span className="px-3 py-1 rounded-full bg-[#EEF2FF] text-[#DC2626] text-xs font-bold font-mono">
               মোট অর্ডার: {userOrders.length} টি
             </span>
           </div>
@@ -1443,7 +1443,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
 
           {userOrders.length === 0 ? (
             <div className="p-8 sm:p-12 rounded-3xl bg-[#FFFFFF] border border-[#E5EDF5] text-center space-y-3 shadow-xs">
-              <div className="w-14 h-14 rounded-2xl bg-[#EEF2FF] text-[#2563EB] flex items-center justify-center mx-auto">
+              <div className="w-14 h-14 rounded-2xl bg-[#EEF2FF] text-[#DC2626] flex items-center justify-center mx-auto">
                 <ShoppingBag className="w-7 h-7" />
               </div>
               <h3 className="text-base font-bold text-[#0D253D]">
@@ -1455,7 +1455,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
               {onGoToDashboard && (
                 <button
                   onClick={onGoToDashboard}
-                  className="mt-2 px-6 py-2.5 rounded-xl bg-[#2563EB] text-white text-xs font-bold hover:bg-[#1D4ED8] cursor-pointer shadow-xs inline-flex items-center gap-1.5"
+                  className="mt-2 px-6 py-2.5 rounded-xl bg-[#DC2626] text-white text-xs font-bold hover:bg-[#B91C1C] cursor-pointer shadow-xs inline-flex items-center gap-1.5"
                 >
                   <span>ওয়েবসাইট তালিকা দেখুন</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -1467,14 +1467,14 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
               {userOrders.map((ord, idx) => (
                 <div
                   key={idx}
-                  className="p-5 rounded-2xl bg-[#FFFFFF] border border-[#E5EDF5] hover:border-[#2563EB]/40 transition-all shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+                  className="p-5 rounded-2xl bg-[#FFFFFF] border border-[#E5EDF5] hover:border-[#DC2626]/40 transition-all shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
                 >
                   <div className="space-y-1.5 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="px-2.5 py-0.5 rounded-lg bg-[#2563EB] text-white font-mono font-black text-xs">
+                      <span className="px-2.5 py-0.5 rounded-lg bg-[#DC2626] text-white font-mono font-black text-xs">
                         {ord.orderId}
                       </span>
-                      <span className="px-2 py-0.5 rounded-md bg-[#EEF2FF] text-[#2563EB] text-[11px] font-bold">
+                      <span className="px-2 py-0.5 rounded-md bg-[#EEF2FF] text-[#DC2626] text-[11px] font-bold">
                         {ord.demoCode}
                       </span>
                       <span className="text-sm font-bold text-[#0D253D] truncate">
@@ -1488,7 +1488,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
 
                     <div className="flex items-center gap-3 text-xs text-[#273951] pt-1">
                       <span>তারিখ: <strong>{ord.createdAt}</strong></span>
-                      <span>মেকিং: <strong className="text-[#2563EB]">১,৯৯০ ৳</strong></span>
+                      <span>মেকিং: <strong className="text-[#DC2626]">১,৯৯০ ৳</strong></span>
                       <span>TrxID: <strong className="font-mono text-[#00B261]">{ord.transactionId}</strong></span>
                     </div>
                   </div>
@@ -1498,7 +1498,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                       ord.status === 'completed'
                         ? 'bg-[#00B261]/15 text-[#008A4B] border border-[#00B261]/30'
                         : ord.status === 'processing' || ord.status === 'verified'
-                        ? 'bg-[#2563EB]/15 text-[#2563EB] border border-[#2563EB]/30'
+                        ? 'bg-[#DC2626]/15 text-[#DC2626] border border-[#DC2626]/30'
                         : ord.status === 'cancelled'
                         ? 'bg-[#E53935]/15 text-[#E53935] border border-[#E53935]/30'
                         : 'bg-[#FFD552]/20 text-[#8A6D00] border border-[#FFD552]'
@@ -1510,7 +1510,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                         </>
                       ) : ord.status === 'processing' || ord.status === 'verified' ? (
                         <>
-                          <span className="w-2 h-2 rounded-full bg-[#2563EB] animate-pulse" />
+                          <span className="w-2 h-2 rounded-full bg-[#DC2626] animate-pulse" />
                           <span>অনুমোদিত (প্রসেসিং)</span>
                         </>
                       ) : ord.status === 'cancelled' ? (
@@ -1525,7 +1525,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
 
                     <button
                       onClick={() => setSelectedReceiptOrder(ord)}
-                      className="px-3.5 py-1.5 rounded-xl bg-[#F8FAFD] hover:bg-[#EEF2FF] text-[#2563EB] border border-[#E5EDF5] text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
+                      className="px-3.5 py-1.5 rounded-xl bg-[#F8FAFD] hover:bg-[#EEF2FF] text-[#DC2626] border border-[#E5EDF5] text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
                     >
                       <Eye className="w-3.5 h-3.5" />
                       <span>রসিদ দেখুন</span>
@@ -1554,7 +1554,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
           <div className="flex items-center justify-between">
             <button
               onClick={() => navigateSubView('overview')}
-              className="px-3.5 py-2 rounded-xl bg-[#F8FAFD] hover:bg-[#EEF2FF] text-[#2563EB] border border-[#E5EDF5] text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
+              className="px-3.5 py-2 rounded-xl bg-[#F8FAFD] hover:bg-[#EEF2FF] text-[#DC2626] border border-[#E5EDF5] text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>← অ্যাকাউন্টে ফিরে যান</span>
@@ -1591,7 +1591,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
               <div className="pt-2">
                 <button
                   onClick={() => navigateSubView('overview')}
-                  className="px-6 py-2.5 rounded-xl bg-[#2563EB] text-white text-xs font-bold hover:bg-[#1D4ED8] cursor-pointer shadow-xs inline-flex items-center gap-1.5"
+                  className="px-6 py-2.5 rounded-xl bg-[#DC2626] text-white text-xs font-bold hover:bg-[#B91C1C] cursor-pointer shadow-xs inline-flex items-center gap-1.5"
                 >
                   <span>অ্যাকাউন্ট ওভারভিউতে ফিরুন</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -1614,10 +1614,10 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                 >
                   <div className="space-y-1.5 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="px-2.5 py-0.5 rounded-lg bg-[#2563EB] text-white font-mono font-black text-xs">
+                      <span className="px-2.5 py-0.5 rounded-lg bg-[#DC2626] text-white font-mono font-black text-xs">
                         {ord.orderId}
                       </span>
-                      <span className="px-2 py-0.5 rounded-md bg-[#EEF2FF] text-[#2563EB] text-[11px] font-bold">
+                      <span className="px-2 py-0.5 rounded-md bg-[#EEF2FF] text-[#DC2626] text-[11px] font-bold">
                         {ord.demoCode}
                       </span>
                       <span className="text-sm font-bold text-[#0D253D] truncate">
@@ -1631,7 +1631,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
 
                     <div className="flex items-center gap-3 text-xs text-[#273951] pt-1">
                       <span>তারিখ: <strong>{ord.createdAt}</strong></span>
-                      <span>মেকিং চার্জ: <strong className="text-[#2563EB]">১,৯৯০ ৳</strong></span>
+                      <span>মেকিং চার্জ: <strong className="text-[#DC2626]">১,৯৯০ ৳</strong></span>
                       <span>পেমেন্ট: <strong>{ord.paymentMethod.toUpperCase()}</strong></span>
                       <span>TrxID: <strong className="font-mono text-[#00B261]">{ord.transactionId}</strong></span>
                     </div>
@@ -1644,7 +1644,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
 
                     <button
                       onClick={() => setSelectedReceiptOrder(ord)}
-                      className="px-3.5 py-1.5 rounded-xl bg-[#F8FAFD] hover:bg-[#EEF2FF] text-[#2563EB] border border-[#E5EDF5] text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
+                      className="px-3.5 py-1.5 rounded-xl bg-[#F8FAFD] hover:bg-[#EEF2FF] text-[#DC2626] border border-[#E5EDF5] text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
                     >
                       <Eye className="w-3.5 h-3.5" />
                       <span>রসিদ দেখুন</span>
@@ -1672,7 +1672,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
           <div className="flex items-center justify-between">
             <button
               onClick={() => navigateSubView('overview')}
-              className="px-3.5 py-2 rounded-xl bg-[#F8FAFD] hover:bg-[#EEF2FF] text-[#2563EB] border border-[#E5EDF5] text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
+              className="px-3.5 py-2 rounded-xl bg-[#F8FAFD] hover:bg-[#EEF2FF] text-[#DC2626] border border-[#E5EDF5] text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>← অ্যাকাউন্টে ফিরে যান</span>
@@ -1682,7 +1682,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
 
           <div className="bg-[#FFFFFF] border border-[#E5EDF5] rounded-3xl p-6 sm:p-8 shadow-xs space-y-4">
             <div className="flex items-center gap-2.5 pb-3 border-b border-[#E5EDF5]">
-              <ShieldCheck className="w-6 h-6 text-[#2563EB]" />
+              <ShieldCheck className="w-6 h-6 text-[#DC2626]" />
               <h1 className="text-lg sm:text-xl font-black text-[#0D253D]">
                 গোপনীয়তা নীতিমালা (Privacy Policy)
               </h1>
@@ -1721,7 +1721,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
           <div className="flex items-center justify-between">
             <button
               onClick={() => navigateSubView('overview')}
-              className="px-3.5 py-2 rounded-xl bg-[#F8FAFD] hover:bg-[#EEF2FF] text-[#2563EB] border border-[#E5EDF5] text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
+              className="px-3.5 py-2 rounded-xl bg-[#F8FAFD] hover:bg-[#EEF2FF] text-[#DC2626] border border-[#E5EDF5] text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>← অ্যাকাউন্টে ফিরে যান</span>
@@ -1731,7 +1731,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
 
           <div className="bg-[#FFFFFF] border border-[#E5EDF5] rounded-3xl p-6 sm:p-8 shadow-xs space-y-4">
             <div className="flex items-center gap-2.5 pb-3 border-b border-[#E5EDF5]">
-              <FileText className="w-6 h-6 text-[#2563EB]" />
+              <FileText className="w-6 h-6 text-[#DC2626]" />
               <h1 className="text-lg sm:text-xl font-black text-[#0D253D]">
                 শর্তাবলি ও ব্যবহারের নিয়ম (Terms & Conditions)
               </h1>
@@ -1771,7 +1771,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
           </button>
 
           <div className="text-center pb-4 border-b border-[#E5EDF5]">
-            <span className="px-3 py-1 rounded-full bg-[#EEF2FF] text-[#2563EB] text-xs font-black font-mono">
+            <span className="px-3 py-1 rounded-full bg-[#EEF2FF] text-[#DC2626] text-xs font-black font-mono">
               {selectedReceiptOrder.orderId}
             </span>
             <h3 className="text-lg font-black text-[#0D253D] mt-2">
@@ -1813,7 +1813,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
             </div>
             <div className="flex justify-between py-1.5 border-b border-[#E5EDF5]">
               <span className="text-[#64748D]">মাসিক মেইনটেন্যান্স:</span>
-              <span className="font-bold text-[#2563EB]">১২০ ৳ / মাস</span>
+              <span className="font-bold text-[#DC2626]">১২০ ৳ / মাস</span>
             </div>
             <div className="flex justify-between py-1.5">
               <span className="text-[#64748D]">স্ট্যাটাস:</span>
@@ -1821,7 +1821,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                 selectedReceiptOrder.status === 'completed'
                   ? 'text-[#008A4B]'
                   : selectedReceiptOrder.status === 'processing' || selectedReceiptOrder.status === 'verified'
-                  ? 'text-[#2563EB]'
+                  ? 'text-[#DC2626]'
                   : selectedReceiptOrder.status === 'cancelled'
                   ? 'text-[#E53935]'
                   : 'text-[#D8351E]'
@@ -1840,14 +1840,14 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
           <div className="pt-2 flex gap-2">
             <button
               onClick={() => window.print()}
-              className="flex-1 py-2.5 rounded-xl bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+              className="flex-1 py-2.5 rounded-xl bg-[#DC2626] hover:bg-[#B91C1C] text-white text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
             >
               <Printer className="w-3.5 h-3.5" />
               <span>প্রিন্ট / ডাউনলোড</span>
             </button>
             <button
               onClick={() => setSelectedReceiptOrder(null)}
-              className="px-4 py-2.5 rounded-xl bg-[#F8FAFD] hover:bg-[#EEF2FF] text-[#2563EB] border border-[#E5EDF5] text-xs font-bold cursor-pointer"
+              className="px-4 py-2.5 rounded-xl bg-[#F8FAFD] hover:bg-[#EEF2FF] text-[#DC2626] border border-[#E5EDF5] text-xs font-bold cursor-pointer"
             >
               বন্ধ করুন
             </button>
@@ -1945,7 +1945,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                       </div>
                       <button
                         onClick={() => handleCopyText(cred.websiteAdminId, `id-${cred.id}`)}
-                        className="px-2.5 py-1 rounded-lg bg-[#F8FAFD] hover:bg-[#EEF2FF] text-[#2563EB] border border-[#E5EDF5] text-[11px] font-bold transition-all flex items-center gap-1 cursor-pointer"
+                        className="px-2.5 py-1 rounded-lg bg-[#F8FAFD] hover:bg-[#EEF2FF] text-[#DC2626] border border-[#E5EDF5] text-[11px] font-bold transition-all flex items-center gap-1 cursor-pointer"
                         title="আইডি কপি করুন"
                       >
                         {copiedField === `id-${cred.id}` ? <Check className="w-3.5 h-3.5 text-[#00B261]" /> : <Copy className="w-3.5 h-3.5" />}
@@ -1958,13 +1958,13 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                         <span className="text-[10px] text-[#64748D] font-bold block uppercase">
                           ওয়েবসাইট অ্যাডমিন পাসওয়ার্ড:
                         </span>
-                        <span className="text-sm font-mono font-black text-[#2563EB] select-all">
+                        <span className="text-sm font-mono font-black text-[#DC2626] select-all">
                           {cred.websiteAdminPass}
                         </span>
                       </div>
                       <button
                         onClick={() => handleCopyText(cred.websiteAdminPass, `pass-${cred.id}`)}
-                        className="px-2.5 py-1 rounded-lg bg-[#F8FAFD] hover:bg-[#EEF2FF] text-[#2563EB] border border-[#E5EDF5] text-[11px] font-bold transition-all flex items-center gap-1 cursor-pointer"
+                        className="px-2.5 py-1 rounded-lg bg-[#F8FAFD] hover:bg-[#EEF2FF] text-[#DC2626] border border-[#E5EDF5] text-[11px] font-bold transition-all flex items-center gap-1 cursor-pointer"
                         title="পাসওয়ার্ড কপি করুন"
                       >
                         {copiedField === `pass-${cred.id}` ? <Check className="w-3.5 h-3.5 text-[#00B261]" /> : <Copy className="w-3.5 h-3.5" />}
@@ -1991,11 +1991,11 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
         <div className="bg-[#FFFFFF] border border-[#E5EDF5] rounded-3xl p-6 sm:p-8 shadow-xs space-y-5">
           <div className="flex items-center justify-between border-b border-[#E5EDF5] pb-4">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-[#2563EB] text-white flex items-center justify-center font-black text-lg shadow-xs">
+              <div className="w-12 h-12 rounded-2xl bg-[#DC2626] text-white flex items-center justify-center font-black text-lg shadow-xs">
                 {currentUser.name.charAt(0).toUpperCase()}
               </div>
               <div>
-                <span className="px-2.5 py-0.5 rounded-full bg-[#EEF2FF] text-[#2563EB] text-[10px] font-bold">
+                <span className="px-2.5 py-0.5 rounded-full bg-[#EEF2FF] text-[#DC2626] text-[10px] font-bold">
                   সক্রিয় ক্লায়েন্ট অ্যাকাউন্ট
                 </span>
                 <h2 className="text-base sm:text-lg font-black text-[#0D253D] mt-0.5">
@@ -2007,7 +2007,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
               <button
                 type="button"
                 onClick={() => setShowSecurityCodeModal(true)}
-                className="px-3.5 py-1.5 rounded-xl bg-[#EEF2FF] hover:bg-[#2563EB] text-[#2563EB] hover:text-white border border-[#2563EB]/30 text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                className="px-3.5 py-1.5 rounded-xl bg-[#EEF2FF] hover:bg-[#DC2626] text-[#DC2626] hover:text-white border border-[#DC2626]/30 text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
                 title="৫-মিনিটের সিকিউরিটি কোড দেখুন"
               >
                 <ShieldCheck className="w-4 h-4" />
@@ -2043,7 +2043,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
               <span className="text-[10px] font-bold text-[#64748D] uppercase block">
                 Phone Number (রেজিস্ট্রেশন মোবাইল)
               </span>
-              <p className="text-sm font-mono font-bold text-[#2563EB] select-all">
+              <p className="text-sm font-mono font-bold text-[#DC2626] select-all">
                 {currentUser.phone}
               </p>
             </div>
@@ -2058,7 +2058,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                 setReportSuccess('');
                 setShowReportModal(true);
               }}
-              className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-[#EEF2FF] hover:bg-[#2563EB] text-[#2563EB] hover:text-white border border-[#2563EB]/30 text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
+              className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-[#EEF2FF] hover:bg-[#DC2626] text-[#DC2626] hover:text-white border border-[#DC2626]/30 text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
             >
               <Flag className="w-4 h-4" />
               <span>রিপোর্ট / অভিযোগ জানান (Submit Report)</span>
@@ -2088,12 +2088,12 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
           <button
             type="button"
             onClick={() => navigateSubView('total-orders')}
-            className="p-4 rounded-2xl bg-[#FFFFFF] border-2 border-[#2563EB]/30 hover:border-[#2563EB] text-center shadow-xs transition-all hover:scale-[1.02] cursor-pointer group text-left sm:text-center"
+            className="p-4 rounded-2xl bg-[#FFFFFF] border-2 border-[#DC2626]/30 hover:border-[#DC2626] text-center shadow-xs transition-all hover:scale-[1.02] cursor-pointer group text-left sm:text-center"
           >
-            <span className="text-2xl sm:text-3xl font-black text-[#2563EB] block">
+            <span className="text-2xl sm:text-3xl font-black text-[#DC2626] block">
               {userOrders.length}
             </span>
-            <p className="text-xs font-bold text-[#0D253D] mt-1 group-hover:text-[#2563EB] flex items-center justify-center gap-1">
+            <p className="text-xs font-bold text-[#0D253D] mt-1 group-hover:text-[#DC2626] flex items-center justify-center gap-1">
               <span>মোট Order</span>
               <ArrowRight className="w-3.5 h-3.5 opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
             </p>
@@ -2137,7 +2137,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
 
           {/* Stat 4: মাসিক মেইনটেন্যান্স */}
           <div className="p-4 rounded-2xl bg-[#FFFFFF] border border-[#E5EDF5] text-center shadow-2xs">
-            <span className="text-xl sm:text-2xl font-black text-[#2563EB] block">
+            <span className="text-xl sm:text-2xl font-black text-[#DC2626] block">
               ১২০ ৳
             </span>
             <p className="text-xs font-bold text-[#0D253D] mt-1">মাসিক মেইনটেন্যান্স</p>
@@ -2162,13 +2162,13 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
             {/* Privacy Policy */}
             <button
               onClick={() => navigateSubView('privacy')}
-              className="p-4 rounded-2xl bg-[#F8FAFD] hover:bg-[#EEF2FF] border border-[#E5EDF5] hover:border-[#2563EB]/30 text-left transition-all cursor-pointer group shadow-2xs"
+              className="p-4 rounded-2xl bg-[#F8FAFD] hover:bg-[#EEF2FF] border border-[#E5EDF5] hover:border-[#DC2626]/30 text-left transition-all cursor-pointer group shadow-2xs"
             >
               <div className="flex items-center justify-between mb-2">
-                <ShieldCheck className="w-5 h-5 text-[#2563EB]" />
-                <ArrowRight className="w-4 h-4 text-[#64748D] group-hover:text-[#2563EB] group-hover:translate-x-0.5 transition-all" />
+                <ShieldCheck className="w-5 h-5 text-[#DC2626]" />
+                <ArrowRight className="w-4 h-4 text-[#64748D] group-hover:text-[#DC2626] group-hover:translate-x-0.5 transition-all" />
               </div>
-              <h4 className="text-xs sm:text-sm font-bold text-[#0D253D] group-hover:text-[#2563EB]">
+              <h4 className="text-xs sm:text-sm font-bold text-[#0D253D] group-hover:text-[#DC2626]">
                 Privacy Policy
               </h4>
               <p className="text-[11px] text-[#64748D] mt-0.5">
@@ -2179,13 +2179,13 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
             {/* Terms & Conditions */}
             <button
               onClick={() => navigateSubView('terms')}
-              className="p-4 rounded-2xl bg-[#F8FAFD] hover:bg-[#EEF2FF] border border-[#E5EDF5] hover:border-[#2563EB]/30 text-left transition-all cursor-pointer group shadow-2xs"
+              className="p-4 rounded-2xl bg-[#F8FAFD] hover:bg-[#EEF2FF] border border-[#E5EDF5] hover:border-[#DC2626]/30 text-left transition-all cursor-pointer group shadow-2xs"
             >
               <div className="flex items-center justify-between mb-2">
-                <FileText className="w-5 h-5 text-[#2563EB]" />
-                <ArrowRight className="w-4 h-4 text-[#64748D] group-hover:text-[#2563EB] group-hover:translate-x-0.5 transition-all" />
+                <FileText className="w-5 h-5 text-[#DC2626]" />
+                <ArrowRight className="w-4 h-4 text-[#64748D] group-hover:text-[#DC2626] group-hover:translate-x-0.5 transition-all" />
               </div>
-              <h4 className="text-xs sm:text-sm font-bold text-[#0D253D] group-hover:text-[#2563EB]">
+              <h4 className="text-xs sm:text-sm font-bold text-[#0D253D] group-hover:text-[#DC2626]">
                 Terms & Conditions
               </h4>
               <p className="text-[11px] text-[#64748D] mt-0.5">
@@ -2197,7 +2197,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
             <div className="p-4 rounded-2xl bg-[#F8FAFD] border border-[#E5EDF5] space-y-2.5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5 text-xs font-bold text-[#0D253D]">
-                  <Languages className="w-4 h-4 text-[#2563EB]" />
+                  <Languages className="w-4 h-4 text-[#DC2626]" />
                   <span>ভাষা পরিবর্তন (Language)</span>
                 </div>
               </div>
@@ -2208,7 +2208,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                   onClick={() => setSelectedLanguage('bn')}
                   className={`py-1.5 px-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                     selectedLanguage === 'bn'
-                      ? 'bg-[#2563EB] text-white shadow-xs'
+                      ? 'bg-[#DC2626] text-white shadow-xs'
                       : 'bg-white text-[#64748D] border border-[#E5EDF5] hover:text-[#0D253D]'
                   }`}
                 >
@@ -2220,7 +2220,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                   onClick={() => setSelectedLanguage('en')}
                   className={`py-1.5 px-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                     selectedLanguage === 'en'
-                      ? 'bg-[#2563EB] text-white shadow-xs'
+                      ? 'bg-[#DC2626] text-white shadow-xs'
                       : 'bg-white text-[#64748D] border border-[#E5EDF5] hover:text-[#0D253D]'
                   }`}
                 >
@@ -2268,7 +2268,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                       setShowSecurityCodeModal(false);
                       setAuthMode('register');
                     }}
-                    className="flex-1 py-2.5 rounded-xl bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
+                    className="flex-1 py-2.5 rounded-xl bg-[#DC2626] hover:bg-[#B91C1C] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
                   >
                     Account তৈরি করুন
                   </button>
@@ -2284,11 +2284,11 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
             ) : (
               <div className="space-y-4 pt-1">
                 <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-2xl bg-[#EEF2FF] text-[#2563EB] flex items-center justify-center shadow-xs">
+                  <div className="w-11 h-11 rounded-2xl bg-[#EEF2FF] text-[#DC2626] flex items-center justify-center shadow-xs">
                     <ShieldCheck className="w-6 h-6" />
                   </div>
                   <div>
-                    <span className="text-[10px] font-bold text-[#2563EB] uppercase tracking-wider block">
+                    <span className="text-[10px] font-bold text-[#DC2626] uppercase tracking-wider block">
                       ভেরিফিকেশন সুরক্ষা কোড
                     </span>
                     <h3 className="text-base font-black text-[#0D253D]">
@@ -2297,11 +2297,11 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                   </div>
                 </div>
 
-                <div className="p-5 rounded-2xl bg-[#F8FAFD] border-2 border-[#2563EB]/30 text-center space-y-2">
+                <div className="p-5 rounded-2xl bg-[#F8FAFD] border-2 border-[#DC2626]/30 text-center space-y-2">
                   <span className="text-xs text-[#64748D] font-medium block">
                     আপনার বর্তমান ৫-মিনিটের সক্রিয় সিকিউরিটি কোড:
                   </span>
-                  <div className="text-3xl sm:text-4xl font-black font-mono tracking-[0.25em] text-[#2563EB] select-all py-1">
+                  <div className="text-3xl sm:text-4xl font-black font-mono tracking-[0.25em] text-[#DC2626] select-all py-1">
                     {getClientSecurityCode(currentUser.phone || currentUser.email)}
                   </div>
                   <div className="flex items-center justify-center gap-1.5 text-xs text-[#64748D] font-medium">
@@ -2321,7 +2321,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                   className={`w-full py-3 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs ${
                     securityCodeCopied
                       ? 'bg-[#00B261] text-white'
-                      : 'bg-[#2563EB] hover:bg-[#1D4ED8] text-white'
+                      : 'bg-[#DC2626] hover:bg-[#B91C1C] text-white'
                   }`}
                 >
                   {securityCodeCopied ? (
@@ -2358,7 +2358,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
             </button>
 
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-[#EEF2FF] text-[#2563EB] flex items-center justify-center shadow-xs">
+              <div className="w-10 h-10 rounded-2xl bg-[#EEF2FF] text-[#DC2626] flex items-center justify-center shadow-xs">
                 <Flag className="w-5 h-5" />
               </div>
               <div>
@@ -2389,7 +2389,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                 <div className="p-3.5 rounded-2xl bg-[#F8FAFD] border border-[#E5EDF5] space-y-2 text-xs">
                   <div className="flex items-center justify-between">
                     <span className="text-[#64748D]">ক্লায়েন্ট আইডি:</span>
-                    <span className="font-mono font-bold text-[#2563EB] bg-[#EEF2FF] px-2.5 py-0.5 rounded-md">
+                    <span className="font-mono font-bold text-[#DC2626] bg-[#EEF2FF] px-2.5 py-0.5 rounded-md">
                       {currentUser?.clientId || (currentUser?.phone ? `#BW-USER-${currentUser.phone.slice(-4)}` : '#BW-CLIENT')}
                     </span>
                   </div>
@@ -2413,7 +2413,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                     value={reportMessage}
                     onChange={(e) => setReportMessage(e.target.value)}
                     placeholder="আপনার অভিযোগ, ওয়েবসাইটের সমস্যা বা যেকোনো প্রশ্ন বিস্তারিত লিখুন..."
-                    className="w-full p-3.5 rounded-2xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs text-[#0D253D] focus:outline-none focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] resize-none"
+                    className="w-full p-3.5 rounded-2xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs text-[#0D253D] focus:outline-none focus:border-[#DC2626] focus:ring-1 focus:ring-[#DC2626] resize-none"
                   />
                 </div>
 
@@ -2421,7 +2421,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                   <button
                     type="submit"
                     disabled={reportLoading || !reportMessage.trim()}
-                    className="flex-1 py-3 rounded-xl bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 shadow-xs"
+                    className="flex-1 py-3 rounded-xl bg-[#DC2626] hover:bg-[#B91C1C] text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 shadow-xs"
                   >
                     <Flag className="w-3.5 h-3.5" />
                     <span>{reportLoading ? 'পাঠানো হচ্ছে...' : 'রিপোর্ট পাঠান (Send Report)'}</span>
