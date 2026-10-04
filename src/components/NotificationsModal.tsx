@@ -105,7 +105,7 @@ export default function NotificationsModal({
         {/* Header */}
         <div className="p-4 sm:p-5 bg-[#F8FAFD] border-b border-[#E5EDF5] flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-[#E2E4FF] text-[#533AFD] flex items-center justify-center font-bold">
+            <div className="w-8 h-8 rounded-xl bg-[#EEF2FF] text-[#2563EB] flex items-center justify-center font-bold">
               <Bell className="w-4 h-4 stroke-[2.2]" />
             </div>
             <div>
@@ -125,7 +125,7 @@ export default function NotificationsModal({
                   setNotifications([]);
                   onClearAll();
                 }}
-                className="text-[11px] font-semibold text-[#533AFD] hover:text-[#665EFD] flex items-center gap-1 cursor-pointer"
+                className="text-[11px] font-semibold text-[#2563EB] hover:text-[#1D4ED8] flex items-center gap-1 cursor-pointer"
               >
                 <CheckCheck className="w-3.5 h-3.5" />
                 <span>ক্লিয়ার</span>
@@ -162,14 +162,14 @@ export default function NotificationsModal({
                     onClose();
                   }
                 }}
-                className={`p-3.5 rounded-2xl border transition-all cursor-pointer hover:border-[#533AFD]/50 ${
+                className={`p-3.5 rounded-2xl border transition-all cursor-pointer hover:border-[#2563EB]/50 ${
                   item.isUnread
-                    ? 'bg-[#E2E4FF]/40 border-[#533AFD]/30 shadow-2xs'
+                    ? 'bg-[#EEF2FF]/40 border-[#2563EB]/30 shadow-2xs'
                     : 'bg-[#F8FAFD] border-[#E5EDF5]'
                 }`}
               >
                 <div className="flex items-start gap-2.5">
-                  <span className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${item.isUnread ? 'bg-[#533AFD]' : 'bg-[#94A3B8]'}`} />
+                  <span className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${item.isUnread ? 'bg-[#2563EB]' : 'bg-[#94A3B8]'}`} />
                   <div className="flex-1">
                     <p className="text-xs font-bold text-[#0D253D] leading-snug">
                       {item.title}
@@ -181,7 +181,7 @@ export default function NotificationsModal({
                       <span className="text-[10px] font-mono text-[#7D8BA4]">
                         {item.time}
                       </span>
-                      <span className="text-[10px] font-bold text-[#533AFD] hover:underline">
+                      <span className="text-[10px] font-bold text-[#2563EB] hover:underline">
                         বিস্তারিত দেখুন →
                       </span>
                     </div>

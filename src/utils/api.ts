@@ -1922,14 +1922,14 @@ export async function apiRestoreCompleteBackup(backupData: any): Promise<{ succe
 // ---------------- LOGO & BRAND SETTINGS ----------------
 export const DEFAULT_LOGO_CONFIG: BrandLogoConfig = {
   logoType: 'image',
-  imageUrl: '', // default official SVG crest
-  imageName: 'official-crest.svg',
-  imageSizePx: 46,
-  showBrandTextWithImage: true,
+  imageUrl: '/bongoweb-official-logo.svg',
+  imageName: '01-removebg-preview.png',
+  imageSizePx: 84,
+  showBrandTextWithImage: false,
   typedLogoText: 'BongoWeb',
-  typedSubtitle: '.xyz',
+  typedSubtitle: '',
   textGradientTheme: 'royal',
-  textFontSizePx: 26,
+  textFontSizePx: 28,
   updatedAt: new Date().toISOString()
 };
 

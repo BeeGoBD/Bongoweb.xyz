@@ -2,44 +2,47 @@
 
 @layer base {
   :root {
-    /* Exact BongoWeb Official Brand Colors from Logo */
-    --color-primary: #2B47EE;
-    --color-primary-hover: #203CD4;
-    --color-primary-active: #1E3A8A;
-    --color-primary-dark: #1E293B;
-    --color-brand-deep: #0B132B;
-    --color-accent-violet: #7C3AED;
+    /* Exact BongoWeb Official Brand Colors from Logo (01-removebg-preview.png) */
+    --color-primary: #2563EB;
+    --color-primary-hover: #1D4ED8;
+    --color-primary-active: #1E40AF;
+    --color-primary-dark: #0F172A;
+    --color-brand-deep: #0B0F19;
+    --color-accent-purple: #7C3AED;
+    --color-accent-violet: #6D28D9;
+    --color-accent-indigo: #6366F1;
+    --color-accent-blue: #3B82F6;
     
-    --color-text-primary: #0D253D;
-    --color-text-secondary: #273951;
+    --color-text-primary: #0F172A;
+    --color-text-secondary: #1E293B;
     --color-text-muted: #64748D;
-    --color-text-quiet: #7D8BA4;
+    --color-text-quiet: #94A3B8;
     --color-text-on-primary: #FFFFFF;
     
     --color-bg-main: #FFFFFF;
-    --color-bg-quiet: #F8FAFD;
-    --color-bg-subdued: #E5EDF5;
+    --color-bg-quiet: #F8FAFC;
+    --color-bg-subdued: #F1F5F9;
     --color-bg-accent-subdued: #EEF2FF;
-    --color-bg-soft-neutral: #D4DEE9;
+    --color-bg-soft-neutral: #E0E7FF;
     
-    --color-success: #00B261;
-    --color-error: #D8351E;
+    --color-success: #10B981;
+    --color-error: #EF4444;
     --color-warning: #F59E0B;
 
-    --gradient-primary: linear-gradient(135deg, #2B47EE 0%, #7C3AED 100%);
-    --gradient-accent-magenta: linear-gradient(135deg, #A855F7 0%, #7C3AED 100%);
-    --gradient-accent-orange: linear-gradient(135deg, #3B82F6 0%, #2B47EE 100%);
+    --gradient-primary: linear-gradient(135deg, #7C3AED 0%, #6366F1 45%, #2563EB 100%);
+    --gradient-accent-magenta: linear-gradient(135deg, #8B5CF6 0%, #6366F1 100%);
+    --gradient-accent-orange: linear-gradient(135deg, #6366F1 0%, #2563EB 100%);
   }
 
   * {
-    border-color: #E5EDF5;
+    border-color: #E2E8F0;
     box-sizing: border-box;
   }
 
   html {
     scroll-behavior: smooth;
     background-color: #FFFFFF;
-    color: #0D253D;
+    color: #0F172A;
     overflow-x: hidden;
     width: 100%;
     font-size: 16px;
@@ -52,7 +55,7 @@
     text-rendering: optimizeLegibility;
     -webkit-tap-highlight-color: transparent;
     background-color: #FFFFFF;
-    color: #0D253D;
+    color: #0F172A;
     overflow-x: hidden;
     width: 100%;
     min-width: 320px;
@@ -72,35 +75,35 @@
   }
 
   ::selection {
-    background-color: #E2E4FF;
-    color: #533AFD;
+    background-color: #EDE9FE;
+    color: #7C3AED;
   }
 }
 
-/* Stripe Button & Gradient Classes */
+/* BongoWeb Official Logo Gradient & Button Classes */
 .bg-stripe-primary {
-  background-color: #533AFD;
+  background-color: #2563EB;
 }
 .bg-stripe-primary:hover {
-  background-color: #665EFD;
+  background-color: #1D4ED8;
 }
 .bg-stripe-primary:active {
-  background-color: #4032C8;
+  background-color: #1E40AF;
 }
 
 .text-stripe-primary {
-  color: #533AFD;
+  color: #2563EB;
 }
 .text-stripe-primary:hover {
-  color: #665EFD;
+  color: #1D4ED8;
 }
 
 .bg-stripe-gradient {
-  background: linear-gradient(135deg, #533AFD 0%, #7F7DFC 50%, #BDB4FF 100%);
+  background: linear-gradient(135deg, #7C3AED 0%, #6366F1 45%, #2563EB 100%);
 }
 
 .bg-stripe-gradient-subtle {
-  background: linear-gradient(180deg, #F8FAFD 0%, #FFFFFF 100%);
+  background: linear-gradient(180deg, #F8FAFC 0%, #FFFFFF 100%);
 }
 
 .bg-stripe-accent-orange {
@@ -185,6 +188,6 @@
 
 /* Interactive focus ring discipline */
 button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible {
-  outline: 2px solid #533AFD;
+  outline: 2px solid #6366F1;
   outline-offset: 2px;
 }

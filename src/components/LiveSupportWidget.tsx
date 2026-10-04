@@ -43,7 +43,7 @@ export default function LiveSupportWidget() {
         >
           <span className="absolute top-0 right-0 flex h-3.5 w-3.5">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-85"></span>
-            <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-white border-2 border-[#2B47EE]"></span>
+            <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-white border-2 border-[#2563EB]"></span>
           </span>
 
           {isOpen ? (
@@ -58,7 +58,7 @@ export default function LiveSupportWidget() {
       {isOpen && (
         <div 
           id="live-support-drawer"
-          className="fixed bottom-22 right-4 sm:right-6 z-50 w-[92vw] sm:w-[380px] bg-white rounded-3xl shadow-[0_20px_60px_rgba(43,71,238,0.18)] border border-slate-200 overflow-hidden flex flex-col text-[#1C1614] animate-fadeIn"
+          className="fixed bottom-22 right-4 sm:right-6 z-50 w-[92vw] sm:w-[380px] bg-white rounded-3xl shadow-[0_20px_60px_rgba(99,102,241,0.18)] border border-slate-200 overflow-hidden flex flex-col text-[#1C1614] animate-fadeIn"
           role="dialog"
         >
           {/* Header */}
@@ -69,21 +69,21 @@ export default function LiveSupportWidget() {
                   <span className="font-black text-sm text-[#1C1614] tracking-tight">
                     Bongo
                   </span>
-                  <span className="font-black text-sm text-[#2B47EE] tracking-tight ml-0.5">
+                  <span className="font-black text-sm text-[#2563EB] tracking-tight ml-0.5">
                     Web
                   </span>
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#2B47EE] ml-0.5 mb-0.5 shrink-0" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#2563EB] ml-0.5 mb-0.5 shrink-0" />
                   <span className="text-[10px] font-semibold text-[#7A6A66] ml-1.5">Live Assistance</span>
                 </div>
                 <div className="flex items-center gap-1.5 text-[11px] text-[#7A6A66] mt-0.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#2B47EE] animate-pulse"></span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#2563EB] animate-pulse"></span>
                   <span>Engineering team online</span>
                 </div>
               </div>
 
               <button
                 onClick={() => setIsOpen(false)}
-                className="p-1.5 rounded-lg text-[#7A6A66] hover:text-[#2B47EE] hover:bg-[#2B47EE]/10 cursor-pointer transition-colors"
+                className="p-1.5 rounded-lg text-[#7A6A66] hover:text-[#2563EB] hover:bg-[#2563EB]/10 cursor-pointer transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -96,7 +96,7 @@ export default function LiveSupportWidget() {
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-gradient-to-r from-[#2B47EE] to-[#7C3AED] hover:from-[#203CD4] hover:to-[#6D28D9] text-white text-xs font-bold shadow-xs transition-all hover:scale-[1.02]"
+              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-gradient-to-r from-[#2563EB] to-[#7C3AED] hover:from-[#1D4ED8] hover:to-[#6D28D9] text-white text-xs font-bold shadow-xs transition-all hover:scale-[1.02]"
             >
               <MessageCircle className="w-4 h-4 stroke-[2.5]" />
               <span>WhatsApp Chat</span>
@@ -104,9 +104,9 @@ export default function LiveSupportWidget() {
 
             <a
               href="tel:+8801700000000"
-              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-white hover:bg-[#2B47EE]/5 text-[#1C1614] border border-slate-200 text-xs font-bold shadow-xs transition-all hover:scale-[1.02]"
+              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-white hover:bg-[#2563EB]/5 text-[#1C1614] border border-slate-200 text-xs font-bold shadow-xs transition-all hover:scale-[1.02]"
             >
-              <Phone className="w-3.5 h-3.5 text-[#2B47EE]" />
+              <Phone className="w-3.5 h-3.5 text-[#2563EB]" />
               <span>Direct Call</span>
             </a>
           </div>
@@ -118,13 +118,13 @@ export default function LiveSupportWidget() {
               <span className="text-xs font-bold text-[#1C1614] block mb-0.5">
                 Free Callback Request
               </span>
-              <p className="text-[11px] text-[#2B47EE] font-semibold mb-3">
+              <p className="text-[11px] text-[#2563EB] font-semibold mb-3">
                 💡 Leave your phone number and an engineer will call you in ~5 mins.
               </p>
 
               {submitted ? (
-                <div className="p-3 rounded-xl bg-[#2B47EE]/10 text-[#2B47EE] text-xs font-semibold flex items-center gap-2 border border-[#2B47EE]/25">
-                  <CheckCircle2 className="w-4 h-4 text-[#2B47EE] shrink-0" />
+                <div className="p-3 rounded-xl bg-[#2563EB]/10 text-[#2563EB] text-xs font-semibold flex items-center gap-2 border border-[#2563EB]/25">
+                  <CheckCircle2 className="w-4 h-4 text-[#2563EB] shrink-0" />
                   <span>Request received. Calling you shortly!</span>
                 </div>
               ) : (
@@ -134,7 +134,7 @@ export default function LiveSupportWidget() {
                     value={callbackName}
                     onChange={(e) => setCallbackName(e.target.value)}
                     placeholder="Your Name"
-                    className="w-full px-3 py-2 bg-white border border-slate-200 text-[#1C1614] rounded-xl text-xs placeholder-[#7A6A66]/50 focus:outline-none focus:border-[#2B47EE] transition-all"
+                    className="w-full px-3 py-2 bg-white border border-slate-200 text-[#1C1614] rounded-xl text-xs placeholder-[#7A6A66]/50 focus:outline-none focus:border-[#2563EB] transition-all"
                   />
                   <div className="flex gap-2">
                     <input
@@ -143,11 +143,11 @@ export default function LiveSupportWidget() {
                       value={callbackPhone}
                       onChange={(e) => setCallbackPhone(e.target.value)}
                       placeholder="Mobile or WhatsApp number"
-                      className="flex-1 px-3 py-2 bg-white border border-slate-200 text-[#1C1614] rounded-xl text-xs placeholder-[#7A6A66]/50 focus:outline-none focus:border-[#2B47EE] font-mono transition-all"
+                      className="flex-1 px-3 py-2 bg-white border border-slate-200 text-[#1C1614] rounded-xl text-xs placeholder-[#7A6A66]/50 focus:outline-none focus:border-[#2563EB] font-mono transition-all"
                     />
                     <button
                       type="submit"
-                      className="px-4 py-2 bg-gradient-to-r from-[#2B47EE] to-[#7C3AED] hover:from-[#203CD4] hover:to-[#6D28D9] text-white text-xs font-bold rounded-xl cursor-pointer transition-all flex items-center gap-1 shrink-0 shadow-xs hover:scale-[1.02]"
+                      className="px-4 py-2 bg-gradient-to-r from-[#2563EB] to-[#7C3AED] hover:from-[#1D4ED8] hover:to-[#6D28D9] text-white text-xs font-bold rounded-xl cursor-pointer transition-all flex items-center gap-1 shrink-0 shadow-xs hover:scale-[1.02]"
                     >
                       <Send className="w-3 h-3 text-white stroke-[2.5]" />
                       <span>Request</span>
@@ -172,10 +172,10 @@ export default function LiveSupportWidget() {
                     >
                       <button
                         onClick={() => setOpenFaq(isOpen ? null : idx)}
-                        className="w-full p-3 text-left font-medium text-[#1C1614] flex items-center justify-between hover:bg-[#2B47EE]/5 transition-colors cursor-pointer"
+                        className="w-full p-3 text-left font-medium text-[#1C1614] flex items-center justify-between hover:bg-[#2563EB]/5 transition-colors cursor-pointer"
                       >
                         <span className="pr-2">{faq.q}</span>
-                        {isOpen ? <ChevronUp className="w-3.5 h-3.5 text-[#2B47EE] shrink-0" /> : <ChevronDown className="w-3.5 h-3.5 text-[#7A6A66] shrink-0" />}
+                        {isOpen ? <ChevronUp className="w-3.5 h-3.5 text-[#2563EB] shrink-0" /> : <ChevronDown className="w-3.5 h-3.5 text-[#7A6A66] shrink-0" />}
                       </button>
                       {isOpen && (
                         <div className="px-3 pb-3 pt-1 text-[11px] text-[#5C4E4B] bg-white border-t border-slate-200 leading-relaxed">
@@ -191,7 +191,7 @@ export default function LiveSupportWidget() {
 
           {/* Drawer Footer */}
           <div className="p-2.5 bg-[#FAF7F2] border-t border-slate-200 text-center text-[10px] text-[#7A6A66] flex items-center justify-center gap-1.5 font-medium">
-            <Clock className="w-3 h-3 text-[#2B47EE]" />
+            <Clock className="w-3 h-3 text-[#2563EB]" />
             <span>Dedicated developer support active 7 days a week</span>
           </div>
         </div>
