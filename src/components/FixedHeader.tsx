@@ -104,7 +104,7 @@ export default function FixedHeader({
                 window.history.pushState({}, '', '/account');
                 window.dispatchEvent(new PopStateEvent('popstate'));
               }}
-              className="underline font-black text-[#8A6D00] hover:text-[#533AFD] hidden sm:inline ml-2 cursor-pointer"
+              className="underline font-black text-[#8A6D00] hover:text-[#2B47EE] hidden sm:inline ml-2 cursor-pointer"
             >
               অ্যাকাউন্টে দেখুন →
             </a>

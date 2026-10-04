@@ -35,5 +35,10 @@ service cloud.firestore {
     match /siteSettings/{settingId} {
       allow read, write: if true;
     }
+
+    // System Settings fallback
+    match /systemSettings/{settingId} {
+      allow read, write: if true;
+    }
   }
 }

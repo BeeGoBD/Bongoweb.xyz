@@ -241,7 +241,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FFFFFF] text-[#0D253D] antialiased selection:bg-[#E2E4FF] selection:text-[#533AFD] flex flex-col justify-between font-sans">
+    <div className="min-h-screen bg-[#FFFFFF] text-[#0D253D] antialiased selection:bg-[#EEF2FF] selection:text-[#2B47EE] flex flex-col justify-between font-sans">
       {/* 1. Category Choosing Landing Screen (No special URL, at base domain "/") */}
       {viewMode === 'category-picker' && (
         <CategorySelectionLanding 

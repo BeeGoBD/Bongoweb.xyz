@@ -412,7 +412,7 @@ export default function LiveChatView() {
             <div className="w-14 h-14 mx-auto rounded-2xl bg-[#00B261]/10 text-[#00B261] flex items-center justify-center">
               <CheckCircle2 className="w-8 h-8 stroke-[2.5]" />
             </div>
-            <span className="px-3 py-1 rounded-full bg-[#E2E4FF] text-[#533AFD] text-xs font-black font-mono inline-block">
+            <span className="px-3 py-1 rounded-full bg-[#EEF2FF] text-[#2B47EE] text-xs font-black font-mono inline-block">
               {submittedTicketId}
             </span>
             <h2 className="text-xl font-black text-[#0D253D]">
@@ -428,7 +428,7 @@ export default function LiveChatView() {
                   setTicketSubmitted(false);
                   setTicketDescription('');
                 }}
-                className="px-6 py-2.5 rounded-xl bg-[#533AFD] text-white text-xs font-bold hover:bg-[#665EFD] transition-all cursor-pointer shadow-xs"
+                className="px-6 py-2.5 rounded-xl bg-[#2B47EE] text-white text-xs font-bold hover:bg-[#203CD4] transition-all cursor-pointer shadow-xs"
               >
                 নতুন টিকিট সাবমিট করুন
               </button>
@@ -443,7 +443,7 @@ export default function LiveChatView() {
         <div className="bg-[#FFFFFF] border border-[#E5EDF5] rounded-3xl p-6 sm:p-8 shadow-md">
           {/* Header: Strictly BongoWeb Live Support (২৪/৭) without excessive subtext */}
           <div className="text-center mb-6">
-            <div className="w-14 h-14 mx-auto rounded-2xl bg-[#E2E4FF] text-[#533AFD] flex items-center justify-center mb-3 shadow-inner">
+            <div className="w-14 h-14 mx-auto rounded-2xl bg-[#EEF2FF] text-[#2B47EE] flex items-center justify-center mb-3 shadow-inner">
               <Headphones className="w-7 h-7 stroke-[2.2]" />
             </div>
             <h2 className="text-xl sm:text-2xl font-black text-[#0D253D] tracking-tight">
@@ -476,7 +476,7 @@ export default function LiveChatView() {
                 value={userName}
                 onChange={(e) => setUserName(e.target.value)}
                 placeholder="যেমন: মোঃ সাকিব আহমেদ"
-                className="w-full px-4 py-2.5 rounded-xl border border-[#E5EDF5] text-sm focus:outline-none focus:border-[#533AFD] focus:ring-2 focus:ring-[#533AFD]/15 bg-[#F8FAFD]"
+                className="w-full px-4 py-2.5 rounded-xl border border-[#E5EDF5] text-sm focus:outline-none focus:border-[#2B47EE] focus:ring-2 focus:ring-[#2B47EE]/15 bg-[#F8FAFD]"
                 required
               />
             </div>
@@ -491,7 +491,7 @@ export default function LiveChatView() {
                 value={userPhone}
                 onChange={(e) => setUserPhone(e.target.value)}
                 placeholder="যেমন: 01712345678"
-                className="w-full px-4 py-2.5 rounded-xl border border-[#E5EDF5] text-sm focus:outline-none focus:border-[#533AFD] focus:ring-2 focus:ring-[#533AFD]/15 bg-[#F8FAFD]"
+                className="w-full px-4 py-2.5 rounded-xl border border-[#E5EDF5] text-sm focus:outline-none focus:border-[#2B47EE] focus:ring-2 focus:ring-[#2B47EE]/15 bg-[#F8FAFD]"
                 required
               />
             </div>
@@ -508,8 +508,8 @@ export default function LiveChatView() {
                     onClick={() => setSelectedLanguage('bn')}
                     className={`py-2.5 px-3 rounded-xl border-2 text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
                       selectedLanguage === 'bn'
-                        ? 'border-[#533AFD] bg-[#533AFD]/5 text-[#533AFD]'
-                        : 'border-[#E5EDF5] bg-[#FFFFFF] text-[#64748D] hover:border-[#533AFD]/30'
+                        ? 'border-[#2B47EE] bg-[#2B47EE]/5 text-[#2B47EE]'
+                        : 'border-[#E5EDF5] bg-[#FFFFFF] text-[#64748D] hover:border-[#2B47EE]/30'
                     }`}
                   >
                     <span className="text-base">🇧🇩</span>
@@ -520,8 +520,8 @@ export default function LiveChatView() {
                     onClick={() => setSelectedLanguage('en')}
                     className={`py-2.5 px-3 rounded-xl border-2 text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
                       selectedLanguage === 'en'
-                        ? 'border-[#533AFD] bg-[#533AFD]/5 text-[#533AFD]'
-                        : 'border-[#E5EDF5] bg-[#FFFFFF] text-[#64748D] hover:border-[#533AFD]/30'
+                        ? 'border-[#2B47EE] bg-[#2B47EE]/5 text-[#2B47EE]'
+                        : 'border-[#E5EDF5] bg-[#FFFFFF] text-[#64748D] hover:border-[#2B47EE]/30'
                     }`}
                   >
                     <span className="text-base">🇬🇧</span>
@@ -540,7 +540,7 @@ export default function LiveChatView() {
                   value={ticketDescription}
                   onChange={(e) => setTicketDescription(e.target.value)}
                   placeholder="আপনার ওয়েবসাইট বা যেকোনো সমস্যা বিস্তারিত লিখুন..."
-                  className="w-full px-4 py-2.5 rounded-xl border border-[#E5EDF5] text-xs text-[#0D253D] focus:outline-none focus:border-[#533AFD] focus:ring-2 focus:ring-[#533AFD]/15 bg-[#F8FAFD]"
+                  className="w-full px-4 py-2.5 rounded-xl border border-[#E5EDF5] text-xs text-[#0D253D] focus:outline-none focus:border-[#2B47EE] focus:ring-2 focus:ring-[#2B47EE]/15 bg-[#F8FAFD]"
                   required
                 />
               </div>
@@ -552,7 +552,7 @@ export default function LiveChatView() {
                 <button
                   type="submit"
                   disabled={isStarting}
-                  className="w-full py-3 px-4 rounded-xl bg-[#533AFD] hover:bg-[#4329d9] text-white font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-[0_4px_16px_rgba(83,58,253,0.3)] cursor-pointer disabled:opacity-50"
+                  className="w-full py-3 px-4 rounded-xl bg-[#2B47EE] hover:bg-[#4329d9] text-white font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-[0_4px_16px_rgba(83,58,253,0.3)] cursor-pointer disabled:opacity-50"
                 >
                   {isStarting ? (
                     <>
@@ -599,7 +599,7 @@ export default function LiveChatView() {
       <div className="bg-[#FFFFFF] border border-[#E5EDF5] rounded-t-2xl p-3 sm:p-4 flex items-center justify-between shrink-0 shadow-xs">
         <div className="flex items-center gap-2.5">
           <div className="relative">
-            <div className="w-9 h-9 rounded-xl bg-[#533AFD] text-white flex items-center justify-center font-bold text-xs">
+            <div className="w-9 h-9 rounded-xl bg-[#2B47EE] text-white flex items-center justify-center font-bold text-xs">
               <Headphones className="w-4 h-4" />
             </div>
             <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full"></span>
@@ -652,7 +652,7 @@ export default function LiveChatView() {
               <div
                 className={`max-w-[85%] sm:max-w-[75%] rounded-2xl p-3 text-xs sm:text-sm leading-relaxed shadow-xs ${
                   isClient
-                    ? 'bg-[#533AFD] text-white rounded-br-xs'
+                    ? 'bg-[#2B47EE] text-white rounded-br-xs'
                     : 'bg-[#FFFFFF] text-[#0D253D] border border-[#E5EDF5] rounded-bl-xs'
                 }`}
               >
@@ -687,7 +687,7 @@ export default function LiveChatView() {
                   await apiReopenChat(userPhone);
                 } catch (_) {}
               }}
-              className="px-3 py-1.5 rounded-lg bg-[#533AFD] hover:bg-[#4329d9] text-white text-xs font-bold transition-all shrink-0 cursor-pointer shadow-xs flex items-center gap-1.5"
+              className="px-3 py-1.5 rounded-lg bg-[#2B47EE] hover:bg-[#4329d9] text-white text-xs font-bold transition-all shrink-0 cursor-pointer shadow-xs flex items-center gap-1.5"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>রিটেক্সট (Retext)</span>
@@ -713,12 +713,12 @@ export default function LiveChatView() {
                 ? 'আপনার মেসেজ লিখুন...'
                 : 'Type your message...'
             }
-            className="flex-1 px-3.5 py-2.5 rounded-xl border border-[#E5EDF5] text-xs sm:text-sm focus:outline-none focus:border-[#533AFD] bg-[#F8FAFD] disabled:opacity-50"
+            className="flex-1 px-3.5 py-2.5 rounded-xl border border-[#E5EDF5] text-xs sm:text-sm focus:outline-none focus:border-[#2B47EE] bg-[#F8FAFD] disabled:opacity-50"
           />
           <button
             type="submit"
             disabled={!inputVal.trim() || isExpired}
-            className="w-10 h-10 rounded-xl bg-[#533AFD] text-white flex items-center justify-center hover:bg-[#4329d9] transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
+            className="w-10 h-10 rounded-xl bg-[#2B47EE] text-white flex items-center justify-center hover:bg-[#4329d9] transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
           >
             <Send className="w-4 h-4" />
           </button>

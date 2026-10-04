@@ -1181,7 +1181,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
       description: effectiveDesc,
       priceTag: effectivePrice,
       demoUrl: effectiveLink,
-      accentColor: 'from-[#533AFD]/20 to-[#533AFD]/5',
+      accentColor: 'from-[#2B47EE]/20 to-[#2B47EE]/5',
       rating: 5.0,
       ordersCount: '24h Launch',
       previewImage: effectiveThumbnail,
@@ -1324,11 +1324,11 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
 
         <div className="w-full max-w-md bg-[#111827]/90 backdrop-blur-xl border border-[#1E293B] rounded-3xl p-6 sm:p-9 shadow-[0_20px_60px_rgba(0,0,0,0.6)] relative z-10">
           <div className="text-center mb-7">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#533AFD] to-[#3B28CC] text-white flex items-center justify-center mx-auto mb-3.5 shadow-[0_6px_24px_rgba(83,58,253,0.4)]">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#2B47EE] to-[#3B28CC] text-white flex items-center justify-center mx-auto mb-3.5 shadow-[0_6px_24px_rgba(83,58,253,0.4)]">
               <ShieldCheck className="w-9 h-9 stroke-[2.2]" />
             </div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#1E1B4B] border border-[#533AFD]/30 text-[#818CF8] text-[11px] font-mono font-bold tracking-wider mb-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#533AFD] animate-ping" />
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#1E1B4B] border border-[#2B47EE]/30 text-[#818CF8] text-[11px] font-mono font-bold tracking-wider mb-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#2B47EE] animate-ping" />
               <span>BONGOWEB EXECUTIVE SUITE</span>
             </div>
             <h1 className="text-2xl font-black text-white tracking-tight">
@@ -1357,7 +1357,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                 placeholder="admin"
                 value={adminInputId}
                 onChange={(e) => setAdminInputId(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-white text-xs sm:text-sm font-mono placeholder-[#64748D] focus:outline-none focus:border-[#533AFD] focus:ring-1 focus:ring-[#533AFD] transition-all"
+                className="w-full px-4 py-3 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-white text-xs sm:text-sm font-mono placeholder-[#64748D] focus:outline-none focus:border-[#2B47EE] focus:ring-1 focus:ring-[#2B47EE] transition-all"
               />
             </div>
 
@@ -1371,14 +1371,14 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                 placeholder="••••••••"
                 value={adminInputPass}
                 onChange={(e) => setAdminInputPass(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-white text-xs sm:text-sm placeholder-[#64748D] focus:outline-none focus:border-[#533AFD] focus:ring-1 focus:ring-[#533AFD] transition-all font-mono"
+                className="w-full px-4 py-3 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-white text-xs sm:text-sm placeholder-[#64748D] focus:outline-none focus:border-[#2B47EE] focus:ring-1 focus:ring-[#2B47EE] transition-all font-mono"
               />
             </div>
 
             <div className="pt-2">
               <button
                 type="submit"
-                className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#533AFD] to-[#6366F1] hover:from-[#432BEE] hover:to-[#533AFD] active:scale-[0.98] text-white text-xs sm:text-sm font-black shadow-[0_6px_24px_rgba(83,58,253,0.4)] transition-all flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#2B47EE] to-[#6366F1] hover:from-[#1E3A8A] hover:to-[#2B47EE] active:scale-[0.98] text-white text-xs sm:text-sm font-black shadow-[0_6px_24px_rgba(83,58,253,0.4)] transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Lock className="w-4 h-4" />
                 <span>লগইন করুন (Unlock Console)</span>
@@ -1412,7 +1412,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
   // VIEW: EXECUTIVE ADMIN SUITE (Primary Indigo Brand)
   // ==========================================
   return (
-    <div className="min-h-screen w-full bg-[#0B0F19] text-[#FFFFFF] font-sans flex flex-col selection:bg-[#533AFD]/30 selection:text-[#818CF8]">
+    <div className="min-h-screen w-full bg-[#0B0F19] text-[#FFFFFF] font-sans flex flex-col selection:bg-[#2B47EE]/30 selection:text-[#818CF8]">
       {/* Floating Real-Time Event Notification Toast */}
       {realtimeToast && (
         <div 
@@ -1421,10 +1421,10 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
             if (realtimeToast.threadPhone) setSelectedThreadPhone(realtimeToast.threadPhone);
             setRealtimeToast(null);
           }}
-          className="fixed top-20 right-4 sm:right-6 z-50 max-w-sm w-full p-4 rounded-2xl bg-[#111827] border-2 border-[#533AFD] shadow-[0_10px_30px_rgba(83,58,253,0.3)] animate-slideDown flex items-start gap-3 cursor-pointer group"
+          className="fixed top-20 right-4 sm:right-6 z-50 max-w-sm w-full p-4 rounded-2xl bg-[#111827] border-2 border-[#2B47EE] shadow-[0_10px_30px_rgba(83,58,253,0.3)] animate-slideDown flex items-start gap-3 cursor-pointer group"
           role="alert"
         >
-          <div className="p-2 rounded-xl bg-[#533AFD] text-white shrink-0 shadow-xs">
+          <div className="p-2 rounded-xl bg-[#2B47EE] text-white shrink-0 shadow-xs">
             {realtimeToast.type === 'order' ? <ShoppingBag className="w-5 h-5" /> : <MessageSquare className="w-5 h-5" />}
           </div>
           <div className="flex-1 min-w-0">
@@ -1457,7 +1457,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
           <div className="flex items-center gap-2 min-w-0">
             <button
               onClick={onBackToApp}
-              className="p-1.5 sm:p-2 rounded-xl bg-[#0B0F19] hover:bg-[#1E293B] text-[#818CF8] border border-[#1E293B] hover:border-[#533AFD]/40 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs shrink-0"
+              className="p-1.5 sm:p-2 rounded-xl bg-[#0B0F19] hover:bg-[#1E293B] text-[#818CF8] border border-[#1E293B] hover:border-[#2B47EE]/40 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs shrink-0"
               title="ওয়েবসাইটে ফিরে যান"
             >
               <ArrowLeft className="w-4 h-4" />
@@ -1465,7 +1465,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
             </button>
 
             <div className="flex items-center gap-2 min-w-0">
-              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-gradient-to-br from-[#533AFD] to-[#3B28CC] text-white flex items-center justify-center font-black text-xs shadow-xs shrink-0">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-gradient-to-br from-[#2B47EE] to-[#3B28CC] text-white flex items-center justify-center font-black text-xs shadow-xs shrink-0">
                 BW
               </div>
               <div className="flex flex-col min-w-0">
@@ -1473,7 +1473,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                   <span className="text-xs sm:text-base font-black tracking-tight text-white truncate">
                     BongoWeb
                   </span>
-                  <span className="px-1.5 py-0.5 rounded-full bg-[#1E1B4B] text-[#818CF8] text-[9px] font-mono font-bold border border-[#533AFD]/30 shrink-0">
+                  <span className="px-1.5 py-0.5 rounded-full bg-[#1E1B4B] text-[#818CF8] text-[9px] font-mono font-bold border border-[#2B47EE]/30 shrink-0">
                     CORE
                   </span>
                 </div>
@@ -1489,7 +1489,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
             {/* Website Backup Vault Button */}
             <button
               onClick={() => setShowBackupVaultModal(true)}
-              className="px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-[#533AFD] hover:bg-[#432BEE] text-white border border-[#533AFD]/40 text-[11px] sm:text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs shrink-0 active:scale-95"
+              className="px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-[#2B47EE] hover:bg-[#1E3A8A] text-white border border-[#2B47EE]/40 text-[11px] sm:text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs shrink-0 active:scale-95"
               title="সম্পূর্ণ ওয়েবসাইট ব্যাকআপ ভল্ট"
             >
               <Database className="w-3.5 h-3.5 shrink-0" />
@@ -1515,7 +1515,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
             onClick={() => setActiveTab('overview')}
             className={`px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 shrink-0 ${
               activeTab === 'overview'
-                ? 'bg-[#533AFD] text-white shadow-xs'
+                ? 'bg-[#2B47EE] text-white shadow-xs'
                 : 'text-[#94A3B8] hover:bg-[#1E293B] hover:text-white'
             }`}
           >
@@ -1527,13 +1527,13 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
             onClick={() => setActiveTab('chat')}
             className={`px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 shrink-0 ${
               activeTab === 'chat'
-                ? 'bg-[#533AFD] text-white shadow-xs'
+                ? 'bg-[#2B47EE] text-white shadow-xs'
                 : 'text-[#94A3B8] hover:bg-[#1E293B] hover:text-white'
             }`}
           >
             <MessageSquare className="w-3.5 h-3.5" />
             <span>লাইভ চ্যাট হাব</span>
-            <span className="px-1.5 py-0.2 rounded-full bg-[#1E1B4B] text-[#A5B4FC] text-[10px] font-black border border-[#533AFD]/30">
+            <span className="px-1.5 py-0.2 rounded-full bg-[#1E1B4B] text-[#A5B4FC] text-[10px] font-black border border-[#2B47EE]/30">
               {chatThreads.length}
             </span>
           </button>
@@ -1542,7 +1542,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
             onClick={() => setActiveTab('orders')}
             className={`px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 shrink-0 ${
               activeTab === 'orders'
-                ? 'bg-[#533AFD] text-white shadow-xs'
+                ? 'bg-[#2B47EE] text-white shadow-xs'
                 : 'text-[#94A3B8] hover:bg-[#1E293B] hover:text-white'
             }`}
           >
@@ -1560,7 +1560,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
             onClick={() => setActiveTab('users')}
             className={`px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 shrink-0 ${
               activeTab === 'users'
-                ? 'bg-[#533AFD] text-white shadow-xs'
+                ? 'bg-[#2B47EE] text-white shadow-xs'
                 : 'text-[#94A3B8] hover:bg-[#1E293B] hover:text-white'
             }`}
           >
@@ -1572,7 +1572,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
             onClick={() => setActiveTab('resets')}
             className={`px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 shrink-0 ${
               activeTab === 'resets'
-                ? 'bg-[#533AFD] text-white shadow-xs'
+                ? 'bg-[#2B47EE] text-white shadow-xs'
                 : 'text-[#94A3B8] hover:bg-[#1E293B] hover:text-white'
             }`}
           >
@@ -1587,7 +1587,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
             onClick={() => setActiveTab('catalog')}
             className={`px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 shrink-0 ${
               activeTab === 'catalog'
-                ? 'bg-[#533AFD] text-white shadow-xs'
+                ? 'bg-[#2B47EE] text-white shadow-xs'
                 : 'text-[#94A3B8] hover:bg-[#1E293B] hover:text-white'
             }`}
           >
@@ -1599,7 +1599,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
             onClick={() => setActiveTab('reports')}
             className={`px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 shrink-0 ${
               activeTab === 'reports'
-                ? 'bg-[#533AFD] text-white shadow-xs'
+                ? 'bg-[#2B47EE] text-white shadow-xs'
                 : 'text-[#94A3B8] hover:bg-[#1E293B] hover:text-white'
             }`}
           >
@@ -1617,7 +1617,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
             onClick={() => setActiveTab('settings')}
             className={`px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 shrink-0 ${
               activeTab === 'settings'
-                ? 'bg-[#533AFD] text-white shadow-xs'
+                ? 'bg-[#2B47EE] text-white shadow-xs'
                 : 'text-[#94A3B8] hover:bg-[#1E293B] hover:text-white'
             }`}
           >
@@ -1751,7 +1751,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                   onClick={() => setChatTab('archived')}
                   className={`flex-1 py-1.5 rounded-xl text-xs font-bold transition-all text-center cursor-pointer flex items-center justify-center gap-1.5 ${
                     chatTab === 'archived'
-                      ? 'bg-[#533AFD] text-white shadow-xs'
+                      ? 'bg-[#2B47EE] text-white shadow-xs'
                       : 'text-[#8BB99F] hover:bg-[#0E2417] hover:text-white'
                   }`}
                 >
@@ -1947,7 +1947,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
               >
                 {/* Archive Chat Banner with Reopen option */}
                 {activeThread && (activeThread.isArchived || activeThread.isClosed) && (
-                  <div className="p-3.5 rounded-2xl bg-[#1E1B4B] border border-[#533AFD]/40 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs animate-fadeIn shadow-xs">
+                  <div className="p-3.5 rounded-2xl bg-[#1E1B4B] border border-[#2B47EE]/40 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs animate-fadeIn shadow-xs">
                     <div className="flex items-center gap-2.5 text-[#A5B4FC]">
                       <Clock className="w-5 h-5 text-[#818CF8] shrink-0" />
                       <div>
@@ -1960,7 +1960,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                     <button
                       type="button"
                       onClick={() => handleReopenChatThread(activeThread.userPhone)}
-                      className="px-3.5 py-1.5 rounded-xl bg-[#533AFD] hover:bg-[#432BEE] text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs shrink-0"
+                      className="px-3.5 py-1.5 rounded-xl bg-[#2B47EE] hover:bg-[#1E3A8A] text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs shrink-0"
                     >
                       <RotateCcw className="w-3.5 h-3.5" />
                       <span>পুনরায় চ্যাট চালু করুন (Reopen)</span>
@@ -2019,7 +2019,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                         <div
                           className={`max-w-[92%] sm:max-w-[80%] md:max-w-[75%] p-3.5 sm:p-4 rounded-2xl text-xs sm:text-sm leading-relaxed ${
                             isAdmin
-                              ? 'bg-[#533AFD] text-white rounded-tr-xs shadow-md'
+                              ? 'bg-[#2B47EE] text-white rounded-tr-xs shadow-md'
                               : 'bg-[#102C1E] border border-[#1E4D34] text-[#E8FAF0] rounded-tl-xs shadow-md'
                           }`}
                         >
@@ -2192,7 +2192,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                   onClick={() => setOrderFilterTab('approved')}
                   className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shrink-0 ${
                     orderFilterTab === 'approved'
-                      ? 'bg-[#533AFD] text-white shadow-xs'
+                      ? 'bg-[#2B47EE] text-white shadow-xs'
                       : 'text-[#8BB99F] hover:text-white hover:bg-[#0E2417]'
                   }`}
                 >
@@ -2321,7 +2321,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                           isPending
                             ? 'bg-[#0E1F14] border-[#E53935]/40 hover:border-[#E53935]'
                             : isProcessing
-                            ? 'bg-[#0E1B24] border-[#533AFD]/40 hover:border-[#533AFD]'
+                            ? 'bg-[#0E1B24] border-[#2B47EE]/40 hover:border-[#2B47EE]'
                             : isCompleted
                             ? 'bg-[#091A11] border-[#00B261]/40 hover:border-[#00B261]'
                             : isBin
@@ -2332,7 +2332,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                         {/* Top Row: Order ID, Website Code, Company Name & Status Badge */}
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#173826]/70 pb-3">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <span className="px-2.5 py-1 rounded-xl bg-[#533AFD] text-white font-mono font-black text-xs">
+                            <span className="px-2.5 py-1 rounded-xl bg-[#2B47EE] text-white font-mono font-black text-xs">
                               {ord.orderId}
                             </span>
                             <span className="px-2.5 py-1 rounded-xl bg-[#05110A] text-[#4EEDB0] font-mono font-bold text-xs border border-[#173826]">
@@ -2348,7 +2348,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                               isCompleted
                                 ? 'bg-[#00B261]/20 text-[#00E575] border border-[#00B261]'
                                 : isProcessing
-                                ? 'bg-[#533AFD]/20 text-[#A5B4FC] border border-[#533AFD]'
+                                ? 'bg-[#2B47EE]/20 text-[#A5B4FC] border border-[#2B47EE]'
                                 : isCancelled
                                 ? 'bg-[#E53935]/20 text-[#FF8A80] border border-[#E53935]'
                                 : isBin
@@ -2362,7 +2362,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                                 </>
                               ) : isProcessing ? (
                                 <>
-                                  <span className="w-2 h-2 rounded-full bg-[#533AFD] animate-pulse" />
+                                  <span className="w-2 h-2 rounded-full bg-[#2B47EE] animate-pulse" />
                                   <span>অনুমোদিত (প্রসেসিং)</span>
                                 </>
                               ) : isCancelled ? (
@@ -2503,7 +2503,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                                     className={`w-full min-h-[44px] py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs active:scale-[0.98] ${
                                       hasCredentialsSent
                                         ? 'bg-[#0E2417] hover:bg-[#143321] text-[#4EEDB0] border border-[#173826]'
-                                        : 'bg-[#533AFD] hover:bg-[#4329d9] text-white shadow-[0_2px_12px_rgba(83,58,253,0.3)]'
+                                        : 'bg-[#2B47EE] hover:bg-[#4329d9] text-white shadow-[0_2px_12px_rgba(83,58,253,0.3)]'
                                     }`}
                                     title="গ্রাহকের ওয়েবসাইটের অ্যাডমিন আইডি ও পাসওয়ার্ড প্রদান বা পরিবর্তন করুন"
                                   >
@@ -2657,7 +2657,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                   placeholder="মোবাইল নম্বর অথবা নাম দিয়ে ক্লায়েন্ট খুঁজুন..."
                   value={userSearchTerm}
                   onChange={(e) => setUserSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-white text-xs placeholder-[#64748D] focus:outline-none focus:border-[#533AFD] transition-all"
+                  className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-white text-xs placeholder-[#64748D] focus:outline-none focus:border-[#2B47EE] transition-all"
                 />
                 {userSearchTerm && (
                   <button
@@ -2696,7 +2696,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                             <div className="flex items-center gap-2.5">
                               <span className={`w-8 h-8 rounded-xl text-white flex items-center justify-center font-black text-xs shadow-xs ${
-                                usr.isRestricted ? 'bg-rose-600' : 'bg-[#533AFD]'
+                                usr.isRestricted ? 'bg-rose-600' : 'bg-[#2B47EE]'
                               }`}>
                                 {usr.name.charAt(0).toUpperCase()}
                               </span>
@@ -2714,7 +2714,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                             </div>
 
                             {/* Security Code System (Badge only - no send details button) */}
-                            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-[#533AFD]/15 border border-[#533AFD]/30 text-xs">
+                            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-[#2B47EE]/15 border border-[#2B47EE]/30 text-xs">
                               <ShieldCheck className="w-3.5 h-3.5 text-[#818CF8]" />
                               <span className="text-[10px] text-[#A5B4FC] font-semibold">Security Code:</span>
                               <span className="font-mono font-black text-white tracking-wider">{secCode}</span>
@@ -2733,8 +2733,8 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                                   onClick={() => setInfoPopoverPhone(isInfoOpen ? null : usr.phone)}
                                   className={`w-5 h-5 rounded-full flex items-center justify-center transition-all cursor-pointer ${
                                     isInfoOpen
-                                      ? 'bg-[#533AFD] text-white'
-                                      : 'bg-[#1E293B] text-[#A5B4FC] hover:bg-[#533AFD] hover:text-white border border-[#1E293B]'
+                                      ? 'bg-[#2B47EE] text-white'
+                                      : 'bg-[#1E293B] text-[#A5B4FC] hover:bg-[#2B47EE] hover:text-white border border-[#1E293B]'
                                   }`}
                                   title="ক্লিক করে সম্পূর্ণ ক্লায়েন্ট ডিটেইলস দেখুন"
                                 >
@@ -2749,7 +2749,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
 
                             {/* Info Button Dropdown/Popover (Reveals full client info cleanly) */}
                             {isInfoOpen && (
-                              <div className="p-3 rounded-xl bg-[#131B2E] border border-[#533AFD]/40 text-xs text-[#CBD5E1] space-y-1.5 animate-fadeIn">
+                              <div className="p-3 rounded-xl bg-[#131B2E] border border-[#2B47EE]/40 text-xs text-[#CBD5E1] space-y-1.5 animate-fadeIn">
                                 <div className="flex justify-between">
                                   <span className="text-[#94A3B8]">ইমেইল এড্রেস:</span>
                                   <span className="font-mono text-white select-all">{usr.email}</span>
@@ -2787,7 +2787,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                                       key={ord.orderId ? `uo-${ord.orderId}-${oIndex}` : `uo-${oIndex}`}
                                       className="px-2 py-0.5 rounded-lg bg-[#1E293B] border border-[#1E293B] text-[11px] text-white font-medium truncate max-w-full flex items-center gap-1"
                                     >
-                                      <span className="w-1.5 h-1.5 rounded-full bg-[#533AFD]" />
+                                      <span className="w-1.5 h-1.5 rounded-full bg-[#2B47EE]" />
                                       <span>{ord.companyName || ord.demoTitle}</span>
                                     </span>
                                   ))}
@@ -2797,7 +2797,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
 
                             {/* Existing Delivered Credentials Badge if any */}
                             {clientCreds.length > 0 && (
-                              <div className="p-2 rounded-xl bg-[#0B0F19] border border-[#533AFD]/30 text-[11px] text-[#A5B4FC] flex items-center justify-between">
+                              <div className="p-2 rounded-xl bg-[#0B0F19] border border-[#2B47EE]/30 text-[11px] text-[#A5B4FC] flex items-center justify-between">
                                 <span>✓ {clientCreds.length} টি ওয়েবসাইটের অ্যাক্সেস পাঠানো হয়েছে</span>
                                 <span className="font-mono text-[10px] text-[#94A3B8]">ID: {clientCreds[0].websiteAdminId}</span>
                               </div>
@@ -2885,7 +2885,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                   onClick={() => setReportFilter('all')}
                   className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shrink-0 ${
                     reportFilter === 'all'
-                      ? 'bg-[#533AFD] text-white shadow-xs'
+                      ? 'bg-[#2B47EE] text-white shadow-xs'
                       : 'text-[#94A3B8] hover:text-white hover:bg-[#1E293B]'
                   }`}
                 >
@@ -2962,7 +2962,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                       >
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#1E293B] pb-3">
                           <div className="flex items-center gap-2.5 flex-wrap">
-                            <span className="px-2.5 py-1 rounded-xl bg-[#533AFD] text-white font-mono font-black text-xs">
+                            <span className="px-2.5 py-1 rounded-xl bg-[#2B47EE] text-white font-mono font-black text-xs">
                               {rep.clientIdentifier || '#BW-CLIENT'}
                             </span>
                             <h4 className="text-sm font-bold text-white">
@@ -3065,7 +3065,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
                   <h2 className="text-xl font-black text-white flex items-center gap-2">
-                    <Key className="w-5 h-5 text-[#533AFD]" />
+                    <Key className="w-5 h-5 text-[#2B47EE]" />
                     <span>পাসওয়ার্ড ও ইউজার সিকিউরিটি ম্যানেজমেন্ট</span>
                   </h2>
                   <p className="text-xs text-[#8BB99F] mt-0.5">
@@ -3088,7 +3088,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                   onClick={() => setPasswordDeskTab('all_users')}
                   className={`py-3 px-4 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs ${
                     passwordDeskTab === 'all_users'
-                      ? 'bg-[#533AFD] text-white shadow-[0_4px_16px_rgba(83,58,253,0.35)]'
+                      ? 'bg-[#2B47EE] text-white shadow-[0_4px_16px_rgba(83,58,253,0.35)]'
                       : 'text-[#8BB99F] hover:text-white hover:bg-[#143321]'
                   }`}
                 >
@@ -3200,7 +3200,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                             {/* User Header */}
                             <div className="flex items-start justify-between gap-2">
                               <div className="flex items-center gap-2.5 min-w-0">
-                                <div className="w-9 h-9 rounded-xl bg-[#533AFD] text-white flex items-center justify-center font-black text-xs shrink-0 shadow-xs">
+                                <div className="w-9 h-9 rounded-xl bg-[#2B47EE] text-white flex items-center justify-center font-black text-xs shrink-0 shadow-xs">
                                   {usr.name.charAt(0).toUpperCase()}
                                 </div>
                                 <div className="min-w-0">
@@ -3216,7 +3216,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                                 </div>
                               </div>
 
-                              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-[#533AFD]/15 border border-[#533AFD]/30 text-xs shrink-0">
+                              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-[#2B47EE]/15 border border-[#2B47EE]/30 text-xs shrink-0">
                                 <ShieldCheck className="w-3.5 h-3.5 text-[#818CF8]" />
                                 <span className="text-[10px] text-[#A5B4FC] font-semibold">Security:</span>
                                 <span className="font-mono font-black text-white">{secCode}</span>
@@ -3354,7 +3354,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                               <button
                                 type="button"
                                 onClick={() => handleSendSecurityCodeToClient(usr)}
-                                className="py-2 px-3 rounded-xl bg-[#533AFD] hover:bg-[#432BEE] text-white text-xs font-bold transition-all cursor-pointer shadow-xs"
+                                className="py-2 px-3 rounded-xl bg-[#2B47EE] hover:bg-[#1E3A8A] text-white text-xs font-bold transition-all cursor-pointer shadow-xs"
                                 title="গ্রাহকের কাছে সিকিউরিটি কোড এসএমএস পাঠান"
                               >
                                 কোড পাঠান
@@ -3637,7 +3637,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
             {/* Modal: Upload New Product / Website (Requirement 15) */}
             {showAddWebsiteModal && (
               <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
-                <div className="w-full max-w-lg bg-[#111827] border-2 border-[#533AFD] rounded-3xl p-6 sm:p-8 shadow-2xl relative space-y-4 max-h-[90vh] overflow-y-auto">
+                <div className="w-full max-w-lg bg-[#111827] border-2 border-[#2B47EE] rounded-3xl p-6 sm:p-8 shadow-2xl relative space-y-4 max-h-[90vh] overflow-y-auto">
                   <button
                     onClick={() => setShowAddWebsiteModal(false)}
                     className="absolute top-5 right-5 text-[#94A3B8] hover:text-white"
@@ -3662,7 +3662,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                         placeholder="যেমন: Luxe Watch - Smart Luxury Store"
                         value={newProductTitle}
                         onChange={(e) => setNewProductTitle(e.target.value)}
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-white text-xs focus:outline-none focus:border-[#533AFD]"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-white text-xs focus:outline-none focus:border-[#2B47EE]"
                       />
                     </div>
 
@@ -3676,7 +3676,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                         placeholder="ওয়েবসাইটের মূল সুবিধাসমূহ ও বিবরণ লিখুন..."
                         value={newProductDesc}
                         onChange={(e) => setNewProductDesc(e.target.value)}
-                        className="w-full px-3.5 py-2 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-xs text-white resize-none focus:outline-none focus:border-[#533AFD]"
+                        className="w-full px-3.5 py-2 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-xs text-white resize-none focus:outline-none focus:border-[#2B47EE]"
                       />
                     </div>
 
@@ -3693,8 +3693,8 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                             onClick={() => setNewProductPricing(pkg)}
                             className={`py-2 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
                               newProductPricing === pkg
-                                ? 'bg-[#533AFD] border-[#533AFD] text-white shadow-xs'
-                                : 'bg-[#0B0F19] border-[#1E293B] text-[#94A3B8] hover:text-white hover:border-[#533AFD]/50'
+                                ? 'bg-[#2B47EE] border-[#2B47EE] text-white shadow-xs'
+                                : 'bg-[#0B0F19] border-[#1E293B] text-[#94A3B8] hover:text-white hover:border-[#2B47EE]/50'
                             }`}
                           >
                             {pkg}
@@ -3706,7 +3706,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                         placeholder="অন্যান্য কাস্টম মূল্য (যেমন: ৳1499)"
                         value={newProductPricing}
                         onChange={(e) => setNewProductPricing(e.target.value)}
-                        className="w-full px-3.5 py-2 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-white text-xs font-mono focus:outline-none focus:border-[#533AFD]"
+                        className="w-full px-3.5 py-2 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-white text-xs font-mono focus:outline-none focus:border-[#2B47EE]"
                       />
                     </div>
 
@@ -3720,7 +3720,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                         placeholder="যেমন: ৳199 বা ৳0"
                         value={newDiscountPrice}
                         onChange={(e) => setNewDiscountPrice(e.target.value)}
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-white text-xs font-mono focus:outline-none focus:border-[#533AFD]"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-white text-xs font-mono focus:outline-none focus:border-[#2B47EE]"
                       />
                     </div>
 
@@ -3734,7 +3734,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                         placeholder="demo.bongoweb.site অথবা https://..."
                         value={newProductLink}
                         onChange={(e) => setNewProductLink(e.target.value)}
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-white text-xs font-mono focus:outline-none focus:border-[#533AFD]"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-white text-xs font-mono focus:outline-none focus:border-[#2B47EE]"
                       />
                     </div>
 
@@ -3746,7 +3746,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                           id="sendDetailsOpt"
                           checked={sendDetailsToClient}
                           onChange={(e) => setSendDetailsToClient(e.target.checked)}
-                          className="w-4 h-4 rounded text-[#533AFD] focus:ring-[#533AFD] cursor-pointer"
+                          className="w-4 h-4 rounded text-[#2B47EE] focus:ring-[#2B47EE] cursor-pointer"
                         />
                         <label htmlFor="sendDetailsOpt" className="text-xs font-bold text-white cursor-pointer select-none">
                           Details send option (ক্লায়েন্টের কাছে প্রোডাক্ট ডিটেইলস পাঠান)
@@ -3758,7 +3758,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                     <div className="pt-2 flex gap-2">
                       <button
                         type="submit"
-                        className="flex-1 py-3 rounded-xl bg-[#533AFD] text-white text-xs font-bold hover:bg-[#432BEE] cursor-pointer shadow-md transition-all"
+                        className="flex-1 py-3 rounded-xl bg-[#2B47EE] text-white text-xs font-bold hover:bg-[#1E3A8A] cursor-pointer shadow-md transition-all"
                       >
                         প্রোডাক্ট যুক্ত ও পাবলিশ করুন
                       </button>
@@ -3861,7 +3861,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <h2 className="text-xl font-black text-white flex items-center gap-2">
-                <Sliders className="w-5 h-5 text-[#533AFD]" />
+                <Sliders className="w-5 h-5 text-[#2B47EE]" />
                 <span>ওয়েবসাইট সেটিংস ও ব্র্যান্ড লোগো কনফিগারেশন</span>
               </h2>
               <p className="text-xs text-[#94A3B8] mt-0.5">
@@ -3908,7 +3908,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                   আমাদের মূল অফিসিয়াল লোগো ও ব্র্যান্ড রূপরেখা (Original Official Logo)
                 </h3>
               </div>
-              <span className="px-2.5 py-0.5 rounded-full bg-[#533AFD]/20 text-[#A5B4FC] text-[10px] font-mono font-bold border border-[#533AFD]/30">
+              <span className="px-2.5 py-0.5 rounded-full bg-[#2B47EE]/20 text-[#A5B4FC] text-[10px] font-mono font-bold border border-[#2B47EE]/30">
                 ডিফল্ট লোগো
               </span>
             </div>
@@ -3946,7 +3946,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#1E293B] pb-4">
               <div>
                 <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                  <Power className="w-4 h-4 text-[#533AFD]" />
+                  <Power className="w-4 h-4 text-[#2B47EE]" />
                   <span>লোগো মোড নির্বাচন (Logo Type Selector Switch)</span>
                 </h3>
                 <p className="text-xs text-[#94A3B8] mt-0.5">
@@ -4022,7 +4022,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                   <label className="block text-xs font-bold text-[#A8D7BD] mb-1.5">
                     ১. গ্যালারি বা ডিভাইস থেকে ছবি আপলোড করুন (Upload Image Logo)
                   </label>
-                  <div className="flex flex-col sm:flex-row items-center gap-4 p-5 rounded-2xl bg-[#111827] border-2 border-dashed border-[#1E293B] hover:border-[#533AFD] transition-all">
+                  <div className="flex flex-col sm:flex-row items-center gap-4 p-5 rounded-2xl bg-[#111827] border-2 border-dashed border-[#1E293B] hover:border-[#2B47EE] transition-all">
                     {/* Live Image Preview */}
                     <div className="w-24 h-24 rounded-2xl bg-[#0B0F19] border border-[#1E293B] flex items-center justify-center overflow-hidden shrink-0 relative group p-2">
                       {logoConfig.imageUrl ? (
@@ -4042,7 +4042,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                     {/* Upload Controls & Specs */}
                     <div className="flex-1 space-y-2 text-center sm:text-left">
                       <div className="flex flex-wrap items-center gap-2 justify-center sm:justify-start">
-                        <label className="px-4 py-2 rounded-xl bg-[#533AFD] hover:bg-[#4329d9] text-white text-xs font-bold transition-all cursor-pointer flex items-center gap-2 shadow-xs">
+                        <label className="px-4 py-2 rounded-xl bg-[#2B47EE] hover:bg-[#4329d9] text-white text-xs font-bold transition-all cursor-pointer flex items-center gap-2 shadow-xs">
                           <Upload className="w-4 h-4" />
                           <span>গ্যালারি থেকে ফটো বাছুন (Browse Image)</span>
                           <input
@@ -4087,7 +4087,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                           স্মার্ট অটো-স্কেল
                         </span>
                       </label>
-                      <span className="px-2.5 py-0.5 rounded-lg bg-[#533AFD]/20 text-[#A5B4FC] text-xs font-mono font-bold border border-[#533AFD]/40">
+                      <span className="px-2.5 py-0.5 rounded-lg bg-[#2B47EE]/20 text-[#A5B4FC] text-xs font-mono font-bold border border-[#2B47EE]/40">
                         {logoConfig.imageSizePx || 46}px
                       </span>
                     </div>
@@ -4102,7 +4102,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                         const val = Number(e.target.value);
                         setLogoConfig((prev) => ({ ...prev, imageSizePx: val }));
                       }}
-                      className="w-full accent-[#533AFD] cursor-pointer"
+                      className="w-full accent-[#2B47EE] cursor-pointer"
                     />
 
                     <div className="flex items-center justify-between text-[10px] text-[#64748D] font-mono">
@@ -4135,7 +4135,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                             showBrandTextWithImage: e.target.checked
                           }));
                         }}
-                        className="w-4 h-4 accent-[#533AFD] cursor-pointer"
+                        className="w-4 h-4 accent-[#2B47EE] cursor-pointer"
                       />
                     </div>
 
@@ -4152,7 +4152,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                             typedLogoText: e.target.value
                           }));
                         }}
-                        className="w-full px-3 py-2 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-xs text-white focus:outline-none focus:border-[#533AFD]"
+                        className="w-full px-3 py-2 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-xs text-white focus:outline-none focus:border-[#2B47EE]"
                         placeholder="BongoWeb"
                       />
                     </div>
@@ -4167,7 +4167,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
             {logoConfig.logoType === 'text' && (
               <div className="space-y-5 animate-fadeIn">
                 {/* Chatbox style Input field where admin types the logo */}
-                <div className="p-5 rounded-2xl bg-[#111827] border border-[#533AFD]/50 space-y-3 shadow-lg">
+                <div className="p-5 rounded-2xl bg-[#111827] border border-[#2B47EE]/50 space-y-3 shadow-lg">
                   <div className="flex items-center gap-2">
                     <Type className="w-4 h-4 text-[#818CF8]" />
                     <label className="text-xs font-bold text-white">
@@ -4188,12 +4188,12 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                         setPreviewChatText(val);
                       }}
                       placeholder="এখানে ওয়েবসাইটের নাম টাইপ করুন (যেমন: BongoWeb, mywebsite, ইত্যাদি)..."
-                      className="flex-1 px-4 py-3 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-sm text-white placeholder-[#64748D] focus:outline-none focus:border-[#533AFD] focus:ring-2 focus:ring-[#533AFD]/20 font-bold"
+                      className="flex-1 px-4 py-3 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-sm text-white placeholder-[#64748D] focus:outline-none focus:border-[#2B47EE] focus:ring-2 focus:ring-[#2B47EE]/20 font-bold"
                     />
                     <button
                       type="button"
                       onClick={handleSaveLogoSettings}
-                      className="px-4 py-3 rounded-xl bg-[#533AFD] hover:bg-[#4329d9] text-white text-xs font-black transition-all cursor-pointer shrink-0 shadow-xs flex items-center gap-1.5"
+                      className="px-4 py-3 rounded-xl bg-[#2B47EE] hover:bg-[#4329d9] text-white text-xs font-black transition-all cursor-pointer shrink-0 shadow-xs flex items-center gap-1.5"
                     >
                       <Check className="w-4 h-4" />
                       <span>আপডেট</span>
@@ -4222,7 +4222,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                         }));
                       }}
                       placeholder="যেমন: .xyz, SOLUTIONS, ইত্যাদি"
-                      className="w-full px-3 py-2 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-xs text-white focus:outline-none focus:border-[#533AFD] font-mono"
+                      className="w-full px-3 py-2 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-xs text-white focus:outline-none focus:border-[#2B47EE] font-mono"
                     />
                     <span className="text-[10px] text-[#64748D] block">
                       লোগোর পাশে ছোট ব্যাজ হিসেবে প্রদর্শিত হবে। খালি রাখতে চাইলে মুছে দিন।
@@ -4252,7 +4252,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                           }}
                           className={`p-2 rounded-xl border text-xs font-bold transition-all text-left flex items-center gap-2 cursor-pointer ${
                             logoConfig.textGradientTheme === t.id
-                              ? 'bg-[#1E293B] border-[#533AFD] text-white shadow-xs'
+                              ? 'bg-[#1E293B] border-[#2B47EE] text-white shadow-xs'
                               : 'bg-[#0B0F19] border-[#1E293B] text-[#94A3B8] hover:text-white'
                           }`}
                         >
@@ -4270,7 +4270,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
             <div className="pt-2 border-t border-[#1E293B] space-y-3">
               <div className="flex items-center justify-between">
                 <h4 className="text-xs font-bold text-white flex items-center gap-2">
-                  <Eye className="w-4 h-4 text-[#533AFD]" />
+                  <Eye className="w-4 h-4 text-[#2B47EE]" />
                   <span>লাইভ ওয়েবসাইট হেডার প্রিভিউ (Live Header Preview)</span>
                 </h4>
                 <span className="text-[10px] text-[#64748D] font-mono">
@@ -4327,7 +4327,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
       {/* Action Password Modal (Requirement 11) */}
       {showActionPasswordModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
-          <div className="w-full max-w-sm bg-[#111827] border border-[#533AFD] rounded-3xl p-6 shadow-2xl space-y-4">
+          <div className="w-full max-w-sm bg-[#111827] border border-[#2B47EE] rounded-3xl p-6 shadow-2xl space-y-4">
             <div className="flex items-center gap-2">
               <Lock className="w-5 h-5 text-[#818CF8]" />
               <h3 className="text-base font-black text-white">অ্যাকশন সিকিউরিটি পাসওয়ার্ড</h3>
@@ -4349,13 +4349,13 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                 placeholder="অ্যাডমিন পাসওয়ার্ড লিখুন"
                 value={actionPasswordInput}
                 onChange={(e) => setActionPasswordInput(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-white text-xs font-mono focus:outline-none focus:border-[#533AFD]"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-white text-xs font-mono focus:outline-none focus:border-[#2B47EE]"
                 autoFocus
               />
               <div className="flex gap-2">
                 <button
                   type="submit"
-                  className="flex-1 py-2.5 rounded-xl bg-[#533AFD] text-white text-xs font-bold hover:bg-[#432BEE] cursor-pointer shadow-xs"
+                  className="flex-1 py-2.5 rounded-xl bg-[#2B47EE] text-white text-xs font-bold hover:bg-[#1E3A8A] cursor-pointer shadow-xs"
                 >
                   অনুমোদন করুন
                 </button>
@@ -4459,7 +4459,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                             ord.status === 'completed'
                               ? 'bg-[#00B261]/20 text-[#00E575] border border-[#00B261]/30'
                               : ord.status === 'processing' || ord.status === 'verified'
-                              ? 'bg-[#533AFD]/20 text-[#A5B4FC] border border-[#533AFD]/30'
+                              ? 'bg-[#2B47EE]/20 text-[#A5B4FC] border border-[#2B47EE]/30'
                               : ord.status === 'cancelled'
                               ? 'bg-[#E53935]/20 text-[#FF8A80] border border-[#E53935]/30'
                               : 'bg-[#FFD552]/20 text-[#FFD552] border border-[#FFD552]/30'

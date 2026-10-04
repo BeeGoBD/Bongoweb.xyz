@@ -67,7 +67,7 @@ export default function AfterOrderView({ onGoToDashboard, onOpenLiveChat }: Afte
       pointNumber: '১',
       mainText: 'আপনাকে আমরা ফোন করে বিস্তারিত জেনে নেব।',
       icon: PhoneCall,
-      accentColor: '#533AFD'
+      accentColor: '#2B47EE'
     },
     {
       pointNumber: '২',
@@ -79,7 +79,7 @@ export default function AfterOrderView({ onGoToDashboard, onOpenLiveChat }: Afte
       pointNumber: '৩',
       mainText: 'আপনার পছন্দের কালার ও ওয়েবসাইটের প্রয়োজনীয় বিষয়গুলো নিয়ে আমরা ওয়েবসাইটটি তৈরি করে দেব।',
       icon: Rocket,
-      accentColor: '#533AFD'
+      accentColor: '#2B47EE'
     },
     {
       pointNumber: '৪',
@@ -97,7 +97,7 @@ export default function AfterOrderView({ onGoToDashboard, onOpenLiveChat }: Afte
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#E5EDF5] pb-4">
             <div>
-              <span className="px-3 py-0.5 rounded-full bg-[#E2E4FF] text-[#533AFD] text-[11px] font-bold inline-block mb-1">
+              <span className="px-3 py-0.5 rounded-full bg-[#EEF2FF] text-[#2B47EE] text-[11px] font-bold inline-block mb-1">
                 লাইভ ট্র্যাকিং সিস্টেম
               </span>
               <h1 className="text-xl sm:text-2xl font-black text-[#0D253D] tracking-tight">
@@ -111,12 +111,12 @@ export default function AfterOrderView({ onGoToDashboard, onOpenLiveChat }: Afte
             {/* Quick Stat Chips */}
             <div className="flex items-center gap-2 flex-wrap">
               <span className="px-3 py-1.5 rounded-xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs font-bold text-[#0D253D]">
-                মোট অর্ডার: <strong className="text-[#533AFD] font-mono">{clientOrders.length}</strong>
+                মোট অর্ডার: <strong className="text-[#2B47EE] font-mono">{clientOrders.length}</strong>
               </span>
               <span className="px-3 py-1.5 rounded-xl bg-[#FFF8E7] border border-[#FFD552] text-xs font-bold text-[#8A6D00]">
                 পেন্ডিং: <strong className="font-mono">{pendingCount}</strong>
               </span>
-              <span className="px-3 py-1.5 rounded-xl bg-[#E2E4FF] border border-[#533AFD]/30 text-xs font-bold text-[#533AFD]">
+              <span className="px-3 py-1.5 rounded-xl bg-[#EEF2FF] border border-[#2B47EE]/30 text-xs font-bold text-[#2B47EE]">
                 প্রসেসিং: <strong className="font-mono">{processingCount}</strong>
               </span>
               <span className="px-3 py-1.5 rounded-xl bg-[#E8F8F0] border border-[#00B261]/30 text-xs font-bold text-[#008A4B]">
@@ -128,7 +128,7 @@ export default function AfterOrderView({ onGoToDashboard, onOpenLiveChat }: Afte
           {/* Orders List */}
           {clientOrders.length === 0 ? (
             <div className="py-8 text-center space-y-3 bg-[#F8FAFD] rounded-2xl border border-dashed border-[#CBD5E1]">
-              <div className="w-12 h-12 rounded-2xl bg-[#E2E4FF] text-[#533AFD] flex items-center justify-center mx-auto">
+              <div className="w-12 h-12 rounded-2xl bg-[#EEF2FF] text-[#2B47EE] flex items-center justify-center mx-auto">
                 <Globe className="w-6 h-6" />
               </div>
               <div>
@@ -140,7 +140,7 @@ export default function AfterOrderView({ onGoToDashboard, onOpenLiveChat }: Afte
               <button
                 type="button"
                 onClick={onGoToDashboard}
-                className="px-5 py-2 rounded-xl bg-[#533AFD] hover:bg-[#665EFD] text-white text-xs font-bold transition-all shadow-xs cursor-pointer inline-flex items-center gap-1.5"
+                className="px-5 py-2 rounded-xl bg-[#2B47EE] hover:bg-[#203CD4] text-white text-xs font-bold transition-all shadow-xs cursor-pointer inline-flex items-center gap-1.5"
               >
                 <span>ওয়েবসাইট ড্যাশবোর্ড দেখুন</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -156,15 +156,15 @@ export default function AfterOrderView({ onGoToDashboard, onOpenLiveChat }: Afte
                 return (
                   <div
                     key={ord.orderId}
-                    className="p-4 sm:p-5 rounded-2xl bg-[#FFFFFF] border-2 border-[#E5EDF5] hover:border-[#533AFD]/40 transition-all shadow-xs space-y-3.5"
+                    className="p-4 sm:p-5 rounded-2xl bg-[#FFFFFF] border-2 border-[#E5EDF5] hover:border-[#2B47EE]/40 transition-all shadow-xs space-y-3.5"
                   >
                     {/* Top Row: IDs, Title, and Main Status Badge */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#F1F5F9] pb-3">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="px-2.5 py-1 rounded-xl bg-[#533AFD] text-white font-mono font-black text-xs">
+                        <span className="px-2.5 py-1 rounded-xl bg-[#2B47EE] text-white font-mono font-black text-xs">
                           {ord.orderId}
                         </span>
-                        <span className="px-2 py-0.5 rounded-lg bg-[#E2E4FF] text-[#533AFD] text-xs font-bold font-mono">
+                        <span className="px-2 py-0.5 rounded-lg bg-[#EEF2FF] text-[#2B47EE] text-xs font-bold font-mono">
                           {ord.demoCode}
                         </span>
                         <h3 className="text-sm font-extrabold text-[#0D253D]">
@@ -177,7 +177,7 @@ export default function AfterOrderView({ onGoToDashboard, onOpenLiveChat }: Afte
                           isCompleted
                             ? 'bg-[#00B261]/15 text-[#008A4B] border border-[#00B261]/30'
                             : isProcessing
-                            ? 'bg-[#533AFD]/15 text-[#533AFD] border border-[#533AFD]/30'
+                            ? 'bg-[#2B47EE]/15 text-[#2B47EE] border border-[#2B47EE]/30'
                             : 'bg-[#FFD552]/20 text-[#8A6D00] border border-[#FFD552]'
                         }`}>
                           {isCompleted ? (
@@ -187,7 +187,7 @@ export default function AfterOrderView({ onGoToDashboard, onOpenLiveChat }: Afte
                             </>
                           ) : isProcessing ? (
                             <>
-                              <span className="w-2 h-2 rounded-full bg-[#533AFD] animate-pulse" />
+                              <span className="w-2 h-2 rounded-full bg-[#2B47EE] animate-pulse" />
                               <span>অনুমোদিত (প্রসেসিং)</span>
                             </>
                           ) : (
@@ -201,7 +201,7 @@ export default function AfterOrderView({ onGoToDashboard, onOpenLiveChat }: Afte
                         <button
                           type="button"
                           onClick={() => setSelectedReceiptOrder(ord)}
-                          className="px-3 py-1 rounded-xl bg-[#F8FAFD] hover:bg-[#E2E4FF] text-[#533AFD] border border-[#E5EDF5] text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
+                          className="px-3 py-1 rounded-xl bg-[#F8FAFD] hover:bg-[#EEF2FF] text-[#2B47EE] border border-[#E5EDF5] text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
                         >
                           <Eye className="w-3.5 h-3.5" />
                           <span>রসিদ দেখুন</span>
@@ -229,13 +229,13 @@ export default function AfterOrderView({ onGoToDashboard, onOpenLiveChat }: Afte
                         {/* Step 2: Approved (In Processing) */}
                         <div className={`p-2 rounded-lg flex flex-col items-center gap-1 transition-all ${
                           isProcessing 
-                            ? 'bg-[#533AFD]/15 border border-[#533AFD] text-[#533AFD] font-bold shadow-2xs' 
+                            ? 'bg-[#2B47EE]/15 border border-[#2B47EE] text-[#2B47EE] font-bold shadow-2xs' 
                             : isCompleted 
                             ? 'bg-white/80 border border-[#E5EDF5] text-[#008A4B]'
                             : 'bg-white/40 border border-[#E5EDF5] text-[#94A3B8]'
                         }`}>
                           <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
-                            isProcessing ? 'bg-[#533AFD] text-white' : isCompleted ? 'bg-[#00B261] text-white' : 'bg-[#CBD5E1] text-[#64748D]'
+                            isProcessing ? 'bg-[#2B47EE] text-white' : isCompleted ? 'bg-[#00B261] text-white' : 'bg-[#CBD5E1] text-[#64748D]'
                           }`}>
                             {isCompleted ? '✓' : '২'}
                           </div>
@@ -263,7 +263,7 @@ export default function AfterOrderView({ onGoToDashboard, onOpenLiveChat }: Afte
                       <div className="flex items-center gap-3">
                         <span>তারিখ: <strong className="text-[#0D253D]">{ord.createdAt}</strong></span>
                         <span>TrxID: <strong className="font-mono text-[#00B261]">{ord.transactionId}</strong></span>
-                        <span>মেকিং চার্জ: <strong className="text-[#533AFD]">১,৯৯০ ৳</strong></span>
+                        <span>মেকিং চার্জ: <strong className="text-[#2B47EE]">১,৯৯০ ৳</strong></span>
                       </div>
                       <span className="text-[10px] font-mono bg-[#F8FAFD] px-2 py-0.5 rounded border border-[#E5EDF5]">
                         পেমেন্ট: {ord.paymentMethod.toUpperCase()}
@@ -280,11 +280,11 @@ export default function AfterOrderView({ onGoToDashboard, onOpenLiveChat }: Afte
       {/* 2. SECTION: SERIALIZED ORDER STEPS (অর্ডারের পর ধারাবাহিক পদক্ষেপসমূহ) */}
       <section className="max-w-4xl mx-auto px-4 sm:px-6 w-full mb-6">
         <div className="text-center mb-6">
-          <span className="px-3.5 py-1 rounded-full bg-[#E2E4FF] text-[#533AFD] text-xs font-bold border border-[#533AFD]/20 inline-block mb-2 shadow-2xs">
+          <span className="px-3.5 py-1 rounded-full bg-[#EEF2FF] text-[#2B47EE] text-xs font-bold border border-[#2B47EE]/20 inline-block mb-2 shadow-2xs">
             অর্ডার নিশ্চিতকরণের পরবর্তী ধাপ
           </span>
           <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-[#0D253D] tracking-tight">
-            অর্ডারের পর <span className="text-[#533AFD]">ধারাবাহিক পদক্ষেপসমূহ</span>
+            অর্ডারের পর <span className="text-[#2B47EE]">ধারাবাহিক পদক্ষেপসমূহ</span>
           </h2>
           <p className="text-xs sm:text-sm text-[#64748D] mt-1">
             আপনার পছন্দের ডিজাইনটি বেছে অর্ডার করার পর আমাদের টিম যেভাবে আপনার ওয়েবসাইটটি রেডি করবে:
@@ -298,12 +298,12 @@ export default function AfterOrderView({ onGoToDashboard, onOpenLiveChat }: Afte
             return (
               <div
                 key={idx}
-                className="w-full min-h-[76px] sm:min-h-[86px] p-4 sm:p-5 rounded-2xl bg-[#FFFFFF] border-2 border-[#E5EDF5] hover:border-[#533AFD] transition-all duration-200 shadow-2xs hover:shadow-md flex items-center justify-between gap-4 group"
+                className="w-full min-h-[76px] sm:min-h-[86px] p-4 sm:p-5 rounded-2xl bg-[#FFFFFF] border-2 border-[#E5EDF5] hover:border-[#2B47EE] transition-all duration-200 shadow-2xs hover:shadow-md flex items-center justify-between gap-4 group"
               >
                 <div className="flex items-center gap-3 sm:gap-4 min-w-0">
                   {/* Serial Point Badge */}
                   <div className="flex items-center justify-center w-10 sm:w-12 shrink-0 border-r border-[#E5EDF5] pr-3 sm:pr-4">
-                    <span className="text-xl sm:text-2xl font-black text-[#533AFD]">
+                    <span className="text-xl sm:text-2xl font-black text-[#2B47EE]">
                       {step.pointNumber}
                     </span>
                   </div>
@@ -312,7 +312,7 @@ export default function AfterOrderView({ onGoToDashboard, onOpenLiveChat }: Afte
                   <div 
                     className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 transition-transform"
                     style={{
-                      backgroundColor: '#E2E4FF',
+                      backgroundColor: '#EEF2FF',
                       color: step.accentColor
                     }}
                   >
@@ -321,7 +321,7 @@ export default function AfterOrderView({ onGoToDashboard, onOpenLiveChat }: Afte
 
                   {/* Main Text ONLY in Pure Bangla */}
                   <div className="min-w-0">
-                    <h3 className="text-sm sm:text-base md:text-lg font-black text-[#0D253D] group-hover:text-[#533AFD] transition-colors leading-snug">
+                    <h3 className="text-sm sm:text-base md:text-lg font-black text-[#0D253D] group-hover:text-[#2B47EE] transition-colors leading-snug">
                       {step.mainText}
                     </h3>
                   </div>
@@ -341,7 +341,7 @@ export default function AfterOrderView({ onGoToDashboard, onOpenLiveChat }: Afte
       <section className="max-w-4xl mx-auto px-4 sm:px-6 w-full">
         <div className="bg-[#F8FAFD] border border-[#E5EDF5] rounded-3xl p-6 sm:p-8 md:p-10 shadow-sm relative overflow-hidden">
           <div className="text-center max-w-2xl mx-auto mb-8">
-            <span className="px-3.5 py-1 rounded-full bg-[#E2E4FF] text-[#533AFD] text-xs font-bold border border-[#533AFD]/20 inline-block mb-2">
+            <span className="px-3.5 py-1 rounded-full bg-[#EEF2FF] text-[#2B47EE] text-xs font-bold border border-[#2B47EE]/20 inline-block mb-2">
               ভেরিফাইড ডেলিভারি সার্ভিস
             </span>
             <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-[#0D253D] tracking-tight">
@@ -355,7 +355,7 @@ export default function AfterOrderView({ onGoToDashboard, onOpenLiveChat }: Afte
           {/* 4 Smart Deliverables */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
             <div className="p-4 sm:p-5 rounded-2xl bg-[#FFFFFF] border border-[#E5EDF5] shadow-2xs">
-              <div className="w-10 h-10 rounded-xl bg-[#E2E4FF] text-[#533AFD] flex items-center justify-center mb-3">
+              <div className="w-10 h-10 rounded-xl bg-[#EEF2FF] text-[#2B47EE] flex items-center justify-center mb-3">
                 <Zap className="w-5 h-5 stroke-[2.2]" />
               </div>
               <h4 className="text-sm sm:text-base font-bold text-[#0D253D]">২৪ ঘণ্টা এক্সপ্রেস ডেলিভারি</h4>
@@ -365,7 +365,7 @@ export default function AfterOrderView({ onGoToDashboard, onOpenLiveChat }: Afte
             </div>
 
             <div className="p-4 sm:p-5 rounded-2xl bg-[#FFFFFF] border border-[#E5EDF5] shadow-2xs">
-              <div className="w-10 h-10 rounded-xl bg-[#E2E4FF] text-[#533AFD] flex items-center justify-center mb-3">
+              <div className="w-10 h-10 rounded-xl bg-[#EEF2FF] text-[#2B47EE] flex items-center justify-center mb-3">
                 <Globe className="w-5 h-5 stroke-[2.2]" />
               </div>
               <h4 className="text-sm sm:text-base font-bold text-[#0D253D]">ফ্রি ডোমেইন ও ক্লাউড হোস্টিং</h4>
@@ -385,7 +385,7 @@ export default function AfterOrderView({ onGoToDashboard, onOpenLiveChat }: Afte
             </div>
 
             <div className="p-4 sm:p-5 rounded-2xl bg-[#FFFFFF] border border-[#E5EDF5] shadow-2xs">
-              <div className="w-10 h-10 rounded-xl bg-[#E2E4FF] text-[#533AFD] flex items-center justify-center mb-3">
+              <div className="w-10 h-10 rounded-xl bg-[#EEF2FF] text-[#2B47EE] flex items-center justify-center mb-3">
                 <Headphones className="w-5 h-5 stroke-[2.2]" />
               </div>
               <h4 className="text-sm sm:text-base font-bold text-[#0D253D]">আজীবন ফ্রি টেকনিক্যাল সাপোর্ট</h4>
@@ -399,7 +399,7 @@ export default function AfterOrderView({ onGoToDashboard, onOpenLiveChat }: Afte
           <div className="pt-6 border-t border-[#E5EDF5] flex flex-col sm:flex-row items-center justify-between gap-4">
             <button
               onClick={onGoToDashboard}
-              className="w-full sm:w-auto px-6 py-3 rounded-xl bg-[#533AFD] hover:bg-[#665EFD] active:bg-[#4032C8] text-[#FFFFFF] text-xs sm:text-sm font-bold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full sm:w-auto px-6 py-3 rounded-xl bg-[#2B47EE] hover:bg-[#203CD4] active:bg-[#1E3A8A] text-[#FFFFFF] text-xs sm:text-sm font-bold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer"
             >
               <span>ড্যাশবোর্ডে ওয়েবসাইট দেখুন</span>
               <ArrowRight className="w-4 h-4" />
@@ -428,7 +428,7 @@ export default function AfterOrderView({ onGoToDashboard, onOpenLiveChat }: Afte
             </button>
 
             <div className="text-center pb-4 border-b border-[#E5EDF5]">
-              <span className="px-3 py-1 rounded-full bg-[#E2E4FF] text-[#533AFD] text-xs font-mono font-black inline-block mb-1">
+              <span className="px-3 py-1 rounded-full bg-[#EEF2FF] text-[#2B47EE] text-xs font-mono font-black inline-block mb-1">
                 {selectedReceiptOrder.orderId}
               </span>
               <h3 className="text-lg font-black text-[#0D253D]">অফিসিয়াল অর্ডার রসিদ (Receipt)</h3>
@@ -466,7 +466,7 @@ export default function AfterOrderView({ onGoToDashboard, onOpenLiveChat }: Afte
               </div>
               <div className="flex justify-between py-1.5 border-b border-[#E5EDF5]">
                 <span className="text-[#64748D]">মাসিক মেইনটেন্যান্স:</span>
-                <span className="font-bold text-[#533AFD]">১২০ ৳ / মাস</span>
+                <span className="font-bold text-[#2B47EE]">১২০ ৳ / মাস</span>
               </div>
               <div className="flex justify-between py-1.5">
                 <span className="text-[#64748D]">স্ট্যাটাস:</span>
@@ -474,7 +474,7 @@ export default function AfterOrderView({ onGoToDashboard, onOpenLiveChat }: Afte
                   selectedReceiptOrder.status === 'completed'
                     ? 'text-[#008A4B]'
                     : selectedReceiptOrder.status === 'processing' || selectedReceiptOrder.status === 'verified'
-                    ? 'text-[#533AFD]'
+                    ? 'text-[#2B47EE]'
                     : selectedReceiptOrder.status === 'cancelled'
                     ? 'text-[#E53935]'
                     : 'text-[#D8351E]'
@@ -493,14 +493,14 @@ export default function AfterOrderView({ onGoToDashboard, onOpenLiveChat }: Afte
             <div className="pt-2 flex gap-2">
               <button
                 onClick={() => window.print()}
-                className="flex-1 py-2.5 rounded-xl bg-[#533AFD] hover:bg-[#665EFD] text-white text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+                className="flex-1 py-2.5 rounded-xl bg-[#2B47EE] hover:bg-[#203CD4] text-white text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
               >
                 <Printer className="w-3.5 h-3.5" />
                 <span>প্রিন্ট / ডাউনলোড</span>
               </button>
               <button
                 onClick={() => setSelectedReceiptOrder(null)}
-                className="px-4 py-2.5 rounded-xl bg-[#F8FAFD] hover:bg-[#E2E4FF] text-[#533AFD] border border-[#E5EDF5] text-xs font-bold cursor-pointer"
+                className="px-4 py-2.5 rounded-xl bg-[#F8FAFD] hover:bg-[#EEF2FF] text-[#2B47EE] border border-[#E5EDF5] text-xs font-bold cursor-pointer"
               >
                 বন্ধ করুন
               </button>

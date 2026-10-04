@@ -101,7 +101,7 @@ export default function DashboardView({
               id="dashboard-back-indicator-btn"
               aria-label="Return to Category Selection"
               title={t('ক্যাটাগরি পেজে ফিরুন', 'Return to Category Selection')}
-              className="w-10 h-10 rounded-xl bg-[#F8FAFD] hover:bg-[#E2E4FF] active:bg-[#533AFD] active:text-[#FFFFFF] text-[#533AFD] border border-[#E5EDF5] hover:border-[#533AFD]/30 transition-all flex items-center justify-center cursor-pointer shadow-2xs group shrink-0"
+              className="w-10 h-10 rounded-xl bg-[#F8FAFD] hover:bg-[#EEF2FF] active:bg-[#2B47EE] active:text-[#FFFFFF] text-[#2B47EE] border border-[#E5EDF5] hover:border-[#2B47EE]/30 transition-all flex items-center justify-center cursor-pointer shadow-2xs group shrink-0"
             >
               <ArrowLeft className="w-5 h-5 transition-transform group-hover:-translate-x-0.5" />
             </button>
@@ -115,7 +115,7 @@ export default function DashboardView({
               placeholder={t('কোড বা নাম দিয়ে খুঁজুন (যেমন #1042)...', 'Search by code or name (e.g. #1042)...')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-8 py-2 rounded-xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs text-[#0D253D] placeholder-[#7D8BA4] focus:outline-none focus:bg-[#FFFFFF] focus:border-[#533AFD] focus:ring-1 focus:ring-[#533AFD] transition-all"
+              className="w-full pl-9 pr-8 py-2 rounded-xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs text-[#0D253D] placeholder-[#7D8BA4] focus:outline-none focus:bg-[#FFFFFF] focus:border-[#2B47EE] focus:ring-1 focus:ring-[#2B47EE] transition-all"
             />
             {searchQuery && (
               <button
@@ -133,7 +133,7 @@ export default function DashboardView({
       <section className="max-w-7xl mx-auto px-4 sm:px-6 w-full">
         {isLoading ? (
           <div className="w-full p-12 text-center bg-[#F8FAFD] rounded-3xl border border-[#E5EDF5] flex flex-col items-center justify-center gap-2">
-            <RefreshCw className="w-5 h-5 text-[#533AFD] animate-spin" />
+            <RefreshCw className="w-5 h-5 text-[#2B47EE] animate-spin" />
             <p className="text-xs text-[#64748D]">{t('লোড হচ্ছে...', 'Loading...')}</p>
           </div>
         ) : filteredDemos.length === 0 ? (
@@ -144,7 +144,7 @@ export default function DashboardView({
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="mt-3 px-4 py-2 rounded-xl bg-[#533AFD] text-white text-xs font-bold hover:bg-[#665EFD] cursor-pointer"
+                className="mt-3 px-4 py-2 rounded-xl bg-[#2B47EE] text-white text-xs font-bold hover:bg-[#203CD4] cursor-pointer"
               >
                 {t('রিসেট করুন', 'Reset Search')}
               </button>
@@ -156,7 +156,7 @@ export default function DashboardView({
               return (
                 <div
                   key={demo.id}
-                  className="group bg-[#FFFFFF] hover:bg-[#F8FAFD] rounded-2xl sm:rounded-3xl border border-[#E5EDF5] hover:border-[#533AFD] transition-all duration-300 shadow-[0_4px_16px_rgba(13,37,61,0.03)] hover:shadow-[0_16px_36px_rgba(83,58,253,0.1)] flex flex-col justify-between overflow-hidden hover:-translate-y-1"
+                  className="group bg-[#FFFFFF] hover:bg-[#F8FAFD] rounded-2xl sm:rounded-3xl border border-[#E5EDF5] hover:border-[#2B47EE] transition-all duration-300 shadow-[0_4px_16px_rgba(13,37,61,0.03)] hover:shadow-[0_16px_36px_rgba(43,71,238,0.12)] flex flex-col justify-between overflow-hidden hover:-translate-y-1"
                 >
                   {/* Top Image Preview */}
                   <div className="relative w-full aspect-[16/10] overflow-hidden bg-[#E5EDF5] select-none">
@@ -193,7 +193,7 @@ export default function DashboardView({
                           e.stopPropagation();
                           onOpenLiveDemo(demo);
                         }}
-                        className="px-4 py-2.5 rounded-xl bg-[#533AFD] hover:bg-[#665EFD] text-[#FFFFFF] text-xs font-bold shadow-lg flex items-center gap-2 transform translate-y-2 group-hover:translate-y-0 transition-all cursor-pointer"
+                        className="px-4 py-2.5 rounded-xl bg-[#2B47EE] hover:bg-[#203CD4] text-[#FFFFFF] text-xs font-bold shadow-lg flex items-center gap-2 transform translate-y-2 group-hover:translate-y-0 transition-all cursor-pointer"
                       >
                         <Eye className="w-4 h-4" />
                         <span>{t('প্রিভিউ ওয়েবসাইট', 'Preview Website')}</span>
@@ -216,24 +216,24 @@ export default function DashboardView({
                       {/* Top Bar: Category Pill + 24h Setup on Left, Making Charge on Right */}
                       <div className="flex items-center justify-between gap-2 mb-3 pb-2.5 border-b border-[#E5EDF5]">
                         <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
-                          <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-[#E2E4FF] text-[#533AFD] text-[11px] font-extrabold tracking-tight truncate">
+                          <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-[#EEF2FF] text-[#2B47EE] text-[11px] font-extrabold tracking-tight truncate">
                             {getCategoryLabel(demo.category)}
                           </span>
-                          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-[#00B261]/10 text-[10px] font-bold text-[#008A4B] shrink-0">
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#00B261] animate-pulse" />
+                          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-[#10B981]/10 text-[10px] font-bold text-[#059669] shrink-0">
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse" />
                             <span>{t('২৪ ঘণ্টা রেডি', '24h Ready')}</span>
                           </span>
                         </div>
 
                         <div className="shrink-0 text-right">
-                          <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-[#F8FAFD] border border-[#E5EDF5] text-xs font-black text-[#533AFD] tracking-tight">
+                          <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-[#F8FAFD] border border-[#E5EDF5] text-xs font-black text-[#2B47EE] tracking-tight">
                             {language === 'en' ? '1,990 BDT Making' : '১,৯৯০ ৳ মেকিং'}
                           </span>
                         </div>
                       </div>
 
                       {/* Clean Title */}
-                      <h3 className="text-sm sm:text-base font-black text-[#0D253D] group-hover:text-[#533AFD] transition-colors line-clamp-1 mb-1.5">
+                      <h3 className="text-sm sm:text-base font-black text-[#0D253D] group-hover:text-[#2B47EE] transition-colors line-clamp-1 mb-1.5">
                         {language === 'en' 
                           ? (demo?.englishTitle || String(demo?.title || '').replace(/^#\d+\s*/, ''))
                           : (demo?.banglaTitle || String(demo?.title || '').replace(/^#\d+\s*/, ''))
@@ -249,9 +249,9 @@ export default function DashboardView({
                       </p>
 
                       {/* Monthly Maintenance Section */}
-                      <div className="w-full mb-3.5 px-3 py-2.5 rounded-xl bg-[#F8FAFD] border border-[#E5EDF5] hover:border-[#533AFD]/30 transition-all flex items-center justify-between gap-2 shadow-2xs">
+                      <div className="w-full mb-3.5 px-3 py-2.5 rounded-xl bg-[#F8FAFD] border border-[#E5EDF5] hover:border-[#2B47EE]/30 transition-all flex items-center justify-between gap-2 shadow-2xs">
                         <div className="flex items-center gap-2 min-w-0">
-                          <div className="w-6 h-6 rounded-lg bg-[#E2E4FF] text-[#533AFD] flex items-center justify-center shrink-0 shadow-2xs">
+                          <div className="w-6 h-6 rounded-lg bg-[#EEF2FF] text-[#2B47EE] flex items-center justify-center shrink-0 shadow-2xs">
                             <Server className="w-3.5 h-3.5" />
                           </div>
                           <span className="text-xs font-bold text-[#0D253D] truncate">
@@ -260,7 +260,7 @@ export default function DashboardView({
                         </div>
 
                         <div className="flex items-center gap-1 shrink-0">
-                          <span className="px-2.5 py-0.5 rounded-lg bg-[#FFFFFF] border border-[#E5EDF5] text-xs font-black text-[#533AFD] font-mono shadow-2xs">
+                          <span className="px-2.5 py-0.5 rounded-lg bg-[#FFFFFF] border border-[#E5EDF5] text-xs font-black text-[#2B47EE] font-mono shadow-2xs">
                             {language === 'en' ? '120 BDT' : '১২০ ৳'}
                           </span>
                           <span className="text-[10px] text-[#64748D] font-bold">
@@ -274,7 +274,7 @@ export default function DashboardView({
                     <div className="pt-3 border-t border-[#E5EDF5] grid grid-cols-2 gap-2.5">
                       <button
                         onClick={() => onOpenLiveDemo(demo)}
-                        className="w-full py-2.5 px-3 rounded-xl bg-[#F8FAFD] hover:bg-[#E2E4FF] text-[#533AFD] border border-[#E5EDF5] hover:border-[#533AFD]/30 text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
+                        className="w-full py-2.5 px-3 rounded-xl bg-[#F8FAFD] hover:bg-[#EEF2FF] text-[#2B47EE] border border-[#E5EDF5] hover:border-[#2B47EE]/30 text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
                       >
                         <Eye className="w-3.5 h-3.5" />
                         <span>{t('লাইভ ডেমো', 'Live Demo')}</span>
@@ -282,7 +282,7 @@ export default function DashboardView({
 
                       <button
                         onClick={() => onOpenOrder(demo)}
-                        className="w-full py-2.5 px-3 rounded-xl bg-[#533AFD] hover:bg-[#665EFD] active:bg-[#4032C8] text-[#FFFFFF] text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+                        className="w-full py-2.5 px-3 rounded-xl bg-[#2B47EE] hover:bg-[#203CD4] active:bg-[#1E3A8A] text-[#FFFFFF] text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
                       >
                         <span>{t('অর্ডার করুন', 'Order Now')}</span>
                         <ArrowRight className="w-3.5 h-3.5" />

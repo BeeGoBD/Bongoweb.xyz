@@ -2,33 +2,47 @@
 
 @layer base {
   :root {
-    /* Exact BongoWeb Official Brand Colors from Logo */
+    /* Exact BongoWeb Official Brand Colors from Vector Logo */
     --color-primary: #2B47EE;
     --color-primary-hover: #203CD4;
     --color-primary-active: #1E3A8A;
-    --color-primary-dark: #1E293B;
+    --color-primary-dark: #0F172A;
     --color-brand-deep: #0B132B;
-    --color-accent-violet: #7C3AED;
     
+    /* Logo Flame & Ribbon Accents */
+    --color-brand-purple: #A855F7;
+    --color-brand-violet: #7C3AED;
+    --color-brand-indigo: #4F46E5;
+    --color-brand-lilac: #C084FC;
+    
+    /* Functional Semantic Accents */
+    --color-success: #10B981;
+    --color-warning: #F59E0B;
+    --color-error: #EF4444;
+    --color-info: #0EA5E9;
+    --color-rose: #F43F5E;
+    
+    /* Typography Neutrals */
     --color-text-primary: #0D253D;
     --color-text-secondary: #273951;
     --color-text-muted: #64748D;
     --color-text-quiet: #7D8BA4;
     --color-text-on-primary: #FFFFFF;
     
+    /* Surface Backgrounds */
     --color-bg-main: #FFFFFF;
     --color-bg-quiet: #F8FAFD;
     --color-bg-subdued: #E5EDF5;
     --color-bg-accent-subdued: #EEF2FF;
     --color-bg-soft-neutral: #D4DEE9;
-    
-    --color-success: #00B261;
-    --color-error: #D8351E;
-    --color-warning: #F59E0B;
 
+    /* Signature Gradients */
+    --gradient-flame: linear-gradient(135deg, #A855F7 0%, #7C3AED 30%, #4F46E5 65%, #2B47EE 100%);
+    --gradient-ribbon: linear-gradient(135deg, #C084FC 0%, #7C3AED 40%, #3B52E8 75%, #253BD9 100%);
     --gradient-primary: linear-gradient(135deg, #2B47EE 0%, #7C3AED 100%);
-    --gradient-accent-magenta: linear-gradient(135deg, #A855F7 0%, #7C3AED 100%);
-    --gradient-accent-orange: linear-gradient(135deg, #3B82F6 0%, #2B47EE 100%);
+    --gradient-royal-deep: linear-gradient(135deg, #2B47EE 0%, #1E3A8A 100%);
+    --gradient-emerald: linear-gradient(135deg, #10B981 0%, #059669 100%);
+    --gradient-amber: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
   }
 
   * {
@@ -72,31 +86,47 @@
   }
 
   ::selection {
-    background-color: #E2E4FF;
-    color: #533AFD;
+    background-color: #EEF2FF;
+    color: #2B47EE;
   }
 }
 
-/* Stripe Button & Gradient Classes */
-.bg-stripe-primary {
-  background-color: #533AFD;
+/* BongoWeb Signature Color Classes */
+.bg-stripe-primary,
+.bg-brand-primary {
+  background-color: #2B47EE;
 }
-.bg-stripe-primary:hover {
-  background-color: #665EFD;
+.bg-stripe-primary:hover,
+.bg-brand-primary:hover {
+  background-color: #203CD4;
 }
-.bg-stripe-primary:active {
-  background-color: #4032C8;
-}
-
-.text-stripe-primary {
-  color: #533AFD;
-}
-.text-stripe-primary:hover {
-  color: #665EFD;
+.bg-stripe-primary:active,
+.bg-brand-primary:active {
+  background-color: #1E3A8A;
 }
 
-.bg-stripe-gradient {
-  background: linear-gradient(135deg, #533AFD 0%, #7F7DFC 50%, #BDB4FF 100%);
+.text-stripe-primary,
+.text-brand-primary {
+  color: #2B47EE;
+}
+.text-stripe-primary:hover,
+.text-brand-primary:hover {
+  color: #203CD4;
+}
+
+.bg-stripe-gradient,
+.bg-brand-gradient {
+  background: linear-gradient(135deg, #7C3AED 0%, #4F46E5 50%, #2B47EE 100%);
+}
+
+.bg-brand-flame {
+  background: linear-gradient(135deg, #A855F7 0%, #7C3AED 30%, #4F46E5 65%, #2B47EE 100%);
+}
+
+.text-brand-flame {
+  background: linear-gradient(135deg, #A855F7 0%, #7C3AED 35%, #4F46E5 70%, #2B47EE 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .bg-stripe-gradient-subtle {
@@ -104,11 +134,11 @@
 }
 
 .bg-stripe-accent-orange {
-  background: linear-gradient(135deg, #FF6118 0%, #FFD552 100%);
+  background: linear-gradient(135deg, #F59E0B 0%, #EA580C 100%);
 }
 
 .bg-stripe-accent-magenta {
-  background: linear-gradient(135deg, #F44BCC 0%, #F96BEE 100%);
+  background: linear-gradient(135deg, #A855F7 0%, #7C3AED 100%);
 }
 
 /* Fluid responsive grid & line-length typography classes */
@@ -121,7 +151,7 @@
   min-width: 48px;
 }
 
-/* Stripe-like micro animations */
+/* Micro animations */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -167,7 +197,7 @@
   animation: slideInRight 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Refined Stripe scrollbar */
+/* Refined scrollbar with royal brand accent on hover */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -180,11 +210,11 @@
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #7D8BA4;
+  background: #2B47EE;
 }
 
 /* Interactive focus ring discipline */
 button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible {
-  outline: 2px solid #533AFD;
+  outline: 2px solid #2B47EE;
   outline-offset: 2px;
 }

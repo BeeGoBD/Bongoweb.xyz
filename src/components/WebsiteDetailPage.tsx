@@ -74,7 +74,7 @@ export default function WebsiteDetailPage({
           <div className="flex items-center gap-2.5 sm:gap-3">
             <button
               onClick={onBackToDashboard}
-              className="px-3.5 py-2 rounded-xl bg-[#F8FAFD] hover:bg-[#E2E4FF] active:bg-[#533AFD] active:text-[#FFFFFF] text-[#533AFD] border border-[#E5EDF5] hover:border-[#533AFD]/30 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs group"
+              className="px-3.5 py-2 rounded-xl bg-[#F8FAFD] hover:bg-[#EEF2FF] active:bg-[#2B47EE] active:text-[#FFFFFF] text-[#2B47EE] border border-[#E5EDF5] hover:border-[#2B47EE]/30 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs group"
               title="ড্যাশবোর্ডে ফিরে যান"
             >
               <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
@@ -88,8 +88,8 @@ export default function WebsiteDetailPage({
               onClick={handleToggleDetails}
               className={`px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
                 detailsExpanded
-                  ? 'bg-[#E2E4FF] text-[#533AFD] border border-[#533AFD]/30 shadow-2xs'
-                  : 'bg-[#533AFD] hover:bg-[#665EFD] active:bg-[#4032C8] text-[#FFFFFF] shadow-[0_3px_12px_rgba(83,58,253,0.25)] hover:shadow-[0_4px_18px_rgba(83,58,253,0.35)]'
+                  ? 'bg-[#EEF2FF] text-[#2B47EE] border border-[#2B47EE]/30 shadow-2xs'
+                  : 'bg-[#2B47EE] hover:bg-[#203CD4] active:bg-[#1E3A8A] text-[#FFFFFF] shadow-[0_3px_12px_rgba(43,71,238,0.25)] hover:shadow-[0_4px_18px_rgba(43,71,238,0.35)]'
               }`}
             >
               <span>ভিউ ডিটেইলস</span>
@@ -132,7 +132,7 @@ export default function WebsiteDetailPage({
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#0D253D] via-[#0D253D]/45 to-transparent flex flex-col justify-end p-5 sm:p-8 md:p-10 text-white">
-              <span className="px-3 py-1 rounded-full bg-[#533AFD] text-white text-xs font-bold w-fit mb-2 shadow-xs">
+              <span className="px-3 py-1 rounded-full bg-[#2B47EE] text-white text-xs font-bold w-fit mb-2 shadow-xs">
                 {demo.categoryLabel}
               </span>
               <h2 className="text-xl sm:text-3xl md:text-4xl font-black leading-tight max-w-2xl drop-shadow-sm">
@@ -179,7 +179,7 @@ export default function WebsiteDetailPage({
               {demo.mockData?.items?.map((item, idx) => (
                 <div
                   key={idx}
-                  className="p-4 rounded-2xl bg-[#F8FAFD] border border-[#E5EDF5] hover:border-[#533AFD] transition-all flex flex-col justify-between shadow-2xs"
+                  className="p-4 rounded-2xl bg-[#F8FAFD] border border-[#E5EDF5] hover:border-[#2B47EE] transition-all flex flex-col justify-between shadow-2xs"
                 >
                   <div className="flex items-start gap-3 mb-3">
                     {item.image && (
@@ -191,14 +191,14 @@ export default function WebsiteDetailPage({
                     )}
                     <div className="min-w-0">
                       {item.tag && (
-                        <span className="text-[9px] font-bold text-[#533AFD] bg-[#E2E4FF] px-2 py-0.5 rounded-md mb-1 inline-block">
+                        <span className="text-[9px] font-bold text-[#2B47EE] bg-[#EEF2FF] px-2 py-0.5 rounded-md mb-1 inline-block">
                           {item.tag}
                         </span>
                       )}
                       <h4 className="text-xs font-bold text-[#0D253D] line-clamp-2">
                         {item.name}
                       </h4>
-                      <p className="text-xs font-black text-[#533AFD] mt-1 font-mono">
+                      <p className="text-xs font-black text-[#2B47EE] mt-1 font-mono">
                         {item.price}
                       </p>
                     </div>
@@ -206,7 +206,7 @@ export default function WebsiteDetailPage({
 
                   <button
                     onClick={() => handleTestAddToCart(item.name)}
-                    className="w-full py-2.5 rounded-xl bg-[#FFFFFF] hover:bg-[#533AFD] hover:text-[#FFFFFF] text-[#0D253D] border border-[#E5EDF5] hover:border-[#533AFD] text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
+                    className="w-full py-2.5 rounded-xl bg-[#FFFFFF] hover:bg-[#2B47EE] hover:text-[#FFFFFF] text-[#0D253D] border border-[#E5EDF5] hover:border-[#2B47EE] text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
                   >
                     <ShoppingBag className="w-3.5 h-3.5" />
                     <span>কার্ট টেস্ট করুন</span>
@@ -221,7 +221,7 @@ export default function WebsiteDetailPage({
         {detailsExpanded && (
           <section ref={detailsRef} className="bg-[#F8FAFD] border border-[#E5EDF5] rounded-3xl p-6 sm:p-8 animate-fadeIn">
             <div className="max-w-2xl mb-6">
-              <span className="px-3 py-1 rounded-full bg-[#E2E4FF] text-[#533AFD] text-xs font-bold border border-[#533AFD]/20">
+              <span className="px-3 py-1 rounded-full bg-[#EEF2FF] text-[#2B47EE] text-xs font-bold border border-[#2B47EE]/20">
                 প্রযুক্তিগত বিস্তারিত তালিকা
               </span>
               <h3 className="text-xl sm:text-2xl font-black text-[#0D253D] mt-2">
@@ -235,7 +235,7 @@ export default function WebsiteDetailPage({
                   key={sIdx}
                   className="p-4 sm:p-5 rounded-2xl bg-[#FFFFFF] border border-[#E5EDF5] flex items-start gap-4 shadow-2xs"
                 >
-                  <div className="w-9 h-9 rounded-xl bg-[#533AFD] text-white flex items-center justify-center font-black text-sm shrink-0 shadow-2xs">
+                  <div className="w-9 h-9 rounded-xl bg-[#2B47EE] text-white flex items-center justify-center font-black text-sm shrink-0 shadow-2xs">
                     {spec.step}
                   </div>
                   <div>
@@ -256,7 +256,7 @@ export default function WebsiteDetailPage({
         <section className="bg-[#FFFFFF] border border-[#E5EDF5] rounded-3xl p-6 sm:p-8 shadow-xs">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <div className="p-4 rounded-2xl bg-[#F8FAFD] border border-[#E5EDF5]">
-              <div className="w-10 h-10 rounded-xl bg-[#E2E4FF] text-[#533AFD] flex items-center justify-center mb-3">
+              <div className="w-10 h-10 rounded-xl bg-[#EEF2FF] text-[#2B47EE] flex items-center justify-center mb-3">
                 <Globe className="w-5 h-5 stroke-[2.2]" />
               </div>
               <h5 className="text-sm font-bold text-[#0D253D]">ফ্রি .com ডোমেইন</h5>
@@ -266,7 +266,7 @@ export default function WebsiteDetailPage({
             </div>
 
             <div className="p-4 rounded-2xl bg-[#F8FAFD] border border-[#E5EDF5]">
-              <div className="w-10 h-10 rounded-xl bg-[#E2E4FF] text-[#533AFD] flex items-center justify-center mb-3">
+              <div className="w-10 h-10 rounded-xl bg-[#EEF2FF] text-[#2B47EE] flex items-center justify-center mb-3">
                 <Zap className="w-5 h-5 stroke-[2.2]" />
               </div>
               <h5 className="text-sm font-bold text-[#0D253D]">২৪ ঘণ্টা লাইভ ডেলিভারি</h5>
@@ -276,7 +276,7 @@ export default function WebsiteDetailPage({
             </div>
 
             <div className="p-4 rounded-2xl bg-[#F8FAFD] border border-[#E5EDF5]">
-              <div className="w-10 h-10 rounded-xl bg-[#00B261]/10 text-[#00B261] flex items-center justify-center mb-3">
+              <div className="w-10 h-10 rounded-xl bg-[#10B981]/10 text-[#059669] flex items-center justify-center mb-3">
                 <ShieldCheck className="w-5 h-5 stroke-[2.2]" />
               </div>
               <h5 className="text-sm font-bold text-[#0D253D]">১০০% মানিব্যাক</h5>
@@ -286,7 +286,7 @@ export default function WebsiteDetailPage({
             </div>
 
             <div className="p-4 rounded-2xl bg-[#F8FAFD] border border-[#E5EDF5]">
-              <div className="w-10 h-10 rounded-xl bg-[#E2E4FF] text-[#533AFD] flex items-center justify-center mb-3">
+              <div className="w-10 h-10 rounded-xl bg-[#EEF2FF] text-[#2B47EE] flex items-center justify-center mb-3">
                 <Headphones className="w-5 h-5 stroke-[2.2]" />
               </div>
               <h5 className="text-sm font-bold text-[#0D253D]">২৪/৭ ফুল সাপোর্ট</h5>
