@@ -30,5 +30,10 @@ service cloud.firestore {
     match /resetRequests/{id} {
       allow read, write: if true;
     }
+
+    // Site Settings (including Logo and Branding configuration)
+    match /siteSettings/{settingId} {
+      allow read, write: if true;
+    }
   }
 }

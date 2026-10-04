@@ -631,16 +631,34 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
         }
       }
 
-      const updated = await apiUpdateOrderStatus(idToUse, 'completed', { 
+      // 1. Instant optimistic state transition to 3rd section ('completed')
+      const targetMatchId = idToUse.replace('#', '').trim().toLowerCase();
+      const nextOrders = orders.map((o) => {
+        const curId = String(o.orderId || (o as any).id || '').replace('#', '').trim().toLowerCase();
+        if (o.orderId === idToUse || (o as any).id === idToUse || (curId && curId === targetMatchId)) {
+          return {
+            ...o,
+            status: 'completed' as const,
+            hasDeliveredCredentials: true,
+            ...(targetOrder?.deliveredAdminId ? { deliveredAdminId: targetOrder.deliveredAdminId } : {}),
+            ...(targetOrder?.deliveredAdminPass ? { deliveredAdminPass: targetOrder.deliveredAdminPass } : {})
+          };
+        }
+        return o;
+      });
+
+      setOrders(nextOrders);
+      saveOrders(nextOrders);
+      setOrderFilterTab('completed');
+      setMasterSuccessMsg(`✓ অর্ডার ${idToUse} সফলভাবে সম্পূর্ণ (Completed) তালিকায় যুক্ত হয়েছে এবং গ্রাহকের ড্যাশবোর্ডে আইডি ও পাসওয়ার্ড ডেলিভারি সম্পন্ন হয়েছে!`);
+      setTimeout(() => setMasterSuccessMsg(''), 4500);
+
+      // 2. Persist to Cloud Firestore and backend server
+      await apiUpdateOrderStatus(idToUse, 'completed', { 
         hasDeliveredCredentials: true,
         ...(targetOrder?.deliveredAdminId ? { deliveredAdminId: targetOrder.deliveredAdminId } : {}),
         ...(targetOrder?.deliveredAdminPass ? { deliveredAdminPass: targetOrder.deliveredAdminPass } : {})
       });
-      setOrders([...updated]);
-      setMasterSuccessMsg(`✓ অর্ডার ${idToUse} সফলভাবে সম্পূর্ণ (Completed) করা হয়েছে এবং গ্রাহকের ড্যাশবোর্ডে আইডি ও পাসওয়ার্ড ডেলিভারি সম্পন্ন হয়েছে!`);
-      setTimeout(() => setMasterSuccessMsg(''), 4500);
-      setOrderFilterTab('completed');
-      loadAllDatabaseCollections();
     } catch (err) {
       console.error('Mark completed error:', err);
     }
@@ -727,25 +745,68 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
     });
   };
 
-  // Logo Settings Handlers
+  // Logo Settings Handlers (Smart optimization for universal multi-device sync)
   const handleLogoImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 2 * 1024 * 1024) {
-      alert('ইমেজ ফাইলটি খুব বড় (সর্বোচ্চ ২ মেগাবাইট অনুমোদনযোগ্য)');
+    if (file.size > 5 * 1024 * 1024) {
+      alert('ইমেজ ফাইলটি খুব বড় (সর্বোচ্চ ৫ মেগাবাইট অনুমোদনযোগ্য)');
       return;
     }
 
     const reader = new FileReader();
     reader.onload = (uploadEvent) => {
-      const base64 = uploadEvent.target?.result as string;
-      setLogoConfig((prev) => ({
-        ...prev,
-        logoType: 'image',
-        imageUrl: base64,
-        imageName: file.name
-      }));
+      const rawBase64 = uploadEvent.target?.result as string;
+      
+      // Auto-optimize image dimensions so it syncs universally across all devices & Firestore smoothly
+      const img = new window.Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const maxDimension = 640; // Optimal for high-DPI retina screens
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxDimension || height > maxDimension) {
+          if (width > height) {
+            height = Math.round((height * maxDimension) / width);
+            width = maxDimension;
+          } else {
+            width = Math.round((width * maxDimension) / height);
+            height = maxDimension;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          const optimizedBase64 = canvas.toDataURL('image/png');
+          setLogoConfig((prev) => ({
+            ...prev,
+            logoType: 'image',
+            imageUrl: optimizedBase64,
+            imageName: file.name
+          }));
+        } else {
+          setLogoConfig((prev) => ({
+            ...prev,
+            logoType: 'image',
+            imageUrl: rawBase64,
+            imageName: file.name
+          }));
+        }
+      };
+      img.onerror = () => {
+        setLogoConfig((prev) => ({
+          ...prev,
+          logoType: 'image',
+          imageUrl: rawBase64,
+          imageName: file.name
+        }));
+      };
+      img.src = rawBase64;
     };
     reader.readAsDataURL(file);
   };
@@ -4020,20 +4081,23 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="p-4 rounded-2xl bg-[#111827] border border-[#1E293B] space-y-3">
                     <div className="flex items-center justify-between">
-                      <label className="text-xs font-bold text-white">
-                        ২. লোগোর আইকন সাইজ (Icon Size Details)
+                      <label className="text-xs font-bold text-white flex items-center gap-1.5">
+                        <span>২. লোগো সাইজ কাস্টমাইজেশন (Icon & Logo Size)</span>
+                        <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-bold">
+                          স্মার্ট অটো-স্কেল
+                        </span>
                       </label>
-                      <span className="px-2 py-0.5 rounded-md bg-[#533AFD]/20 text-[#A5B4FC] text-xs font-mono font-bold">
-                        {logoConfig.imageSizePx || 36}px
+                      <span className="px-2.5 py-0.5 rounded-lg bg-[#533AFD]/20 text-[#A5B4FC] text-xs font-mono font-bold border border-[#533AFD]/40">
+                        {logoConfig.imageSizePx || 46}px
                       </span>
                     </div>
 
                     <input
                       type="range"
-                      min="24"
-                      max="64"
+                      min="32"
+                      max="72"
                       step="2"
-                      value={logoConfig.imageSizePx || 36}
+                      value={logoConfig.imageSizePx || 46}
                       onChange={(e) => {
                         const val = Number(e.target.value);
                         setLogoConfig((prev) => ({ ...prev, imageSizePx: val }));
@@ -4042,16 +4106,16 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                     />
 
                     <div className="flex items-center justify-between text-[10px] text-[#64748D] font-mono">
-                      <span>ছোট (24px)</span>
-                      <span>স্ট্যান্ডার্ড (36px)</span>
-                      <span>বড় (48px)</span>
-                      <span>সর্বোচ্চ (64px)</span>
+                      <span>কম্প্যাক্ট (32px)</span>
+                      <span>মোবাইল (40px)</span>
+                      <span>ডেস্কটপ (48px)</span>
+                      <span>বড় (64px+)</span>
                     </div>
 
-                    <div className="p-2.5 rounded-xl bg-[#0B0F19] text-[11px] text-[#94A3B8] space-y-0.5 font-mono">
-                      <div>উচ্চতা (Height): <strong>{logoConfig.imageSizePx || 36}px</strong></div>
-                      <div>প্রস্থ (Width): <strong>প্রপোর্শনাল রেশিও (Aspect Auto)</strong></div>
-                      <div>ডিসপ্লে: <strong>Retina Display Ready (High DPI)</strong></div>
+                    <div className="p-3 rounded-xl bg-[#0B0F19] text-[11px] text-[#94A3B8] space-y-1 font-mono">
+                      <div>মোবাইল ডিসপ্লে: <strong className="text-emerald-400">স্বয়ংক্রিয় পারফেক্ট সাইজ (36px - 44px)</strong></div>
+                      <div>ডেস্কটপ ডিসপ্লে: <strong className="text-indigo-400">ফুল ক্লিয়ার ও প্রোফেশনাল (44px - 54px)</strong></div>
+                      <div>রেটিও: <strong className="text-white">প্রপোর্শনাল অ্যাসপেক্ট রেশিও (কখনই চ্যাপ্টা হবে না)</strong></div>
                     </div>
                   </div>
 

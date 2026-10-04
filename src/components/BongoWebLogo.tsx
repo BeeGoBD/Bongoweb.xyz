@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrandLogoConfig } from '../types';
-import { DEFAULT_LOGO_CONFIG } from '../utils/api';
+import { DEFAULT_LOGO_CONFIG, apiGetLogoConfig, subscribeToLogoConfig } from '../utils/api';
 
 interface BongoWebLogoProps {
   className?: string;
@@ -13,7 +13,8 @@ interface BongoWebLogoProps {
  * Official BongoWeb Logo Component
  * - Dual Engine: Supports both Official Image Logo (SVG insignia / custom image upload)
  *   and Dynamic Typed Text Logo (controlled from Admin Settings)
- * - Real-time synchronization across all tabs and components
+ * - Universal Cloud Sync: Real-time synchronization across all devices and all visitors via Cloud Firestore
+ * - Auto-perfect responsive scaling for mobile, tablet, and desktop screens
  */
 export default function BongoWebLogo({
   className = '',
@@ -32,6 +33,21 @@ export default function BongoWebLogo({
   });
 
   useEffect(() => {
+    // 1. Initial fetch from universal database on mount
+    apiGetLogoConfig().then((latest) => {
+      if (latest && latest.logoType) {
+        setConfig(latest);
+      }
+    });
+
+    // 2. Realtime listener to Cloud Firestore (updates all devices globally in real-time)
+    const unsubscribeFirestore = subscribeToLogoConfig((updated) => {
+      if (updated && updated.logoType) {
+        setConfig(updated);
+      }
+    });
+
+    // 3. Local events & storage listeners
     const handleUpdate = (e: any) => {
       if (e?.detail) {
         setConfig(e.detail);
@@ -47,22 +63,52 @@ export default function BongoWebLogo({
     window.addEventListener('storage', handleUpdate);
 
     return () => {
+      unsubscribeFirestore();
       window.removeEventListener('bongoweb_logo_updated', handleUpdate);
       window.removeEventListener('storage', handleUpdate);
     };
   }, []);
 
-  // Dimensions mapping
+  // Auto-perfect dimensions for mobile, tablet, and desktop
   const dimensions = {
-    sm: { icon: 28, text: 'text-lg', height: 'h-7', textPx: 18 },
-    md: { icon: 36, text: 'text-2xl', height: 'h-9 sm:h-10', textPx: 24 },
-    lg: { icon: 46, text: 'text-3xl', height: 'h-11 sm:h-12', textPx: 30 },
-    xl: { icon: 56, text: 'text-4xl', height: 'h-14 sm:h-16', textPx: 38 },
+    sm: { 
+      iconPx: 34, 
+      text: 'text-lg sm:text-xl', 
+      containerH: 'h-8 sm:h-9', 
+      maxImgH: 34,
+      chatTextSize: 'text-xl sm:text-2xl'
+    },
+    md: { 
+      iconPx: 44, 
+      text: 'text-xl sm:text-2xl md:text-[26px]', 
+      containerH: 'h-10 sm:h-12 md:h-14', 
+      maxImgH: 48,
+      chatTextSize: 'text-2xl sm:text-3xl md:text-4xl'
+    },
+    lg: { 
+      iconPx: 56, 
+      text: 'text-2xl sm:text-3xl md:text-4xl', 
+      containerH: 'h-13 sm:h-16', 
+      maxImgH: 58,
+      chatTextSize: 'text-3xl sm:text-4xl md:text-5xl'
+    },
+    xl: { 
+      iconPx: 68, 
+      text: 'text-3xl sm:text-4xl md:text-5xl', 
+      containerH: 'h-16 sm:h-20', 
+      maxImgH: 72,
+      chatTextSize: 'text-4xl sm:text-5xl md:text-6xl'
+    },
   }[size];
 
-  const iconSize = config.imageSizePx && config.logoType === 'image' 
-    ? Math.min(Math.max(config.imageSizePx, 20), 72)
-    : dimensions.icon;
+  // Effective icon / image height respecting admin slider if set, or auto-perfect default
+  const effectiveMaxHeight = config.imageSizePx && config.logoType === 'image'
+    ? Math.min(Math.max(config.imageSizePx, 28), 80)
+    : dimensions.maxImgH;
+
+  const effectiveIconPx = config.imageSizePx && config.logoType === 'image'
+    ? Math.min(Math.max(config.imageSizePx, 28), 80)
+    : dimensions.iconPx;
 
   // Determine text gradient class
   const getGradientClass = (theme?: string) => {
@@ -90,18 +136,18 @@ export default function BongoWebLogo({
 
     return (
       <div 
-        className={`inline-flex items-center gap-2 select-none ${dimensions.height} ${className}`}
+        className={`inline-flex items-center gap-2 select-none ${dimensions.containerH} ${className}`}
         title={`${textToShow} ${config.typedSubtitle || ''}`}
       >
-        <div className="flex items-center gap-1.5 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap">
           <span 
-            className={`font-black tracking-[-0.03em] ${dimensions.text} font-sans leading-none ${gradientClass} bg-clip-text text-transparent drop-shadow-2xs`}
+            className={`font-black tracking-[-0.03em] ${dimensions.chatTextSize} font-sans leading-none ${gradientClass} bg-clip-text text-transparent drop-shadow-xs`}
           >
             {textToShow}
           </span>
 
           {config.typedSubtitle && (
-            <span className="px-1.5 py-0.5 rounded-md bg-[#2B47EE]/10 text-[#2B47EE] text-[10px] font-black tracking-wider uppercase border border-[#2B47EE]/20 font-mono">
+            <span className="px-2 py-0.5 rounded-lg bg-[#2B47EE]/10 text-[#2B47EE] text-xs sm:text-sm font-black tracking-wider uppercase border border-[#2B47EE]/20 font-mono shadow-2xs">
               {config.typedSubtitle}
             </span>
           )}
@@ -117,24 +163,27 @@ export default function BongoWebLogo({
   const shouldShowText = showText && config.showBrandTextWithImage !== false;
 
   return (
-    <div className={`inline-flex items-center gap-2.5 sm:gap-3 select-none ${dimensions.height} ${className}`}>
-      {/* 1. Custom Uploaded Image from Gallery / File */}
+    <div className={`inline-flex items-center gap-2.5 sm:gap-3.5 select-none ${dimensions.containerH} ${className}`}>
+      {/* 1. Custom Uploaded Image from Gallery / File (Auto perfect responsive size, never squished!) */}
       {config.imageUrl ? (
         <img
           src={config.imageUrl}
           alt={brandName}
-          style={{ width: iconSize, height: iconSize }}
-          className="shrink-0 object-contain rounded-xl drop-shadow-[0_4px_12px_rgba(43,71,238,0.2)] transition-transform duration-300 hover:scale-105"
+          style={{ 
+            maxHeight: `${effectiveMaxHeight}px`,
+            width: 'auto'
+          }}
+          className="shrink-0 object-contain rounded-xl drop-shadow-[0_4px_14px_rgba(43,71,238,0.25)] transition-transform duration-300 hover:scale-105 max-w-[170px] sm:max-w-[240px] md:max-w-[300px]"
         />
       ) : (
         /* 2. Official Flame / Ribbon Crest Emblem (SVG) */
         <svg
-          width={iconSize}
-          height={iconSize}
+          width={effectiveIconPx}
+          height={effectiveIconPx}
           viewBox="0 0 120 120"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className="shrink-0 drop-shadow-[0_4px_12px_rgba(43,71,238,0.25)] transition-transform duration-300 hover:scale-105"
+          className="shrink-0 drop-shadow-[0_4px_14px_rgba(43,71,238,0.3)] transition-transform duration-300 hover:scale-105"
         >
           <defs>
             {/* Main Flame Gradient: Violet/Purple Top to Royal Blue Base */}
@@ -212,3 +261,4 @@ export default function BongoWebLogo({
     </div>
   );
 }
+

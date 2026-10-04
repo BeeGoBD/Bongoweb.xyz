@@ -135,8 +135,29 @@ export async function pullFromCloudVault(): Promise<{
         const id = String(item?.orderId || '').toLowerCase();
         return !name.includes('tanvir') && !name.includes('রাকিবুল') && !name.includes('আরিফুল') && !code.includes('4821') && !id.includes('84192') && !id.includes('72615');
       });
-      localCache.orders = validOrders;
-      localStorage.setItem('bongoweb_orders', JSON.stringify(validOrders));
+
+      // Merge with local cache so newly marked 'completed' or 'bin' orders are never reverted by stale Firestore reads
+      const mergedOrders = [...validOrders];
+      const localList = localCache.orders || [];
+      for (const localOrd of localList) {
+        const localId = String(localOrd.orderId || (localOrd as any).id || '').replace('#', '').trim().toLowerCase();
+        const existingIdx = mergedOrders.findIndex(r => String(r.orderId || (r as any).id || '').replace('#', '').trim().toLowerCase() === localId);
+        if (existingIdx >= 0) {
+          if (localOrd.status === 'completed' || localOrd.status === 'bin') {
+            mergedOrders[existingIdx] = {
+              ...mergedOrders[existingIdx],
+              ...localOrd,
+              status: localOrd.status,
+              hasDeliveredCredentials: true
+            };
+          }
+        } else {
+          mergedOrders.push(localOrd);
+        }
+      }
+
+      localCache.orders = mergedOrders;
+      localStorage.setItem('bongoweb_orders', JSON.stringify(mergedOrders));
     }
     if (chatsSnap && !chatsSnap.empty) {
       localCache.supportChats = chatsSnap.docs.map(d => d.data() as SupportChatThread);
@@ -1903,7 +1924,7 @@ export const DEFAULT_LOGO_CONFIG: BrandLogoConfig = {
   logoType: 'image',
   imageUrl: '', // default official SVG crest
   imageName: 'official-crest.svg',
-  imageSizePx: 36,
+  imageSizePx: 46,
   showBrandTextWithImage: true,
   typedLogoText: 'BongoWeb',
   typedSubtitle: '.xyz',
@@ -1913,13 +1934,21 @@ export const DEFAULT_LOGO_CONFIG: BrandLogoConfig = {
 };
 
 export async function apiGetLogoConfig(): Promise<BrandLogoConfig> {
+  // 1. Check Cloud Firestore first for universal source of truth across all devices
   try {
-    const local = localStorage.getItem('bongoweb_logo_config');
-    if (local) {
-      return JSON.parse(local);
+    const snap = await getDoc(doc(db, 'siteSettings', 'logoConfig'));
+    if (snap.exists() && snap.data()) {
+      const data = snap.data() as BrandLogoConfig;
+      if (data && data.logoType) {
+        localStorage.setItem('bongoweb_logo_config', JSON.stringify(data));
+        return data;
+      }
     }
-  } catch (_) {}
+  } catch (err) {
+    console.warn('Firestore get logo notice:', err);
+  }
 
+  // 2. Check server endpoint
   try {
     const res = await fetch('/api/settings/logo');
     if (res.ok) {
@@ -1928,6 +1957,14 @@ export async function apiGetLogoConfig(): Promise<BrandLogoConfig> {
         localStorage.setItem('bongoweb_logo_config', JSON.stringify(data));
         return data;
       }
+    }
+  } catch (_) {}
+
+  // 3. Fallback to local storage if available
+  try {
+    const local = localStorage.getItem('bongoweb_logo_config');
+    if (local) {
+      return JSON.parse(local);
     }
   } catch (_) {}
 
@@ -1940,17 +1977,20 @@ export async function apiSaveLogoConfig(config: BrandLogoConfig): Promise<BrandL
     updatedAt: new Date().toISOString()
   };
 
+  // Immediate local cache
   try {
     localStorage.setItem('bongoweb_logo_config', JSON.stringify(safeConfig));
   } catch (_) {}
 
+  // 1. Save to Cloud Firestore so all old and new devices instantly see it
   try {
-    // Also save in Cloud Firestore if available
-    await setDoc(doc(db, 'systemSettings', 'logoConfig'), safeConfig);
+    await setDoc(doc(db, 'siteSettings', 'logoConfig'), safeConfig, { merge: true });
+    await setDoc(doc(db, 'systemSettings', 'logoConfig'), safeConfig, { merge: true });
   } catch (err) {
-    console.warn('Firestore save logo config note:', err);
+    console.warn('Firestore save logo config notice:', err);
   }
 
+  // 2. Save to Express server database & broadcast
   try {
     await fetch('/api/settings/logo', {
       method: 'POST',
@@ -1959,10 +1999,29 @@ export async function apiSaveLogoConfig(config: BrandLogoConfig): Promise<BrandL
     });
   } catch (_) {}
 
+  // 3. Broadcast local custom event
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent('bongoweb_logo_updated', { detail: safeConfig }));
   }
 
   return safeConfig;
+}
+
+export function subscribeToLogoConfig(callback: (config: BrandLogoConfig) => void): () => void {
+  try {
+    return onSnapshot(doc(db, 'siteSettings', 'logoConfig'), (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.data() as BrandLogoConfig;
+        if (data && data.logoType) {
+          localStorage.setItem('bongoweb_logo_config', JSON.stringify(data));
+          callback(data);
+        }
+      }
+    }, (err) => {
+      console.warn('Firestore logo onSnapshot notice:', err);
+    });
+  } catch (_) {
+    return () => {};
+  }
 }
 
