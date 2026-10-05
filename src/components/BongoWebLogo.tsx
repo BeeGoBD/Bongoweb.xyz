@@ -69,43 +69,43 @@ export default function BongoWebLogo({
     };
   }, []);
 
-  // Auto-perfect dimensions for mobile, tablet, and desktop (Generously sized for high clarity)
+  // Auto-perfect dimensions for mobile, tablet, and desktop (Balanced & refined)
   const dimensions = {
     sm: { 
-      iconPx: 48, 
-      text: 'text-xl sm:text-2xl', 
-      containerH: 'h-11 sm:h-12', 
-      maxImgH: 56,
-      chatTextSize: 'text-2xl sm:text-3xl'
+      iconPx: 40, 
+      text: 'text-lg sm:text-xl', 
+      containerH: 'h-9 sm:h-10', 
+      maxImgH: 42,
+      chatTextSize: 'text-xl sm:text-2xl'
     },
     md: { 
-      iconPx: 72, 
-      text: 'text-2xl sm:text-3xl md:text-[30px]', 
-      containerH: 'h-16 sm:h-20 md:h-[84px]', 
-      maxImgH: 86,
-      chatTextSize: 'text-3xl sm:text-4xl md:text-5xl'
+      iconPx: 68, 
+      text: 'text-xl sm:text-2xl md:text-[28px]', 
+      containerH: 'h-11 sm:h-13 md:h-[60px]', 
+      maxImgH: 58,
+      chatTextSize: 'text-2xl sm:text-3xl md:text-4xl'
     },
     lg: { 
-      iconPx: 88, 
-      text: 'text-3xl sm:text-4xl md:text-5xl', 
-      containerH: 'h-20 sm:h-24 md:h-28', 
-      maxImgH: 98,
-      chatTextSize: 'text-4xl sm:text-5xl md:text-6xl'
+      iconPx: 72, 
+      text: 'text-2xl sm:text-3xl md:text-4xl', 
+      containerH: 'h-14 sm:h-16 md:h-18', 
+      maxImgH: 62,
+      chatTextSize: 'text-3xl sm:text-4xl md:text-5xl'
     },
     xl: { 
-      iconPx: 104, 
-      text: 'text-4xl sm:text-5xl md:text-6xl', 
-      containerH: 'h-24 sm:h-28 md:h-32', 
-      maxImgH: 116,
-      chatTextSize: 'text-5xl sm:text-6xl md:text-7xl'
+      iconPx: 88, 
+      text: 'text-3xl sm:text-4xl md:text-5xl', 
+      containerH: 'h-18 sm:h-20 md:h-22', 
+      maxImgH: 76,
+      chatTextSize: 'text-4xl sm:text-5xl md:text-6xl'
     },
   }[size];
 
   // Effective icon / image height respecting admin slider if set, or auto-perfect default
-  const configuredH = config.imageSizePx && config.imageSizePx >= 40 ? config.imageSizePx : 0;
+  const configuredH = config.imageSizePx && config.imageSizePx >= 30 ? config.imageSizePx : 0;
   const effectiveMaxHeight = configuredH || dimensions.maxImgH;
   const effectiveIconPx = configuredH || dimensions.iconPx;
-  const effectiveImageUrl = config.imageUrl || '/uploaded-brand-logo.png';
+  const effectiveImageUrl = config.imageUrl || '/bongoweb-logo-horizontal.svg';
 
   // Determine text gradient class using official brand colors from logo
   const getGradientClass = (theme?: string) => {
@@ -116,11 +116,11 @@ export default function BongoWebLogo({
         return 'bg-gradient-to-r from-[#00B261] via-[#059669] to-[#0D9488]';
       case 'monochrome':
         return 'bg-gradient-to-r from-[#0F172A] via-[#334155] to-[#475569]';
-      case 'violet':
-        return 'bg-gradient-to-r from-[#BE123C] via-[#E11D48] to-[#D97706]';
       case 'royal':
+        return 'bg-gradient-to-r from-[#2B47EE] via-[#4F46E5] to-[#7C3AED]';
+      case 'violet':
       default:
-        return 'bg-gradient-to-r from-[#DC2626] via-[#E11D48] to-[#D97706]';
+        return 'bg-gradient-to-r from-[#5521B5] via-[#6B46C1] to-[#9F7AEA]';
     }
   };
 
@@ -165,75 +165,71 @@ export default function BongoWebLogo({
         <img
           src={effectiveImageUrl}
           alt={brandName}
-          style={{ 
-            maxHeight: `${Math.max(effectiveMaxHeight, 68)}px`,
-            width: 'auto'
-          }}
-          className="shrink-0 object-contain rounded-lg drop-shadow-[0_2px_12px_rgba(220,38,38,0.18)] transition-all duration-300 hover:scale-105 h-12 sm:h-16 md:h-[72px] max-h-[64px] sm:max-h-[72px] md:max-h-[78px] w-auto max-w-[260px] sm:max-w-[360px] md:max-w-[460px]"
+          style={configuredH ? { maxHeight: `${configuredH}px`, width: 'auto' } : { width: 'auto' }}
+          className="shrink-0 object-contain rounded-lg drop-shadow-[0_2px_8px_rgba(107,70,193,0.18)] transition-all duration-300 hover:scale-105 h-[44px] sm:h-[52px] md:h-[58px] max-h-[46px] sm:max-h-[53px] md:max-h-[58px] w-auto max-w-[240px] sm:max-w-[315px] md:max-w-[385px]"
         />
       ) : (
         /* 2. Official Vector Logo */
         <svg
-          viewBox="0 0 490 110"
+          viewBox="0 0 440 110"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className="shrink-0 drop-shadow-[0_4px_14px_rgba(220,38,38,0.25)] transition-transform duration-300 hover:scale-105 h-14 sm:h-18 md:h-[76px] w-auto max-w-[280px] sm:max-w-[400px] md:max-w-[500px]"
+          className="shrink-0 drop-shadow-[0_4px_12px_rgba(107,70,193,0.22)] transition-transform duration-300 hover:scale-105 h-[44px] sm:h-[52px] md:h-[58px] max-h-[46px] sm:max-h-[53px] md:max-h-[58px] w-auto max-w-[240px] sm:max-w-[315px] md:max-w-[385px]"
         >
           <defs>
-            <linearGradient id="bwCircleGradient" x1="10" y1="10" x2="100" y2="100" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stopColor="#DC2626" />
-              <stop offset="35%" stopColor="#E11D48" />
-              <stop offset="70%" stopColor="#D97706" />
-              <stop offset="100%" stopColor="#F59E0B" />
+            <linearGradient id="bwCircleGradientInline" x1="10" y1="15" x2="95" y2="95" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stopColor="#5521B5" />
+              <stop offset="25%" stopColor="#6B46C1" />
+              <stop offset="65%" stopColor="#805AD5" />
+              <stop offset="100%" stopColor="#9F7AEA" />
             </linearGradient>
 
-            <linearGradient id="bwTextGradient" x1="130" y1="20" x2="470" y2="90" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stopColor="#DC2626" />
-              <stop offset="25%" stopColor="#E11D48" />
-              <stop offset="60%" stopColor="#D97706" />
-              <stop offset="100%" stopColor="#F59E0B" />
+            <linearGradient id="bwTextGradientInline" x1="120" y1="20" x2="430" y2="85" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stopColor="#0F172A" />
+              <stop offset="55%" stopColor="#1E1B4B" />
+              <stop offset="78%" stopColor="#6B46C1" />
+              <stop offset="100%" stopColor="#9F7AEA" />
             </linearGradient>
           </defs>
 
-          {/* Circular Emblem with 'B' Monogram */}
-          <g id="emblem" transform="translate(5, 5)">
-            <circle cx="50" cy="50" r="50" fill="url(#bwCircleGradient)" />
+          {/* Circular Emblem with Stylized Geometric 'B' Monogram */}
+          <g id="emblem-inline" transform="translate(10, 8)">
+            <circle cx="47" cy="47" r="45" fill="url(#bwCircleGradientInline)" />
+            <circle cx="47" cy="47" r="44.25" stroke="rgba(255, 255, 255, 0.25)" strokeWidth="1.5" />
             <path
-              d="M 10 24 L 52 24 C 67 24 77 33 77 44 C 77 51 72 57 64 59 C 61 60 56 61 50 61 L 28 61 L 43 38 L 22 38 L 10 24 Z"
+              d="M 23 25 C 23 23.34 24.34 22 26 22 L 48.5 C 59.8 22 69 31.2 69 42.5 C 69 49.6 65.3 55.8 59.5 59.3 C 57.2 60.7 54.3 61.5 51 61.5 L 34.5 61.5 L 43.5 45 L 30 45 L 23 25 Z"
               fill="#FFFFFF"
             />
             <path
-              d="M 18 78 L 32 54 L 54 54 C 68 54 78 63 78 74 C 78 86 67 96 50 96 L 24 96 L 36 78 L 52 78 C 58 78 63 74 63 69 C 63 64 58 60 51 60 L 30 60 L 18 78 Z"
+              d="M 23 70 C 23 71.66 24.34 73 26 73 L 53 C 65.2 73 74 63.8 74 52 C 74 46.5 71.8 41.5 68 38 L 57.5 48 C 59.5 50 61 52.8 61 56 C 61 62.5 55.5 67 48.5 67 L 33 67 L 40 54 L 27.5 54 L 23 70 Z"
               fill="#FFFFFF"
             />
             <path
-              d="M 38 38 L 52 38 C 59 38 64 41 64 45 C 64 49 59 52 52 52 L 29 52 L 38 38 Z"
-              fill="url(#bwCircleGradient)"
+              d="M 37.5 31 L 47.5 31 C 53.5 31 58 35.5 58 41.5 C 58 47.5 53.5 52 47.5 52 L 40.5 52 L 37.5 31 Z"
+              fill="url(#bwCircleGradientInline)"
             />
+            <circle cx="34" cy="47" r="3.5" fill="#FFFFFF" opacity="0.9" />
           </g>
 
           {/* Typographic Wordmark: BongoWeb */}
-          <g id="wordmark" transform="translate(130, 0)">
+          <g id="wordmark-inline" transform="translate(125, 0)">
             <text
               x="0"
-              y="76"
+              y="75"
               fontFamily="'Plus Jakarta Sans', 'Inter', -apple-system, system-ui, sans-serif"
               fontWeight="900"
-              fontSize="58"
-              letterSpacing="-1.5px"
-              fill={textColor || "url(#bwTextGradient)"}
+              fontSize="62"
+              letterSpacing="-1.8px"
+              fill={textColor || "url(#bwTextGradientInline)"}
             >BongoWeb</text>
-            <polygon
-              points="76,26 88,26 82,35"
-              fill={textColor || "url(#bwTextGradient)"}
-            />
             <path
-              d="M 74 81 C 74 87 90 87 90 81"
-              stroke={textColor || "url(#bwTextGradient)"}
-              strokeWidth="4"
+              d="M 76 81 C 76 88 94 88 94 81"
+              stroke={textColor || "#6B46C1"}
+              strokeWidth="4.5"
               strokeLinecap="round"
               fill="none"
             />
+            <circle cx="85" cy="27" r="4.5" fill="#9F7AEA" />
           </g>
         </svg>
       )}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, Menu } from 'lucide-react';
+import { Bell, Menu, Sparkles } from 'lucide-react';
 import { WebsiteCategory } from '../types';
 import BongoWebLogo from './BongoWebLogo';
 
@@ -7,6 +7,7 @@ interface FixedHeaderProps {
   onBackToCategoryPicker: () => void;
   onOpenNotifications: () => void;
   onOpenMenu: () => void;
+  onOpenLogoShowcase?: () => void;
   unreadCount?: number;
   currentCategory?: WebsiteCategory | string;
 }
@@ -15,6 +16,7 @@ export default function FixedHeader({
   onBackToCategoryPicker,
   onOpenNotifications,
   onOpenMenu,
+  onOpenLogoShowcase,
   unreadCount = 0,
   currentCategory = 'all'
 }: FixedHeaderProps) {
@@ -39,7 +41,7 @@ export default function FixedHeader({
       >
         <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-3 sm:gap-4 h-full">
           {/* Top Left: Official BongoWeb Logo */}
-          <div className="flex items-center gap-3 sm:gap-4">
+          <div className="flex items-center gap-2 sm:gap-3">
             <div 
               onClick={onBackToCategoryPicker}
               className="flex items-center cursor-pointer group"
@@ -47,6 +49,18 @@ export default function FixedHeader({
             >
               <BongoWebLogo size="md" />
             </div>
+
+            {onOpenLogoShowcase && (
+              <button
+                type="button"
+                onClick={onOpenLogoShowcase}
+                className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#6B46C1]/10 hover:bg-[#6B46C1]/15 text-[#6B46C1] text-xs font-bold border border-[#6B46C1]/20 transition-all cursor-pointer shadow-2xs"
+                title="View BongoWeb Logo Brand Versions (4:1 & 1:1)"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-[#6B46C1]" />
+                <span>Brand Logos</span>
+              </button>
+            )}
           </div>
 
           {/* Top Right: Notifications Icon & 3-line Menu Icon */}

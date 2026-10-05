@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   X, ClipboardCheck, MessageCircle, 
-  CheckCircle2, Send, Ticket, Star, Quote, Key
+  CheckCircle2, Send, Ticket, Star, Quote, Key, Sparkles
 } from 'lucide-react';
 import BongoWebLogo from './BongoWebLogo';
 import { BottomTabType } from './FixedBottomNav';
@@ -12,12 +12,14 @@ interface SideMenuDrawerProps {
   onClose: () => void;
   onSelectTab: (tab: BottomTabType) => void;
   onGoToCategoryLanding?: () => void;
+  onOpenLogoShowcase?: () => void;
 }
 
 export default function SideMenuDrawer({
   isOpen,
   onClose,
-  onSelectTab
+  onSelectTab,
+  onOpenLogoShowcase
 }: SideMenuDrawerProps) {
   const [ticketModalOpen, setTicketModalOpen] = useState(false);
   const [ticketReason, setTicketReason] = useState('');
@@ -178,6 +180,29 @@ export default function SideMenuDrawer({
                 </span>
               </div>
             </button>
+
+            {/* 6. Official Brand Logos (BongoWeb Brand Assets) */}
+            {onOpenLogoShowcase && (
+              <button
+                onClick={() => {
+                  onClose();
+                  onOpenLogoShowcase();
+                }}
+                className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl hover:bg-[#FAF5FF] text-[#0D253D] hover:text-[#6B46C1] transition-all text-xs font-bold text-left cursor-pointer group border border-[#E5EDF5] hover:border-[#6B46C1]/30 shadow-2xs"
+              >
+                <div className="w-9 h-9 rounded-xl bg-[#FAF5FF] group-hover:bg-[#6B46C1] flex items-center justify-center text-[#6B46C1] group-hover:text-white border border-[#6B46C1]/20 shadow-xs shrink-0 transition-colors">
+                  <Sparkles className="w-5 h-5" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="block text-sm font-black text-[#0D253D] group-hover:text-[#6B46C1]">
+                    ৬. অফিসিয়াল ব্র্যান্ড লোগো (Brand Logos)
+                  </span>
+                  <span className="text-[11px] text-[#64748D] font-normal block truncate">
+                    Version 1 (Horizontal 4:1) & Version 2 (Square 1:1)
+                  </span>
+                </div>
+              </button>
+            )}
           </div>
 
           {/* Drawer Clean Footer (No WhatsApp button) */}

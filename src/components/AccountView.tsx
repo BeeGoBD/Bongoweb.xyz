@@ -1630,10 +1630,10 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                     </p>
 
                     <div className="flex items-center gap-3 text-xs text-[#273951] pt-1">
-                      <span>তারিখ: <strong>{ord.createdAt}</strong></span>
+                      <span>তারিখ: <strong>{ord.createdAt || 'N/A'}</strong></span>
                       <span>মেকিং চার্জ: <strong className="text-[#2B47EE]">১,৯৯০ ৳</strong></span>
-                      <span>পেমেন্ট: <strong>{ord.paymentMethod.toUpperCase()}</strong></span>
-                      <span>TrxID: <strong className="font-mono text-[#00B261]">{ord.transactionId}</strong></span>
+                      <span>পেমেন্ট: <strong>{String(ord.paymentMethod || 'bKash').toUpperCase()}</strong></span>
+                      <span>TrxID: <strong className="font-mono text-[#00B261]">{ord.transactionId || 'N/A'}</strong></span>
                     </div>
                   </div>
 
@@ -1992,7 +1992,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
           <div className="flex items-center justify-between border-b border-[#E5EDF5] pb-4">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-2xl bg-[#2B47EE] text-white flex items-center justify-center font-black text-lg shadow-xs">
-                {currentUser.name.charAt(0).toUpperCase()}
+                {(currentUser.name || 'U').charAt(0).toUpperCase()}
               </div>
               <div>
                 <span className="px-2.5 py-0.5 rounded-full bg-[#EEF2FF] text-[#2B47EE] text-[10px] font-bold">

@@ -91,25 +91,12 @@ export default function AfterOrderView({ onGoToDashboard, onOpenLiveChat }: Afte
 
   return (
     <div className="w-full flex flex-col font-sans pb-28 pt-4">
-      {/* 1. SECTION: YOUR ORDER DETAILS & LIVE STATUS (আপনার অর্ডারের বিবরণ ও স্ট্যাটাস) */}
-      <section className="max-w-4xl mx-auto px-4 sm:px-6 w-full mb-8">
-        <div className="bg-[#FFFFFF] border border-[#E5EDF5] rounded-3xl p-5 sm:p-7 shadow-sm space-y-5">
-          {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#E5EDF5] pb-4">
-            <div>
-              <span className="px-3 py-0.5 rounded-full bg-[#EEF2FF] text-[#2B47EE] text-[11px] font-bold inline-block mb-1">
-                লাইভ ট্র্যাকিং সিস্টেম
-              </span>
-              <h1 className="text-xl sm:text-2xl font-black text-[#0D253D] tracking-tight">
-                আপনার অর্ডারের বিবরণ ও স্ট্যাটাস
-              </h1>
-              <p className="text-xs text-[#64748D] mt-0.5">
-                আপনার দেওয়া প্রতিটি অর্ডারের অগ্রগতি ও বর্তমান অবস্থা সরাসরি দেখুন:
-              </p>
-            </div>
-
+      {/* 1. SECTION: YOUR ORDER DETAILS & LIVE STATUS (Shown only when client has active orders) */}
+      {clientOrders.length > 0 && (
+        <section className="max-w-4xl mx-auto px-4 sm:px-6 w-full mb-8">
+          <div className="bg-[#FFFFFF] border border-[#E5EDF5] rounded-3xl p-5 sm:p-7 shadow-sm space-y-5">
             {/* Quick Stat Chips */}
-            <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex items-center gap-2 flex-wrap w-full justify-between sm:justify-start border-b border-[#E5EDF5] pb-4">
               <span className="px-3 py-1.5 rounded-xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs font-bold text-[#0D253D]">
                 মোট অর্ডার: <strong className="text-[#2B47EE] font-mono">{clientOrders.length}</strong>
               </span>
@@ -123,39 +110,18 @@ export default function AfterOrderView({ onGoToDashboard, onOpenLiveChat }: Afte
                 সম্পূর্ণ: <strong className="font-mono">{completedCount}</strong>
               </span>
             </div>
-          </div>
 
-          {/* Orders List */}
-          {clientOrders.length === 0 ? (
-            <div className="py-8 text-center space-y-3 bg-[#F8FAFD] rounded-2xl border border-dashed border-[#CBD5E1]">
-              <div className="w-12 h-12 rounded-2xl bg-[#EEF2FF] text-[#2B47EE] flex items-center justify-center mx-auto">
-                <Globe className="w-6 h-6" />
-              </div>
-              <div>
-                <h3 className="text-sm font-bold text-[#0D253D]">বর্তমানে কোনো সক্রিয় অর্ডার নেই</h3>
-                <p className="text-xs text-[#64748D] mt-0.5">
-                  ড্যাশবোর্ড থেকে আপনার পছন্দের রেডি ওয়েবসাইট বেছে নিয়ে অর্ডার করুন।
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={onGoToDashboard}
-                className="px-5 py-2 rounded-xl bg-[#2B47EE] hover:bg-[#203CD4] text-white text-xs font-bold transition-all shadow-xs cursor-pointer inline-flex items-center gap-1.5"
-              >
-                <span>ওয়েবসাইট ড্যাশবোর্ড দেখুন</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          ) : (
+            {/* Orders List */}
             <div className="space-y-4">
-              {clientOrders.map((ord) => {
+              {clientOrders.map((ord, idx) => {
                 const isPending = ord.status === 'pending';
                 const isProcessing = ord.status === 'processing' || ord.status === 'verified';
                 const isCompleted = ord.status === 'completed';
+                const uniqueKey = ord.orderId ? `client-order-${ord.orderId}-${idx}` : (ord.id ? `client-order-${ord.id}-${idx}` : `client-order-${idx}`);
 
                 return (
                   <div
-                    key={ord.orderId}
+                    key={uniqueKey}
                     className="p-4 sm:p-5 rounded-2xl bg-[#FFFFFF] border-2 border-[#E5EDF5] hover:border-[#2B47EE]/40 transition-all shadow-xs space-y-3.5"
                   >
                     {/* Top Row: IDs, Title, and Main Status Badge */}
@@ -181,20 +147,20 @@ export default function AfterOrderView({ onGoToDashboard, onOpenLiveChat }: Afte
                             : 'bg-[#FFD552]/20 text-[#8A6D00] border border-[#FFD552]'
                         }`}>
                           {isCompleted ? (
-                            <>
+                            <span className="inline-flex items-center gap-1.5">
                               <CheckCircle2 className="w-3.5 h-3.5 text-[#008A4B]" />
                               <span>✓ সম্পূর্ণ (Completed)</span>
-                            </>
+                            </span>
                           ) : isProcessing ? (
-                            <>
+                            <span className="inline-flex items-center gap-1.5">
                               <span className="w-2 h-2 rounded-full bg-[#2B47EE] animate-pulse" />
                               <span>অনুমোদিত (প্রসেসিং)</span>
-                            </>
+                            </span>
                           ) : (
-                            <>
+                            <span className="inline-flex items-center gap-1.5">
                               <span className="w-2 h-2 rounded-full bg-[#E53935] animate-ping" />
                               <span>⏳ পেন্ডিং যাচাই</span>
-                            </>
+                            </span>
                           )}
                         </span>
 
@@ -261,21 +227,21 @@ export default function AfterOrderView({ onGoToDashboard, onOpenLiveChat }: Afte
                     {/* Metadata line */}
                     <div className="flex items-center justify-between text-[11px] text-[#64748D] pt-1 flex-wrap gap-2">
                       <div className="flex items-center gap-3">
-                        <span>তারিখ: <strong className="text-[#0D253D]">{ord.createdAt}</strong></span>
-                        <span>TrxID: <strong className="font-mono text-[#00B261]">{ord.transactionId}</strong></span>
+                        <span>তারিখ: <strong className="text-[#0D253D]">{ord.createdAt || 'N/A'}</strong></span>
+                        <span>TrxID: <strong className="font-mono text-[#00B261]">{ord.transactionId || 'N/A'}</strong></span>
                         <span>মেকিং চার্জ: <strong className="text-[#2B47EE]">১,৯৯০ ৳</strong></span>
                       </div>
                       <span className="text-[10px] font-mono bg-[#F8FAFD] px-2 py-0.5 rounded border border-[#E5EDF5]">
-                        পেমেন্ট: {ord.paymentMethod.toUpperCase()}
+                        পেমেন্ট: {String(ord.paymentMethod || 'bKash').toUpperCase()}
                       </span>
                     </div>
                   </div>
                 );
               })}
             </div>
-          )}
-        </div>
-      </section>
+          </div>
+        </section>
+      )}
 
       {/* 2. SECTION: SERIALIZED ORDER STEPS (অর্ডারের পর ধারাবাহিক পদক্ষেপসমূহ) */}
       <section className="max-w-4xl mx-auto px-4 sm:px-6 w-full mb-6">
@@ -297,7 +263,7 @@ export default function AfterOrderView({ onGoToDashboard, onOpenLiveChat }: Afte
             const Icon = step.icon;
             return (
               <div
-                key={idx}
+                key={`serial-step-${step.pointNumber || idx}`}
                 className="w-full min-h-[76px] sm:min-h-[86px] p-4 sm:p-5 rounded-2xl bg-[#FFFFFF] border-2 border-[#E5EDF5] hover:border-[#2B47EE] transition-all duration-200 shadow-2xs hover:shadow-md flex items-center justify-between gap-4 group"
               >
                 <div className="flex items-center gap-3 sm:gap-4 min-w-0">

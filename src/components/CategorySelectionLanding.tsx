@@ -99,13 +99,6 @@ export default function CategorySelectionLanding({
         {/* Left Branding */}
         <div className="flex items-center gap-2.5 sm:gap-3 cursor-pointer group">
           <BongoWebLogo size="md" />
-          <div className="hidden sm:flex items-center gap-1.5 text-[8.5px] sm:text-[9.5px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200/80 shadow-2xs">
-            <span className="relative flex h-1.5 w-1.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00B261] opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#00B261]"></span>
-            </span>
-            <span>{t('ভেরিফাইড প্ল্যাটফর্ম', 'Verified Platform')}</span>
-          </div>
         </div>
 
         {/* Right Actions: STRICTLY LANGUAGE SELECTION BUTTON */}

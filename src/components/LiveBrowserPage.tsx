@@ -811,7 +811,7 @@ export default function LiveBrowserPage({
                 <div className="lg:col-span-7">
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-bold bg-[#800020]/10 text-[#800020] border border-[#800020]/25 mb-4">
                     <Sparkles className="w-3.5 h-3.5 text-[#800020]" />
-                    <span>{activeDemo.categoryLabel.toUpperCase()} · 2026 EDITION</span>
+                    <span>{(activeDemo.categoryLabel || activeDemo.category || 'WEBSITE').toUpperCase()} · 2026 EDITION</span>
                   </span>
                   <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-[#1C1614] leading-tight">
                     {activeDemo.heroHeadline || activeDemo.englishTitle || activeDemo.title}

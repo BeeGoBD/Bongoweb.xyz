@@ -4448,8 +4448,8 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                             ডেমো কোড: {ord.demoCode} • ক্যাটাগরি: {ord.category}
                           </p>
                           <div className="text-[10px] text-[#69977E] font-mono flex items-center gap-2">
-                            <span>পেমেন্ট: {ord.paymentMethod.toUpperCase()}</span>
-                            <span>TrxID: <strong className="text-[#4EEDB0]">{ord.transactionId}</strong></span>
+                            <span>পেমেন্ট: {String(ord.paymentMethod || 'bKash').toUpperCase()}</span>
+                            <span>TrxID: <strong className="text-[#4EEDB0]">{ord.transactionId || 'N/A'}</strong></span>
                             <span>চার্জ: ১,৯৯০ ৳</span>
                           </div>
                         </div>
