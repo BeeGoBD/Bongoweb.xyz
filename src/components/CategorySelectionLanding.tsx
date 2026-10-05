@@ -22,6 +22,7 @@ export default function CategorySelectionLanding({
   // Strictly 4 core categories in order: 
   // Row 1: E-Commerce & Restaurant side-by-side
   // Row 2: Blogs & Media & Groceries side-by-side
+  // Each category has a distinctive, modern, premium background color with intelligently paired high-contrast text
   const categories = [
     {
       id: 'ecommerce' as WebsiteCategory,
@@ -34,9 +35,20 @@ export default function CategorySelectionLanding({
       icon: ShoppingBasket,
       tagBn: 'সর্বাধিক জনপ্রিয়',
       tagEn: 'Most Popular',
-      accentColor: '#2B47EE',
-      iconBg: 'bg-[#EEF2FF]',
-      borderHover: 'hover:border-[#2B47EE]'
+      accentColor: '#60A5FA',
+      bgGradient: 'from-[#172554] via-[#1D4ED8] to-[#2563EB]',
+      cardBorder: 'border-blue-400/40 hover:border-blue-300',
+      cardShadow: 'shadow-[0_12px_32px_rgba(29,78,216,0.24)] hover:shadow-[0_20px_48px_rgba(29,78,216,0.40)]',
+      selectedRing: 'ring-4 ring-white/60 border-white',
+      titleColor: 'text-white',
+      subtitleColor: 'text-blue-200',
+      descColor: 'text-blue-100/90',
+      tagBadgeBg: 'bg-white/15 text-white border-white/25 backdrop-blur-md',
+      tagDotColor: '#93C5FD',
+      iconBoxBg: 'bg-white/20 text-white border-white/30 backdrop-blur-md shadow-inner',
+      chipBg: 'bg-black/20 text-blue-100 border-white/15',
+      bottomTextColor: 'text-white group-hover:text-blue-100',
+      actionBtnBg: 'bg-white text-[#1D4ED8] group-hover:bg-blue-50'
     },
     {
       id: 'restaurant' as WebsiteCategory,
@@ -49,9 +61,20 @@ export default function CategorySelectionLanding({
       icon: UtensilsCrossed,
       tagBn: 'ট্রেন্ডিং চয়েস',
       tagEn: 'Trending Choice',
-      accentColor: '#FF6118',
-      iconBg: 'bg-[#FFF3EC]',
-      borderHover: 'hover:border-[#FF6118]'
+      accentColor: '#FDBA74',
+      bgGradient: 'from-[#7C2D12] via-[#C2410C] to-[#EA580C]',
+      cardBorder: 'border-orange-400/40 hover:border-orange-300',
+      cardShadow: 'shadow-[0_12px_32px_rgba(194,65,12,0.24)] hover:shadow-[0_20px_48px_rgba(194,65,12,0.40)]',
+      selectedRing: 'ring-4 ring-white/60 border-white',
+      titleColor: 'text-white',
+      subtitleColor: 'text-orange-200',
+      descColor: 'text-orange-100/90',
+      tagBadgeBg: 'bg-white/15 text-white border-white/25 backdrop-blur-md',
+      tagDotColor: '#FED7AA',
+      iconBoxBg: 'bg-white/20 text-white border-white/30 backdrop-blur-md shadow-inner',
+      chipBg: 'bg-black/20 text-orange-100 border-white/15',
+      bottomTextColor: 'text-white group-hover:text-orange-100',
+      actionBtnBg: 'bg-white text-[#C2410C] group-hover:bg-orange-50'
     },
     {
       id: 'blogging' as WebsiteCategory,
@@ -64,9 +87,20 @@ export default function CategorySelectionLanding({
       icon: Newspaper,
       tagBn: 'হাই ট্রাফিক',
       tagEn: 'High Traffic',
-      accentColor: '#7C3AED',
-      iconBg: 'bg-[#F5F0FF]',
-      borderHover: 'hover:border-[#7C3AED]'
+      accentColor: '#D8B4FE',
+      bgGradient: 'from-[#3B0764] via-[#6D28D9] to-[#7C3AED]',
+      cardBorder: 'border-purple-400/40 hover:border-purple-300',
+      cardShadow: 'shadow-[0_12px_32px_rgba(109,40,217,0.24)] hover:shadow-[0_20px_48px_rgba(109,40,217,0.40)]',
+      selectedRing: 'ring-4 ring-white/60 border-white',
+      titleColor: 'text-white',
+      subtitleColor: 'text-purple-200',
+      descColor: 'text-purple-100/90',
+      tagBadgeBg: 'bg-white/15 text-white border-white/25 backdrop-blur-md',
+      tagDotColor: '#E9D5FF',
+      iconBoxBg: 'bg-white/20 text-white border-white/30 backdrop-blur-md shadow-inner',
+      chipBg: 'bg-black/20 text-purple-100 border-white/15',
+      bottomTextColor: 'text-white group-hover:text-purple-100',
+      actionBtnBg: 'bg-white text-[#6D28D9] group-hover:bg-purple-50'
     },
     {
       id: 'grocery' as WebsiteCategory,
@@ -79,9 +113,20 @@ export default function CategorySelectionLanding({
       icon: Store,
       tagBn: 'নিত্যপ্রয়োজনীয়',
       tagEn: 'Daily Essential',
-      accentColor: '#00B261',
-      iconBg: 'bg-[#EBFDF3]',
-      borderHover: 'hover:border-[#00B261]'
+      accentColor: '#6EE7B7',
+      bgGradient: 'from-[#064E3B] via-[#047857] to-[#059669]',
+      cardBorder: 'border-emerald-400/40 hover:border-emerald-300',
+      cardShadow: 'shadow-[0_12px_32px_rgba(4,120,87,0.24)] hover:shadow-[0_20px_48px_rgba(4,120,87,0.40)]',
+      selectedRing: 'ring-4 ring-white/60 border-white',
+      titleColor: 'text-white',
+      subtitleColor: 'text-emerald-200',
+      descColor: 'text-emerald-100/90',
+      tagBadgeBg: 'bg-white/15 text-white border-white/25 backdrop-blur-md',
+      tagDotColor: '#A7F3D0',
+      iconBoxBg: 'bg-white/20 text-white border-white/30 backdrop-blur-md shadow-inner',
+      chipBg: 'bg-black/20 text-emerald-100 border-white/15',
+      bottomTextColor: 'text-white group-hover:text-emerald-100',
+      actionBtnBg: 'bg-white text-[#047857] group-hover:bg-emerald-50'
     }
   ];
 
@@ -176,7 +221,7 @@ export default function CategorySelectionLanding({
         {/* 2x2 Grid: 
             Row 1: E-Commerce & Restaurant side-by-side
             Row 2: Blogs & Groceries side-by-side
-            Enhanced tactile depth, refined typography, and sleek hover elevation */}
+            Each button/card features its unique, modern, premium background color with matching high-contrast text */}
         <div className="grid grid-cols-2 gap-4 sm:gap-6 w-full max-w-3xl">
           {categories.map((cat) => {
             const Icon = cat.icon;
@@ -186,30 +231,28 @@ export default function CategorySelectionLanding({
               <div
                 key={cat.id}
                 onClick={() => handleCardClick(cat.id)}
-                className={`group relative p-5 sm:p-6 sm:py-7 rounded-[24px] sm:rounded-[28px] border transition-all duration-300 cursor-pointer flex flex-col justify-between shadow-[0_4px_20px_rgba(15,23,42,0.04)] hover:shadow-[0_20px_45px_-10px_rgba(15,23,42,0.12)] min-h-[230px] sm:min-h-[275px] md:min-h-[290px] bg-white/95 backdrop-blur-md hover:-translate-y-1.5 overflow-hidden select-none ${
+                className={`group relative p-5 sm:p-6 sm:py-7 rounded-[24px] sm:rounded-[28px] border transition-all duration-300 cursor-pointer flex flex-col justify-between min-h-[230px] sm:min-h-[275px] md:min-h-[290px] bg-gradient-to-br ${cat.bgGradient} ${cat.cardShadow} hover:-translate-y-1.5 overflow-hidden select-none ${
                   isSelected
-                    ? 'border-[#2B47EE] ring-3 ring-[#2B47EE]/20 shadow-[0_16px_36px_rgba(43,71,238,0.2)] scale-[1.01]'
-                    : `border-slate-200/90 ${cat.borderHover}`
+                    ? `${cat.selectedRing} scale-[1.01]`
+                    : `${cat.cardBorder}`
                 }`}
               >
                 {/* Top Corner Ambient Glow on Hover */}
                 <div 
-                  className="absolute -top-12 -right-12 w-32 h-32 rounded-full opacity-0 group-hover:opacity-20 blur-2xl transition-opacity duration-500 pointer-events-none"
-                  style={{ backgroundColor: cat.accentColor }}
+                  className="absolute -top-12 -right-12 w-36 h-36 rounded-full opacity-25 group-hover:opacity-50 blur-2xl transition-opacity duration-500 pointer-events-none bg-white"
                 />
 
                 <div className="relative z-10">
                   {/* Top Bar: Icon + Status Indicator */}
                   <div className="flex items-center justify-between mb-3.5 sm:mb-4">
                     <div
-                      className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center transition-all duration-300 group-hover:scale-110 shadow-xs border border-black/[0.03] ${cat.iconBg}`}
-                      style={{ color: cat.accentColor }}
+                      className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center transition-all duration-300 group-hover:scale-110 shadow-sm ${cat.iconBoxBg}`}
                     >
                       <Icon className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.2]" />
                     </div>
 
-                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-50 border border-slate-200/80 text-[10px] sm:text-[11px] font-bold text-slate-600 group-hover:text-slate-900 transition-colors shadow-2xs">
-                      <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: cat.accentColor }} />
+                    <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] sm:text-[11px] font-bold shadow-2xs transition-colors ${cat.tagBadgeBg}`}>
+                      <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: cat.tagDotColor }} />
                       <span className="hidden xs:inline-block">
                         {language === 'en' ? cat.tagEn : cat.tagBn}
                       </span>
@@ -217,37 +260,37 @@ export default function CategorySelectionLanding({
                   </div>
 
                   {/* Titles */}
-                  <h3 className="text-base sm:text-lg md:text-xl font-black text-slate-900 group-hover:text-[#2B47EE] transition-colors leading-tight">
+                  <h3 className={`text-base sm:text-lg md:text-xl font-black ${cat.titleColor} transition-colors leading-tight`}>
                     {cat.titleEnglish}
                   </h3>
 
                   {language === 'bn' ? (
-                    <span className="text-xs sm:text-sm font-bold text-[#2B47EE] block mt-0.5 mb-1.5 sm:mb-2">
+                    <span className={`text-xs sm:text-sm font-bold ${cat.subtitleColor} block mt-0.5 mb-1.5 sm:mb-2`}>
                       {cat.titleBangla}
                     </span>
                   ) : (
-                    <span className="text-xs sm:text-sm font-bold text-[#2B47EE] block mt-0.5 mb-1.5 sm:mb-2">
+                    <span className={`text-xs sm:text-sm font-bold ${cat.subtitleColor} block mt-0.5 mb-1.5 sm:mb-2`}>
                       {cat.tagEn}
                     </span>
                   )}
 
-                  <p className="text-[11px] sm:text-xs text-slate-500 group-hover:text-slate-600 line-clamp-2 leading-relaxed mb-3">
+                  <p className={`text-[11px] sm:text-xs ${cat.descColor} line-clamp-2 leading-relaxed mb-3`}>
                     {language === 'en' ? cat.subtitleEn : cat.subtitleBn}
                   </p>
 
                   {/* Micro features separator */}
-                  <div className="hidden sm:inline-flex items-center gap-1.5 text-[10px] sm:text-[11px] font-semibold text-slate-600 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200/70">
-                    <span className="w-1 h-1 rounded-full bg-[#00B261]" />
+                  <div className={`hidden sm:inline-flex items-center gap-1.5 text-[10px] sm:text-[11px] font-semibold px-2.5 py-1 rounded-lg ${cat.chipBg}`}>
+                    <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: cat.tagDotColor }} />
                     <span>{language === 'en' ? cat.featuresEn : cat.featuresBn}</span>
                   </div>
                 </div>
 
                 {/* Bottom Action Bar */}
-                <div className="relative z-10 pt-3.5 sm:pt-4 mt-3 sm:mt-4 border-t border-slate-100 flex items-center justify-between text-xs sm:text-sm font-bold text-[#2B47EE]">
-                  <span className="group-hover:text-[#203CD4] transition-colors">
+                <div className={`relative z-10 pt-3.5 sm:pt-4 mt-3 sm:mt-4 border-t border-white/20 flex items-center justify-between text-xs sm:text-sm font-bold ${cat.bottomTextColor}`}>
+                  <span className="transition-colors drop-shadow-xs">
                     {t('ক্যাটালগ দেখুন', 'Explore Catalog')}
                   </span>
-                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-slate-50 group-hover:bg-[#2B47EE] text-[#2B47EE] group-hover:text-white flex items-center justify-center transition-all duration-200 shadow-2xs group-hover:shadow-md">
+                  <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-xl flex items-center justify-center transition-all duration-200 shadow-sm ${cat.actionBtnBg}`}>
                     <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 stroke-[2.5]" />
                   </div>
                 </div>
