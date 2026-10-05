@@ -13,7 +13,7 @@ import OrderPageView from './components/OrderPageView';
 import NotificationsModal from './components/NotificationsModal';
 import SideMenuDrawer from './components/SideMenuDrawer';
 import AdminPanelView from './components/AdminPanelView';
-import LogoShowcaseModal from './components/LogoShowcaseModal';
+import LandscapeOrderDetailsModal from './components/LandscapeOrderDetailsModal';
 
 type ViewMode = 
   | 'category-picker' 
@@ -34,7 +34,7 @@ export default function App() {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
   const [sideMenuOpen, setSideMenuOpen] = useState(false);
-  const [logoModalOpen, setLogoModalOpen] = useState(false);
+  const [landscapeOrderModalOpen, setLandscapeOrderModalOpen] = useState(false);
 
   // Helper to extract demo by code (e.g. 1042 or #1042 or custom uploaded websites)
   const findDemoByCode = (rawCode: string): WebsiteDemo | null => {
@@ -287,7 +287,6 @@ export default function App() {
             onBackToCategoryPicker={handleBackToCategoryPicker}
             onOpenNotifications={() => setNotificationsOpen(true)}
             onOpenMenu={() => setSideMenuOpen(true)}
-            onOpenLogoShowcase={() => setLogoModalOpen(true)}
             unreadCount={unreadNotifications}
             currentCategory={selectedCategory}
           />
@@ -358,13 +357,21 @@ export default function App() {
         onClose={() => setSideMenuOpen(false)}
         onSelectTab={handleTabChange}
         onGoToCategoryLanding={handleBackToCategoryPicker}
-        onOpenLogoShowcase={() => setLogoModalOpen(true)}
+        onOpenOrderDetails={() => setLandscapeOrderModalOpen(true)}
       />
 
-      {/* Official Brand Logo Showcase Modal (Side-by-side Version 1 & 2) */}
-      <LogoShowcaseModal
-        isOpen={logoModalOpen}
-        onClose={() => setLogoModalOpen(false)}
+      {/* Landscape Order Details & Live Credentials Modal */}
+      <LandscapeOrderDetailsModal
+        isOpen={landscapeOrderModalOpen}
+        onClose={() => setLandscapeOrderModalOpen(false)}
+        onGoToDashboard={() => {
+          setLandscapeOrderModalOpen(false);
+          handleTabChange('dashboard');
+        }}
+        onGoToLiveChat={() => {
+          setLandscapeOrderModalOpen(false);
+          handleTabChange('live-chat');
+        }}
       />
     </div>
   );

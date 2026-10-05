@@ -502,22 +502,24 @@ export async function apiGetUsers(): Promise<UserAccount[]> {
 }
 
 export async function apiRegisterUser(user: UserAccount): Promise<{ success: boolean; user?: UserAccount; error?: string }> {
-  const cleanPhone = (user.phone || '').trim();
   const cleanEmail = (user.email || '').trim().toLowerCase();
+  const cleanPhone = (user.phone || '').trim() || cleanEmail.replace(/[^a-zA-Z0-9]/g, '_');
 
-  if (!user.name || !cleanPhone || !cleanEmail) {
+  if (!user.name || !cleanEmail) {
     return { success: false, error: 'সবগুলো তথ্য পূরণ করুন।' };
   }
 
-  // Enforce uniqueness: one phone number and one email cannot register multiple accounts
-  const duplicatePhone = (localCache.users || []).some(u => u.phone === cleanPhone);
-  if (duplicatePhone) {
-    return { success: false, error: 'এই মোবাইল নম্বর দিয়ে ইতোমধ্যে একটি অ্যাকাউন্ট রয়েছে। এক ফোন নম্বরে একাধিক অ্যাকাউন্ট সম্ভব নয়।' };
-  }
-
+  // Enforce uniqueness: one email cannot register multiple accounts
   const duplicateEmail = (localCache.users || []).some(u => (u.email || '').toLowerCase() === cleanEmail);
   if (duplicateEmail) {
     return { success: false, error: 'এই ইমেইল এড্রেস দিয়ে ইতোমধ্যে একটি অ্যাকাউন্ট তৈরি করা হয়েছে। অনুগ্রহ করে লগইন করুন।' };
+  }
+
+  if (user.phone && user.phone.trim()) {
+    const duplicatePhone = (localCache.users || []).some(u => u.phone === user.phone.trim());
+    if (duplicatePhone) {
+      return { success: false, error: 'এই মোবাইল নম্বর দিয়ে ইতোমধ্যে একটি অ্যাকাউন্ট রয়েছে।' };
+    }
   }
 
   const cleanUser: UserAccount = cleanFirestoreData({
@@ -531,13 +533,6 @@ export async function apiRegisterUser(user: UserAccount): Promise<{ success: boo
   // 1. Persist directly to Cloud Firestore
   try {
     const userDocRef = doc(db, 'users', cleanPhone);
-    const existingSnap = await getDoc(userDocRef);
-    if (existingSnap.exists()) {
-      return {
-        success: false,
-        error: 'এই মোবাইল নম্বর দিয়ে ইতিমধ্যে একটি অ্যাকাউন্ট তৈরি করা হয়েছে!'
-      };
-    }
     await setDoc(userDocRef, cleanUser);
   } catch (err) {
     console.warn('Firestore register notice:', err);
@@ -963,6 +958,7 @@ export async function apiActivateChat(params: {
         language: params.language,
         expiresAt,
         isClosed: false,
+        isArchived: false,
         lastUpdated: 'এখনই'
       };
       if (!thread.messages || thread.messages.length === 0) {
@@ -971,23 +967,6 @@ export async function apiActivateChat(params: {
     }
     // Save to Cloud Firestore with undefined sanitized
     await setDoc(chatDocRef, cleanFirestoreData(thread));
-
-    // Also auto-register in users collection so customer appears in Users & Delivery sections!
-    const userRef = doc(db, 'users', cleanPhone);
-    const userSnap = await getDoc(userRef);
-    if (!userSnap.exists()) {
-      const newUser: UserAccount = {
-        name: cleanName,
-        phone: cleanPhone,
-        email: '',
-        registeredAt: new Date().toLocaleDateString('bn-BD')
-      };
-      await setDoc(userRef, cleanFirestoreData(newUser));
-      const filteredUsers = localCache.users.filter(u => normalizePhone(u.phone) !== cleanPhone);
-      filteredUsers.unshift(newUser);
-      localCache.users = filteredUsers;
-      localStorage.setItem('bongoweb_registered_users', JSON.stringify(filteredUsers));
-    }
   } catch (err) {
     console.error('Firestore activate chat error:', err);
   }
@@ -1046,10 +1025,11 @@ export async function apiSendChatMessage(params: {
       }
       thread.lastMessage = cleanText;
       thread.lastUpdated = 'এখনই';
+      thread.isClosed = false;
+      thread.isArchived = false;
       if (params.sender === 'client') {
         thread.unreadAdminCount = (thread.unreadAdminCount || 0) + 1;
         thread.expiresAt = Date.now() + 5 * 60 * 1000; // Reset 5 min timer on user response
-        thread.isClosed = false;
       } else {
         thread.unreadClientCount = (thread.unreadClientCount || 0) + 1;
       }
@@ -1063,6 +1043,7 @@ export async function apiSendChatMessage(params: {
         unreadClientCount: params.sender === 'admin' ? 1 : 0,
         expiresAt: Date.now() + 5 * 60 * 1000,
         isClosed: false,
+        isArchived: false,
         additionalMinutesAdded: 0,
         messages: [newMsg]
       };
@@ -1080,10 +1061,11 @@ export async function apiSendChatMessage(params: {
     }
     localThread.lastMessage = cleanText;
     localThread.lastUpdated = 'এখনই';
+    localThread.isClosed = false;
+    localThread.isArchived = false;
     if (params.sender === 'client') {
       localThread.unreadAdminCount = (localThread.unreadAdminCount || 0) + 1;
       localThread.expiresAt = Date.now() + 5 * 60 * 1000;
-      localThread.isClosed = false;
     } else {
       localThread.unreadClientCount = (localThread.unreadClientCount || 0) + 1;
     }
@@ -1097,6 +1079,7 @@ export async function apiSendChatMessage(params: {
       unreadClientCount: params.sender === 'admin' ? 1 : 0,
       expiresAt: Date.now() + 5 * 60 * 1000,
       isClosed: false,
+      isArchived: false,
       additionalMinutesAdded: 0,
       messages: [newMsg]
     };
@@ -1155,37 +1138,77 @@ export async function apiExtendChatTime(phone: string, additionalMinutes: number
   } catch (_) {}
 }
 
-export async function apiEndChat(phone: string): Promise<void> {
+export async function apiEndChat(phone: string, hasAccount?: boolean): Promise<void> {
   const cleanPhone = String(phone || '').trim();
   if (!cleanPhone) return;
 
   const now = new Date().toLocaleString('bn-BD');
-  try {
-    await updateDoc(doc(db, 'supportChats', cleanPhone), {
-      isClosed: true,
-      isArchived: true,
-      archivedAt: now
-    });
-  } catch (err) {
-    console.warn('Firestore close chat notice:', err);
+  const cleanDigits = normalizePhone(cleanPhone).slice(-10);
+
+  // Robust check across users, orders, and local storage to determine if customer has an account
+  let userHasAccount = typeof hasAccount === 'boolean' ? hasAccount : false;
+  if (!userHasAccount && cleanDigits) {
+    let localUsers: UserAccount[] = localCache.users || [];
+    if (localUsers.length === 0) {
+      try {
+        const stored = localStorage.getItem('bongoweb_registered_users');
+        if (stored) localUsers = JSON.parse(stored);
+      } catch (_) {}
+    }
+    const matchUser = localUsers.some(u => normalizePhone(u.phone).slice(-10) === cleanDigits);
+
+    let localOrders: ClientOrder[] = localCache.orders || [];
+    if (localOrders.length === 0) {
+      try {
+        const stored = localStorage.getItem('bongoweb_placed_orders');
+        if (stored) localOrders = JSON.parse(stored);
+      } catch (_) {}
+    }
+    const matchOrder = localOrders.some(o => normalizePhone(o.phone).slice(-10) === cleanDigits);
+
+    userHasAccount = matchUser || matchOrder;
   }
 
-  // Preserve in local cache as archived & closed instead of deleting!
-  localCache.supportChats = (localCache.supportChats || []).map(t => 
-    t.userPhone === cleanPhone ? { ...t, isClosed: true, isArchived: true, archivedAt: now } : t
-  );
+  if (userHasAccount) {
+    try {
+      await updateDoc(doc(db, 'supportChats', cleanPhone), {
+        isClosed: true,
+        isArchived: true,
+        archivedAt: now
+      });
+    } catch (err) {
+      console.warn('Firestore close chat notice:', err);
+    }
+
+    localCache.supportChats = (localCache.supportChats || []).map(t => 
+      (t.userPhone === cleanPhone || normalizePhone(t.userPhone).slice(-10) === cleanDigits)
+        ? { ...t, isClosed: true, isArchived: true, archivedAt: now }
+        : t
+    );
+  } else {
+    // Visitor does not have an account: temporary chat is deleted and not stored in archives
+    try {
+      await deleteDoc(doc(db, 'supportChats', cleanPhone));
+    } catch (err) {
+      console.warn('Firestore delete temporary chat notice:', err);
+    }
+    localCache.supportChats = (localCache.supportChats || []).filter(t => 
+      t.userPhone !== cleanPhone && normalizePhone(t.userPhone).slice(-10) !== cleanDigits
+    );
+  }
+
   localStorage.setItem('bongoweb_support_chats', JSON.stringify(localCache.supportChats));
 
-  // Broadcast realtime chat:ended with isClosed: true
+  // Broadcast realtime chat:ended
   try {
-    realtimeManager.emit('chat:ended', { phone: cleanPhone, isClosed: true });
+    realtimeManager.emit('chat:ended', { phone: cleanPhone, isClosed: true, hasAccount: userHasAccount });
   } catch (_) {}
 
   try {
     fetch('/api/chat/end', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone: cleanPhone, isArchived: true, archivedAt: now })
+      body: JSON.stringify({ phone: cleanPhone, hasAccount: userHasAccount })
     }).catch(() => {});
   } catch (_) {}
 }
@@ -1331,27 +1354,54 @@ export async function apiDeleteWebsite(code: string): Promise<WebsiteDemo[]> {
 
 // ---------------- DELIVERED CREDENTIALS ----------------
 export async function apiGetDeliveredCredentials(): Promise<WebsiteDeliveryCredentials[]> {
+  let creds: WebsiteDeliveryCredentials[] = [];
   try {
     const snap = await getDocs(collection(db, 'deliveredCredentials'));
     if (!snap.empty) {
-      const creds = snap.docs.map(d => d.data() as WebsiteDeliveryCredentials);
-      localCache.deliveredCredentials = creds;
-      localStorage.setItem('bongoweb_delivered_credentials', JSON.stringify(creds));
-      return creds;
+      creds = snap.docs.map(d => d.data() as WebsiteDeliveryCredentials);
     }
   } catch (_) {}
 
-  try {
-    const res = await fetch('/api/credentials');
-    if (res.ok) {
-      const creds = await res.json();
-      localCache.deliveredCredentials = creds;
-      localStorage.setItem('bongoweb_delivered_credentials', JSON.stringify(creds));
-      return creds;
-    }
-  } catch (_) {}
+  if (creds.length === 0) {
+    try {
+      const res = await fetch('/api/credentials');
+      if (res.ok) {
+        creds = await res.json();
+      }
+    } catch (_) {}
+  }
 
-  return localCache.deliveredCredentials;
+  if (creds.length === 0 && localCache.deliveredCredentials && localCache.deliveredCredentials.length > 0) {
+    creds = [...localCache.deliveredCredentials];
+  }
+
+  // Also include credentials embedded on orders so customer never misses them
+  for (const o of (localCache.orders || [])) {
+    if (o && o.deliveredAdminId && o.deliveredAdminPass) {
+      const exists = creds.some(c => 
+        (c.orderId && c.orderId === o.orderId) || 
+        (normalizePhone(c.userPhone) === normalizePhone(o.phone) && (c.websiteCode === o.demoCode || !c.websiteCode))
+      );
+      if (!exists) {
+        creds.push({
+          id: `order-cred-${o.orderId}`,
+          orderId: o.orderId,
+          userPhone: o.phone,
+          userEmail: o.email || '',
+          websiteTitle: o.companyName || o.demoTitle || 'ওয়েবসাইট অ্যাডমিন প্যানেল',
+          websiteCode: o.demoCode,
+          websiteAdminId: o.deliveredAdminId,
+          websiteAdminPass: o.deliveredAdminPass,
+          notes: 'আপনার ওয়েবসাইট সম্পূর্ণ তৈরি ও রেডি। অ্যাডমিন প্যানেলে লগইন করুন।',
+          deliveredAt: o.createdAt || new Date().toLocaleString('bn-BD')
+        });
+      }
+    }
+  }
+
+  localCache.deliveredCredentials = creds;
+  localStorage.setItem('bongoweb_delivered_credentials', JSON.stringify(creds));
+  return creds;
 }
 
 export async function apiAddDeliveredCredentials(cred: WebsiteDeliveryCredentials, targetOrderId?: string): Promise<WebsiteDeliveryCredentials[]> {

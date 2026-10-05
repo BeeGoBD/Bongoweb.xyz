@@ -4,6 +4,7 @@ import {
   ChevronRight, ArrowRight, CheckCircle2, Globe
 } from 'lucide-react';
 import BongoWebLogo from './BongoWebLogo';
+import FloatingLiveChatWidget from './FloatingLiveChatWidget';
 import { WebsiteCategory, UserAccount } from '../types';
 import { useLanguage } from '../utils/LanguageContext';
 
@@ -331,6 +332,9 @@ export default function CategorySelectionLanding({
       <footer className="w-full py-2.5 shrink-0 border-t border-[#E5EDF5] bg-[#FFFFFF] text-center text-[10px] sm:text-xs text-[#64748D]">
         <p>© 2026 BongoWeb — All Rights Reserved.</p>
       </footer>
+
+      {/* Floating Hover Round Support Button with Live Chat */}
+      <FloatingLiveChatWidget />
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   User, ShieldCheck, Key, Globe, FileText, 
   HelpCircle, CheckCircle2, Lock, ArrowRight, ArrowLeft, X, 
@@ -11,7 +11,7 @@ import { ClientOrder, UserAccount, WebsiteDeliveryCredentials, PasswordResetRequ
 import { 
   apiRegisterUser, apiRequestPasswordReset, apiGetOrders, apiGetUsers, 
   apiGetCredentials, apiCreateReport, apiSendEmailOtp, apiVerifyEmailOtp, 
-  apiResetPasswordWithOtp, apiSyncDescopeUser, apiSyncGoogleUser 
+  apiResetPasswordWithOtp, apiSyncDescopeUser, apiSyncGoogleUser, normalizePhone 
 } from '../utils/api';
 import { getClientSecurityCode, getSecurityCodeRemainingSeconds, formatRemainingTime } from '../utils/securityCode';
 import { auth, googleProvider } from '../firebase';
@@ -80,11 +80,9 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
   const [showAllScreensComparison, setShowAllScreensComparison] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
 
-  // Screen 2 Registration Form Specific Fields (Strict Order: Username, First Name, Last Name, WhatsApp, Password, Confirm Password)
-  const [regUsername, setRegUsername] = useState('');
-  const [regFirstName, setRegFirstName] = useState('');
-  const [regLastName, setRegLastName] = useState('');
-  const [regWhatsApp, setRegWhatsApp] = useState('');
+  // Screen 2 Registration Form Specific Fields (Strict Order: Full name, Password, Confirm Password)
+  const [regFullName, setRegFullName] = useState('');
+  const lastVerifiedOtpRef = useRef<string>('');
 
   const [googleLoading, setGoogleLoading] = useState(false);
 
@@ -218,20 +216,56 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
         }
         setCurrentUser(latest);
 
-        // Check delivered credentials for this user
+        // Fetch orders first to cross-reference credentials
+        const allOrders = await apiGetOrders();
+        setOrders(allOrders);
+
+        // Check delivered credentials for this user with robust phone & email normalization
         const credsList = await apiGetCredentials();
-        const found = credsList.filter((c) => 
-          (parsed.phone && c.userPhone === parsed.phone) || 
-          (parsed.email && ((c.userEmail && c.userEmail.toLowerCase() === parsed.email.toLowerCase()) || ((c as any).clientEmail && (c as any).clientEmail.toLowerCase() === parsed.email.toLowerCase())))
-        );
+        const userCleanPhone = normalizePhone(parsed.phone);
+        const userCleanEmail = parsed.email ? parsed.email.toLowerCase().trim() : '';
+
+        const found = credsList.filter((c) => {
+          const cPhone = normalizePhone(c.userPhone);
+          const cEmail = (c.userEmail || (c as any).clientEmail || '').toLowerCase().trim();
+          const phoneMatch = userCleanPhone && cPhone && (userCleanPhone.slice(-10) === cPhone.slice(-10));
+          const emailMatch = userCleanEmail && cEmail && (userCleanEmail === cEmail);
+          return phoneMatch || emailMatch;
+        });
+
+        // Also include any credentials stored directly on user's orders if not already in list
+        const userOrders = allOrders.filter(o => {
+          const oPhone = normalizePhone(o.phone);
+          const oEmail = (o.email || '').toLowerCase().trim();
+          return (userCleanPhone && oPhone && userCleanPhone.slice(-10) === oPhone.slice(-10)) ||
+                 (userCleanEmail && oEmail && userCleanEmail === oEmail);
+        });
+
+        userOrders.forEach(ord => {
+          if (ord.deliveredAdminId) {
+            const exists = found.some(f => (f.orderId && f.orderId === ord.orderId) || (f.websiteCode === ord.demoCode));
+            if (!exists) {
+              found.push({
+                id: `ORD-DELIV-${ord.orderId}`,
+                orderId: ord.orderId,
+                userPhone: ord.phone,
+                userEmail: ord.email || '',
+                websiteTitle: ord.companyName || ord.demoTitle || 'অ্যাডমিন প্যানেল',
+                websiteCode: ord.demoCode,
+                websiteAdminId: ord.deliveredAdminId,
+                websiteAdminPass: ord.deliveredAdminPass || '—',
+                notes: 'আপনার ওয়েবসাইট সম্পূর্ণ তৈরি ও রেডি। অ্যাডমিন প্যানেলে লগইন করুন।',
+                deliveredAt: ord.createdAt
+              });
+            }
+          }
+        });
+
         setUserCredentialsList(found);
       } else {
         setCurrentUser(null);
         setUserCredentialsList([]);
       }
-
-      const allOrders = await apiGetOrders();
-      setOrders(allOrders);
     } catch (e) {
       console.error(e);
     }
@@ -451,9 +485,9 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
     }
   };
 
-  // Handle Confirm Email OTP
-  const handleConfirmEmailOtp = async () => {
-    const cleanCode = emailOtpCode.trim();
+  // Handle Confirm Email OTP (Auto-verifies automatically when 6 digits are entered)
+  const handleConfirmEmailOtp = async (overrideCode?: string) => {
+    const cleanCode = String(overrideCode || emailOtpCode).trim();
     if (!cleanCode || cleanCode.length < 6) {
       setRegError('Please enter the 6-digit OTP code.');
       return;
@@ -465,19 +499,24 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
       return;
     }
 
+    lastVerifiedOtpRef.current = cleanCode;
     setRegError('');
+    setRegSuccess('Verifying OTP code...');
     setOtpConfirming(true);
 
     try {
       const res = await apiVerifyEmailOtp(cleanEmail, cleanCode);
       if (res.success) {
+        setEmailVerified(true);
+        setRegSuccess('✓ OTP verified successfully! Logging you in...');
+
         // Smart Registration System: If existing user, auto-login directly!
         if (res.isExistingUser && res.user) {
           setCurrentUser(res.user);
           localStorage.setItem('bongoweb_user', JSON.stringify(res.user));
           sessionStorage.setItem('bongoweb_user', JSON.stringify(res.user));
-          loadUserData();
-          setEmailVerified(true);
+          window.dispatchEvent(new Event('bongoweb_credentials_updated'));
+          await loadUserData();
           setSubView('overview');
           if (onGoToDashboard) {
             onGoToDashboard();
@@ -495,8 +534,8 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
             setCurrentUser(found);
             localStorage.setItem('bongoweb_user', JSON.stringify(found));
             sessionStorage.setItem('bongoweb_user', JSON.stringify(found));
-            loadUserData();
-            setEmailVerified(true);
+            window.dispatchEvent(new Event('bongoweb_credentials_updated'));
+            await loadUserData();
             setSubView('overview');
             if (onGoToDashboard) {
               onGoToDashboard();
@@ -507,16 +546,11 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
           }
         }
 
-        setEmailVerified(true);
-
         // Immediate Account Activation and Dashboard Navigation upon OTP verification
-        const fullName = `${regFirstName.trim()} ${regLastName.trim()}`.trim() || regUsername.trim() || cleanEmail.split('@')[0] || 'BongoWeb Member';
-        const username = regUsername.trim() || cleanEmail.split('@')[0];
+        const fullName = regFullName.trim() || cleanEmail.split('@')[0] || 'BongoWeb Member';
         const newUser: UserAccount = {
           name: fullName,
-          username: username,
-          whatsapp: regWhatsApp.trim(),
-          phone: regPhone.trim() || regWhatsApp.trim(),
+          phone: regPhone.trim() || cleanEmail.replace(/[^a-zA-Z0-9]/g, '_'),
           email: cleanEmail,
           password: regPass.trim() || 'activePass123',
           registeredAt: new Date().toLocaleDateString('bn-BD')
@@ -532,7 +566,8 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
         setCurrentUser(newUser);
         localStorage.setItem('bongoweb_user', JSON.stringify(newUser));
         sessionStorage.setItem('bongoweb_user', JSON.stringify(newUser));
-        loadUserData();
+        window.dispatchEvent(new Event('bongoweb_credentials_updated'));
+        await loadUserData();
 
         // Immediately switch into account dashboard view and redirect to dashboard
         setSubView('overview');
@@ -544,13 +579,46 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
         return;
       } else {
         setRegError(res.error || 'Invalid OTP code! Please verify the code received in your email.');
+        setRegSuccess('');
       }
     } catch (_) {
-      setRegError('Code verification failed.');
+      setRegError('Code verification failed. Please try again.');
+      setRegSuccess('');
     } finally {
       setOtpConfirming(false);
     }
   };
+
+  // Auto-verify OTP when 6 digits are typed, pasted or autofilled without clicking any button
+  const handleOtpInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value.replace(/\D/g, '').slice(0, 6);
+    setEmailOtpCode(val);
+    if (val.length === 6 && !otpConfirming && lastVerifiedOtpRef.current !== val) {
+      handleConfirmEmailOtp(val);
+    }
+  };
+
+  const handleOtpPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+    if (pasted.length === 6 && !otpConfirming && lastVerifiedOtpRef.current !== pasted) {
+      setEmailOtpCode(pasted);
+      handleConfirmEmailOtp(pasted);
+    }
+  };
+
+  // Immediate watcher: verify automatically when 6-digit OTP is set
+  useEffect(() => {
+    if (
+      authMode === 'email-verify' &&
+      otpSent &&
+      emailOtpCode.length === 6 &&
+      !otpConfirming &&
+      !emailVerified &&
+      lastVerifiedOtpRef.current !== emailOtpCode
+    ) {
+      handleConfirmEmailOtp(emailOtpCode);
+    }
+  }, [emailOtpCode, otpSent, authMode, otpConfirming, emailVerified]);
 
   // Handle Submit Client Report
   const handleReportSubmit = async (e: React.FormEvent) => {
@@ -587,17 +655,13 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
     }
   };
 
-  // SCREEN 2: Handle Step 1 Registration (Validates Username, First Name, Last Name, Passwords - No number verification)
+  // SCREEN 2: Handle Step 1 Registration (Validates Full Name, Passwords)
   const handleRegisterStep1 = async (e: React.FormEvent) => {
     e.preventDefault();
     setRegError('');
 
-    if (!regUsername.trim()) {
-      setRegError('Please choose a username.');
-      return;
-    }
-    if (!regFirstName.trim()) {
-      setRegError('Please enter your first name.');
+    if (!regFullName.trim()) {
+      setRegError('Please enter your full name.');
       return;
     }
     if (!regPass || regPass.length < 4) {
@@ -608,14 +672,6 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
       setRegError('Password and Confirm Password do not match!');
       return;
     }
-
-    try {
-      const allUsers = await apiGetUsers();
-      if (allUsers.some(u => (u as any).username && (u as any).username.toLowerCase() === regUsername.trim().toLowerCase())) {
-        setRegError('An account with this username already exists.');
-        return;
-      }
-    } catch (_) {}
 
     // Successfully validated step 1 -> immediately transition to SCREEN 3: EMAIL VERIFICATION
     setAuthMode('email-verify');
@@ -633,59 +689,18 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
       return;
     }
 
-    // If OTP was sent and not yet confirmed
-    if (otpSent && !emailVerified) {
-      const cleanCode = emailOtpCode.trim();
-      if (!cleanCode || cleanCode.length < 6) {
-        setRegError('Please enter the 6-digit verification code sent to your Gmail.');
-        return;
-      }
-      setOtpConfirming(true);
-      const verifyRes = await apiVerifyEmailOtp(cleanEmail, cleanCode);
-      setOtpConfirming(false);
-      if (!verifyRes.success) {
-        setRegError(verifyRes.error || 'Invalid or expired OTP code.');
-        return;
-      }
-      setEmailVerified(true);
-    }
-
-    setRegSubmitting(true);
-    try {
-      const fullName = `${regFirstName.trim()} ${regLastName.trim()}`.trim() || regUsername.trim() || 'BongoWeb Member';
-      const newUser: UserAccount = {
-        name: fullName,
-        username: regUsername.trim(),
-        whatsapp: regWhatsApp.trim(),
-        phone: regPhone.trim() || regWhatsApp.trim(),
-        email: cleanEmail,
-        password: regPass.trim(),
-        registeredAt: new Date().toLocaleDateString('bn-BD')
-      };
-
-      const result = await apiRegisterUser(newUser);
-      setRegSubmitting(false);
-
-      if (!result.success) {
-        setRegError(result.error || 'Registration failed. Please try again.');
-        return;
-      }
-
-      setCurrentUser(newUser);
-      localStorage.setItem('bongoweb_user', JSON.stringify(newUser));
-      sessionStorage.setItem('bongoweb_user', JSON.stringify(newUser));
-      loadUserData();
-      setSubView('overview');
-      if (onGoToDashboard) {
-        onGoToDashboard();
-      } else {
-        window.history.pushState({}, '', '/account');
-      }
+    // If OTP was sent and code is entered
+    if (otpSent && emailOtpCode.trim().length >= 6) {
+      await handleConfirmEmailOtp(emailOtpCode.trim());
       return;
-    } catch (err: any) {
-      setRegSubmitting(false);
-      setRegError(err?.message || 'Registration error. Please try again.');
     }
+
+    if (!otpSent) {
+      await handleSendEmailOtp();
+      return;
+    }
+
+    setRegError('Please enter the 6-digit verification code sent to your Gmail.');
   };
 
   // Legacy full registration handler fallback
@@ -783,29 +798,8 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
         {/* Subtle Ambient Background Brand Glow */}
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-gradient-to-tr from-[#2B47EE]/[0.08] via-[#7C3AED]/[0.05] to-[#4F46E5]/[0.05] rounded-full blur-3xl pointer-events-none -z-10" />
 
-        {/* Floating Green WhatsApp Chat Button (Bottom-Right Corner) */}
-        <a
-          href="https://wa.me/8801831828859?text=Hello%20BongoWeb%20Support%20I%20need%20help%20with%20my%20account"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="fixed bottom-5 right-5 sm:bottom-6 sm:right-6 z-50 w-13 h-13 sm:w-14 sm:h-14 rounded-full bg-[#25D366] hover:bg-[#20bd5a] text-white flex items-center justify-center shadow-[0_8px_25px_rgba(37,211,102,0.45)] hover:scale-105 active:scale-95 transition-all group cursor-pointer"
-          title="Chat on WhatsApp (+880 1831-828859)"
-        >
-          <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-300 opacity-80"></span>
-            <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-200"></span>
-          </span>
-          <WhatsAppIcon className="w-7 h-7 text-white fill-white" />
-        </a>
-
         {/* MOBILE-FIRST CENTERED CARD */}
-        <div className="max-w-[440px] mx-auto px-4 w-full relative z-10 flex flex-col items-center mt-2 sm:mt-4">
-          
-          {/* Official Brand Logo */}
-          <div className="mb-4 sm:mb-5 flex flex-col items-center select-none">
-            <BongoWebLogo size="lg" />
-          </div>
-
+        <div className="max-w-[440px] mx-auto px-4 w-full relative z-10 flex flex-col items-center mt-4 sm:mt-6">
           {/* SCREEN 1: LOGIN PAGE */}
           {authMode === 'login' && (
               <div className="w-full bg-white border border-slate-200/90 rounded-[28px] p-6 sm:p-8 shadow-[0_20px_50px_-12px_rgba(43,71,238,0.12),0_4px_16px_rgba(0,0,0,0.03)] space-y-4 animate-fadeIn">
@@ -966,7 +960,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                   </div>
                 </div>
 
-                <form onSubmit={handleRegisterStep1} className="space-y-3">
+                <form onSubmit={handleRegisterStep1} className="space-y-3.5">
                   {regError && (
                     <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs font-bold flex items-center gap-2 animate-shake">
                       <AlertCircle className="w-4 h-4 shrink-0" />
@@ -974,61 +968,25 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                     </div>
                   )}
 
-                  {/* 1. Username (person icon) */}
+                  {/* 1. Full name (person icon) */}
                   <div>
                     <label className="block text-xs font-bold text-slate-800 mb-1">
-                      Username
+                      Full name
                     </label>
                     <div className="relative">
                       <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                       <input
                         type="text"
                         required
-                        placeholder="Choose a username"
-                        value={regUsername}
-                        onChange={(e) => setRegUsername(e.target.value)}
+                        placeholder="Enter your full name"
+                        value={regFullName}
+                        onChange={(e) => setRegFullName(e.target.value)}
                         className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50/70 border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#2B47EE] focus:ring-2 focus:ring-[#2B47EE]/20 transition-all shadow-2xs"
                       />
                     </div>
                   </div>
 
-                  {/* 2. First name (person icon) */}
-                  <div>
-                    <label className="block text-xs font-bold text-slate-800 mb-1">
-                      First name
-                    </label>
-                    <div className="relative">
-                      <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                      <input
-                        type="text"
-                        required
-                        placeholder="Enter your first name"
-                        value={regFirstName}
-                        onChange={(e) => setRegFirstName(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50/70 border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#2B47EE] focus:ring-2 focus:ring-[#2B47EE]/20 transition-all shadow-2xs"
-                      />
-                    </div>
-                  </div>
-
-                  {/* 3. Last name (person icon) */}
-                  <div>
-                    <label className="block text-xs font-bold text-slate-800 mb-1">
-                      Last name
-                    </label>
-                    <div className="relative">
-                      <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                      <input
-                        type="text"
-                        required
-                        placeholder="Enter your last name"
-                        value={regLastName}
-                        onChange={(e) => setRegLastName(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50/70 border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#2B47EE] focus:ring-2 focus:ring-[#2B47EE]/20 transition-all shadow-2xs"
-                      />
-                    </div>
-                  </div>
-
-                  {/* 4. Password (lock icon) */}
+                  {/* 2. Password (lock icon) */}
                   <div>
                     <label className="block text-xs font-bold text-slate-800 mb-1">
                       Password
@@ -1053,7 +1011,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                     </div>
                   </div>
 
-                  {/* 5. Confirm password (lock icon) */}
+                  {/* 3. Confirm password (lock icon) */}
                   <div>
                     <label className="block text-xs font-bold text-slate-800 mb-1">
                       Confirm password
@@ -1170,31 +1128,51 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
 
                   {/* Optional OTP Code Verification box if code was sent */}
                   {otpSent && (
-                    <div className="p-3.5 rounded-xl bg-indigo-50/60 border border-indigo-200/80 space-y-2 animate-fadeIn">
-                      <label className="block text-xs font-bold text-slate-800">
-                        6-Digit Verification Code
-                      </label>
-                      <div className="flex gap-2">
+                    <div className="p-4 rounded-2xl bg-indigo-50/70 border border-indigo-200/90 space-y-2.5 animate-fadeIn">
+                      <div className="flex items-center justify-between">
+                        <label className="block text-xs font-bold text-slate-800">
+                          6-Digit Verification Code
+                        </label>
+                        <span className="text-[10px] text-emerald-600 font-semibold flex items-center gap-1">
+                          <Sparkles className="w-3 h-3" />
+                          Auto-verifies upon 6 digits
+                        </span>
+                      </div>
+                      <div className="relative">
                         <input
                           type="text"
                           maxLength={6}
-                          placeholder="Enter code"
+                          autoFocus
+                          placeholder="● ● ● ● ● ●"
                           value={emailOtpCode}
-                          onChange={(e) => setEmailOtpCode(e.target.value.replace(/\D/g, ''))}
-                          className="flex-1 px-3 py-2 rounded-xl bg-white border border-slate-200 text-center font-mono font-bold tracking-widest text-sm text-[#0D253D] focus:outline-none focus:border-[#2B47EE]"
+                          onChange={handleOtpInputChange}
+                          onPaste={handleOtpPaste}
+                          className="w-full px-4 py-3 rounded-xl bg-white border border-slate-200 text-center font-mono font-bold tracking-[0.35em] text-lg text-[#0D253D] focus:outline-none focus:border-[#2B47EE] focus:ring-2 focus:ring-[#2B47EE]/20 transition-all shadow-2xs"
                         />
+                        {otpConfirming && (
+                          <div className="absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5 text-xs text-[#2B47EE] font-bold bg-white/95 px-2.5 py-1 rounded-lg shadow-2xs">
+                            <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                            <span>Verifying...</span>
+                          </div>
+                        )}
+                        {emailVerified && !otpConfirming && (
+                          <div className="absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center gap-1 text-xs text-emerald-600 font-bold bg-white/95 px-2.5 py-1 rounded-lg shadow-2xs">
+                            <CheckCircle2 className="w-4 h-4" />
+                            <span>Verified</span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex items-center justify-between text-[11px] text-slate-500 pt-0.5">
+                        <span>Check Gmail inbox or spam for code</span>
                         <button
                           type="button"
-                          onClick={handleConfirmEmailOtp}
+                          onClick={() => handleConfirmEmailOtp()}
                           disabled={otpConfirming || emailOtpCode.length < 6}
-                          className="px-3.5 py-2 rounded-xl bg-[#00B261] hover:bg-[#009E56] text-white text-xs font-bold transition-all disabled:opacity-50 cursor-pointer shrink-0 shadow-2xs"
+                          className="text-[#2B47EE] hover:text-[#7C3AED] font-bold cursor-pointer disabled:opacity-40"
                         >
-                          {otpConfirming ? 'Verifying...' : emailVerified ? 'Verified ✓' : 'Verify'}
+                          {otpConfirming ? 'Verifying...' : 'Verify Now'}
                         </button>
                       </div>
-                      <p className="text-[11px] text-slate-500">
-                        Check your Gmail inbox or spam folder for your 6-digit confirmation code.
-                      </p>
                     </div>
                   )}
 
@@ -1202,10 +1180,22 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                   <div className="pt-2">
                     <button
                       type="submit"
-                      disabled={regSubmitting}
+                      disabled={regSubmitting || otpConfirming}
                       className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#2B47EE] to-[#7C3AED] hover:from-[#203CD4] hover:to-[#6D28D9] active:scale-[0.99] text-white font-black text-sm sm:text-base shadow-[0_6px_22px_-4px_rgba(43,71,238,0.4)] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
                     >
-                      {regSubmitting ? <span>Finalizing registration...</span> : <span>Continue</span>}
+                      {otpConfirming ? (
+                        <span className="flex items-center gap-2">
+                          <RefreshCw className="w-4 h-4 animate-spin" />
+                          Verifying & Logging In...
+                        </span>
+                      ) : emailVerified ? (
+                        <span className="flex items-center gap-2">
+                          <CheckCircle2 className="w-4 h-4" />
+                          Verified! Opening Account...
+                        </span>
+                      ) : (
+                        <span>{otpSent ? 'Verify & Continue' : 'Continue'}</span>
+                      )}
                     </button>
                   </div>
                 </form>
@@ -1988,64 +1978,76 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
 
       {/* 3. SECTION: CLIENT ACCOUNT / PROFILE SECTION (Requirement 2) */}
       <section className="max-w-4xl mx-auto px-4 sm:px-6 w-full mb-6">
-        <div className="bg-[#FFFFFF] border border-[#E5EDF5] rounded-3xl p-6 sm:p-8 shadow-xs space-y-5">
-          <div className="flex items-center justify-between border-b border-[#E5EDF5] pb-4">
+        <div className="bg-white border border-slate-200/90 rounded-[24px] p-5 sm:p-7 shadow-xs space-y-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-[#2B47EE] text-white flex items-center justify-center font-black text-lg shadow-xs">
+              <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#2B47EE] to-[#7C3AED] text-white flex items-center justify-center font-black text-base shadow-xs">
                 {(currentUser.name || 'U').charAt(0).toUpperCase()}
               </div>
               <div>
-                <span className="px-2.5 py-0.5 rounded-full bg-[#EEF2FF] text-[#2B47EE] text-[10px] font-bold">
-                  সক্রিয় ক্লায়েন্ট অ্যাকাউন্ট
-                </span>
-                <h2 className="text-base sm:text-lg font-black text-[#0D253D] mt-0.5">
-                  ক্লায়েন্ট প্রোফাইল বিবরণ
-                </h2>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-base sm:text-lg font-black text-[#0D253D]">
+                    {currentUser.name || 'ক্লায়েন্ট প্রোফাইল'}
+                  </h2>
+                  <span className="px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200/80 text-emerald-700 text-[10px] font-bold inline-flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    সক্রিয় অ্যাকাউন্ট
+                  </span>
+                </div>
+                <p className="text-xs text-slate-500 font-mono mt-0.5">
+                  রেজিস্ট্রেশন: {currentUser.registeredAt}
+                </p>
               </div>
             </div>
-            <div className="flex items-center gap-2 sm:gap-3">
+            <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={() => setShowSecurityCodeModal(true)}
-                className="px-3.5 py-1.5 rounded-xl bg-[#EEF2FF] hover:bg-[#2B47EE] text-[#2B47EE] hover:text-white border border-[#2B47EE]/30 text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                className="px-3.5 py-2 rounded-xl bg-slate-50 hover:bg-[#EEF2FF] text-[#2B47EE] border border-slate-200 hover:border-[#2B47EE]/30 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs active:scale-95"
                 title="৫-মিনিটের সিকিউরিটি কোড দেখুন"
               >
-                <ShieldCheck className="w-4 h-4" />
-                <span>Security Code (কোড দেখুন)</span>
+                <ShieldCheck className="w-4 h-4 text-[#2B47EE]" />
+                <span>Security Code</span>
               </button>
-              <span className="text-[11px] text-[#64748D] font-mono hidden sm:inline-block">
-                রেজিস্ট্রেশন: {currentUser.registeredAt}
-              </span>
             </div>
           </div>
 
-          {/* Clean Fields: Profile Name, Email Address, Phone Number (Requirement 2) */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-            <div className="p-4 rounded-2xl bg-[#F8FAFD] border border-[#E5EDF5] space-y-1">
-              <span className="text-[10px] font-bold text-[#64748D] uppercase block">
-                Profile Name (প্রোফাইল নাম)
+          {/* Clean Fields: Profile Name, Email Address, Verification / Phone */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="p-3.5 rounded-2xl bg-slate-50/80 border border-slate-200/70 space-y-1">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                Full Name (নাম)
               </span>
-              <p className="text-sm font-black text-[#0D253D] truncate">
+              <p className="text-xs sm:text-sm font-bold text-slate-800 truncate">
                 {currentUser.name}
               </p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-[#F8FAFD] border border-[#E5EDF5] space-y-1">
-              <span className="text-[10px] font-bold text-[#64748D] uppercase block">
-                Email Address (ইমেইল এড্রেস)
+            <div className="p-3.5 rounded-2xl bg-slate-50/80 border border-slate-200/70 space-y-1">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                Email Address (ইমেইল)
               </span>
-              <p className="text-sm font-mono font-bold text-[#0D253D] truncate select-all">
+              <p className="text-xs sm:text-sm font-mono font-bold text-slate-800 truncate select-all">
                 {currentUser.email}
               </p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-[#F8FAFD] border border-[#E5EDF5] space-y-1">
-              <span className="text-[10px] font-bold text-[#64748D] uppercase block">
-                Phone Number (রেজিস্ট্রেশন মোবাইল)
+            <div className="p-3.5 rounded-2xl bg-slate-50/80 border border-slate-200/70 space-y-1">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                {currentUser.phone && !currentUser.phone.includes('_') && !currentUser.phone.includes('@') && /\d{6,}/.test(currentUser.phone)
+                  ? 'Phone Number (মোবাইল)'
+                  : 'Account Status (স্ট্যাটাস)'}
               </span>
-              <p className="text-sm font-mono font-bold text-[#2B47EE] select-all">
-                {currentUser.phone}
-              </p>
+              {currentUser.phone && !currentUser.phone.includes('_') && !currentUser.phone.includes('@') && /\d{6,}/.test(currentUser.phone) ? (
+                <p className="text-xs sm:text-sm font-mono font-bold text-[#2B47EE] select-all">
+                  {currentUser.phone}
+                </p>
+              ) : (
+                <p className="text-xs sm:text-sm font-bold text-emerald-600 flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 shrink-0 text-emerald-500" />
+                  <span>ইমেইল ভেরিফাইড ✓</span>
+                </p>
+              )}
             </div>
           </div>
 
@@ -2075,78 +2077,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
         </div>
       </section>
 
-      {/* 4. SECTION: STATS & DEDICATED SUBPAGES TRIGGER (Requirement 8) */}
-      <section className="max-w-4xl mx-auto px-4 sm:px-6 w-full mb-6">
-        <div>
-          <h3 className="text-sm font-bold text-[#64748D] mb-2 uppercase tracking-wider">
-            অর্ডার ও সার্ভিস পরিসংখ্যান (ক্লিক করে সরাসরি বিস্তারিত দেখুন)
-          </h3>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {/* Stat 1: মোট Order (Click opens dedicated full page, Requirement 8) */}
-          <button
-            type="button"
-            onClick={() => navigateSubView('total-orders')}
-            className="p-4 rounded-2xl bg-[#FFFFFF] border-2 border-[#2B47EE]/30 hover:border-[#2B47EE] text-center shadow-xs transition-all hover:scale-[1.02] cursor-pointer group text-left sm:text-center"
-          >
-            <span className="text-2xl sm:text-3xl font-black text-[#2B47EE] block">
-              {userOrders.length}
-            </span>
-            <p className="text-xs font-bold text-[#0D253D] mt-1 group-hover:text-[#2B47EE] flex items-center justify-center gap-1">
-              <span>মোট Order</span>
-              <ArrowRight className="w-3.5 h-3.5 opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
-            </p>
-            <span className="text-[10px] text-[#64748D] block mt-0.5">
-              ক্লিক করে সকল অর্ডার দেখুন
-            </span>
-          </button>
-
-          {/* Stat 2: Pending যাচাই (Click opens dedicated full page, Requirement 8) */}
-          <button
-            type="button"
-            onClick={() => navigateSubView('pending-orders')}
-            className={`p-4 rounded-2xl border-2 text-center shadow-xs transition-all hover:scale-[1.02] cursor-pointer group text-left sm:text-center ${
-              pendingOrders.length > 0 
-                ? 'bg-[#FFF8E7] border-[#FFD552] hover:border-[#E53935]'
-                : 'bg-[#FFFFFF] border-[#E5EDF5] hover:border-[#00B261]'
-            }`}
-          >
-            <span className={`text-2xl sm:text-3xl font-black block ${
-              pendingOrders.length > 0 ? 'text-[#E53935]' : 'text-[#00B261]'
-            }`}>
-              {pendingOrders.length}
-            </span>
-            <p className="text-xs font-bold text-[#0D253D] mt-1 group-hover:text-[#E53935] flex items-center justify-center gap-1">
-              <span>Pending যাচাই</span>
-              <ArrowRight className="w-3.5 h-3.5 opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
-            </p>
-            <span className="text-[10px] text-[#64748D] block mt-0.5">
-              {pendingOrders.length > 0 ? '১ মিনিট - ১ ঘণ্টা' : 'কোনো Pending নেই'}
-            </span>
-          </button>
-
-          {/* Stat 3: ডেলিভারি সময় */}
-          <div className="p-4 rounded-2xl bg-[#FFFFFF] border border-[#E5EDF5] text-center shadow-2xs">
-            <span className="text-xl sm:text-2xl font-black text-[#00B261] block">
-              ২৪ ঘণ্টা
-            </span>
-            <p className="text-xs font-bold text-[#0D253D] mt-1">ডেলিভারি সময়</p>
-            <span className="text-[10px] text-[#64748D] block mt-0.5">এক্সপ্রেস লাইভ সেটআপ</span>
-          </div>
-
-          {/* Stat 4: মাসিক মেইনটেন্যান্স */}
-          <div className="p-4 rounded-2xl bg-[#FFFFFF] border border-[#E5EDF5] text-center shadow-2xs">
-            <span className="text-xl sm:text-2xl font-black text-[#2B47EE] block">
-              ১২০ ৳
-            </span>
-            <p className="text-xs font-bold text-[#0D253D] mt-1">মাসিক মেইনটেন্যান্স</p>
-            <span className="text-[10px] text-[#64748D] block mt-0.5">সার্ভার ও হোস্টিং ফি</span>
-          </div>
-        </div>
-      </section>
-
-      {/* 5. SECTION: PROFESSIONAL IMPROVEMENTS (Requirement 9) */}
+      {/* SECTION: PROFESSIONAL POLICIES */}
       <section className="max-w-4xl mx-auto px-4 sm:px-6 w-full space-y-3">
         <div className="bg-[#FFFFFF] border border-[#E5EDF5] rounded-3xl p-6 sm:p-7 shadow-xs space-y-4">
           <div>
@@ -2154,11 +2085,11 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
               অ্যাকাউন্ট সেটিংস ও নীতিমালা (Account Settings & Policies)
             </h3>
             <p className="text-xs text-[#64748D]">
-              BongoWeb সার্ভিস ব্যবহারের নিয়মাবলি, ভাষা নির্বাচন ও নীতিসমূহ:
+              BongoWeb সার্ভিস ব্যবহারের নিয়মাবলি ও নীতিসমূহ:
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {/* Privacy Policy */}
             <button
               onClick={() => navigateSubView('privacy')}
@@ -2192,46 +2123,6 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                 সার্ভিস ব্যবহার ও ওয়েবসাইট ডেলিভারির শর্তাবলি
               </p>
             </button>
-
-            {/* Language Change Option */}
-            <div className="p-4 rounded-2xl bg-[#F8FAFD] border border-[#E5EDF5] space-y-2.5">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5 text-xs font-bold text-[#0D253D]">
-                  <Languages className="w-4 h-4 text-[#2B47EE]" />
-                  <span>ভাষা পরিবর্তন (Language)</span>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => setSelectedLanguage('bn')}
-                  className={`py-1.5 px-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-                    selectedLanguage === 'bn'
-                      ? 'bg-[#2B47EE] text-white shadow-xs'
-                      : 'bg-white text-[#64748D] border border-[#E5EDF5] hover:text-[#0D253D]'
-                  }`}
-                >
-                  <span>🇧🇩</span>
-                  <span>বাংলা</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSelectedLanguage('en')}
-                  className={`py-1.5 px-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-                    selectedLanguage === 'en'
-                      ? 'bg-[#2B47EE] text-white shadow-xs'
-                      : 'bg-white text-[#64748D] border border-[#E5EDF5] hover:text-[#0D253D]'
-                  }`}
-                >
-                  <span>🇬🇧</span>
-                  <span>English</span>
-                </button>
-              </div>
-              <p className="text-[10px] text-[#64748D]">
-                সিস্টেমের ভাষা {selectedLanguage === 'bn' ? 'বাংলা' : 'English'} হিসেবে নির্বাচিত।
-              </p>
-            </div>
           </div>
         </div>
       </section>

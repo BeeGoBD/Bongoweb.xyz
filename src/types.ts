@@ -86,6 +86,8 @@ export interface UserAccount {
   photoUrl?: string;
   username?: string;
   whatsapp?: string;
+  numberVerified?: boolean;
+  numberVerificationCallPending?: boolean;
 }
 
 export interface ClientOrder {

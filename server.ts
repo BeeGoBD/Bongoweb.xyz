@@ -435,10 +435,11 @@ async function startServer() {
             }
             thread.lastMessage = newMsg.text;
             thread.lastUpdated = 'এখনই';
+            thread.isClosed = false;
+            thread.isArchived = false;
             if (sender === 'client') {
               thread.unreadAdminCount = (thread.unreadAdminCount || 0) + 1;
               thread.expiresAt = Date.now() + 5 * 60 * 1000;
-              thread.isClosed = false;
             } else {
               thread.unreadClientCount = (thread.unreadClientCount || 0) + 1;
             }
@@ -452,6 +453,7 @@ async function startServer() {
               unreadClientCount: sender === 'admin' ? 1 : 0,
               expiresAt: Date.now() + 5 * 60 * 1000,
               isClosed: false,
+              isArchived: false,
               messages: [newMsg]
             };
             db.supportChats.unshift(thread);
@@ -841,13 +843,18 @@ async function startServer() {
       emailOtpStore.set(cleanEmail, record);
     }
 
-    // Smart Registration System: If this was an existing user, return the existing user object so client auto-logs in!
-    if (record?.isExistingUser && record?.existingUser) {
+    // Smart Registration System: Check if user exists in database
+    const dbUsers = readDb().users || [];
+    const foundUser = (record?.existingUser) || dbUsers.find(
+      (u: any) => (u.email && u.email.toLowerCase() === cleanEmail)
+    );
+
+    if (foundUser) {
       return res.json({
         success: true,
         isExistingUser: true,
-        user: record.existingUser,
-        message: 'OTP verified successfully via Descope! Welcome back to your account.'
+        user: foundUser,
+        message: 'OTP verified successfully! Welcome back to your account.'
       });
     }
 
@@ -1053,6 +1060,7 @@ async function startServer() {
       thread.lastUpdated = 'এখনই';
       thread.expiresAt = expiresAt;
       thread.isClosed = false;
+      thread.isArchived = false;
       if (!thread.messages || thread.messages.length === 0) {
         thread.messages = [welcomeMsg];
       }
@@ -1067,20 +1075,11 @@ async function startServer() {
         unreadClientCount: 0,
         expiresAt,
         isClosed: false,
+        isArchived: false,
         additionalMinutesAdded: 0,
         messages: [welcomeMsg]
       };
       db.supportChats.unshift(thread);
-    }
-
-    // Auto register client in db.users so user appears in admin section
-    if (!db.users.some(u => u.phone === cleanPhone)) {
-      db.users.unshift({
-        name: cleanName,
-        phone: cleanPhone,
-        email: '',
-        registeredAt: new Date().toLocaleDateString('bn-BD')
-      });
     }
 
     writeDb(db);
@@ -1116,11 +1115,12 @@ async function startServer() {
       }
       thread.lastMessage = msg.text;
       thread.lastUpdated = 'এখনই';
+      thread.isClosed = false;
+      thread.isArchived = false;
       if (sender === 'client') {
         thread.unreadAdminCount = (thread.unreadAdminCount || 0) + 1;
         // User responded: reset 5-minute inactivity timer
         thread.expiresAt = Date.now() + 5 * 60 * 1000;
-        thread.isClosed = false;
       } else {
         thread.unreadClientCount = (thread.unreadClientCount || 0) + 1;
       }
@@ -1134,6 +1134,7 @@ async function startServer() {
         unreadClientCount: sender === 'admin' ? 1 : 0,
         expiresAt: Date.now() + 5 * 60 * 1000,
         isClosed: false,
+        isArchived: false,
         messages: [msg]
       };
       db.supportChats.unshift(thread);
@@ -1181,27 +1182,40 @@ async function startServer() {
     }
   });
 
-  // End / Close chat (Archive, do not delete)
+  // End / Close chat (Archive only if user has account, otherwise discard temporary chat)
   app.post('/api/chat/end', (req: Request, res: Response) => {
     const db = readDb();
     const { phone } = req.body;
-    const thread = db.supportChats.find(t => t.userPhone === phone);
+    const cleanPhone = (phone || '').trim();
+    const cleanDigits = cleanPhone.replace(/\D/g, '').slice(-10);
+    const thread = db.supportChats.find(t => (t.userPhone || '').trim() === cleanPhone || (t.userPhone || '').replace(/\D/g, '').slice(-10) === cleanDigits);
     const now = new Date().toLocaleString('bn-BD');
+
+    const userHasAccount = 
+      (db.users || []).some(u => (u.phone || '').replace(/\D/g, '').slice(-10) === cleanDigits) ||
+      (db.orders || []).some(o => (o.phone || '').replace(/\D/g, '').slice(-10) === cleanDigits);
+
     if (thread) {
-      thread.isClosed = true;
-      thread.isArchived = true;
-      thread.archivedAt = now;
+      if (userHasAccount) {
+        thread.isClosed = true;
+        thread.isArchived = true;
+        thread.archivedAt = now;
+      } else {
+        // Temporary visitor chat: discard and do not save to archive
+        db.supportChats = db.supportChats.filter(t => t.userPhone !== thread.userPhone);
+      }
       writeDb(db);
     }
 
     broadcast({
       type: 'chat:ended',
-      phone,
+      phone: cleanPhone,
       isClosed: true,
+      hasAccount: userHasAccount,
       timestamp: Date.now()
     });
 
-    res.json({ success: true });
+    res.json({ success: true, archived: userHasAccount });
   });
 
   // Reopen chat from archive

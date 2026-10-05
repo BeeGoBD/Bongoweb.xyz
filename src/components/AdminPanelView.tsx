@@ -665,10 +665,11 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
   };
 
   // 4. Move Order to Bin (Removes ID & Pass from customer dashboard and sends to trash)
-  const handleMoveOrderToBin = (orderId?: string) => {
+  const handleMoveOrderToBin = async (orderId?: string) => {
     const idToUse = String(orderId || '').trim();
     if (!idToUse) return;
-    requestProtectedAction(async () => {
+
+    try {
       const targetOrder = orders.find(o => o.orderId === idToUse || (o as any).id === idToUse);
 
       // If credentials existed for this order, remove them completely so they disappear from client's dashboard!
@@ -690,10 +691,13 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
 
       const updated = await apiUpdateOrderStatus(idToUse, 'bin', { hasDeliveredCredentials: false });
       setOrders([...updated]);
-      setMasterSuccessMsg(`অর্ডার ${idToUse} রিসাইকেল বিনে স্থানান্তর করা হয়েছে এবং গ্রাহকের অ্যাকাউন্ট থেকে আইডি-পাসওয়ার্ড মুছে ফেলা হয়েছে!`);
+      saveOrders(updated);
+      setMasterSuccessMsg(`অর্ডার ${idToUse} সফলভাবে রিসাইকেল বিনে স্থানান্তর করা হয়েছে!`);
       setTimeout(() => setMasterSuccessMsg(''), 4500);
       loadAllDatabaseCollections();
-    });
+    } catch (err) {
+      console.error('Move to bin error:', err);
+    }
   };
 
   // Move All Completed Orders to Bin (Clean batch removal from client dashboards)
@@ -1002,22 +1006,33 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
   // Admin End / Close Chat
   const handleEndChatThread = async (phone: string) => {
     try {
-      await apiEndChat(phone);
+      const cleanDigits = normalizePhone(phone).slice(-10);
+      const userHasAccount = 
+        users.some(u => normalizePhone(u.phone).slice(-10) === cleanDigits) ||
+        orders.some(o => normalizePhone(o.phone).slice(-10) === cleanDigits);
+
+      await apiEndChat(phone, userHasAccount);
       loadAllDatabaseCollections();
       if (selectedThreadPhone === phone) {
         setSelectedThreadPhone('');
       }
+      setMasterSuccessMsg(userHasAccount ? 'চ্যাট সমাপ্ত ও গ্রাহকের আর্কাইভে সংরক্ষিত হয়েছে।' : 'চ্যাট সমাপ্ত হয়েছে।');
+      setTimeout(() => setMasterSuccessMsg(''), 4000);
     } catch (err) {
       console.error(err);
     }
   };
 
   // Deliver Website Credentials
-  const handleDeliverCredentials = (e: React.FormEvent) => {
+  const handleDeliverCredentials = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedUserForDelivery || !deliveryAdminId.trim() || !deliveryAdminPass.trim()) return;
 
-    const userOrders = orders.filter((o) => o.phone === selectedUserForDelivery.phone || o.email === selectedUserForDelivery.email);
+    const userDigits = normalizePhone(selectedUserForDelivery.phone).slice(-10);
+    const userOrders = orders.filter((o) => 
+      (userDigits && normalizePhone(o.phone).slice(-10) === userDigits) || 
+      (selectedUserForDelivery.email && o.email && o.email.toLowerCase().trim() === selectedUserForDelivery.email.toLowerCase().trim())
+    );
     const chosenOrder = orders.find((o) => o.orderId === selectedDeliveryOrder || (o as any).id === selectedDeliveryOrder) ||
       userOrders.find((o) => o.orderId === selectedDeliveryOrder || (o as any).id === selectedDeliveryOrder || o.demoCode === selectedDeliveryOrder) ||
       userOrders[0];
@@ -1039,16 +1054,17 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
     };
 
     // Keep separate credentials for each website
-    const updated = [newCred, ...deliveredCreds.filter((c) => !(c.userPhone === selectedUserForDelivery.phone && c.websiteCode === websiteCode))];
-    saveDeliveredCreds(updated);
-    apiDeliverCredentials(newCred);
+    const updatedCreds = [newCred, ...deliveredCreds.filter((c) => !(c.userPhone === selectedUserForDelivery.phone && c.websiteCode === websiteCode))];
+    setDeliveredCreds(updatedCreds);
+    saveDeliveredCreds(updatedCreds);
+    await apiDeliverCredentials(newCred);
 
-    // Update order with delivered credentials so Mark Complete is immediately unlocked
+    // Update order with delivered credentials so Mark Complete is immediately unlocked and visible in customer menu
     const updatedOrders = orders.map((o) => {
       const isTarget = (chosenOrder && (o.orderId === chosenOrder.orderId || (o as any).id === (chosenOrder as any).id)) ||
         o.orderId === selectedDeliveryOrder ||
         (o as any).id === selectedDeliveryOrder ||
-        (o.phone === selectedUserForDelivery.phone && (o.demoCode === websiteCode || !websiteCode));
+        (userDigits && normalizePhone(o.phone).slice(-10) === userDigits && (o.demoCode === websiteCode || !websiteCode));
       if (isTarget) {
         return {
           ...o,
@@ -1063,7 +1079,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
     saveOrders(updatedOrders);
 
     if (chosenOrder) {
-      apiUpdateOrderStatus(chosenOrder.orderId || (chosenOrder as any).id, chosenOrder.status, {
+      await apiUpdateOrderStatus(chosenOrder.orderId || (chosenOrder as any).id, chosenOrder.status, {
         hasDeliveredCredentials: true,
         deliveredAdminId: deliveryAdminId.trim(),
         deliveredAdminPass: deliveryAdminPass.trim()
@@ -1071,13 +1087,14 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
     }
 
     // Auto-send Live Chat notification if active thread
-    const threadExists = chatThreads.find((t) => t.userPhone === selectedUserForDelivery.phone);
+    const threadExists = chatThreads.find((t) => normalizePhone(t.userPhone).slice(-10) === userDigits);
     if (threadExists) {
       handleSendAdminReply(`🎉 অভিনন্দন! আপনার "${websiteTitle}" ওয়েবসাইটের অ্যাডমিন আইডি ও পাসওয়ার্ড ডেলিভারি করা হয়েছে। ইউজারনেম: ${deliveryAdminId.trim()} | পাসওয়ার্ড: ${deliveryAdminPass.trim()}`);
     }
 
     setDeliverySuccess(true);
-    setMasterSuccessMsg(`✓ আইডি ও পাসওয়ার্ড সফলভাবে সংরক্ষিত হয়েছে! এবার ধাপ ২: "সম্পূর্ণ করুন" বাটনে ক্লিক করুন।`);
+    setMasterSuccessMsg(`✓ আইডি ও পাসওয়ার্ড গ্রাহকের মেনু ও অ্যাকাউন্টে সফলভাবে পাঠানো হয়েছে!`);
+    loadAllDatabaseCollections();
     setTimeout(() => {
       setDeliverySuccess(false);
       setSelectedUserForDelivery(null);
@@ -1300,8 +1317,18 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
   ];
 
   // Active & Archived chat threads separation
+  // Every active conversation shows strictly in the Active chat tab
   const activeThreads = chatThreads.filter((t) => !t.isArchived && !t.isClosed);
-  const archivedThreads = chatThreads.filter((t) => t.isArchived || t.isClosed);
+
+  // Archived threads: strictly closed conversations from users who have an account
+  const archivedThreads = chatThreads.filter((t) => {
+    if (!t.isArchived && !t.isClosed) return false;
+    const tDigits = normalizePhone(t.userPhone).slice(-10);
+    const hasUser = users.some(u => normalizePhone(u.phone).slice(-10) === tDigits);
+    const hasOrder = orders.some(o => normalizePhone(o.phone).slice(-10) === tDigits);
+    return hasUser || hasOrder || (t as any).hasAccount;
+  });
+
   const currentTabThreads = chatTab === 'active' ? activeThreads : archivedThreads;
 
   const activeThread = chatThreads.find((t) => normalizePhone(t.userPhone) === normalizePhone(selectedThreadPhone)) || currentTabThreads[0] || chatThreads[0];
@@ -2516,30 +2543,8 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                                   {/* 2. Complete Button (Moves to Completed List) */}
                                   <button
                                     type="button"
-                                    onClick={() => {
-                                      if (!hasCredentialsSent) {
-                                        setMasterSuccessMsg('⚠️ অনুগ্রহ করে প্রথমে ধাপ ১: আইডি ও পাসওয়ার্ড প্রদান করুন!');
-                                        setTimeout(() => setMasterSuccessMsg(''), 3500);
-                                        const matchingUser = users.find(u => u.phone === ord.phone || (u.email && ord.email && u.email.toLowerCase() === ord.email.toLowerCase())) || {
-                                          name: ord.clientName,
-                                          phone: ord.phone,
-                                          email: ord.email,
-                                          registeredAt: 'অর্ডারকারী'
-                                        };
-                                        setSelectedUserForDelivery(matchingUser);
-                                        setSelectedDeliveryOrder(ord.orderId || (ord as any).id || ord.demoCode);
-                                        const safeDigits = ord.phone ? String(ord.phone).replace(/\D/g, '').slice(-4) : Math.floor(1000 + Math.random() * 9000);
-                                        setDeliveryAdminId(ord.deliveredAdminId || `admin_${safeDigits}`);
-                                        setDeliveryAdminPass(ord.deliveredAdminPass || `pass${Math.floor(1000 + Math.random() * 9000)}`);
-                                        return;
-                                      }
-                                      handleMarkOrderCompleted(activeOrdId);
-                                    }}
-                                    className={`w-full min-h-[44px] py-2.5 px-3 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs active:scale-[0.98] ${
-                                      hasCredentialsSent
-                                        ? 'bg-[#008A4B] hover:bg-[#009E56] text-white shadow-[0_4px_16px_rgba(0,178,97,0.4)]'
-                                        : 'bg-[#173826] text-[#8BB99F] border border-[#173826] hover:bg-[#1a422c]'
-                                    }`}
+                                    onClick={() => handleMarkOrderCompleted(activeOrdId)}
+                                    className="w-full min-h-[44px] py-2.5 px-3 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs active:scale-[0.98] bg-[#008A4B] hover:bg-[#009E56] text-white shadow-[0_4px_16px_rgba(0,178,97,0.4)]"
                                     title="সম্পূর্ণ অর্ডার সম্পন্ন করুন ও ডেলিভারি তালিকায় যুক্ত করুন"
                                   >
                                     <CheckCircle2 className="w-4 h-4 shrink-0 text-white" />
