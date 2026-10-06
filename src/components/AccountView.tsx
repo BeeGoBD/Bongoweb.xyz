@@ -18,6 +18,7 @@ import { getClientSecurityCode, getSecurityCodeRemainingSeconds, formatRemaining
 import { auth, googleProvider } from '../firebase';
 import { signInWithPopup } from 'firebase/auth';
 import BongoWebLogo from './BongoWebLogo';
+import EmailRecoveryPage from './EmailRecoveryPage';
 
 // Official Colored Google Logo Icon
 function GoogleLogoIcon({ className = "w-5 h-5 shrink-0" }: { className?: string }) {
@@ -45,7 +46,7 @@ interface AccountViewProps {
   onOpenAdminPanel?: () => void;
 }
 
-export type AccountSubView = 'overview' | 'total-orders' | 'pending-orders' | 'privacy' | 'terms' | 'reports';
+export type AccountSubView = 'overview' | 'total-orders' | 'pending-orders' | 'privacy' | 'terms' | 'reports' | 'recover-email';
 
 export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: AccountViewProps) {
   const [currentUser, setCurrentUser] = useState<UserAccount | null>(null);
@@ -106,7 +107,8 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
 
   const [googleLoading, setGoogleLoading] = useState(false);
 
-  // "I don't have my email" Account Recovery Modal State
+  // "I don't have my email" Account Recovery Page & Modal State
+  const [showEmailRecoveryPage, setShowEmailRecoveryPage] = useState(false);
   const [showEmailRecoveryModal, setShowEmailRecoveryModal] = useState(false);
   const [recoveryPhone, setRecoveryPhone] = useState('');
   const [recoveryApplied, setRecoveryApplied] = useState(false);
@@ -124,6 +126,9 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
       setSubView('terms');
     } else if (path === '/account/reports' || path === '/reports') {
       setSubView('reports');
+    } else if (path === '/account/recover-email' || path === '/recover-email') {
+      setSubView('recover-email');
+      setShowEmailRecoveryPage(true);
     } else {
       setSubView('overview');
     }
@@ -638,6 +643,23 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
   const pendingOrders = userOrders.filter((o) => o.status === 'pending');
 
   // ==========================================
+  // VIEW: "I DON'T HAVE MY EMAIL" RECOVERY STANDALONE PAGE
+  // ==========================================
+  if (showEmailRecoveryPage || subView === 'recover-email') {
+    return (
+      <EmailRecoveryPage
+        onBack={() => {
+          setShowEmailRecoveryPage(false);
+          setSubView('overview');
+          if (window.location.pathname.includes('recover-email')) {
+            window.history.pushState({}, '', '/account');
+          }
+        }}
+      />
+    );
+  }
+
+  // ==========================================
   // VIEW: IF USER IS NOT LOGGED IN (Production Authentication Portal)
   // 3 CLEAN, MODERN, PREMIUM UI SCREENS FOR BONGEWEB.XYZ
   // SCREEN 1: LOGIN | SCREEN 2: REGISTRATION | SCREEN 3: EMAIL VERIFICATION
@@ -731,11 +753,11 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                 <button
                   type="button"
                   onClick={() => {
-                    setShowEmailRecoveryModal(true);
-                    setRecoveryApplied(false);
-                    setRecoveryPhone('');
+                    setShowEmailRecoveryPage(true);
+                    setSubView('recover-email');
+                    window.history.pushState({}, '', '/account/recover-email');
                   }}
-                  className="text-xs text-[#2B47EE] hover:text-[#7C3AED] font-bold underline cursor-pointer inline-flex items-center gap-1.5 py-1 px-2 rounded-lg hover:bg-indigo-50/50 transition-colors"
+                  className="text-xs text-[#AB55F7] hover:text-[#9333EA] font-bold underline cursor-pointer inline-flex items-center gap-1.5 py-1.5 px-3 rounded-lg hover:bg-purple-50 transition-colors"
                 >
                   <HelpCircle className="w-3.5 h-3.5" />
                   <span>I don't have my email</span>

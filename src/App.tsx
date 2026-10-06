@@ -116,7 +116,7 @@ export default function App() {
       return;
     }
 
-    if (path === '/account' || path.startsWith('/account')) {
+    if (path === '/account' || path.startsWith('/account') || path === '/recover-email' || path.startsWith('/recover-email')) {
       setViewMode('account');
       return;
     }

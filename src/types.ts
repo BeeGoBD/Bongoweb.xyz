@@ -206,6 +206,20 @@ export interface BrandLogoConfig {
   updatedAt?: string;
 }
 
+export interface EmailRecoveryRequest {
+  id: string;
+  gmailIssue: 'forgot' | 'disabled' | 'no_access' | 'others';
+  gmailIssueLabel: string;
+  customReason?: string;
+  purchasedBefore: boolean; // Yes or No
+  rememberPhone: boolean; // Yes or No
+  phoneNumber: string; // The phone number they entered
+  createdAt: string;
+  status: 'pending' | 'completed';
+  decisionNote?: string;
+  decisionAt?: string;
+}
+
 
 
 

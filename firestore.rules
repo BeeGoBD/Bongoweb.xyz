@@ -36,6 +36,11 @@ service cloud.firestore {
       allow read, write: if true;
     }
 
+    // "I don't have email" Recovery Reports
+    match /emailRecoveryRequests/{id} {
+      allow read, write: if true;
+    }
+
     // Site Settings (including Logo and Branding configuration)
     match /siteSettings/{settingId} {
       allow read, write: if true;

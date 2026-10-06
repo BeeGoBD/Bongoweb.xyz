@@ -1,7 +1,7 @@
 import { 
   UserAccount, ClientOrder, SupportChatThread, SupportChatMessage, 
   WebsiteDemo, WebsiteDeliveryCredentials, PasswordResetRequest, AdminConfig, UserReport,
-  BrandLogoConfig
+  BrandLogoConfig, EmailRecoveryRequest
 } from '../types';
 import { WEBSITE_DEMOS } from '../data/mockData';
 import { 
@@ -2085,6 +2085,196 @@ export function subscribeToLogoConfig(callback: (config: BrandLogoConfig) => voi
       }
     }, (err) => {
       console.warn('Firestore logo onSnapshot notice:', err);
+    });
+  } catch (_) {
+    return () => {};
+  }
+}
+
+// ---------------- EMAIL RECOVERY REQUESTS ("I don't have my email") ----------------
+export async function apiGetEmailRecoveries(): Promise<EmailRecoveryRequest[]> {
+  try {
+    const snap = await getDocs(collection(db, 'emailRecoveryRequests'));
+    if (!snap.empty) {
+      const list = snap.docs.map(d => d.data() as EmailRecoveryRequest);
+      list.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+      localStorage.setItem('bongoweb_all_email_recoveries', JSON.stringify(list));
+      return list;
+    }
+  } catch (_) {}
+
+  try {
+    const res = await fetch('/api/email-recoveries');
+    if (res.ok) {
+      const list = await res.json();
+      localStorage.setItem('bongoweb_all_email_recoveries', JSON.stringify(list));
+      return list;
+    }
+  } catch (_) {}
+
+  const cached = localStorage.getItem('bongoweb_all_email_recoveries');
+  return cached ? JSON.parse(cached) : [];
+}
+
+export async function apiCreateEmailRecovery(
+  data: Omit<EmailRecoveryRequest, 'id' | 'createdAt' | 'status'>
+): Promise<EmailRecoveryRequest> {
+  const newReq: EmailRecoveryRequest = {
+    ...data,
+    id: `REC-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`,
+    status: 'pending',
+    createdAt: new Date().toLocaleString('bn-BD')
+  };
+
+  const safe = cleanFirestoreData(newReq);
+  const cleanId = String(safe.id).replace(/[^a-zA-Z0-9_-]/g, '_');
+
+  // 1. Save to Cloud Firestore
+  try {
+    await setDoc(doc(db, 'emailRecoveryRequests', cleanId), safe);
+  } catch (err) {
+    console.warn('Firestore create email recovery notice:', err);
+  }
+
+  // 2. Save to Express server
+  try {
+    await fetch('/api/email-recoveries', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(safe)
+    });
+  } catch (_) {}
+
+  // 3. Store client's own active request in this browser
+  if (typeof localStorage !== 'undefined') {
+    localStorage.setItem('bongoweb_email_recovery_request', JSON.stringify(safe));
+    const all = await apiGetEmailRecoveries();
+    const updated = [safe, ...all.filter(r => r.id !== safe.id)];
+    localStorage.setItem('bongoweb_all_email_recoveries', JSON.stringify(updated));
+  }
+
+  return safe;
+}
+
+export async function apiApproveEmailRecovery(id: string): Promise<EmailRecoveryRequest[]> {
+  const cleanId = String(id).replace(/[^a-zA-Z0-9_-]/g, '_');
+  const now = new Date().toLocaleString('bn-BD');
+
+  try {
+    await updateDoc(doc(db, 'emailRecoveryRequests', cleanId), {
+      status: 'completed',
+      decisionAt: now,
+      decisionNote: 'অ্যাডমিন টিম কর্তৃক অনুমোদিত ও কল সম্পন্ন হয়েছে।'
+    });
+  } catch (err) {
+    console.warn('Firestore approve email recovery notice:', err);
+  }
+
+  try {
+    await fetch(`/api/email-recoveries/${encodeURIComponent(id)}/approve`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ decisionNote: 'অ্যাডমিন টিম কর্তৃক অনুমোদিত ও কল সম্পন্ন হয়েছে।' })
+    });
+  } catch (_) {}
+
+  // Update client's own active request if it matches
+  if (typeof localStorage !== 'undefined') {
+    const active = localStorage.getItem('bongoweb_email_recovery_request');
+    if (active) {
+      try {
+        const parsed: EmailRecoveryRequest = JSON.parse(active);
+        if (parsed.id === id) {
+          parsed.status = 'completed';
+          parsed.decisionAt = now;
+          parsed.decisionNote = 'অ্যাডমিন টিম কর্তৃক অনুমোদিত ও কল সম্পন্ন হয়েছে।';
+          localStorage.setItem('bongoweb_email_recovery_request', JSON.stringify(parsed));
+        }
+      } catch (_) {}
+    }
+  }
+
+  return apiGetEmailRecoveries();
+}
+
+export async function apiUndoEmailRecovery(id: string): Promise<EmailRecoveryRequest[]> {
+  const cleanId = String(id).replace(/[^a-zA-Z0-9_-]/g, '_');
+
+  try {
+    await updateDoc(doc(db, 'emailRecoveryRequests', cleanId), {
+      status: 'pending',
+      decisionAt: null,
+      decisionNote: null
+    });
+  } catch (err) {
+    console.warn('Firestore undo email recovery notice:', err);
+  }
+
+  try {
+    await fetch(`/api/email-recoveries/${encodeURIComponent(id)}/undo`, {
+      method: 'PUT'
+    });
+  } catch (_) {}
+
+  // Update client's own active request if it matches
+  if (typeof localStorage !== 'undefined') {
+    const active = localStorage.getItem('bongoweb_email_recovery_request');
+    if (active) {
+      try {
+        const parsed: EmailRecoveryRequest = JSON.parse(active);
+        if (parsed.id === id) {
+          parsed.status = 'pending';
+          delete parsed.decisionAt;
+          delete parsed.decisionNote;
+          localStorage.setItem('bongoweb_email_recovery_request', JSON.stringify(parsed));
+        }
+      } catch (_) {}
+    }
+  }
+
+  return apiGetEmailRecoveries();
+}
+
+export async function apiDeleteEmailRecovery(id: string): Promise<EmailRecoveryRequest[]> {
+  const cleanId = String(id).replace(/[^a-zA-Z0-9_-]/g, '_');
+
+  try {
+    await deleteDoc(doc(db, 'emailRecoveryRequests', cleanId));
+  } catch (err) {
+    console.warn('Firestore delete email recovery notice:', err);
+  }
+
+  try {
+    await fetch(`/api/email-recoveries/${encodeURIComponent(id)}`, {
+      method: 'DELETE'
+    });
+  } catch (_) {}
+
+  // Clear client's own active request if it matches
+  if (typeof localStorage !== 'undefined') {
+    const active = localStorage.getItem('bongoweb_email_recovery_request');
+    if (active) {
+      try {
+        const parsed = JSON.parse(active);
+        if (parsed.id === id) {
+          localStorage.removeItem('bongoweb_email_recovery_request');
+        }
+      } catch (_) {}
+    }
+  }
+
+  return apiGetEmailRecoveries();
+}
+
+export function subscribeToEmailRecoveries(callback: (list: EmailRecoveryRequest[]) => void): () => void {
+  try {
+    return onSnapshot(collection(db, 'emailRecoveryRequests'), (snapshot) => {
+      const list = snapshot.docs.map(d => d.data() as EmailRecoveryRequest);
+      list.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+      localStorage.setItem('bongoweb_all_email_recoveries', JSON.stringify(list));
+      callback(list);
+    }, (err) => {
+      console.warn('Email recovery onSnapshot notice:', err);
     });
   } catch (_) {
     return () => {};

@@ -6,12 +6,13 @@ import {
   RefreshCw, MessageSquare, ArrowRight, Check, X, FileText, Globe,
   Send, Sparkles, Clock, CheckCheck, User, Zap, Terminal, Activity,
   Sliders, ChevronRight, Edit3, Save, Power, LogOut, Info,
-  Flag, RotateCcw, Ban, Image, Type, SlidersHorizontal, UploadCloud
+  Flag, RotateCcw, Ban, Image, Type, SlidersHorizontal, UploadCloud,
+  Mail, HelpCircle, Phone, Undo2
 } from 'lucide-react';
 import { 
   UserAccount, ClientOrder, WebsiteDeliveryCredentials, 
   PasswordResetRequest, AdminConfig, WebsiteDemo, SupportChatThread, SupportChatMessage,
-  UserReport, BrandLogoConfig
+  UserReport, BrandLogoConfig, EmailRecoveryRequest
 } from '../types';
 import { WEBSITE_DEMOS } from '../data/mockData';
 import { 
@@ -25,7 +26,9 @@ import {
   subscribeToDeliveredCredentials, subscribeToResetRequests, subscribeToWebsites,
   normalizePhone, apiGetLiveChatEnabled, apiSetLiveChatEnabled,
   apiRestrictUser, apiGetReports, apiReplyToReport, apiResolveReport, subscribeToReports,
-  apiGetLogoConfig, apiSaveLogoConfig, DEFAULT_LOGO_CONFIG
+  apiGetLogoConfig, apiSaveLogoConfig, DEFAULT_LOGO_CONFIG,
+  apiGetEmailRecoveries, apiApproveEmailRecovery, apiUndoEmailRecovery, apiDeleteEmailRecovery,
+  subscribeToEmailRecoveries
 } from '../utils/api';
 import { realtimeManager } from '../utils/realtime';
 import { getClientSecurityCode } from '../utils/securityCode';
@@ -85,6 +88,12 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
   const [reportFilter, setReportFilter] = useState<'all' | 'pending' | 'resolved'>('all');
   const [reportReplyDrafts, setReportReplyDrafts] = useState<Record<string, string>>({});
   const [replyingReportId, setReplyingReportId] = useState<string | null>(null);
+
+  // Reports Section Switcher & Email Recovery Reports State
+  const [reportSection, setReportSection] = useState<'general-reports' | 'email-recovery-reports'>('general-reports');
+  const [emailRecoveries, setEmailRecoveries] = useState<EmailRecoveryRequest[]>([]);
+  const [emailRecoveryFilter, setEmailRecoveryFilter] = useState<'pending' | 'completed'>('pending');
+  const [emailRecoveryActionId, setEmailRecoveryActionId] = useState<string | null>(null);
 
   // Live Chat System State
   const [chatThreads, setChatThreads] = useState<SupportChatThread[]>([]);
@@ -325,6 +334,8 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
       }
       const cloudReports = await apiGetReports();
       if (Array.isArray(cloudReports)) setReports(cloudReports);
+      const emailRecs = await apiGetEmailRecoveries();
+      if (Array.isArray(emailRecs)) setEmailRecoveries(emailRecs);
     } catch (e) {
       console.error(e);
     }
@@ -363,6 +374,10 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
       setReports(cloudReports);
     });
 
+    const unsubEmailRecs = subscribeToEmailRecoveries((cloudEmailRecs) => {
+      setEmailRecoveries(cloudEmailRecs);
+    });
+
     return () => {
       unsubOrders();
       unsubChats();
@@ -371,6 +386,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
       unsubResets();
       unsubWebsites();
       unsubReports();
+      unsubEmailRecs();
     };
   }, []);
 
@@ -945,6 +961,50 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
       setTimeout(() => setMasterSuccessMsg(''), 3500);
     } catch (err) {
       console.error('Resolve report error:', err);
+    }
+  };
+
+  // Email Recovery Handlers ("I don't have my email" requests)
+  const handleApproveEmailRecovery = async (id: string) => {
+    setEmailRecoveryActionId(id);
+    try {
+      const updated = await apiApproveEmailRecovery(id);
+      setEmailRecoveries(updated);
+      setMasterSuccessMsg('রিকোয়েস্টটি সফলভাবে অনুমোদন করা হয়েছে এবং সম্পন্ন তালিকায় যুক্ত হয়েছে।');
+      setTimeout(() => setMasterSuccessMsg(''), 4000);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setEmailRecoveryActionId(null);
+    }
+  };
+
+  const handleUndoEmailRecovery = async (id: string) => {
+    setEmailRecoveryActionId(id);
+    try {
+      const updated = await apiUndoEmailRecovery(id);
+      setEmailRecoveries(updated);
+      setMasterSuccessMsg('রিকোয়েস্টটি আনডু করে পুনরায় পেন্ডিং তালিকায় নেওয়া হয়েছে।');
+      setTimeout(() => setMasterSuccessMsg(''), 4000);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setEmailRecoveryActionId(null);
+    }
+  };
+
+  const handleDeleteEmailRecovery = async (id: string) => {
+    if (!window.confirm('আপনি কি নিশ্চিত যে এই রিকোয়েস্টটি মুছে ফেলতে চান? গ্রাহক কল না ধরায় এটি বাতিল করা হবে।')) return;
+    setEmailRecoveryActionId(id);
+    try {
+      const updated = await apiDeleteEmailRecovery(id);
+      setEmailRecoveries(updated);
+      setMasterSuccessMsg('রিকোয়েস্টটি তালিকা থেকে মুছে ফেলা হয়েছে।');
+      setTimeout(() => setMasterSuccessMsg(''), 4000);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setEmailRecoveryActionId(null);
     }
   };
 
@@ -2878,29 +2938,78 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
           const pendingReports = reports.filter((r) => r.status === 'pending');
           const resolvedReports = reports.filter((r) => r.status === 'resolved');
 
+          const pendingEmailRecs = emailRecoveries.filter((r) => r.status === 'pending');
+          const completedEmailRecs = emailRecoveries.filter((r) => r.status === 'completed');
+
           let displayedReports = reports;
           if (reportFilter === 'pending') displayedReports = pendingReports;
           else if (reportFilter === 'resolved') displayedReports = resolvedReports;
 
+          const displayedEmailRecs = emailRecoveryFilter === 'pending' ? pendingEmailRecs : completedEmailRecs;
+
           return (
-            <div className="space-y-5 animate-fadeIn">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="space-y-6 animate-fadeIn">
+              {/* TOP HEADER & SECTION PICKER */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-2xl bg-[#0B0F19] border border-[#1E293B] shadow-md">
                 <div>
                   <h2 className="text-xl font-black text-white flex items-center gap-2">
-                    <Flag className="w-5 h-5 text-[#818CF8]" />
-                    <span>ক্লায়েন্ট রিপোর্ট ও কমপ্লেন বক্স</span>
+                    <Flag className="w-5 h-5 text-[#AB55F7]" />
+                    <span>রিপোর্ট ও রিকোয়েস্ট ম্যানেজমেন্ট সেন্টার</span>
                   </h2>
                   <p className="text-xs text-[#94A3B8] mt-0.5">
-                    ক্লায়েন্টদের পাঠানো রিপোর্ট ও সমস্যা পর্যালোচনা করুন। কমপ্লিট বাটনে ক্লিক করলে পাসওয়ার্ড ছাড়াই স্বয়ংক্রিয়ভাবে সম্পন্ন হবে।
+                    ক্লায়েন্ট অভিযোগ ও "I Don't Have Email" সংক্রান্ত কল রিকোয়েস্ট পর্যালোচনা ও নিষ্পত্তি করুন।
                   </p>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <span className="px-3 py-1 rounded-xl bg-[#E53935]/20 text-[#FF8A80] border border-[#E53935]/40 text-xs font-bold">
-                    {pendingReports.length} টি পেন্ডিং রিপোর্ট
-                  </span>
+                {/* 2 MAIN REPORT OPTIONS */}
+                <div className="flex items-center gap-2 p-1.5 bg-[#070B13] border border-[#1E293B] rounded-2xl overflow-x-auto">
+                  {/* OPTION 1: সাধারণ ক্লায়েন্ট রিপোর্ট */}
+                  <button
+                    type="button"
+                    onClick={() => setReportSection('general-reports')}
+                    className={`px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shrink-0 ${
+                      reportSection === 'general-reports'
+                        ? 'bg-[#2B47EE] text-white shadow-xs'
+                        : 'text-[#94A3B8] hover:text-white hover:bg-[#1E293B]'
+                    }`}
+                  >
+                    <Flag className="w-3.5 h-3.5" />
+                    <span>সাধারণ ক্লায়েন্ট রিপোর্ট</span>
+                    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-black/30 text-white">
+                      {reports.length}
+                    </span>
+                    {pendingReports.length > 0 && (
+                      <span className="w-2 h-2 rounded-full bg-[#E53935] animate-ping" />
+                    )}
+                  </button>
+
+                  {/* OPTION 2: I Don't Have Email রিপোর্ট */}
+                  <button
+                    type="button"
+                    onClick={() => setReportSection('email-recovery-reports')}
+                    className={`px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shrink-0 ${
+                      reportSection === 'email-recovery-reports'
+                        ? 'bg-[#AB55F7] text-white shadow-xs'
+                        : 'text-[#94A3B8] hover:text-white hover:bg-[#1E293B]'
+                    }`}
+                  >
+                    <Mail className="w-3.5 h-3.5" />
+                    <span>I Don't Have Email রিপোর্ট</span>
+                    <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded-full ${
+                      pendingEmailRecs.length > 0 ? 'bg-[#E53935] text-white font-bold' : 'bg-black/30 text-white'
+                    }`}>
+                      {emailRecoveries.length}
+                    </span>
+                    {pendingEmailRecs.length > 0 && (
+                      <span className="w-2 h-2 rounded-full bg-[#E53935] animate-ping" />
+                    )}
+                  </button>
                 </div>
               </div>
+
+              {/* SECTION 1: GENERAL CLIENT REPORTS */}
+              {reportSection === 'general-reports' && (
+                <div className="space-y-5 animate-fadeIn">
 
               {/* Subtabs: All, Pending, Resolved */}
               <div className="flex items-center gap-2 p-1.5 bg-[#0B0F19] border border-[#1E293B] rounded-2xl overflow-x-auto">
@@ -3114,8 +3223,250 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                 </div>
               )}
             </div>
-          );
-        })()}
+          )}
+
+          {/* ======================================================== */}
+          {/* SECTION 2: I DON'T HAVE EMAIL REPORTS (EXACTLY 2 SUBTABS) */}
+          {/* SUBTAB 1: ALL PENDING | SUBTAB 2: ALL COMPLETE            */}
+          {/* ======================================================== */}
+          {reportSection === 'email-recovery-reports' && (
+            <div className="space-y-5 animate-fadeIn">
+              {/* Exactly 2 subtabs as requested: All Pending & All Complete */}
+              <div className="flex items-center gap-2 p-1.5 bg-[#0B0F19] border border-[#1E293B] rounded-2xl overflow-x-auto">
+                {/* 1. ALL PENDING */}
+                <button
+                  type="button"
+                  onClick={() => setEmailRecoveryFilter('pending')}
+                  className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shrink-0 ${
+                    emailRecoveryFilter === 'pending'
+                      ? 'bg-[#E53935] text-white shadow-xs'
+                      : 'text-[#94A3B8] hover:text-white hover:bg-[#1E293B]'
+                  }`}
+                >
+                  <Clock className="w-3.5 h-3.5" />
+                  <span>অল পেন্ডিং (All Pending)</span>
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono ${
+                    emailRecoveryFilter === 'pending' ? 'bg-white/20 text-white font-bold' : 'bg-[#1E293B] text-[#FF8A80]'
+                  }`}>
+                    {pendingEmailRecs.length}
+                  </span>
+                </button>
+
+                {/* 2. ALL COMPLETE */}
+                <button
+                  type="button"
+                  onClick={() => setEmailRecoveryFilter('completed')}
+                  className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shrink-0 ${
+                    emailRecoveryFilter === 'completed'
+                      ? 'bg-[#008A4B] text-white shadow-xs'
+                      : 'text-[#94A3B8] hover:text-white hover:bg-[#1E293B]'
+                  }`}
+                >
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>অল কমপ্লিট (All Complete)</span>
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono ${
+                    emailRecoveryFilter === 'completed' ? 'bg-white/20 text-white font-bold' : 'bg-[#1E293B] text-[#4EEDB0]'
+                  }`}>
+                    {completedEmailRecs.length}
+                  </span>
+                </button>
+              </div>
+
+              {/* Policy reminder banner */}
+              <div className="p-4 rounded-2xl bg-[#141226] border border-[#AB55F7]/30 text-xs text-[#E9D5FF] flex items-start gap-3">
+                <Phone className="w-4 h-4 text-[#AB55F7] shrink-0 mt-0.5" />
+                <div className="space-y-1">
+                  <span className="font-bold text-white">
+                    অ্যাডমিন কল ও যাচাইকরণ নীতিমালা:
+                  </span>
+                  <p className="text-[11px] text-slate-300 leading-relaxed">
+                    যেসব ব্যবহারকারী "I don't have email" দিয়ে আবেদন করেছেন, পেন্ডিং তালিকা থেকে তাদের নম্বরে ১ থেকে ৪৮ ঘণ্টার মধ্যে কল করে অ্যাকাউন্ট যাচাই করুন। কল সম্পন্ন হলে <strong>"অনুমোদন করুন"</strong> বাটনে ক্লিক করলে তা সরাসরি কমপ্লিট তালিকায় যাবে। যদি ভুলবশত চলে যায়, তবে কমপ্লিট তালিকা থেকে <strong>"ডিলিট আনডু"</strong> বাটনে ক্লিক করলে পুনরায় পেন্ডিং এ ফিরে আসবে। গ্রাহক কল না ধরলে রিকোয়েস্টটি ডিলিট করুন।
+                  </p>
+                </div>
+              </div>
+
+              {/* List of Email Recovery Requests */}
+              {displayedEmailRecs.length === 0 ? (
+                <div className="p-12 rounded-3xl bg-[#111827] border border-[#1E293B] text-center space-y-2">
+                  <div className="w-12 h-12 rounded-2xl bg-[#1E293B] text-[#AB55F7] flex items-center justify-center mx-auto mb-2">
+                    {emailRecoveryFilter === 'pending' ? <CheckCircle2 className="w-6 h-6 text-emerald-400" /> : <Mail className="w-6 h-6" />}
+                  </div>
+                  <h3 className="text-sm font-bold text-white">
+                    {emailRecoveryFilter === 'pending'
+                      ? 'কোনো পেন্ডিং ইমেইল রিকোয়েস্ট নেই (All Caught Up)'
+                      : 'কোনো সম্পন্ন ইমেইল রিকোয়েস্ট নেই'}
+                  </h3>
+                  <p className="text-xs text-[#94A3B8]">
+                    ব্যবহারকারীরা লগইন পেজ থেকে "I don't have my email" ফর্ম পূরণ করলে এখানে দেখতে পাবেন।
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-3.5">
+                  {displayedEmailRecs.map((rec, idx) => {
+                    const isPending = rec.status === 'pending';
+                    const isCompleted = rec.status === 'completed';
+
+                    return (
+                      <div
+                        key={rec.id ? `rec-${rec.id}` : `rec-${idx}`}
+                        className={`p-5 rounded-2xl border space-y-4 transition-all shadow-md ${
+                          isPending
+                            ? 'bg-[#181116] border-[#E53935]/40 hover:border-[#E53935]'
+                            : 'bg-[#0F172A] border-[#1E293B]'
+                        }`}
+                      >
+                        {/* Card Top */}
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#1E293B] pb-3">
+                          <div className="flex items-center gap-2">
+                            <span className="font-mono text-xs font-bold text-[#AB55F7]">
+                              {rec.id}
+                            </span>
+                            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                              isPending
+                                ? 'bg-[#E53935]/20 text-[#FF8A80] border border-[#E53935]/40 animate-pulse'
+                                : 'bg-[#008A4B]/20 text-[#4EEDB0] border border-[#008A4B]/40'
+                            }`}>
+                              {isPending ? 'পেন্ডিং কল (Pending Call)' : 'অনুমোদিত ও সম্পন্ন (Completed)'}
+                            </span>
+                          </div>
+
+                          <div className="text-[11px] text-[#94A3B8]">
+                            রিকোয়েস্ট সময়: <span className="font-mono text-white">{rec.createdAt}</span>
+                          </div>
+                        </div>
+
+                        {/* Submitted Details Grid */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs bg-[#070B13] p-4 rounded-xl border border-[#1E293B]">
+                          <div>
+                            <span className="text-[#94A3B8] block mb-0.5">জিমেইল সংক্রান্ত সমস্যা:</span>
+                            <span className="font-bold text-white">
+                              {rec.gmailIssueLabel || rec.gmailIssue}
+                            </span>
+                            {rec.customReason && (
+                              <p className="mt-1 text-[11px] text-[#E9D5FF] italic bg-[#141226] p-2 rounded-lg border border-purple-900/50">
+                                "{rec.customReason}"
+                              </p>
+                            )}
+                          </div>
+
+                          <div>
+                            <span className="text-[#94A3B8] block mb-0.5">পূর্বে কিছু ক্রয় করেছিলেন কি?</span>
+                            <span className={`inline-block px-2 py-0.5 rounded-md font-bold text-[11px] ${
+                              rec.purchasedBefore 
+                                ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' 
+                                : 'bg-slate-800 text-slate-300'
+                            }`}>
+                              {rec.purchasedBefore ? 'হ্যাঁ (Yes - পূর্বের ক্লায়েন্ট)' : 'না (No - নতুন)'}
+                            </span>
+                          </div>
+
+                          <div>
+                            <span className="text-[#94A3B8] block mb-0.5">মোবাইল নম্বর মনে আছে কি?</span>
+                            <span className={`inline-block px-2 py-0.5 rounded-md font-bold text-[11px] ${
+                              rec.rememberPhone 
+                                ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' 
+                                : 'bg-slate-800 text-slate-300'
+                            }`}>
+                              {rec.rememberPhone ? 'হ্যাঁ (Yes)' : 'না (No)'}
+                            </span>
+                          </div>
+
+                          <div>
+                            <span className="text-[#94A3B8] block mb-0.5">কল করার জন্য মোবাইল নম্বর:</span>
+                            <div className="flex items-center gap-2">
+                              <a
+                                href={`tel:${rec.phoneNumber}`}
+                                className="font-mono font-bold text-sm text-[#AB55F7] hover:underline flex items-center gap-1.5"
+                              >
+                                <Phone className="w-3.5 h-3.5" />
+                                <span>{rec.phoneNumber}</span>
+                              </a>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  navigator.clipboard?.writeText(rec.phoneNumber);
+                                  setMasterSuccessMsg('নম্বর কপি করা হয়েছে!');
+                                  setTimeout(() => setMasterSuccessMsg(''), 2000);
+                                }}
+                                className="text-[10px] px-2 py-0.5 rounded bg-[#1E293B] text-slate-300 hover:text-white cursor-pointer"
+                              >
+                                কপি
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Decision info if completed */}
+                        {isCompleted && rec.decisionAt && (
+                          <div className="text-[11px] text-emerald-400 flex items-center gap-2 bg-[#061810] p-2.5 rounded-xl border border-emerald-900/40">
+                            <CheckCircle2 className="w-4 h-4 shrink-0" />
+                            <span>অনুমোদন ও নিষ্পত্তির সময়: {rec.decisionAt} {rec.decisionNote ? `(${rec.decisionNote})` : ''}</span>
+                          </div>
+                        )}
+
+                        {/* Action Buttons */}
+                        <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-[#1E293B]">
+                          <div className="text-[11px] text-[#94A3B8]">
+                            {isPending ? (
+                              <span className="text-amber-400">কল করে যাচাইয়ের পর অনুমোদন করুন।</span>
+                            ) : (
+                              <span className="text-emerald-400">কল সম্পন্ন ও অনুমোদিত তালিকাভুক্ত।</span>
+                            )}
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            {/* If PENDING: Approve Button */}
+                            {isPending && (
+                              <button
+                                type="button"
+                                disabled={emailRecoveryActionId === rec.id}
+                                onClick={() => handleApproveEmailRecovery(rec.id)}
+                                className="px-4 py-2 rounded-xl bg-[#008A4B] hover:bg-[#009E56] disabled:opacity-50 text-white text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
+                              >
+                                <CheckCircle2 className="w-4 h-4" />
+                                <span>{emailRecoveryActionId === rec.id ? 'অনুমোদন হচ্ছে...' : '✓ অনুমোদন করুন (Approve)'}</span>
+                              </button>
+                            )}
+
+                            {/* If COMPLETE: Delete Undo Button (Shifts back to Pending!) */}
+                            {isCompleted && (
+                              <button
+                                type="button"
+                                disabled={emailRecoveryActionId === rec.id}
+                                onClick={() => handleUndoEmailRecovery(rec.id)}
+                                className="px-4 py-2 rounded-xl bg-[#F59E0B] hover:bg-[#D97706] disabled:opacity-50 text-slate-950 text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
+                                title="পেন্ডিং তালিকায় পুনরায় ফেরত পাঠান"
+                              >
+                                <RefreshCw className={`w-3.5 h-3.5 ${emailRecoveryActionId === rec.id ? 'animate-spin' : ''}`} />
+                                <span>ডিলিট আনডু (পেন্ডিং এ ফেরত)</span>
+                              </button>
+                            )}
+
+                            {/* Delete button for both (e.g. if client missed the call) */}
+                            <button
+                              type="button"
+                              disabled={emailRecoveryActionId === rec.id}
+                              onClick={() => handleDeleteEmailRecovery(rec.id)}
+                              className="px-3 py-2 rounded-xl bg-[#1E293B] hover:bg-rose-950/60 text-slate-400 hover:text-rose-300 text-xs font-semibold transition-all flex items-center gap-1 cursor-pointer"
+                              title="রিকোয়েস্টটি মুছে ফেলুন (কল মিস করলে)"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                              <span>মুছে ফেলুন</span>
+                            </button>
+                          </div>
+                        </div>
+
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+            </div>
+          )}
+        </div>
+      );
+    })()}
 
         {/* ================= TAB 5: PASSWORD & USER SECURITY DESK (Requirement 3) ================= */}
         {activeTab === 'resets' && (() => {

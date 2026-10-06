@@ -282,6 +282,7 @@ interface DatabaseSchema {
   deliveredCredentials: Array<any>;
   resetRequests: Array<any>;
   reports: Array<any>;
+  emailRecoveries?: Array<any>;
   logoConfig?: any;
 }
 
@@ -301,6 +302,7 @@ function getInitialDb(): DatabaseSchema {
     deliveredCredentials: [],
     resetRequests: [],
     reports: [],
+    emailRecoveries: [],
     logoConfig: {
       logoType: 'image',
       imageUrl: '',
@@ -1302,6 +1304,82 @@ async function startServer() {
       });
     }
     res.json(db.reports);
+  });
+
+  // ---------------- EMAIL RECOVERY REQUESTS ("I don't have email") ----------------
+  app.get('/api/email-recoveries', (req: Request, res: Response) => {
+    const db = readDb();
+    res.json(db.emailRecoveries || []);
+  });
+
+  app.post('/api/email-recoveries', (req: Request, res: Response) => {
+    const db = readDb();
+    if (!db.emailRecoveries) db.emailRecoveries = [];
+    const item = {
+      ...req.body,
+      id: req.body.id || `REC-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`,
+      status: req.body.status || 'pending',
+      createdAt: req.body.createdAt || new Date().toLocaleString('bn-BD')
+    };
+    db.emailRecoveries.unshift(item);
+    writeDb(db);
+    broadcast({
+      type: 'email_recovery:created',
+      recovery: item,
+      timestamp: Date.now()
+    });
+    res.json(item);
+  });
+
+  app.put('/api/email-recoveries/:id/approve', (req: Request, res: Response) => {
+    const db = readDb();
+    if (!db.emailRecoveries) db.emailRecoveries = [];
+    const rec = db.emailRecoveries.find(r => r.id === req.params.id);
+    if (rec) {
+      rec.status = 'completed';
+      rec.decisionAt = new Date().toLocaleString('bn-BD');
+      rec.decisionNote = req.body.decisionNote || 'অ্যাডমিন টিম কর্তৃক অনুমোদিত ও কল সম্পন্ন হয়েছে।';
+      writeDb(db);
+      broadcast({
+        type: 'email_recovery:approved',
+        recovery: rec,
+        timestamp: Date.now()
+      });
+      return res.json(rec);
+    }
+    res.status(404).json({ error: 'Recovery request not found' });
+  });
+
+  app.put('/api/email-recoveries/:id/undo', (req: Request, res: Response) => {
+    const db = readDb();
+    if (!db.emailRecoveries) db.emailRecoveries = [];
+    const rec = db.emailRecoveries.find(r => r.id === req.params.id);
+    if (rec) {
+      rec.status = 'pending';
+      rec.decisionAt = undefined;
+      rec.decisionNote = undefined;
+      writeDb(db);
+      broadcast({
+        type: 'email_recovery:undone',
+        recovery: rec,
+        timestamp: Date.now()
+      });
+      return res.json(rec);
+    }
+    res.status(404).json({ error: 'Recovery request not found' });
+  });
+
+  app.delete('/api/email-recoveries/:id', (req: Request, res: Response) => {
+    const db = readDb();
+    if (!db.emailRecoveries) db.emailRecoveries = [];
+    db.emailRecoveries = db.emailRecoveries.filter(r => r.id !== req.params.id);
+    writeDb(db);
+    broadcast({
+      type: 'email_recovery:deleted',
+      id: req.params.id,
+      timestamp: Date.now()
+    });
+    res.json({ success: true, id: req.params.id });
   });
 
   // RESTRICT USER
