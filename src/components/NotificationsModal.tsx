@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, X, CheckCheck, ShieldCheck, ShoppingBag, Key, MessageSquare, AlertCircle } from 'lucide-react';
-import { ClientOrder, WebsiteDeliveryCredentials } from '../types';
+import { Bell, X, CheckCheck, ShieldCheck, ShoppingBag, Key, MessageSquare, AlertCircle, Flag } from 'lucide-react';
+import { ClientOrder, WebsiteDeliveryCredentials, UserReport } from '../types';
 
 interface RealNotification {
   id: string;
   title: string;
   subtitle: string;
   time: string;
-  type: 'order' | 'credential' | 'chat';
+  type: 'order' | 'credential' | 'chat' | 'report';
   isUnread: boolean;
 }
 
@@ -35,6 +35,7 @@ export default function NotificationsModal({
       try {
         let orders: ClientOrder[] = [];
         let creds: WebsiteDeliveryCredentials[] = [];
+        let reportsList: UserReport[] = [];
 
         try {
           const res = await fetch('/api/data');
@@ -42,6 +43,7 @@ export default function NotificationsModal({
             const db = await res.json();
             if (Array.isArray(db.orders)) orders = db.orders;
             if (Array.isArray(db.deliveredCredentials)) creds = db.deliveredCredentials;
+            if (Array.isArray(db.reports)) reportsList = db.reports;
           }
         } catch (_) {}
 
@@ -53,14 +55,28 @@ export default function NotificationsModal({
           const storedCreds = localStorage.getItem('bongoweb_delivered_credentials');
           if (storedCreds) creds = JSON.parse(storedCreds);
         }
+        if (reportsList.length === 0) {
+          try {
+            const repRes = await fetch('/api/reports');
+            if (repRes.ok) {
+              const repData = await repRes.json();
+              if (Array.isArray(repData)) reportsList = repData;
+            }
+          } catch (_) {}
+          if (reportsList.length === 0) {
+            const storedReps = localStorage.getItem('bongoweb_reports');
+            if (storedReps) reportsList = JSON.parse(storedReps);
+          }
+        }
 
         const storedUser = localStorage.getItem('bongoweb_user');
-        const userPhone = storedUser ? JSON.parse(storedUser).phone : null;
+        const userObj = storedUser ? JSON.parse(storedUser) : null;
+        const userPhone = userObj?.phone || null;
+        const userEmail = userObj?.email || null;
 
         const userOrders = userPhone ? orders.filter(o => o.phone === userPhone) : orders;
         
-        // Requirement 6: If payment is in verification, notice is visible.
-        // After the order is confirmed (verified), the verification notification automatically disappears!
+        // 1. Pending order payments
         userOrders.forEach((o) => {
           if (o.status === 'pending') {
             realList.push({
@@ -74,7 +90,7 @@ export default function NotificationsModal({
           }
         });
 
-        // Requirement 6: Once details are sent, client receives notification per website
+        // 2. Delivered website credentials
         const myCreds = userPhone ? creds.filter(c => c.userPhone === userPhone) : creds;
         myCreds.forEach((c) => {
           realList.push({
@@ -85,6 +101,26 @@ export default function NotificationsModal({
             type: 'credential',
             isUnread: true
           });
+        });
+
+        // 3. Admin replies to user's reports
+        const myReports = reportsList.filter((r) => {
+          if (userPhone && r.clientPhone === userPhone) return true;
+          if (userEmail && r.clientEmail === userEmail) return true;
+          return false;
+        });
+
+        myReports.forEach((r) => {
+          if (r.adminReply) {
+            realList.push({
+              id: `rep-reply-${r.id}`,
+              title: `📢 আপনার রিপোর্টের উত্তর দেওয়া হয়েছে`,
+              subtitle: `অ্যাডমিন উত্তর: "${r.adminReply}"`,
+              time: r.adminRepliedAt || r.createdAt || 'সম্প্রতি',
+              type: 'report',
+              isUnread: true
+            });
+          }
         });
       } catch (_) {}
 
@@ -105,7 +141,7 @@ export default function NotificationsModal({
         {/* Header */}
         <div className="p-4 sm:p-5 bg-[#F8FAFD] border-b border-[#E5EDF5] flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-[#EEF2FF] text-[#2B47EE] flex items-center justify-center font-bold">
+            <div className="w-8 h-8 rounded-xl bg-[#AB55F7]/15 text-[#9333EA] flex items-center justify-center font-bold">
               <Bell className="w-4 h-4 stroke-[2.2]" />
             </div>
             <div>
@@ -125,7 +161,7 @@ export default function NotificationsModal({
                   setNotifications([]);
                   onClearAll();
                 }}
-                className="text-[11px] font-semibold text-[#2B47EE] hover:text-[#203CD4] flex items-center gap-1 cursor-pointer"
+                className="text-[11px] font-semibold text-[#9333EA] hover:text-[#7C3AED] flex items-center gap-1 cursor-pointer"
               >
                 <CheckCheck className="w-3.5 h-3.5" />
                 <span>ক্লিয়ার</span>
@@ -149,7 +185,7 @@ export default function NotificationsModal({
               </div>
               <p className="text-xs font-bold text-[#0D253D]">কোনো নতুন নোটিফিকেশন নেই</p>
               <p className="text-[11px] text-[#64748D] mt-0.5">
-                আপনার অর্ডার, পেমেন্ট ও ডেলিভারি সংক্রান্ত সমস্ত রিয়েল-টাইম আপডেট এখানে প্রদর্শিত হবে।
+                আপনার অর্ডার, পেমেন্ট, ডেলিভারি ও অভিযোগের উত্তর সংক্রান্ত সমস্ত রিয়েল-টাইম আপডেট এখানে প্রদর্শিত হবে।
               </p>
             </div>
           ) : (
@@ -162,14 +198,14 @@ export default function NotificationsModal({
                     onClose();
                   }
                 }}
-                className={`p-3.5 rounded-2xl border transition-all cursor-pointer hover:border-[#2B47EE]/50 ${
+                className={`p-3.5 rounded-2xl border transition-all cursor-pointer hover:border-[#AB55F7]/50 ${
                   item.isUnread
-                    ? 'bg-[#EEF2FF]/50 border-[#2B47EE]/30 shadow-2xs'
+                    ? 'bg-[#FDF4FF] border-[#AB55F7]/30 shadow-2xs'
                     : 'bg-[#F8FAFD] border-[#E5EDF5]'
                 }`}
               >
                 <div className="flex items-start gap-2.5">
-                  <span className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${item.isUnread ? 'bg-[#2B47EE]' : 'bg-[#94A3B8]'}`} />
+                  <span className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${item.isUnread ? 'bg-[#AB55F7]' : 'bg-[#94A3B8]'}`} />
                   <div className="flex-1">
                     <p className="text-xs font-bold text-[#0D253D] leading-snug">
                       {item.title}
@@ -181,7 +217,7 @@ export default function NotificationsModal({
                       <span className="text-[10px] font-mono text-[#7D8BA4]">
                         {item.time}
                       </span>
-                      <span className="text-[10px] font-bold text-[#2B47EE] hover:underline">
+                      <span className="text-[10px] font-bold text-[#9333EA] hover:underline">
                         বিস্তারিত দেখুন →
                       </span>
                     </div>

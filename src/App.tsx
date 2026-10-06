@@ -61,9 +61,28 @@ export default function App() {
     return WEBSITE_DEMOS[0];
   };
 
-  // Parse path from window.location.pathname
+  // Parse path from window.location.pathname, hash, or search
   const parseCurrentUrl = useCallback(() => {
-    const rawPath = window.location.pathname || '/';
+    let rawPath = window.location.pathname || '/';
+
+    // Support hash fallback (e.g. #/account, #/live-chat, #/order/1042)
+    if (window.location.hash && window.location.hash.startsWith('#/')) {
+      rawPath = window.location.hash.replace(/^#/, '');
+    } else if (window.location.hash && window.location.hash.length > 1 && !window.location.hash.includes('=')) {
+      rawPath = '/' + window.location.hash.replace(/^#\/?/, '');
+    }
+
+    // Support query param fallback (e.g. ?view=account or ?tab=account)
+    if (window.location.search) {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const queryView = params.get('view') || params.get('tab') || params.get('page');
+        if (queryView) {
+          rawPath = '/' + queryView.replace(/^\//, '');
+        }
+      } catch (_) {}
+    }
+
     const path = decodeURIComponent(rawPath).replace(/\/+$/, '') || '/';
 
     if (path === '/admin' || path.startsWith('/admin')) {
@@ -113,6 +132,12 @@ export default function App() {
     
     if (savedView === 'category-picker') {
       setViewMode('category-picker');
+    } else if (savedView === 'account') {
+      setViewMode('account');
+    } else if (savedView === 'live-chat') {
+      setViewMode('live-chat');
+    } else if (savedView === 'after-order') {
+      setViewMode('after-order');
     } else if (savedView === 'dashboard' || savedCategory) {
       if (savedCategory) setSelectedCategory(savedCategory as WebsiteCategory);
       setViewMode('dashboard');
@@ -129,7 +154,7 @@ export default function App() {
     } catch (_) {}
   }, [viewMode]);
 
-  // Initialize and listen to popstate
+  // Initialize and listen to popstate and hashchange
   useEffect(() => {
     // 1. Initial route resolution
     parseCurrentUrl();
@@ -149,13 +174,17 @@ export default function App() {
       })
       .catch(() => {});
 
-    const handlePopState = () => {
+    const handleNavigation = () => {
       parseCurrentUrl();
       window.scrollTo({ top: 0, behavior: 'instant' });
     };
 
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
+    window.addEventListener('popstate', handleNavigation);
+    window.addEventListener('hashchange', handleNavigation);
+    return () => {
+      window.removeEventListener('popstate', handleNavigation);
+      window.removeEventListener('hashchange', handleNavigation);
+    };
   }, [parseCurrentUrl]);
 
   // Navigate to Category Picker (URL remains root "/")
@@ -292,7 +321,7 @@ export default function App() {
           />
 
           {/* Dynamic Content Views */}
-          <main className="flex-1 w-full pt-18 sm:pt-20">
+          <main className="flex-1 w-full pt-16 sm:pt-[72px]">
             {/* Dashboard (URL: "/") */}
             {viewMode === 'dashboard' && (
               <DashboardView

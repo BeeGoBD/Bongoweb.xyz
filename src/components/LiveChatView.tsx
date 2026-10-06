@@ -552,7 +552,7 @@ export default function LiveChatView() {
                 <button
                   type="submit"
                   disabled={isStarting}
-                  className="w-full py-3 px-4 rounded-xl bg-[#2B47EE] hover:bg-[#4329d9] text-white font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-[0_4px_16px_rgba(83,58,253,0.3)] cursor-pointer disabled:opacity-50"
+                  className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#AB55F7] via-[#9333EA] to-[#7C3AED] hover:from-[#9333EA] hover:to-[#6D28D9] text-white font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-[0_4px_16px_rgba(171,85,247,0.35)] cursor-pointer disabled:opacity-50"
                 >
                   {isStarting ? (
                     <>
@@ -569,7 +569,7 @@ export default function LiveChatView() {
               ) : (
                 <button
                   type="submit"
-                  className="w-full py-3 px-4 rounded-xl bg-[#00B261] hover:bg-[#009E56] text-white font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-[0_4px_16px_rgba(0,178,97,0.3)] cursor-pointer"
+                  className="w-full py-3.5 px-4 rounded-xl bg-[#00B261] hover:bg-[#009E56] text-white font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-[0_4px_16px_rgba(0,178,97,0.3)] cursor-pointer"
                 >
                   <Ticket className="w-4 h-4" />
                   <span>সাবমিট সাপোর্ট টিকিট (Submit Ticket)</span>
@@ -580,8 +580,8 @@ export default function LiveChatView() {
 
           {/* Clean Assurance */}
           <div className="mt-4 pt-4 border-t border-[#E5EDF5] text-center">
-            <span className="text-[11px] text-[#64748D] inline-flex items-center gap-1">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+            <span className="text-[11px] text-[#64748D] inline-flex items-center gap-1.5 font-bold">
+              <ShieldCheck className="w-4 h-4 text-emerald-600" />
               <span>২৪/৭ অফিসিয়াল কাস্টমার সাপোর্ট সার্ভিস</span>
             </span>
           </div>
@@ -592,56 +592,47 @@ export default function LiveChatView() {
 
   // ==========================================
   // VIEW 2: ACTIVATED LIVE CHAT WINDOW
+  // Optimized Header (Strictly: "BongoWeb Support", Active Badge, Exit Button)
+  // Sticky Bottom Interaction Area (Zero overlap with message stream)
+  // High-Contrast Theme
   // ==========================================
   return (
-    <div className="w-full max-w-2xl mx-auto px-3 sm:px-4 py-2 sm:py-4 flex flex-col h-[calc(100vh-140px)] min-h-[500px] font-sans">
-      {/* 1. Slim Header Bar */}
-      <div className="bg-[#FFFFFF] border border-[#E5EDF5] rounded-t-2xl p-3 sm:p-4 flex items-center justify-between shrink-0 shadow-xs">
-        <div className="flex items-center gap-2.5">
+    <div className="w-full max-w-3xl mx-auto px-3 sm:px-6 py-2 sm:py-4 flex flex-col h-[calc(100vh-140px)] min-h-[520px] font-sans relative">
+      {/* 1. Header Optimization: Strictly "BongoWeb Support", Active Badge, Exit/Close Button */}
+      <div className="bg-white border border-slate-200/90 rounded-t-2xl p-3.5 sm:p-4 flex items-center justify-between shrink-0 shadow-xs z-10">
+        <div className="flex items-center gap-3">
           <div className="relative">
-            <div className="w-9 h-9 rounded-xl bg-[#2B47EE] text-white flex items-center justify-center font-bold text-xs">
-              <Headphones className="w-4 h-4" />
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#AB55F7] to-[#7C3AED] text-white flex items-center justify-center font-bold text-xs shadow-xs">
+              <Headphones className="w-4.5 h-4.5 text-white" />
             </div>
-            <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full"></span>
+            <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full ring-1 ring-emerald-400" />
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h3 className="text-sm font-bold text-[#0D253D]">BongoWeb Support</h3>
-              <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-200">
-                Online
-              </span>
-            </div>
-            <p className="text-[11px] text-[#64748D]">
-              {userName} ({userPhone})
-            </p>
+          <div className="flex items-center gap-2.5">
+            <h3 className="text-sm sm:text-base font-black text-[#0D253D] tracking-tight">
+              BongoWeb Support
+            </h3>
+            {/* Active Status Badge */}
+            <span className="px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-300 flex items-center gap-1.5 shadow-2xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span>Active</span>
+            </span>
           </div>
         </div>
 
-        {/* Right Actions: Clean Status & Exit Button (5-min timer is strictly Admin-only) */}
-        <div className="flex items-center gap-2">
-          {/* Client only sees that they are actively chatting */}
-          <div 
-            className="px-2.5 py-1 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 text-xs font-bold flex items-center gap-1.5"
-            title="লাইভ সাপোর্ট সেশন সক্রিয়"
-          >
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>লাইভ চ্যাট চলছে</span>
-          </div>
-
-          {/* Exit Chat Button */}
-          <button
-            onClick={() => setShowExitConfirm(true)}
-            className="px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-600 text-xs font-bold flex items-center gap-1 transition-all cursor-pointer"
-            title="চ্যাট থেকে বের হয়ে যান"
-          >
-            <LogOut className="w-3.5 h-3.5" />
-            <span className="hidden xs:inline">বের হয়ে যান</span>
-          </button>
-        </div>
+        {/* Exit / Close Button */}
+        <button
+          type="button"
+          onClick={() => setShowExitConfirm(true)}
+          className="px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-rose-50 text-slate-600 hover:text-rose-600 border border-slate-200 hover:border-rose-200 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs active:scale-95"
+          title="চ্যাট থেকে বের হয়ে যান"
+        >
+          <X className="w-4 h-4" />
+          <span>Exit</span>
+        </button>
       </div>
 
-      {/* 2. Messages Scroll Area */}
-      <div className="flex-1 bg-[#F8FAFD] border-x border-[#E5EDF5] p-3 sm:p-4 overflow-y-auto space-y-3">
+      {/* 2. Messages Scroll Area (With generous bottom padding to guarantee zero overlap) */}
+      <div className="flex-1 bg-slate-50/70 border-x border-slate-200/80 p-3.5 sm:p-5 overflow-y-auto space-y-3.5 pb-24 sm:pb-22">
         {deduplicateChatMessages(messages).map((msg) => {
           const isClient = msg.sender === 'client';
           return (
@@ -650,19 +641,19 @@ export default function LiveChatView() {
               className={`flex flex-col ${isClient ? 'items-end' : 'items-start'}`}
             >
               <div
-                className={`max-w-[85%] sm:max-w-[75%] rounded-2xl p-3 text-xs sm:text-sm leading-relaxed shadow-xs ${
+                className={`max-w-[85%] sm:max-w-[75%] rounded-2xl p-3 sm:p-3.5 text-xs sm:text-sm leading-relaxed shadow-xs ${
                   isClient
-                    ? 'bg-[#2B47EE] text-white rounded-br-xs'
-                    : 'bg-[#FFFFFF] text-[#0D253D] border border-[#E5EDF5] rounded-bl-xs'
+                    ? 'bg-gradient-to-r from-[#AB55F7] to-[#7C3AED] text-white rounded-br-xs shadow-[0_4px_12px_rgba(171,85,247,0.25)]'
+                    : 'bg-white text-slate-800 border border-slate-200/90 rounded-bl-xs'
                 }`}
               >
                 <p className="whitespace-pre-wrap select-text">{msg.text}</p>
                 <div
-                  className={`mt-1 flex items-center justify-end gap-1 text-[10px] ${
-                    isClient ? 'text-white/70' : 'text-[#64748D]'
+                  className={`mt-1.5 flex items-center justify-end gap-1 text-[10px] ${
+                    isClient ? 'text-white/80' : 'text-slate-400'
                   }`}
                 >
-                  <span>{msg.timestamp}</span>
+                  <span className="font-mono">{msg.timestamp}</span>
                   {isClient && <CheckCheck className="w-3 h-3" />}
                 </div>
               </div>
@@ -672,9 +663,9 @@ export default function LiveChatView() {
 
         {/* If chat closed by Admin or session ended */}
         {isExpired && (
-          <div className="my-2 p-2.5 rounded-xl bg-[#F8FAFD] border border-[#E5EDF5] flex flex-wrap items-center justify-between gap-2 text-xs">
-            <span className="text-[#475569] font-medium">
-              আপনার টেক্সট সমাপ্ত হয়েছে (Your text is over).
+          <div className="my-2 p-3 rounded-2xl bg-amber-50 border border-amber-200/80 flex flex-wrap items-center justify-between gap-2 text-xs text-amber-900">
+            <span className="font-semibold">
+              আপনার চ্যাট সেশন সমাপ্ত হয়েছে (Your session has ended).
             </span>
             <button
               type="button"
@@ -687,7 +678,7 @@ export default function LiveChatView() {
                   await apiReopenChat(userPhone);
                 } catch (_) {}
               }}
-              className="px-3 py-1.5 rounded-lg bg-[#2B47EE] hover:bg-[#4329d9] text-white text-xs font-bold transition-all shrink-0 cursor-pointer shadow-xs flex items-center gap-1.5"
+              className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#AB55F7] to-[#7C3AED] text-white text-xs font-bold transition-all shrink-0 cursor-pointer shadow-xs flex items-center gap-1.5"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>রিটেক্সট (Retext)</span>
@@ -698,8 +689,8 @@ export default function LiveChatView() {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* 3. Input Send Bar */}
-      <div className="bg-[#FFFFFF] border border-[#E5EDF5] rounded-b-2xl p-2.5 sm:p-3 shrink-0 shadow-xs">
+      {/* 3. Sticky Bottom Interaction Area (Permanently docked, zero overlap) */}
+      <div className="sticky bottom-0 left-0 right-0 z-20 bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-b-2xl p-2.5 sm:p-3.5 shadow-[0_-4px_16px_rgba(0,0,0,0.04)]">
         <form onSubmit={handleSendMessage} className="flex items-center gap-2">
           <input
             type="text"
@@ -713,45 +704,46 @@ export default function LiveChatView() {
                 ? 'আপনার মেসেজ লিখুন...'
                 : 'Type your message...'
             }
-            className="flex-1 px-3.5 py-2.5 rounded-xl border border-[#E5EDF5] text-xs sm:text-sm focus:outline-none focus:border-[#2B47EE] bg-[#F8FAFD] disabled:opacity-50"
+            className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#AB55F7] focus:ring-2 focus:ring-[#AB55F7]/15 bg-slate-50/80 disabled:opacity-50 transition-all"
           />
           <button
             type="submit"
             disabled={!inputVal.trim() || isExpired}
-            className="w-10 h-10 rounded-xl bg-[#2B47EE] text-white flex items-center justify-center hover:bg-[#4329d9] transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
+            className="w-10 h-10 rounded-xl bg-gradient-to-r from-[#AB55F7] via-[#9333EA] to-[#7C3AED] hover:from-[#9333EA] hover:to-[#6D28D9] text-white flex items-center justify-center transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shadow-[0_2px_10px_rgba(171,85,247,0.35)] shrink-0 active:scale-95"
+            title="মেসেজ পাঠান"
           >
-            <Send className="w-4 h-4" />
+            <Send className="w-4 h-4 text-white" />
           </button>
         </form>
       </div>
 
       {/* Exit Confirmation Modal */}
       {showExitConfirm && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-sm w-full p-5 shadow-2xl border border-gray-100 animate-scaleIn">
-            <div className="w-10 h-10 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto mb-3">
+        <div className="fixed inset-0 z-50 bg-[#0D253D]/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
+          <div className="bg-white rounded-2xl max-w-sm w-full p-5 sm:p-6 shadow-2xl border border-slate-100 animate-scaleIn">
+            <div className="w-11 h-11 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto mb-3 shadow-2xs">
               <LogOut className="w-5 h-5" />
             </div>
-            <h3 className="text-sm sm:text-base font-black text-center text-[#0D253D] mb-1">
+            <h3 className="text-base font-black text-center text-[#0D253D] mb-1">
               লাইভ চ্যাট সমাপ্ত করবেন?
             </h3>
-            <p className="text-xs text-center text-[#64748D] mb-5">
-              আপনি কি নিশ্চিতভাবে এই চ্যাট সেশনটি শেষ করতে চান?
+            <p className="text-xs text-center text-slate-500 mb-5">
+              আপনি কি নিশ্চিতভাবে এই সাপোর্ট চ্যাট সেশনটি সমাপ্ত করতে চান?
             </p>
             <div className="grid grid-cols-2 gap-2.5">
               <button
                 type="button"
                 onClick={() => setShowExitConfirm(false)}
-                className="py-2 px-3 rounded-xl border border-gray-200 text-xs font-bold text-gray-700 hover:bg-gray-50 cursor-pointer"
+                className="py-2.5 px-3 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 cursor-pointer transition-colors"
               >
                 বাতিল (Cancel)
               </button>
               <button
                 type="button"
                 onClick={handleConfirmExit}
-                className="py-2 px-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-xs font-bold text-white shadow-sm cursor-pointer"
+                className="py-2.5 px-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-xs font-bold text-white shadow-xs cursor-pointer transition-colors"
               >
-                হ্যাঁ, সমাপ্ত করুন (OK)
+                হ্যাঁ, সমাপ্ত করুন
               </button>
             </div>
           </div>

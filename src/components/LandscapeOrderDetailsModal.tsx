@@ -435,8 +435,8 @@ export default function LandscapeOrderDetailsModal({
                       <div className="flex items-center gap-3">
                         <span>তারিখ: <strong className="text-[#0D253D]">{ord.createdAt || 'N/A'}</strong></span>
                         <span>TrxID: <strong className="font-mono text-[#00B261]">{ord.transactionId || 'N/A'}</strong></span>
-                        <span>মেকিং চার্জ: <strong className="text-[#2B47EE]">১,৯৯০ ৳</strong></span>
-                        <span>মেইনটেন্যান্স: <strong className="text-[#2B47EE]">১২০ ৳/মাস</strong></span>
+                        <span>মেকিং চার্জ: <strong className="text-[#9333EA]">১,৯৯০ ৳</strong></span>
+                        <span><strong className="text-[#9333EA]">মাসিক খরচ ২৫০ টাকা</strong></span>
                       </div>
                       <span className="text-[10px] font-mono bg-[#F8FAFD] px-2 py-0.5 rounded border border-[#E5EDF5]">
                         পেমেন্ট: {String(ord.paymentMethod || 'bKash').toUpperCase()}
@@ -513,8 +513,8 @@ export default function LandscapeOrderDetailsModal({
                 <span className="font-black text-sm text-[#0D253D]">১,৯৯০ ৳</span>
               </div>
               <div className="flex justify-between py-1.5 border-b border-[#E5EDF5]">
-                <span className="text-[#64748D]">মাসিক মেইনটেন্যান্স:</span>
-                <span className="font-bold text-[#2B47EE]">১২০ ৳ / মাস</span>
+                <span className="text-[#64748D]">মাসিক খরচ:</span>
+                <span className="font-bold text-[#9333EA]">মাসিক খরচ ২৫০ টাকা</span>
               </div>
               <div className="flex justify-between py-1.5">
                 <span className="text-[#64748D]">স্ট্যাটাস:</span>

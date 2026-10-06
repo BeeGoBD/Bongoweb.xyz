@@ -180,9 +180,13 @@ export interface UserReport {
   clientName: string;
   clientPhone: string;
   clientEmail?: string;
+  category?: 'technical' | 'order' | 'billing' | 'domain' | 'general' | string;
+  subject?: string;
   message: string;
   createdAt: string;
-  status: 'pending' | 'resolved';
+  status: 'pending' | 'in_progress' | 'resolved'; // strictly in pending/in_progress (পেন্ডিং/চলমান) until explicitly marked resolved
+  adminReply?: string;
+  adminRepliedAt?: string;
   resolvedAt?: string;
 }
 

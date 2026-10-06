@@ -428,8 +428,8 @@ export default function OrderPageView({
 
               {/* Price Reminder */}
               <div className="p-3 rounded-2xl bg-[#F8FAFD] border border-[#E5EDF5] flex items-center justify-between text-xs mt-3">
-                <span className="text-[#64748D]">এককালীন মেকিং চার্জ: <strong className="text-[#2B47EE]">১,৯৯০ ৳</strong></span>
-                <span className="text-[#64748D]">মাসিক মেইনটেন্যান্স: <strong className="text-[#2B47EE]">১২০ ৳</strong></span>
+                <span className="text-[#64748D]">এককালীন মেকিং চার্জ: <strong className="text-[#9333EA]">১,৯৯০ ৳</strong></span>
+                <span className="text-[#64748D]"><strong className="text-[#9333EA]">মাসিক খরচ ২৫০ টাকা</strong></span>
               </div>
 
               <div className="pt-3">
@@ -671,8 +671,8 @@ export default function OrderPageView({
                   <span className="text-lg font-black text-[#0D253D]">১,৯৯০ ৳</span>
                 </div>
                 <div className="text-right">
-                  <span className="text-[#64748D] block">মাসিক মেইনটেন্যান্স খরচ</span>
-                  <span className="text-sm font-black text-[#2B47EE]">১২০ ৳ / মাস</span>
+                  <span className="text-[#64748D] block">মাসিক খরচ</span>
+                  <span className="text-sm font-black text-[#9333EA]">মাসিক খরচ ২৫০ টাকা</span>
                 </div>
               </div>
 
@@ -752,8 +752,8 @@ export default function OrderPageView({
                 <span className="font-black text-sm text-[#0D253D]">১,৯৯০ ৳</span>
               </div>
               <div className="flex justify-between py-2 border-b border-[#E5EDF5]">
-                <span className="text-[#64748D]">মাসিক মেইনটেন্যান্স খরচ:</span>
-                <span className="font-bold text-[#2B47EE]">১২০ ৳ / মাস</span>
+                <span className="text-[#64748D]">মাসিক খরচ:</span>
+                <span className="font-bold text-[#9333EA]">মাসিক খরচ ২৫০ টাকা</span>
               </div>
               <div className="flex justify-between py-2">
                 <span className="text-[#64748D]">অর্ডার স্ট্যাটাস:</span>

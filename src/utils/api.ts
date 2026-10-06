@@ -1589,6 +1589,40 @@ export async function apiCreateReport(report: UserReport): Promise<UserReport[]>
   return localCache.reports;
 }
 
+export async function apiReplyToReport(reportId: string, reply: string): Promise<UserReport[]> {
+  const targetId = String(reportId || '').trim();
+  const cleanId = targetId.replace(/[^a-zA-Z0-9_-]/g, '_');
+  const now = new Date().toLocaleString('bn-BD');
+  const replyClean = String(reply || '').trim();
+
+  try {
+    if (cleanId) {
+      await updateDoc(doc(db, 'reports', cleanId), {
+        adminReply: replyClean,
+        adminRepliedAt: now,
+        status: 'in_progress'
+      });
+    }
+  } catch (err) {
+    console.warn('Firestore reply report notice:', err);
+  }
+
+  localCache.reports = (localCache.reports || []).map(r => 
+    r.id === targetId ? { ...r, adminReply: replyClean, adminRepliedAt: now, status: r.status === 'resolved' ? 'resolved' : 'in_progress' } : r
+  );
+  localStorage.setItem('bongoweb_reports', JSON.stringify(localCache.reports));
+
+  try {
+    fetch(`/api/reports/${encodeURIComponent(targetId)}/reply`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reply: replyClean })
+    }).catch(() => {});
+  } catch (_) {}
+
+  return localCache.reports;
+}
+
 export async function apiResolveReport(reportId: string): Promise<UserReport[]> {
   const targetId = String(reportId || '').trim();
   const cleanId = targetId.replace(/[^a-zA-Z0-9_-]/g, '_');

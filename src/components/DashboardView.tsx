@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Search, ArrowLeft, Eye, ArrowRight, Star, 
-  Server, RefreshCw
+  Server, RefreshCw, Sparkles
 } from 'lucide-react';
-import { WebsiteDemo, WebsiteCategory } from '../types';
+import { WebsiteDemo, WebsiteCategory, UserAccount } from '../types';
 import { apiGetWebsites, subscribeToWebsites } from '../utils/api';
 import { WEBSITE_DEMOS } from '../data/mockData';
 import { useLanguage } from '../utils/LanguageContext';
@@ -25,10 +25,54 @@ export default function DashboardView({
   const [searchQuery, setSearchQuery] = useState('');
   const [websites, setWebsites] = useState<WebsiteDemo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentUser, setCurrentUser] = useState<UserAccount | null>(null);
+  const [isScrolling, setIsScrolling] = useState(false);
+  const scrollTimeoutRef = useRef<any>(null);
   const { language, t } = useLanguage();
+
+  // Scroll watcher for Dynamic Scroll Interaction
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolling(true);
+      if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+      scrollTimeoutRef.current = setTimeout(() => {
+        setIsScrolling(false);
+      }, 700);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+    };
+  }, []);
 
   // Exactly one mock website as requested by the user for testing & editing
   const fallbackSingleMock = [WEBSITE_DEMOS[0]];
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('bongoweb_user');
+      if (stored) {
+        setCurrentUser(JSON.parse(stored));
+      }
+    } catch (_) {}
+
+    const handleUserSync = () => {
+      try {
+        const stored = localStorage.getItem('bongoweb_user');
+        setCurrentUser(stored ? JSON.parse(stored) : null);
+      } catch (_) {
+        setCurrentUser(null);
+      }
+    };
+    window.addEventListener('storage', handleUserSync);
+    window.addEventListener('bongoweb_credentials_updated', handleUserSync);
+    return () => {
+      window.removeEventListener('storage', handleUserSync);
+      window.removeEventListener('bongoweb_credentials_updated', handleUserSync);
+    };
+  }, []);
 
   useEffect(() => {
     apiGetWebsites()
@@ -91,6 +135,31 @@ export default function DashboardView({
 
   return (
     <div className="w-full flex flex-col font-sans pb-28 pt-2 animate-fadeIn">
+      {/* Notice: Unverified Mobile Number (24-Hour Call Policy) */}
+      {currentUser && currentUser.numberVerified !== true && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 w-full mb-3">
+          <div className="bg-amber-50 border border-amber-200/90 rounded-2xl p-3 sm:px-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-amber-950 shadow-2xs">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping shrink-0" />
+              <span>
+                <strong>নম্বর ভেরিফিকেশন অপেক্ষমান ({currentUser.phone || 'মোবাইল নম্বর'})</strong>: আমাদের টিম সর্বোচ্চ ২৪ ঘণ্টার মধ্যে কল করবে। কল রিসিভ না করলে বা রেসপন্স না পেলে ২৪ ঘণ্টা পর অ্যাকাউন্ট সাময়িকভাবে সীমাবদ্ধ (Restrict) করা হবে।
+              </span>
+            </div>
+            <a 
+              href="/account/terms" 
+              onClick={(e) => {
+                e.preventDefault();
+                window.history.pushState({}, '', '/account/terms');
+                window.dispatchEvent(new PopStateEvent('popstate'));
+              }}
+              className="underline font-bold text-amber-800 hover:text-indigo-600 shrink-0 self-end sm:self-auto cursor-pointer"
+            >
+              ভেরিফিকেশন নীতিমালা →
+            </a>
+          </div>
+        </section>
+      )}
+
       {/* 1. Compact Top Bar: Return Indicator + Top Search */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 w-full mb-5">
         <div className="bg-white border border-slate-200/90 rounded-2xl px-3.5 py-2.5 sm:px-5 sm:py-3 shadow-2xs hover:shadow-xs transition-shadow flex items-center justify-between gap-3">
@@ -263,33 +332,33 @@ export default function DashboardView({
                         }
                       </p>
 
-                      {/* Monthly Maintenance Section */}
-                      <div className="w-full mb-3.5 px-3 py-2.5 rounded-xl bg-[#F8FAFD] border border-[#E5EDF5] hover:border-[#2B47EE]/30 transition-all flex items-center justify-between gap-2 shadow-2xs">
+                      {/* Monthly Maintenance Section - Standardized exact string */}
+                      <div className="w-full mb-3.5 px-3 py-2.5 rounded-xl bg-slate-50 border border-slate-200/80 hover:border-[#AB55F7]/30 transition-all flex items-center justify-between gap-2 shadow-2xs">
                         <div className="flex items-center gap-2 min-w-0">
-                          <div className="w-6 h-6 rounded-lg bg-[#EEF2FF] text-[#2B47EE] flex items-center justify-center shrink-0 shadow-2xs">
+                          <div className="w-6 h-6 rounded-lg bg-[#AB55F7]/10 text-[#9333EA] flex items-center justify-center shrink-0 shadow-2xs">
                             <Server className="w-3.5 h-3.5" />
                           </div>
-                          <span className="text-xs font-bold text-[#0D253D] truncate">
-                            {t('মাসিক মেইনটেন্যান্স ও হোস্টিং', 'Monthly Server & Cloud Hosting')}
+                          <span className="text-xs font-bold text-slate-800 truncate">
+                            {language === 'en' ? 'Monthly Cost 250 BDT' : 'মাসিক খরচ ২৫০ টাকা'}
                           </span>
                         </div>
 
                         <div className="flex items-center gap-1 shrink-0">
-                          <span className="px-2.5 py-0.5 rounded-lg bg-[#FFFFFF] border border-[#E5EDF5] text-xs font-black text-[#2B47EE] font-mono shadow-2xs">
-                            {language === 'en' ? '120 BDT' : '১২০ ৳'}
+                          <span className="px-2.5 py-0.5 rounded-lg bg-white border border-slate-200 text-xs font-black text-[#9333EA] font-mono shadow-2xs">
+                            {language === 'en' ? '250 BDT' : '২৫০ ৳'}
                           </span>
-                          <span className="text-[10px] text-[#64748D] font-bold">
+                          <span className="text-[10px] text-slate-500 font-bold">
                             {t('/মাস', '/mo')}
                           </span>
                         </div>
                       </div>
                     </div>
 
-                    {/* Action Buttons: Clean & High-Contrast */}
-                    <div className="pt-3 border-t border-[#E5EDF5] grid grid-cols-2 gap-2.5">
+                    {/* Action Buttons: Unified BongoWeb Brand & Modern Blue Accent */}
+                    <div className="pt-3 border-t border-slate-100 grid grid-cols-2 gap-2.5">
                       <button
                         onClick={() => onOpenLiveDemo(demo)}
-                        className="w-full py-2.5 px-3 rounded-xl bg-[#F8FAFD] hover:bg-[#EEF2FF] text-[#2B47EE] border border-[#E5EDF5] hover:border-[#2B47EE]/30 text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
+                        className="w-full py-2.5 px-3 rounded-xl bg-slate-50 hover:bg-[#AB55F7]/10 text-[#9333EA] border border-slate-200 hover:border-[#AB55F7]/30 text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs active:scale-[0.98]"
                       >
                         <Eye className="w-3.5 h-3.5" />
                         <span>{t('লাইভ ডেমো', 'Live Demo')}</span>
@@ -297,7 +366,7 @@ export default function DashboardView({
 
                       <button
                         onClick={() => onOpenOrder(demo)}
-                        className="w-full py-2.5 px-3 rounded-xl bg-[#2B47EE] hover:bg-[#203CD4] active:bg-[#1E3A8A] text-[#FFFFFF] text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+                        className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-[#AB55F7] via-[#9333EA] to-[#7C3AED] hover:from-[#9333EA] hover:to-[#6D28D9] active:scale-[0.98] text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-[0_4px_16px_rgba(171,85,247,0.35)]"
                       >
                         <span>{t('অর্ডার করুন', 'Order Now')}</span>
                         <ArrowRight className="w-3.5 h-3.5" />
@@ -310,7 +379,19 @@ export default function DashboardView({
           </div>
         )}
       </section>
-      {/* Note: Assurance banner "talk us directly 24/7" removed as requested */}
+
+      {/* Dynamic Scroll Interaction: Lightweight Floating "View Preview" Pill */}
+      <div
+        className={`fixed bottom-20 sm:bottom-22 left-1/2 -translate-x-1/2 z-30 pointer-events-none transition-all duration-300 transform select-none ${
+          isScrolling ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-3 scale-95'
+        }`}
+      >
+        <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-[#AB55F7] to-[#7C3AED] text-white text-xs font-black shadow-[0_8px_24px_rgba(171,85,247,0.45)] border border-white/20 backdrop-blur-md">
+          <Eye className="w-3.5 h-3.5 animate-pulse text-white" />
+          <span className="tracking-wide">View Preview • প্রিভিউ দেখুন</span>
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+        </div>
+      </div>
     </div>
   );
 }

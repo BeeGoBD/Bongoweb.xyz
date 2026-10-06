@@ -24,7 +24,7 @@ import {
   subscribeToOrders, subscribeToChatThreads, subscribeToUsers,
   subscribeToDeliveredCredentials, subscribeToResetRequests, subscribeToWebsites,
   normalizePhone, apiGetLiveChatEnabled, apiSetLiveChatEnabled,
-  apiRestrictUser, apiGetReports, apiResolveReport, subscribeToReports,
+  apiRestrictUser, apiGetReports, apiReplyToReport, apiResolveReport, subscribeToReports,
   apiGetLogoConfig, apiSaveLogoConfig, DEFAULT_LOGO_CONFIG
 } from '../utils/api';
 import { realtimeManager } from '../utils/realtime';
@@ -83,6 +83,8 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
   const [customWebsites, setCustomWebsites] = useState<WebsiteDemo[]>([]);
   const [reports, setReports] = useState<UserReport[]>([]);
   const [reportFilter, setReportFilter] = useState<'all' | 'pending' | 'resolved'>('all');
+  const [reportReplyDrafts, setReportReplyDrafts] = useState<Record<string, string>>({});
+  const [replyingReportId, setReplyingReportId] = useState<string | null>(null);
 
   // Live Chat System State
   const [chatThreads, setChatThreads] = useState<SupportChatThread[]>([]);
@@ -917,7 +919,24 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
     }
   };
 
-  // 9. Report Resolution (NO password required as requested by user!)
+  // 9. Report Resolution & Reply
+  const handleReplyReport = async (reportId: string) => {
+    const text = (reportReplyDrafts[reportId] || '').trim();
+    if (!text) return;
+    try {
+      setReplyingReportId(reportId);
+      const updated = await apiReplyToReport(reportId, text);
+      setReports(updated);
+      setReportReplyDrafts((prev) => ({ ...prev, [reportId]: '' }));
+      setMasterSuccessMsg('রিপোর্টে অ্যাডমিন উত্তর সফলভাবে পাঠানো হয়েছে!');
+      setTimeout(() => setMasterSuccessMsg(''), 3500);
+    } catch (err) {
+      console.error('Reply report error:', err);
+    } finally {
+      setReplyingReportId(null);
+    }
+  };
+
   const handleResolveReport = async (reportId: string) => {
     try {
       const updated = await apiResolveReport(reportId);
@@ -2956,18 +2975,23 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                 <div className="space-y-3.5">
                   {displayedReports.map((rep, rIdx) => {
                     const isPending = rep.status === 'pending';
+                    const isInProgress = rep.status === 'in_progress';
+                    const isResolved = rep.status === 'resolved';
+
                     return (
                       <div
                         key={rep.id ? `rep-${rep.id}-${rIdx}` : `rep-${rIdx}`}
-                        className={`p-5 rounded-2xl border space-y-3 transition-all shadow-md ${
+                        className={`p-5 rounded-2xl border space-y-3.5 transition-all shadow-md ${
                           isPending
                             ? 'bg-[#181116] border-[#E53935]/40 hover:border-[#E53935]'
+                            : isInProgress
+                            ? 'bg-[#191528] border-[#AB55F7]/40 hover:border-[#AB55F7]'
                             : 'bg-[#111827] border-[#1E293B]'
                         }`}
                       >
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#1E293B] pb-3">
                           <div className="flex items-center gap-2.5 flex-wrap">
-                            <span className="px-2.5 py-1 rounded-xl bg-[#2B47EE] text-white font-mono font-black text-xs">
+                            <span className="px-2.5 py-1 rounded-xl bg-gradient-to-r from-[#AB55F7] to-[#7C3AED] text-white font-mono font-black text-xs shadow-xs">
                               {rep.clientIdentifier || '#BW-CLIENT'}
                             </span>
                             <h4 className="text-sm font-bold text-white">
@@ -2987,18 +3011,79 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                             <span className={`px-2.5 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 ${
                               isPending
                                 ? 'bg-[#E53935]/20 text-[#FF8A80] border border-[#E53935]/40'
+                                : isInProgress
+                                ? 'bg-[#AB55F7]/20 text-[#D8B4FE] border border-[#AB55F7]/40'
                                 : 'bg-[#00B261]/20 text-[#4EEDB0] border border-[#00B261]/40'
                             }`}>
-                              <span className={`w-2 h-2 rounded-full ${isPending ? 'bg-[#E53935] animate-ping' : 'bg-[#00B261]'}`} />
-                              <span>{isPending ? 'অপেক্ষমান (Pending)' : 'সম্পূর্ণ (Resolved)'}</span>
+                              <span className={`w-2 h-2 rounded-full ${
+                                isPending ? 'bg-[#E53935] animate-ping' : isInProgress ? 'bg-[#AB55F7] animate-pulse' : 'bg-[#00B261]'
+                              }`} />
+                              <span>
+                                {isPending ? 'অপেক্ষমান (Pending)' : isInProgress ? 'চলমান (In Progress)' : 'সম্পূর্ণ (Resolved)'}
+                              </span>
                             </span>
                           </div>
                         </div>
 
                         {/* Report message box */}
-                        <div className="p-4 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-xs text-white leading-relaxed whitespace-pre-wrap">
-                          {rep.message}
+                        <div className="space-y-1">
+                          <span className="text-[11px] font-bold text-[#94A3B8]">
+                            ক্লায়েন্টের অভিযোগ / বক্তব্য:
+                          </span>
+                          <div className="p-4 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-xs text-white leading-relaxed whitespace-pre-wrap">
+                            {rep.message}
+                          </div>
                         </div>
+
+                        {/* Display existing Admin Reply if any */}
+                        {rep.adminReply && (
+                          <div className="p-3.5 rounded-xl bg-[#1E1B4B]/60 border border-[#AB55F7]/40 space-y-1.5">
+                            <div className="flex items-center justify-between text-[11px]">
+                              <span className="font-bold text-[#D8B4FE] flex items-center gap-1.5">
+                                <MessageSquare className="w-3.5 h-3.5 text-[#AB55F7]" />
+                                <span>অ্যাডমিন অফিসিয়াল উত্তর (Admin Reply):</span>
+                              </span>
+                              {rep.adminRepliedAt && (
+                                <span className="text-[10px] text-[#94A3B8] font-mono">
+                                  {rep.adminRepliedAt}
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-xs text-white leading-relaxed whitespace-pre-wrap pl-5 border-l-2 border-[#AB55F7]/60">
+                              {rep.adminReply}
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Dedicated Admin Reply Input (Visible for pending or in_progress reports) */}
+                        {!isResolved && (
+                          <div className="p-3.5 rounded-xl bg-[#0B0F19] border border-[#1E293B] space-y-2">
+                            <label className="block text-[11px] font-bold text-[#CBD5E1]">
+                              অফিসিয়াল রিপ্লাই পাঠান (Reply to Client):
+                            </label>
+                            <div className="flex flex-col sm:flex-row gap-2">
+                              <textarea
+                                rows={2}
+                                value={reportReplyDrafts[rep.id] || ''}
+                                onChange={(e) => setReportReplyDrafts((prev) => ({ ...prev, [rep.id]: e.target.value }))}
+                                placeholder="ক্লায়েন্টের অভিযোগের প্রেক্ষিতে অফিসিয়াল উত্তর লিখুন (ক্লায়েন্ট নোটিফিকেশন পাবেন)..."
+                                className="flex-1 p-2.5 rounded-xl bg-[#111827] border border-[#1E293B] text-xs text-white focus:outline-none focus:border-[#AB55F7] resize-none"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => handleReplyReport(rep.id)}
+                                disabled={replyingReportId === rep.id || !reportReplyDrafts[rep.id]?.trim()}
+                                className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#AB55F7] to-[#7C3AED] hover:from-[#9333EA] hover:to-[#6D28D9] text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-40 shadow-xs shrink-0 self-stretch sm:self-end"
+                              >
+                                <Send className="w-3.5 h-3.5" />
+                                <span>{replyingReportId === rep.id ? 'পাঠানো হচ্ছে...' : 'উত্তর পাঠান'}</span>
+                              </button>
+                            </div>
+                            <p className="text-[10px] text-[#94A3B8]">
+                              * উত্তর পাঠানোর পর রিপোর্টটি চলমান (In Progress) থাকবে। পুরোপুরি সমাধানের পর ডানপাশের "সম্পূর্ণ করুন" বাটনে ক্লিক করুন।
+                            </p>
+                          </div>
+                        )}
 
                         <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-[#1E293B]">
                           <div className="text-[11px] text-[#94A3B8]">
@@ -3011,7 +3096,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                           </div>
 
                           {/* Complete button (NO password needed as explicitly requested!) */}
-                          {isPending && (
+                          {!isResolved && (
                             <button
                               type="button"
                               onClick={() => handleResolveReport(rep.id)}
@@ -3641,17 +3726,17 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
 
             {/* Modal: Upload New Product / Website (Requirement 15) */}
             {showAddWebsiteModal && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
-                <div className="w-full max-w-lg bg-[#111827] border-2 border-[#2B47EE] rounded-3xl p-6 sm:p-8 shadow-2xl relative space-y-4 max-h-[90vh] overflow-y-auto">
+              <div className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-md p-4 sm:p-6 flex min-h-full items-center justify-center animate-fadeIn">
+                <div className="w-full max-w-lg bg-[#111827] border-2 border-[#AB55F7]/70 rounded-3xl p-6 sm:p-8 shadow-2xl relative space-y-4 max-h-[calc(100vh-3rem)] overflow-y-auto my-auto">
                   <button
                     onClick={() => setShowAddWebsiteModal(false)}
-                    className="absolute top-5 right-5 text-[#94A3B8] hover:text-white"
+                    className="absolute top-5 right-5 text-[#94A3B8] hover:text-white cursor-pointer"
                   >
                     <X className="w-5 h-5" />
                   </button>
 
                   <h3 className="text-base font-black text-white flex items-center gap-2">
-                    <Plus className="w-5 h-5 text-[#818CF8]" />
+                    <Plus className="w-5 h-5 text-[#AB55F7]" />
                     <span>নতুন প্রোডাক্ট / ওয়েবসাইট আপলোড</span>
                   </h3>
 
@@ -3667,7 +3752,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                         placeholder="যেমন: Luxe Watch - Smart Luxury Store"
                         value={newProductTitle}
                         onChange={(e) => setNewProductTitle(e.target.value)}
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-white text-xs focus:outline-none focus:border-[#2B47EE]"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-white text-xs focus:outline-none focus:border-[#AB55F7]"
                       />
                     </div>
 
@@ -3681,7 +3766,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                         placeholder="ওয়েবসাইটের মূল সুবিধাসমূহ ও বিবরণ লিখুন..."
                         value={newProductDesc}
                         onChange={(e) => setNewProductDesc(e.target.value)}
-                        className="w-full px-3.5 py-2 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-xs text-white resize-none focus:outline-none focus:border-[#2B47EE]"
+                        className="w-full px-3.5 py-2 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-xs text-white resize-none focus:outline-none focus:border-[#AB55F7]"
                       />
                     </div>
 
@@ -3698,8 +3783,8 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                             onClick={() => setNewProductPricing(pkg)}
                             className={`py-2 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
                               newProductPricing === pkg
-                                ? 'bg-[#2B47EE] border-[#2B47EE] text-white shadow-xs'
-                                : 'bg-[#0B0F19] border-[#1E293B] text-[#94A3B8] hover:text-white hover:border-[#2B47EE]/50'
+                                ? 'bg-gradient-to-r from-[#AB55F7] to-[#7C3AED] border-[#AB55F7] text-white shadow-xs'
+                                : 'bg-[#0B0F19] border-[#1E293B] text-[#94A3B8] hover:text-white hover:border-[#AB55F7]/50'
                             }`}
                           >
                             {pkg}
@@ -3711,7 +3796,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                         placeholder="অন্যান্য কাস্টম মূল্য (যেমন: ৳1499)"
                         value={newProductPricing}
                         onChange={(e) => setNewProductPricing(e.target.value)}
-                        className="w-full px-3.5 py-2 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-white text-xs font-mono focus:outline-none focus:border-[#2B47EE]"
+                        className="w-full px-3.5 py-2 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-white text-xs font-mono focus:outline-none focus:border-[#AB55F7]"
                       />
                     </div>
 
@@ -3725,7 +3810,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                         placeholder="যেমন: ৳199 বা ৳0"
                         value={newDiscountPrice}
                         onChange={(e) => setNewDiscountPrice(e.target.value)}
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-white text-xs font-mono focus:outline-none focus:border-[#2B47EE]"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-white text-xs font-mono focus:outline-none focus:border-[#AB55F7]"
                       />
                     </div>
 
@@ -3739,31 +3824,14 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                         placeholder="demo.bongoweb.site অথবা https://..."
                         value={newProductLink}
                         onChange={(e) => setNewProductLink(e.target.value)}
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-white text-xs font-mono focus:outline-none focus:border-[#2B47EE]"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-white text-xs font-mono focus:outline-none focus:border-[#AB55F7]"
                       />
-                    </div>
-
-                    {/* 6. Details send option (Checkbox) */}
-                    <div className="p-3 rounded-xl bg-[#0B0F19] border border-[#1E293B] flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          id="sendDetailsOpt"
-                          checked={sendDetailsToClient}
-                          onChange={(e) => setSendDetailsToClient(e.target.checked)}
-                          className="w-4 h-4 rounded text-[#2B47EE] focus:ring-[#2B47EE] cursor-pointer"
-                        />
-                        <label htmlFor="sendDetailsOpt" className="text-xs font-bold text-white cursor-pointer select-none">
-                          Details send option (ক্লায়েন্টের কাছে প্রোডাক্ট ডিটেইলস পাঠান)
-                        </label>
-                      </div>
-                      <span className="text-[10px] text-[#818CF8] font-semibold">বিজ্ঞপ্তি যাবে</span>
                     </div>
 
                     <div className="pt-2 flex gap-2">
                       <button
                         type="submit"
-                        className="flex-1 py-3 rounded-xl bg-[#2B47EE] text-white text-xs font-bold hover:bg-[#1E3A8A] cursor-pointer shadow-md transition-all"
+                        className="flex-1 py-3 rounded-xl bg-gradient-to-r from-[#AB55F7] via-[#9333EA] to-[#7C3AED] hover:from-[#9333EA] hover:to-[#6D28D9] text-white text-xs font-bold cursor-pointer shadow-md transition-all"
                       >
                         প্রোডাক্ট যুক্ত ও পাবলিশ করুন
                       </button>

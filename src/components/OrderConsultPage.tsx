@@ -508,8 +508,8 @@ export default function OrderConsultPage({
                     </div>
 
                     <div className="text-[11px] text-neutral-400 mt-1 flex items-center justify-between pt-1">
-                      <span>মাসিক ক্লাউড মেইনটেন্যান্স:</span>
-                      <span className="font-bold text-white font-mono">৳১২০ টাকা / মাস</span>
+                      <span>মাসিক খরচ:</span>
+                      <span className="font-bold text-white font-mono">মাসিক খরচ ২৫০ টাকা</span>
                     </div>
                   </div>
 

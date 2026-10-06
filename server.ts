@@ -1,4 +1,5 @@
-import express, { Request, Response } from 'express';
+import express from 'express';
+import type { Request, Response } from 'express';
 import http from 'http';
 import { WebSocketServer, WebSocket } from 'ws';
 import { createServer as createViteServer } from 'vite';
@@ -1256,7 +1257,34 @@ async function startServer() {
     };
     db.reports.unshift(report);
     writeDb(db);
+    broadcast({
+      type: 'report:created',
+      report,
+      timestamp: Date.now()
+    });
     res.json(report);
+  });
+
+  app.put('/api/reports/:id/reply', (req: Request, res: Response) => {
+    const db = readDb();
+    if (!db.reports) db.reports = [];
+    const rep = db.reports.find(r => r.id === req.params.id);
+    if (rep) {
+      rep.adminReply = String(req.body.reply || '').trim();
+      rep.adminRepliedAt = new Date().toLocaleString('bn-BD');
+      // Report remains strictly in 'pending' or 'in_progress' (পেন্ডিং/চলমান) until explicitly marked complete
+      if (rep.status === 'pending') {
+        rep.status = 'in_progress';
+      }
+      writeDb(db);
+      broadcast({
+        type: 'report:replied',
+        report: rep,
+        timestamp: Date.now()
+      });
+      return res.json(rep);
+    }
+    res.status(404).json({ error: 'Report not found' });
   });
 
   app.put('/api/reports/:id/resolve', (req: Request, res: Response) => {
@@ -1267,6 +1295,11 @@ async function startServer() {
       rep.status = 'resolved';
       rep.resolvedAt = new Date().toLocaleString('bn-BD');
       writeDb(db);
+      broadcast({
+        type: 'report:resolved',
+        report: rep,
+        timestamp: Date.now()
+      });
     }
     res.json(db.reports);
   });
@@ -1553,7 +1586,14 @@ async function startServer() {
     const distPath = path.resolve(__dirname, 'dist');
     app.use(express.static(distPath));
     app.get('*', (req: Request, res: Response) => {
-      res.sendFile(path.resolve(distPath, 'index.html'));
+      if (req.originalUrl.startsWith('/api') || req.originalUrl.startsWith('/ws')) {
+        return res.status(404).json({ error: 'Endpoint not found' });
+      }
+      const distIndex = path.resolve(distPath, 'index.html');
+      if (fs.existsSync(distIndex)) {
+        return res.sendFile(distIndex);
+      }
+      res.sendFile(path.resolve(__dirname, 'index.html'));
     });
   }
 

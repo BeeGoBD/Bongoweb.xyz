@@ -45,7 +45,7 @@ export default function Step4Pricing({ onBack, onComplete }: Step4PricingProps) 
           >
             একটি মাত্র সেটআপ ফি,{' '}
             <span className="text-[#800020] underline decoration-[#800020]/40 underline-offset-6">
-              সাশ্রয়ী মাসিক মেইনটেন্যান্স
+              মাসিক খরচ ২৫০ টাকা
             </span>
           </h1>
 
@@ -90,16 +90,15 @@ export default function Step4Pricing({ onBack, onComplete }: Step4PricingProps) 
             <div className="p-3.5 sm:p-4 md:p-5 rounded-2xl bg-[#FDFBF7] border border-[#E7E0D6] shadow-[0_2px_8px_rgba(0,0,0,0.03)] flex flex-col justify-between transition-all hover:border-[#800020]/30 hover:shadow-[0_4px_16px_rgba(128,0,32,0.08)]">
               <div>
                 <div className="flex items-center justify-between text-xs font-medium text-[#800020] mb-1">
-                  <span className="font-semibold text-[#1C1614] text-xs sm:text-sm">মাসিক সার্ভার খরচ</span>
+                  <span className="font-semibold text-[#1C1614] text-xs sm:text-sm">মাসিক খরচ</span>
                   <span className="text-[10px] font-bold text-[#800020] bg-[#800020]/10 px-2.5 py-0.5 rounded-full border border-[#800020]/25 font-mono">
-                    শুরু মাত্র
+                    নির্দিষ্ট
                   </span>
                 </div>
                 <div className="flex items-baseline gap-1.5">
-                  <span className="text-2xl sm:text-3xl font-black text-[#1C1614] tracking-tight font-mono">
-                    ৳১২০
+                  <span className="text-xl sm:text-2xl font-black text-[#1C1614] tracking-tight">
+                    মাসিক খরচ ২৫০ টাকা
                   </span>
-                  <span className="text-xs text-[#800020] font-bold font-mono">টাকা / মাস</span>
                 </div>
                 <p className="text-[11px] sm:text-xs text-[#5C4E4B] font-medium mt-1 leading-snug">
                   ৯৯.৯% সার্ভার আপটাইম, ফ্রি SSL ও অটো ব্যাকআপ
