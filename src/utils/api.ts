@@ -62,23 +62,36 @@ export function cleanFirestoreData<T extends Record<string, any>>(obj: T): T {
   return clean;
 }
 
-// No mock orders by default as requested by user
+// No mock orders by default - 100% clean production state
 export const DEFAULT_INITIAL_ORDERS: ClientOrder[] = [];
 
-// Seed initial memory cache from localStorage if available
+// Clean fresh start purge for legacy client sessions and mock entries
 try {
+  if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+    const FRESH_START_FLAG = 'bongoweb_fresh_start_2026_clean';
+    if (!localStorage.getItem(FRESH_START_FLAG)) {
+      localStorage.removeItem('bongoweb_orders');
+      localStorage.removeItem('bongoweb_support_chats');
+      localStorage.removeItem('bongoweb_registered_users');
+      localStorage.removeItem('bongoweb_delivered_credentials');
+      localStorage.removeItem('bongoweb_reset_requests');
+      localStorage.removeItem('bongoweb_reports');
+      localStorage.removeItem('bongoweb_user');
+      localStorage.removeItem('bongoweb_chat_active_session');
+      localStorage.removeItem('bongoweb_last_otp');
+      localStorage.removeItem('bongoweb_pending_email');
+      if (typeof sessionStorage !== 'undefined') {
+        sessionStorage.removeItem('bongoweb_user');
+        sessionStorage.removeItem('bongoweb_active_view');
+      }
+      localStorage.setItem(FRESH_START_FLAG, 'true');
+    }
+  }
+
   const o = localStorage.getItem('bongoweb_orders');
   if (o) {
     const parsed = JSON.parse(o);
-    // Filter out any mock orders from previous runs (e.g. Tanvir, Rakibul, Ariful, #4821)
-    const validOrders = (Array.isArray(parsed) ? parsed : []).filter(item => {
-      const name = String(item?.clientName || '').toLowerCase();
-      const code = String(item?.demoCode || '').toLowerCase();
-      const id = String(item?.orderId || '').toLowerCase();
-      return !name.includes('tanvir') && !name.includes('রাকিবুল') && !name.includes('আরিফুল') && !code.includes('4821') && !id.includes('84192') && !id.includes('72615');
-    });
-    localCache.orders = validOrders;
-    localStorage.setItem('bongoweb_orders', JSON.stringify(validOrders));
+    localCache.orders = Array.isArray(parsed) ? parsed : [];
   } else {
     localCache.orders = [];
     localStorage.setItem('bongoweb_orders', JSON.stringify([]));
@@ -126,53 +139,24 @@ export async function pullFromCloudVault(): Promise<{
       getDocs(collection(db, 'customWebsites')).catch(() => null)
     ]);
 
-    if (ordersSnap && !ordersSnap.empty) {
-      const rawOrders = ordersSnap.docs.map(d => d.data() as ClientOrder);
-      // Filter out any unwanted mock orders
-      const validOrders = rawOrders.filter(item => {
-        const name = String(item?.clientName || '').toLowerCase();
-        const code = String(item?.demoCode || '').toLowerCase();
-        const id = String(item?.orderId || '').toLowerCase();
-        return !name.includes('tanvir') && !name.includes('রাকিবুল') && !name.includes('আরিফুল') && !code.includes('4821') && !id.includes('84192') && !id.includes('72615');
-      });
-
-      // Merge with local cache so newly marked 'completed' or 'bin' orders are never reverted by stale Firestore reads
-      const mergedOrders = [...validOrders];
-      const localList = localCache.orders || [];
-      for (const localOrd of localList) {
-        const localId = String(localOrd.orderId || (localOrd as any).id || '').replace('#', '').trim().toLowerCase();
-        const existingIdx = mergedOrders.findIndex(r => String(r.orderId || (r as any).id || '').replace('#', '').trim().toLowerCase() === localId);
-        if (existingIdx >= 0) {
-          if (localOrd.status === 'completed' || localOrd.status === 'bin') {
-            mergedOrders[existingIdx] = {
-              ...mergedOrders[existingIdx],
-              ...localOrd,
-              status: localOrd.status,
-              hasDeliveredCredentials: true
-            };
-          }
-        } else {
-          mergedOrders.push(localOrd);
-        }
-      }
-
-      localCache.orders = mergedOrders;
-      localStorage.setItem('bongoweb_orders', JSON.stringify(mergedOrders));
+    if (ordersSnap) {
+      localCache.orders = ordersSnap.empty ? [] : ordersSnap.docs.map(d => d.data() as ClientOrder);
+      localStorage.setItem('bongoweb_orders', JSON.stringify(localCache.orders));
     }
-    if (chatsSnap && !chatsSnap.empty) {
-      localCache.supportChats = chatsSnap.docs.map(d => d.data() as SupportChatThread);
+    if (chatsSnap) {
+      localCache.supportChats = chatsSnap.empty ? [] : chatsSnap.docs.map(d => d.data() as SupportChatThread);
       localStorage.setItem('bongoweb_support_chats', JSON.stringify(localCache.supportChats));
     }
-    if (usersSnap && !usersSnap.empty) {
-      localCache.users = usersSnap.docs.map(d => d.data() as UserAccount);
+    if (usersSnap) {
+      localCache.users = usersSnap.empty ? [] : usersSnap.docs.map(d => d.data() as UserAccount);
       localStorage.setItem('bongoweb_registered_users', JSON.stringify(localCache.users));
     }
-    if (credsSnap && !credsSnap.empty) {
-      localCache.deliveredCredentials = credsSnap.docs.map(d => d.data() as WebsiteDeliveryCredentials);
+    if (credsSnap) {
+      localCache.deliveredCredentials = credsSnap.empty ? [] : credsSnap.docs.map(d => d.data() as WebsiteDeliveryCredentials);
       localStorage.setItem('bongoweb_delivered_credentials', JSON.stringify(localCache.deliveredCredentials));
     }
-    if (resetsSnap && !resetsSnap.empty) {
-      localCache.resetRequests = resetsSnap.docs.map(d => d.data() as PasswordResetRequest);
+    if (resetsSnap) {
+      localCache.resetRequests = resetsSnap.empty ? [] : resetsSnap.docs.map(d => d.data() as PasswordResetRequest);
       localStorage.setItem('bongoweb_reset_requests', JSON.stringify(localCache.resetRequests));
     }
     if (sitesSnap && !sitesSnap.empty) {
@@ -182,10 +166,8 @@ export async function pullFromCloudVault(): Promise<{
 
     try {
       const repSnap = await getDocs(collection(db, 'reports'));
-      if (!repSnap.empty) {
-        localCache.reports = repSnap.docs.map(d => d.data() as UserReport);
-        localStorage.setItem('bongoweb_reports', JSON.stringify(localCache.reports));
-      }
+      localCache.reports = repSnap.empty ? [] : repSnap.docs.map(d => d.data() as UserReport);
+      localStorage.setItem('bongoweb_reports', JSON.stringify(localCache.reports));
     } catch (_) {}
   } catch (err) {
     console.warn('Firestore fetch notice, trying local/server fallback:', err);
