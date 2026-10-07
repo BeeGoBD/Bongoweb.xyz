@@ -25,7 +25,7 @@ import {
   subscribeToOrders, subscribeToChatThreads, subscribeToUsers,
   subscribeToDeliveredCredentials, subscribeToResetRequests, subscribeToWebsites,
   normalizePhone, apiGetLiveChatEnabled, apiSetLiveChatEnabled,
-  apiRestrictUser, apiGetReports, apiReplyToReport, apiResolveReport, subscribeToReports,
+  apiRestrictUser, apiVerifyUserNumber, apiGetReports, apiReplyToReport, apiResolveReport, subscribeToReports,
   apiGetLogoConfig, apiSaveLogoConfig, DEFAULT_LOGO_CONFIG,
   apiGetEmailRecoveries, apiApproveEmailRecovery, apiUndoEmailRecovery, apiDeleteEmailRecovery,
   subscribeToEmailRecoveries
@@ -118,6 +118,9 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
 
   // User Search Bar State (Requirement 12)
   const [userSearchTerm, setUserSearchTerm] = useState('');
+
+  // User Management Sub-Tabs (Requirement: 1. Registration List, 2. Unverified Numbers, 3. All List)
+  const [userSectionSubTab, setUserSectionSubTab] = useState<'all_registered' | 'unverified' | 'verified_list'>('all_registered');
 
   // Product Packages & Upload State (Requirement 15)
   const [newProductTitle, setNewProductTitle] = useState('');
@@ -616,37 +619,40 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
 
     try {
       const targetOrder = orders.find(o => o.orderId === idToUse || (o as any).id === idToUse);
+      const adminId = targetOrder?.deliveredAdminId || deliveryAdminId.trim() || `admin_${String(targetOrder?.phone || '9999').slice(-4)}`;
+      const adminPass = targetOrder?.deliveredAdminPass || deliveryAdminPass.trim() || `pass${Math.floor(1000 + Math.random() * 9000)}`;
 
       // Ensure credentials are sent to client dashboard in their menu details
       if (targetOrder) {
-        const adminId = targetOrder.deliveredAdminId || deliveryAdminId.trim() || `admin_${String(targetOrder.phone || '9999').slice(-4)}`;
-        const adminPass = targetOrder.deliveredAdminPass || deliveryAdminPass.trim() || `pass${Math.floor(1000 + Math.random() * 9000)}`;
         const websiteCode = targetOrder.demoCode || '#BW-ONLINE';
         const websiteTitle = targetOrder.companyName || targetOrder.demoTitle || 'বিজনেস ওয়েবসাইট অ্যাডমিন প্যানেল';
+        const phoneDigits = normalizePhone(targetOrder.phone).slice(-10);
+        const canonicalId = `cred_ord_${idToUse.replace(/[^a-zA-Z0-9_-]/g, '_')}`;
 
-        const alreadyExists = deliveredCreds.some(c => 
-          (c.orderId && c.orderId === idToUse) || 
-          (c.userPhone === targetOrder.phone && (c.websiteCode === websiteCode || !c.websiteCode))
-        );
-
-        if (!alreadyExists) {
-          const newCred: WebsiteDeliveryCredentials = {
-            id: `DELIV-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
-            orderId: idToUse,
-            userPhone: targetOrder.phone,
-            userEmail: targetOrder.email || '',
-            websiteTitle,
-            websiteCode,
-            websiteAdminId: adminId,
-            websiteAdminPass: adminPass,
-            notes: 'আপনার ওয়েবসাইট সম্পূর্ণ তৈরি ও রেডি। অ্যাডমিন প্যানেলে লগইন করুন।',
-            deliveredAt: new Date().toLocaleString('bn-BD')
-          };
-          const updatedCreds = [newCred, ...deliveredCreds];
-          setDeliveredCreds(updatedCreds);
-          saveDeliveredCreds(updatedCreds);
-          await apiDeliverCredentials(newCred);
-        }
+        const newCred: WebsiteDeliveryCredentials = {
+          id: canonicalId,
+          orderId: idToUse,
+          userPhone: targetOrder.phone,
+          userEmail: targetOrder.email || '',
+          websiteTitle,
+          websiteCode,
+          websiteAdminId: adminId,
+          websiteAdminPass: adminPass,
+          notes: 'আপনার ওয়েবসাইট সম্পূর্ণ তৈরি ও রেডি। অ্যাডমিন প্যানেলে লগইন করুন।',
+          deliveredAt: new Date().toLocaleString('bn-BD'),
+          updatedAt: Date.now()
+        };
+        const updatedCreds = [
+          newCred,
+          ...deliveredCreds.filter(c => {
+            const sameOrder = c.orderId && (c.orderId === idToUse || (c as any).id === idToUse);
+            const samePhoneWeb = normalizePhone(c.userPhone).slice(-10) === phoneDigits && (c.websiteCode === websiteCode || !websiteCode || !c.websiteCode);
+            return !sameOrder && !samePhoneWeb && c.id !== canonicalId;
+          })
+        ];
+        setDeliveredCreds(updatedCreds);
+        saveDeliveredCreds(updatedCreds);
+        await apiDeliverCredentials(newCred, idToUse);
       }
 
       // 1. Instant optimistic state transition to 3rd section ('completed')
@@ -658,8 +664,8 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
             ...o,
             status: 'completed' as const,
             hasDeliveredCredentials: true,
-            ...(targetOrder?.deliveredAdminId ? { deliveredAdminId: targetOrder.deliveredAdminId } : {}),
-            ...(targetOrder?.deliveredAdminPass ? { deliveredAdminPass: targetOrder.deliveredAdminPass } : {})
+            deliveredAdminId: adminId,
+            deliveredAdminPass: adminPass
           };
         }
         return o;
@@ -674,8 +680,8 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
       // 2. Persist to Cloud Firestore and backend server
       await apiUpdateOrderStatus(idToUse, 'completed', { 
         hasDeliveredCredentials: true,
-        ...(targetOrder?.deliveredAdminId ? { deliveredAdminId: targetOrder.deliveredAdminId } : {}),
-        ...(targetOrder?.deliveredAdminPass ? { deliveredAdminPass: targetOrder.deliveredAdminPass } : {})
+        deliveredAdminId: adminId,
+        deliveredAdminPass: adminPass
       });
     } catch (err) {
       console.error('Mark completed error:', err);
@@ -935,6 +941,19 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
     }
   };
 
+  // User Phone Verification Handler (Admin calls client on mobile and clicks verify)
+  const handleVerifyUserNumber = async (user: UserAccount) => {
+    try {
+      const updatedUsers = await apiVerifyUserNumber(user.phone, true);
+      setUsers([...updatedUsers]);
+      setMasterSuccessMsg(`✓ ক্লায়েন্ট "${user.name}" (${user.phone}) এর নম্বর সফলভাবে ভেরিফাইড করা হয়েছে এবং অল লিস্টে যুক্ত হয়েছে!`);
+      setTimeout(() => setMasterSuccessMsg(''), 4000);
+      loadAllDatabaseCollections();
+    } catch (err) {
+      console.error('Verify user number error:', err);
+    }
+  };
+
   // 9. Report Resolution & Reply
   const handleReplyReport = async (reportId: string) => {
     const text = (reportReplyDrafts[reportId] || '').trim();
@@ -1118,10 +1137,14 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
 
     const websiteTitle = chosenOrder ? (chosenOrder.companyName || chosenOrder.demoTitle) : 'বিজনেস ওয়েবসাইট অ্যাডমিন প্যানেল';
     const websiteCode = chosenOrder ? chosenOrder.demoCode : '#BW-ONLINE';
+    const targetOrderId = chosenOrder?.orderId || (chosenOrder as any)?.id || selectedDeliveryOrder || '';
+    const canonicalId = targetOrderId 
+      ? `cred_ord_${targetOrderId.replace(/[^a-zA-Z0-9_-]/g, '_')}` 
+      : `cred_usr_${userDigits}_${(websiteCode || 'default').replace(/[^a-zA-Z0-9_-]/g, '_')}`;
 
     const newCred: WebsiteDeliveryCredentials = {
-      id: `DELIV-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
-      orderId: chosenOrder?.orderId || selectedDeliveryOrder || '',
+      id: canonicalId,
+      orderId: targetOrderId,
       userPhone: selectedUserForDelivery.phone,
       userEmail: selectedUserForDelivery.email || chosenOrder?.email || '',
       websiteTitle,
@@ -1129,17 +1152,17 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
       websiteAdminId: deliveryAdminId.trim(),
       websiteAdminPass: deliveryAdminPass.trim(),
       notes: deliveryNotes.trim() || 'আপনার ওয়েবসাইট সম্পূর্ণ তৈরি ও রেডি। অ্যাডমিন প্যানেলে লগইন করুন।',
-      deliveredAt: new Date().toLocaleString('bn-BD')
+      deliveredAt: new Date().toLocaleString('bn-BD'),
+      updatedAt: Date.now()
     };
 
     // Keep single latest credentials for this website/order so old password never appears
-    const targetOrderId = chosenOrder?.orderId || selectedDeliveryOrder || '';
     const updatedCreds = [
       newCred, 
       ...deliveredCreds.filter((c) => {
-        const sameOrder = targetOrderId && c.orderId === targetOrderId;
-        const sameUserWeb = c.userPhone === selectedUserForDelivery.phone && (c.websiteCode === websiteCode || !websiteCode || !c.websiteCode);
-        return !sameOrder && !sameUserWeb;
+        const sameOrder = targetOrderId && c.orderId && (c.orderId === targetOrderId || (c as any).id === targetOrderId);
+        const sameUserWeb = normalizePhone(c.userPhone).slice(-10) === userDigits && (c.websiteCode === websiteCode || !websiteCode || !c.websiteCode);
+        return !sameOrder && !sameUserWeb && c.id !== canonicalId;
       })
     ];
     setDeliveredCreds(updatedCreds);
@@ -2735,7 +2758,15 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
 
         {/* ================= TAB 4: USERS & CREDENTIALS ================= */}
         {activeTab === 'users' && (() => {
+          const unverifiedCount = users.filter((u) => !u.numberVerified).length;
+          const verifiedCount = users.filter((u) => !!u.numberVerified).length;
+
           const filteredUsers = users.filter((u) => {
+            // 1. Sub-tab filter
+            if (userSectionSubTab === 'unverified' && u.numberVerified) return false;
+            if (userSectionSubTab === 'verified_list' && !u.numberVerified) return false;
+
+            // 2. Search filter
             if (!userSearchTerm.trim()) return true;
             const q = userSearchTerm.trim().toLowerCase();
             return u.phone.toLowerCase().includes(q) || u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q);
@@ -2745,10 +2776,97 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
             <div className="space-y-4 animate-fadeIn">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
-                  <h2 className="text-lg font-black text-white">নিবন্ধিত ব্যবহারকারী তালিকা ({users.length})</h2>
-                  <p className="text-xs text-[#94A3B8]">ক্লায়েন্টদের ওয়েবসাইটের অ্যাডমিন আইডি ও পাসওয়ার্ড ডেলিভারি করুন এবং সিকিউরিটি কোড শেয়ার করুন।</p>
+                  <h2 className="text-lg font-black text-white">ব্যবহারকারী ও নম্বর ভেরিফিকেশন প্যানেল</h2>
+                  <p className="text-xs text-[#94A3B8]">
+                    ক্লায়েন্টদের নম্বর সরাসরি মোবাইল থেকে কল করে ভেরিফাই করুন, অল লিস্টে স্থানান্তর করুন ও অ্যাক্সেস প্রদান করুন।
+                  </p>
                 </div>
               </div>
+
+              {/* 3 Sub-Section Tabs: Registration List, Unverified Numbers, All List */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 p-1.5 rounded-2xl bg-[#0B0F19] border border-[#1E293B]">
+                {/* 1. Registration List */}
+                <button
+                  type="button"
+                  onClick={() => setUserSectionSubTab('all_registered')}
+                  className={`py-3 px-4 rounded-xl text-xs font-black transition-all flex items-center justify-between gap-2 cursor-pointer ${
+                    userSectionSubTab === 'all_registered'
+                      ? 'bg-[#2B47EE] text-white shadow-md'
+                      : 'bg-transparent text-[#94A3B8] hover:text-white hover:bg-[#1E293B]/60'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <Users className="w-4 h-4 shrink-0" />
+                    <span>১. রেজিস্ট্রেশন তালিকা</span>
+                  </div>
+                  <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${
+                    userSectionSubTab === 'all_registered' ? 'bg-white/20 text-white' : 'bg-[#1E293B] text-[#CBD5E1]'
+                  }`}>
+                    {users.length} জন
+                  </span>
+                </button>
+
+                {/* 2. Unverified Numbers */}
+                <button
+                  type="button"
+                  onClick={() => setUserSectionSubTab('unverified')}
+                  className={`py-3 px-4 rounded-xl text-xs font-black transition-all flex items-center justify-between gap-2 cursor-pointer ${
+                    userSectionSubTab === 'unverified'
+                      ? 'bg-amber-500 text-slate-950 shadow-md font-black'
+                      : 'bg-transparent text-[#94A3B8] hover:text-white hover:bg-[#1E293B]/60'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <PhoneCall className="w-4 h-4 shrink-0" />
+                    <span>২. আনভেরিফাইড নম্বর</span>
+                  </div>
+                  <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${
+                    userSectionSubTab === 'unverified' ? 'bg-black/20 text-slate-950 font-black' : 'bg-amber-500/20 text-amber-400'
+                  }`}>
+                    {unverifiedCount} টি বাকি
+                  </span>
+                </button>
+
+                {/* 3. All List (Verified) */}
+                <button
+                  type="button"
+                  onClick={() => setUserSectionSubTab('verified_list')}
+                  className={`py-3 px-4 rounded-xl text-xs font-black transition-all flex items-center justify-between gap-2 cursor-pointer ${
+                    userSectionSubTab === 'verified_list'
+                      ? 'bg-emerald-600 text-white shadow-md'
+                      : 'bg-transparent text-[#94A3B8] hover:text-white hover:bg-[#1E293B]/60'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 shrink-0" />
+                    <span>৩. অল লিস্ট (Verified)</span>
+                  </div>
+                  <span className={`px-2 py-0.5 rounded-full text-[11px] font-bold ${
+                    userSectionSubTab === 'verified_list' ? 'bg-white/20 text-white' : 'bg-emerald-500/20 text-emerald-400'
+                  }`}>
+                    {verifiedCount} জন
+                  </span>
+                </button>
+              </div>
+
+              {/* Sub-tab Explainer Notice */}
+              {userSectionSubTab === 'unverified' && (
+                <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-200 text-xs flex items-center gap-2.5">
+                  <PhoneCall className="w-4 h-4 shrink-0 text-amber-400" />
+                  <p>
+                    <strong>আনভেরিফাইড নম্বর কলিং লিস্ট ({unverifiedCount} টি):</strong> মোবাইল থেকে সরাসরি নম্বরে কল দিয়ে কথা বলুন, তারপর <span className="underline font-bold">"Verify Now / Verified"</span> বাটনে ক্লিক করুন। ভেরিফাই করার সাথে সাথেই ইউজার "অল লিস্ট"-এ যুক্ত হবে।
+                  </p>
+                </div>
+              )}
+
+              {userSectionSubTab === 'verified_list' && (
+                <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-200 text-xs flex items-center gap-2.5">
+                  <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
+                  <p>
+                    <strong>অল লিস্ট (Verified {verifiedCount} জন):</strong> এখানে শুধুমাত্র সম্পূর্ণ ভেরিফাইড নম্বর ও ক্লায়েন্টদের তালিকা প্রদর্শিত হচ্ছে।
+                  </p>
+                </div>
+              )}
 
               {/* Search Bar for Clients by mobile number or name (Requirement 12) */}
               <div className="relative w-full">
@@ -2773,7 +2891,13 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
 
               {filteredUsers.length === 0 ? (
                 <div className="p-10 rounded-2xl bg-[#111827] border border-[#1E293B] text-center text-xs text-[#94A3B8]">
-                  {userSearchTerm ? 'এই সার্চে কোনো ব্যবহারকারী পাওয়া যায়নি।' : 'কোনো নিবন্ধিত ব্যবহারকারী নেই।'}
+                  {userSearchTerm
+                    ? 'এই সার্চে কোনো ব্যবহারকারী পাওয়া যায়নি।'
+                    : userSectionSubTab === 'unverified'
+                    ? '🎉 কোনো আনভেরিফাইড নম্বর নেই! সকল নম্বর ইতিমধ্যে ভেরিফাইড।'
+                    : userSectionSubTab === 'verified_list'
+                    ? 'এখনও কোনো ভেরিফাইড ক্লায়েন্ট নেই।'
+                    : 'কোনো নিবন্ধিত ব্যবহারকারী নেই।'}
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -2824,11 +2948,18 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
 
                           {/* Clean Overview: Phone with (i) Info Button & Order Names */}
                           <div className="space-y-2 text-xs">
-                            {/* Mobile with small info (i) button beside it */}
-                            <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#0B0F19] border border-[#1E293B]">
-                              <div className="flex items-center gap-2">
+                            {/* Mobile with small info (i) button beside it & Verification Action */}
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between p-2.5 rounded-xl bg-[#0B0F19] border border-[#1E293B] gap-2">
+                              <div className="flex items-center gap-2 flex-wrap">
                                 <span className="text-[#94A3B8]">মোবাইল:</span>
-                                <strong className="text-white font-mono">{usr.phone}</strong>
+                                <a 
+                                  href={`tel:${usr.phone}`} 
+                                  className="text-white font-mono font-bold hover:text-[#2B47EE] transition-colors inline-flex items-center gap-1"
+                                  title="মোবাইল থেকে সরাসরি কল করতে ক্লিক করুন"
+                                >
+                                  <Phone className="w-3 h-3 text-[#94A3B8]" />
+                                  <span>{usr.phone}</span>
+                                </a>
                                 <button
                                   type="button"
                                   onClick={() => setInfoPopoverPhone(isInfoOpen ? null : usr.phone)}
@@ -2843,9 +2974,34 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                                 </button>
                               </div>
 
-                              <span className="text-[10px] text-[#A5B4FC] font-bold">
-                                {userOrders.length} টি অর্ডার
-                              </span>
+                              <div className="flex items-center gap-2">
+                                {/* Verification Status & Action Button */}
+                                {usr.numberVerified ? (
+                                  <span className="px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[11px] font-bold inline-flex items-center gap-1">
+                                    <Check className="w-3 h-3 text-emerald-400" />
+                                    <span>Verified</span>
+                                  </span>
+                                ) : (
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] font-bold">
+                                      Non-verified
+                                    </span>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleVerifyUserNumber(usr)}
+                                      className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold transition-all inline-flex items-center gap-1 cursor-pointer shadow-xs active:scale-95"
+                                      title="কল করার পর নম্বর ভেরিফাইড হিসেবে চিহ্নিত করুন (অল লিস্টে যুক্ত হবে)"
+                                    >
+                                      <CheckCircle2 className="w-3.5 h-3.5 text-white" />
+                                      <span>Verify Now / Verified</span>
+                                    </button>
+                                  </div>
+                                )}
+
+                                <span className="text-[10px] text-[#A5B4FC] font-bold shrink-0">
+                                  {userOrders.length} টি অর্ডার
+                                </span>
+                              </div>
                             </div>
 
                             {/* Info Button Dropdown/Popover (Reveals full client info cleanly) */}
@@ -2858,6 +3014,12 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                                 <div className="flex justify-between">
                                   <span className="text-[#94A3B8]">রেজিস্ট্রেশন তারিখ:</span>
                                   <span className="font-mono text-white">{usr.registeredAt}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-[#94A3B8]">ভেরিফিকেশন স্ট্যাটাস:</span>
+                                  <span className={`font-bold ${usr.numberVerified ? 'text-emerald-400' : 'text-amber-400'}`}>
+                                    {usr.numberVerified ? '✓ নম্বর ভেরিফাইড' : 'অপেক্ষমাণ (Unverified)'}
+                                  </span>
                                 </div>
                                 <div className="flex justify-between">
                                   <span className="text-[#94A3B8]">ডেলিভারিকৃত ওয়েবসাইট:</span>

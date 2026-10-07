@@ -485,31 +485,47 @@ export async function apiGetUsers(): Promise<UserAccount[]> {
 
 export async function apiRegisterUser(user: UserAccount): Promise<{ success: boolean; user?: UserAccount; error?: string }> {
   const cleanEmail = (user.email || '').trim().toLowerCase();
-  const cleanPhone = (user.phone || '').trim() || cleanEmail.replace(/[^a-zA-Z0-9]/g, '_');
+  const cleanPhone = (user.phone || '').trim().replace(/\s+/g, '') || cleanEmail.replace(/[^a-zA-Z0-9]/g, '_');
+  const cleanName = (user.name || '').trim();
 
-  if (!user.name || !cleanEmail) {
+  if (!cleanName || !cleanEmail) {
     return { success: false, error: 'সবগুলো তথ্য পূরণ করুন।' };
   }
 
-  // Enforce uniqueness: one email cannot register multiple accounts
-  const duplicateEmail = (localCache.users || []).some(u => (u.email || '').toLowerCase() === cleanEmail);
+  // 1. Enforce uniqueness: one name cannot be registered twice until verified
+  const duplicateName = (localCache.users || []).some(
+    u => u.name && u.name.trim().toLowerCase() === cleanName.toLowerCase()
+  );
+  if (duplicateName) {
+    return { success: false, error: 'এই নাম দিয়ে ইতোমধ্যে একটি অ্যাকাউন্ট রয়েছে। ভিন্ন একটি নাম ব্যবহার করুন।' };
+  }
+
+  // 2. Enforce uniqueness: one email cannot register multiple accounts
+  const duplicateEmail = (localCache.users || []).some(
+    u => (u.email || '').trim().toLowerCase() === cleanEmail
+  );
   if (duplicateEmail) {
     return { success: false, error: 'এই ইমেইল এড্রেস দিয়ে ইতোমধ্যে একটি অ্যাকাউন্ট তৈরি করা হয়েছে। অনুগ্রহ করে লগইন করুন।' };
   }
 
-  if (user.phone && user.phone.trim()) {
-    const duplicatePhone = (localCache.users || []).some(u => u.phone === user.phone.trim());
+  // 3. Enforce uniqueness: one phone number can only have one account
+  if (cleanPhone) {
+    const duplicatePhone = (localCache.users || []).some(
+      u => u.phone && u.phone.trim().replace(/\s+/g, '') === cleanPhone
+    );
     if (duplicatePhone) {
       return { success: false, error: 'এই মোবাইল নম্বর দিয়ে ইতোমধ্যে একটি অ্যাকাউন্ট রয়েছে।' };
     }
   }
 
   const cleanUser: UserAccount = cleanFirestoreData({
-    name: user.name.trim(),
+    name: cleanName,
     phone: cleanPhone,
     email: cleanEmail,
     password: user.password ? user.password.trim() : '',
-    registeredAt: user.registeredAt || new Date().toLocaleDateString('bn-BD')
+    registeredAt: user.registeredAt || new Date().toLocaleDateString('bn-BD'),
+    numberVerified: false,
+    numberVerificationCallPending: true
   });
 
   // 1. Persist directly to Cloud Firestore
@@ -1340,7 +1356,7 @@ export async function apiGetDeliveredCredentials(): Promise<WebsiteDeliveryCrede
   try {
     const snap = await getDocs(collection(db, 'deliveredCredentials'));
     if (!snap.empty) {
-      creds = snap.docs.map(d => d.data() as WebsiteDeliveryCredentials);
+      creds = snap.docs.map(d => ({ ...(d.data() as WebsiteDeliveryCredentials), id: d.id }));
     }
   } catch (_) {}
 
@@ -1357,21 +1373,37 @@ export async function apiGetDeliveredCredentials(): Promise<WebsiteDeliveryCrede
     creds = [...localCache.deliveredCredentials];
   }
 
-  // Also synchronize credentials embedded on orders so customer never misses them and always sees latest
-  for (const o of (localCache.orders || [])) {
+  // Also synchronize credentials embedded on active orders so customer always gets the freshest Admin-updated password
+  const activeOrders = (localCache.orders || []).filter(o => o.status !== 'bin' && o.status !== 'cancelled');
+  for (const o of activeOrders) {
     if (o && o.deliveredAdminId && o.deliveredAdminPass) {
-      const matchIndex = creds.findIndex(c => 
-        (c.orderId && c.orderId === o.orderId) || 
-        (normalizePhone(c.userPhone) === normalizePhone(o.phone) && (c.websiteCode === o.demoCode || !c.websiteCode || !o.demoCode))
-      );
+      const safeOrderId = String(o.orderId || (o as any).id || '').trim();
+      const oPhoneDigits = normalizePhone(o.phone).slice(-10);
+      const oCode = String(o.demoCode || '').trim();
+
+      const matchIndex = creds.findIndex(c => {
+        const cOrder = String(c.orderId || '').trim();
+        const cPhoneDigits = normalizePhone(c.userPhone).slice(-10);
+        const cCode = String(c.websiteCode || '').trim();
+        if (safeOrderId && cOrder && safeOrderId === cOrder) return true;
+        if (oPhoneDigits && cPhoneDigits && oPhoneDigits === cPhoneDigits) {
+          if (!oCode || !cCode || oCode === cCode) return true;
+        }
+        return false;
+      });
+
       if (matchIndex >= 0) {
-        // Always ensure latest order credentials prevail if updated by admin
+        // Overwrite existing credential with the latest Admin-updated password from the order
         creds[matchIndex].websiteAdminId = o.deliveredAdminId;
         creds[matchIndex].websiteAdminPass = o.deliveredAdminPass;
+        creds[matchIndex].updatedAt = Math.max(Number(creds[matchIndex].updatedAt) || 0, Date.now());
+        if (safeOrderId && !creds[matchIndex].orderId) {
+          creds[matchIndex].orderId = safeOrderId;
+        }
       } else {
         creds.push({
-          id: `order-cred-${o.orderId}`,
-          orderId: o.orderId,
+          id: `cred_ord_${safeOrderId.replace(/[^a-zA-Z0-9_-]/g, '_')}`,
+          orderId: safeOrderId,
           userPhone: o.phone,
           userEmail: o.email || '',
           websiteTitle: o.companyName || o.demoTitle || 'ওয়েবসাইট অ্যাডমিন প্যানেল',
@@ -1379,81 +1411,126 @@ export async function apiGetDeliveredCredentials(): Promise<WebsiteDeliveryCrede
           websiteAdminId: o.deliveredAdminId,
           websiteAdminPass: o.deliveredAdminPass,
           notes: 'আপনার ওয়েবসাইট সম্পূর্ণ তৈরি ও রেডি। অ্যাডমিন প্যানেলে লগইন করুন।',
-          deliveredAt: o.createdAt || new Date().toLocaleString('bn-BD')
+          deliveredAt: o.createdAt || new Date().toLocaleString('bn-BD'),
+          updatedAt: Date.now()
         });
       }
     }
   }
 
-  localCache.deliveredCredentials = creds;
-  localStorage.setItem('bongoweb_delivered_credentials', JSON.stringify(creds));
-  return creds;
+  // Sort latest first so freshest update is strictly kept
+  creds.sort((a, b) => (Number(b.updatedAt) || 0) - (Number(a.updatedAt) || 0));
+
+  // Strict deduplication: NEVER allow two credentials for the same order or client's website
+  const deduplicated: WebsiteDeliveryCredentials[] = [];
+  for (const c of creds) {
+    const cOrder = String(c.orderId || '').trim();
+    const cPhone = normalizePhone(c.userPhone).slice(-10);
+    const cCode = String(c.websiteCode || '').trim();
+
+    const existingIdx = deduplicated.findIndex((x) => {
+      const xOrder = String(x.orderId || '').trim();
+      const xPhone = normalizePhone(x.userPhone).slice(-10);
+      const xCode = String(x.websiteCode || '').trim();
+      if (cOrder && xOrder && cOrder === xOrder) return true;
+      if (cPhone && xPhone && cPhone === xPhone) {
+        if (!cCode || !xCode || cCode === xCode) return true;
+      }
+      return false;
+    });
+
+    if (existingIdx === -1) {
+      deduplicated.push(c);
+    }
+    // Since sorted latest first, older duplicates are completely dropped
+  }
+
+  localCache.deliveredCredentials = deduplicated;
+  localStorage.setItem('bongoweb_delivered_credentials', JSON.stringify(deduplicated));
+  return deduplicated;
 }
 
 export async function apiAddDeliveredCredentials(cred: WebsiteDeliveryCredentials, targetOrderId?: string): Promise<WebsiteDeliveryCredentials[]> {
   const safeOrderId = String(targetOrderId || cred.orderId || '').trim();
   const cleanPhone = normalizePhone(cred.userPhone);
+  const phoneDigits = cleanPhone.slice(-10);
   const websiteCode = cred.websiteCode || '';
+  const nowTs = Date.now();
 
-  // Find existing credential matching this order or this user+website
-  const existing = localCache.deliveredCredentials.find(c => 
-    (safeOrderId && c.orderId === safeOrderId) ||
-    (c.id === cred.id) ||
-    (cleanPhone && normalizePhone(c.userPhone) === cleanPhone && (c.websiteCode === websiteCode || !c.websiteCode || !websiteCode))
-  );
+  // Canonical document ID to prevent duplicate document proliferation in Firestore
+  const canonicalId = safeOrderId 
+    ? `cred_ord_${safeOrderId.replace(/[^a-zA-Z0-9_-]/g, '_')}`
+    : `cred_usr_${phoneDigits}_${(websiteCode || 'default').replace(/[^a-zA-Z0-9_-]/g, '_')}`;
 
-  const safeId = existing?.id || String(cred?.id || `DELIV-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`);
-  const cleanId = safeId.replace(/[^a-zA-Z0-9_-]/g, '_');
   const safeCred: WebsiteDeliveryCredentials = { 
     ...cred, 
-    id: safeId,
-    orderId: safeOrderId || existing?.orderId || cred.orderId || '',
-    deliveredAt: cred.deliveredAt || new Date().toLocaleString('bn-BD')
+    id: canonicalId,
+    orderId: safeOrderId || cred.orderId || '',
+    websiteCode,
+    deliveredAt: cred.deliveredAt || new Date().toLocaleString('bn-BD'),
+    updatedAt: nowTs
   };
 
+  // 1. Write the new authoritative credential to Firestore
   try {
-    await setDoc(doc(db, 'deliveredCredentials', cleanId), safeCred);
+    await setDoc(doc(db, 'deliveredCredentials', canonicalId), safeCred);
   } catch (err) {
-    console.warn('Firestore add credentials notice:', err);
+    console.warn('Firestore set credential notice:', err);
   }
 
-  // Remove any conflicting older credentials for the same order or user's website so ONLY latest exists
-  const oldIdsToDelete: string[] = [];
-  localCache.deliveredCredentials = localCache.deliveredCredentials.filter(c => {
-    const isSameOrder = safeOrderId && c.orderId === safeOrderId;
-    const isSameUserWebsite = cleanPhone && normalizePhone(c.userPhone) === cleanPhone && (c.websiteCode === websiteCode || !websiteCode || !c.websiteCode);
-    const isSameId = c.id === safeId;
-    if ((isSameOrder || isSameUserWebsite) && !isSameId) {
-      oldIdsToDelete.push(c.id);
-      return false;
+  // 2. Proactively delete any older conflicting documents from Firestore
+  try {
+    const snap = await getDocs(collection(db, 'deliveredCredentials'));
+    for (const d of snap.docs) {
+      if (d.id === canonicalId) continue;
+      const data = d.data();
+      const dOrder = String(data?.orderId || '').trim();
+      const dDigits = normalizePhone(data?.userPhone).slice(-10);
+      const dCode = String(data?.websiteCode || '').trim();
+
+      const sameOrder = safeOrderId && dOrder && safeOrderId === dOrder;
+      const sameClientWeb = phoneDigits && dDigits && phoneDigits === dDigits && (!websiteCode || !dCode || websiteCode === dCode);
+
+      if (sameOrder || sameClientWeb) {
+        await deleteDoc(doc(db, 'deliveredCredentials', d.id)).catch(() => {});
+      }
     }
-    return c.id !== safeId;
-  });
+  } catch (_) {}
 
-  // Delete older duplicates from Firestore in background
-  for (const oldId of oldIdsToDelete) {
-    try {
-      const cleanOldId = oldId.replace(/[^a-zA-Z0-9_-]/g, '_');
-      deleteDoc(doc(db, 'deliveredCredentials', cleanOldId)).catch(() => {});
-    } catch (_) {}
-  }
+  // 3. Update localCache.deliveredCredentials cleanly
+  localCache.deliveredCredentials = (localCache.deliveredCredentials || []).filter(c => {
+    const cOrder = String(c.orderId || '').trim();
+    const cDigits = normalizePhone(c.userPhone).slice(-10);
+    const cCode = String(c.websiteCode || '').trim();
+    if (c.id === canonicalId) return false;
+    if (safeOrderId && cOrder && safeOrderId === cOrder) return false;
+    if (phoneDigits && cDigits && phoneDigits === cDigits) {
+      if (!websiteCode || !cCode || websiteCode === cCode) return false;
+    }
+    return true;
+  });
 
   localCache.deliveredCredentials.unshift(safeCred);
   localStorage.setItem('bongoweb_delivered_credentials', JSON.stringify(localCache.deliveredCredentials));
 
-  // Auto-mark order credentials as delivered and sync latest ID & Password
+  // 4. Auto-mark order credentials as delivered and sync latest ID & Password
   const orderTarget = safeOrderId 
     ? localCache.orders.find(o => o.orderId === safeOrderId || (o as any).id === safeOrderId)
-    : localCache.orders.find(o => (normalizePhone(o.phone) === cleanPhone && (o.demoCode === safeCred.websiteCode || o.companyName === safeCred.websiteTitle)));
+    : localCache.orders.find(o => (normalizePhone(o.phone).slice(-10) === phoneDigits && (o.demoCode === safeCred.websiteCode || o.companyName === safeCred.websiteTitle)));
 
   if (orderTarget) {
+    orderTarget.hasDeliveredCredentials = true;
+    orderTarget.deliveredAdminId = safeCred.websiteAdminId;
+    orderTarget.deliveredAdminPass = safeCred.websiteAdminPass;
     await apiUpdateOrderStatus(orderTarget.orderId, orderTarget.status, {
       hasDeliveredCredentials: true,
       deliveredAdminId: safeCred.websiteAdminId,
       deliveredAdminPass: safeCred.websiteAdminPass
     });
+    localStorage.setItem('bongoweb_orders', JSON.stringify(localCache.orders));
   }
 
+  // 5. Sync to server API
   try {
     fetch('/api/credentials', {
       method: 'POST',
@@ -1462,6 +1539,7 @@ export async function apiAddDeliveredCredentials(cred: WebsiteDeliveryCredential
     }).catch(() => {});
   } catch (_) {}
 
+  // 6. Broadcast event so UI updates immediately
   try {
     window.dispatchEvent(new CustomEvent('bongoweb_credentials_updated', { detail: localCache.deliveredCredentials }));
   } catch (_) {}
@@ -1553,6 +1631,47 @@ export async function apiRestrictUser(phone: string, isRestricted: boolean): Pro
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ isRestricted })
     }).catch(() => {});
+  } catch (_) {}
+
+  return localCache.users;
+}
+
+// ---------------- USER NUMBER VERIFICATION ----------------
+export async function apiVerifyUserNumber(phone: string, numberVerified: boolean = true): Promise<UserAccount[]> {
+  const cleanPhone = String(phone || '').replace(/[^0-9]/g, '').trim();
+  if (!cleanPhone) return localCache.users;
+
+  try {
+    await updateDoc(doc(db, 'users', cleanPhone), { numberVerified });
+  } catch (err) {
+    console.warn('Firestore verify user number notice:', err);
+  }
+
+  localCache.users = (localCache.users || []).map(u => {
+    const uPhone = String(u.phone || '').replace(/[^0-9]/g, '').trim();
+    return uPhone === cleanPhone ? { ...u, numberVerified } : u;
+  });
+  localStorage.setItem('bongoweb_registered_users', JSON.stringify(localCache.users));
+
+  // If currently active user in localStorage has this phone, sync it
+  try {
+    const cur = localStorage.getItem('bongoweb_user');
+    if (cur) {
+      const parsed = JSON.parse(cur);
+      const parsedPhone = String(parsed.phone || '').replace(/[^0-9]/g, '').trim();
+      if (parsedPhone === cleanPhone) {
+        parsed.numberVerified = numberVerified;
+        localStorage.setItem('bongoweb_user', JSON.stringify(parsed));
+      }
+    }
+  } catch (_) {}
+
+  try {
+    await fetch(`/api/users/${encodeURIComponent(cleanPhone)}/verify-number`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ numberVerified })
+    });
   } catch (_) {}
 
   return localCache.users;

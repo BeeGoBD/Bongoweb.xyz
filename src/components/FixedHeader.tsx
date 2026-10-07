@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Bell, Menu, Sparkles, AlertTriangle } from 'lucide-react';
-import { WebsiteCategory, UserAccount } from '../types';
+import React from 'react';
+import { Bell, Menu, Sparkles } from 'lucide-react';
+import { WebsiteCategory } from '../types';
 import BongoWebLogo from './BongoWebLogo';
 
 interface FixedHeaderProps {
@@ -20,41 +20,6 @@ export default function FixedHeader({
   unreadCount = 0,
   currentCategory = 'all'
 }: FixedHeaderProps) {
-  const [activePendingOrder, setActivePendingOrder] = useState<{ orderId: string } | null>(null);
-  const [currentUser, setCurrentUser] = useState<UserAccount | null>(null);
-
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem('bongoweb_active_pending_order');
-      if (stored) {
-        setActivePendingOrder(JSON.parse(stored));
-      }
-    } catch (e) {
-      console.error(e);
-    }
-
-    const syncUser = () => {
-      try {
-        const u = localStorage.getItem('bongoweb_user');
-        if (u) {
-          setCurrentUser(JSON.parse(u));
-        } else {
-          setCurrentUser(null);
-        }
-      } catch (_) {
-        setCurrentUser(null);
-      }
-    };
-
-    syncUser();
-    window.addEventListener('storage', syncUser);
-    window.addEventListener('bongoweb_credentials_updated', syncUser);
-    return () => {
-      window.removeEventListener('storage', syncUser);
-      window.removeEventListener('bongoweb_credentials_updated', syncUser);
-    };
-  }, []);
-
   return (
     <div className="fixed top-0 left-0 right-0 z-40 w-full flex flex-col select-none">
       <header 
@@ -122,56 +87,6 @@ export default function FixedHeader({
           </div>
         </div>
       </header>
-
-      {/* Global Payment In Progress Notice */}
-      {activePendingOrder && (
-        <div className="w-full bg-[#FFF9E6] border-b border-[#FFD552] px-4 py-2 shadow-2xs">
-          <div className="max-w-7xl mx-auto flex items-center justify-between text-xs text-[#8A6D00] font-bold">
-            <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#E53935] animate-ping" />
-              <span>
-                আপনার পেমেন্ট ভেরিফিকেশন প্রক্রিয়াধীন রয়েছে ({activePendingOrder.orderId})। অনুগ্রহ করে ১ মিনিট থেকে ১ ঘণ্টা অপেক্ষা করুন।
-              </span>
-            </div>
-            <a 
-              href="/account" 
-              onClick={(e) => {
-                e.preventDefault();
-                window.history.pushState({}, '', '/account');
-                window.dispatchEvent(new PopStateEvent('popstate'));
-              }}
-              className="underline font-black text-[#8A6D00] hover:text-[#2B47EE] hidden sm:inline ml-2 cursor-pointer"
-            >
-              অ্যাকাউন্টে দেখুন →
-            </a>
-          </div>
-        </div>
-      )}
-
-      {/* Unverified Phone Number Notice (24-Hour Call Policy) */}
-      {currentUser && currentUser.numberVerified !== true && (
-        <div className="w-full bg-[#FFF3E0] border-b border-[#FFE0B2] px-4 py-2 sm:py-2.5 shadow-2xs animate-fadeIn">
-          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-4 text-xs text-[#C65102]">
-            <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#FF9800] animate-ping shrink-0" />
-              <span className="font-bold">
-                ⚠️ নম্বর ভেরিফিকেশন অপেক্ষমান ({currentUser.phone || 'মোবাইল নম্বর'}): আমাদের ভেরিফিকেশন টিম সর্বোচ্চ ২৪ ঘণ্টার মধ্যে কল করবে। ২৪ ঘণ্টায় কল না ধরলে অ্যাকাউন্ট সীমাবদ্ধ (Restrict) করা হবে।
-              </span>
-            </div>
-            <a 
-              href="/account/terms" 
-              onClick={(e) => {
-                e.preventDefault();
-                window.history.pushState({}, '', '/account/terms');
-                window.dispatchEvent(new PopStateEvent('popstate'));
-              }}
-              className="underline font-black text-[#C65102] hover:text-[#2B47EE] shrink-0 cursor-pointer self-end sm:self-auto"
-            >
-              ভেরিফিকেশন নীতিমালা দেখুন →
-            </a>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

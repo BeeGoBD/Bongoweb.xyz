@@ -263,14 +263,6 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
         const userCleanPhone = normalizePhone(parsed.phone);
         const userCleanEmail = parsed.email ? parsed.email.toLowerCase().trim() : '';
 
-        const found = credsList.filter((c) => {
-          const cPhone = normalizePhone(c.userPhone);
-          const cEmail = (c.userEmail || (c as any).clientEmail || '').toLowerCase().trim();
-          const phoneMatch = userCleanPhone && cPhone && (userCleanPhone.slice(-10) === cPhone.slice(-10));
-          const emailMatch = userCleanEmail && cEmail && (userCleanEmail === cEmail);
-          return phoneMatch || emailMatch;
-        });
-
         // Filter orders for current user, excluding orders in bin or trash
         const userOrders = allOrders.filter(o => {
           if (o.status === 'bin' || o.status === 'cancelled') return false;
@@ -280,58 +272,88 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                  (userCleanEmail && oEmail && userCleanEmail === oEmail);
         });
 
-        // Sync latest credentials from active orders
-        userOrders.forEach(ord => {
-          if (ord.deliveredAdminId) {
-            const existingIdx = found.findIndex(f => 
-              (f.orderId && ord.orderId && f.orderId === ord.orderId) || 
-              (f.websiteCode && ord.demoCode && f.websiteCode === ord.demoCode)
-            );
-            if (existingIdx >= 0) {
-              // Overwrite with order's credentials if present
-              found[existingIdx].websiteAdminId = ord.deliveredAdminId;
-              if (ord.deliveredAdminPass) {
-                found[existingIdx].websiteAdminPass = ord.deliveredAdminPass;
-              }
-            } else {
-              found.push({
-                id: `ORD-DELIV-${ord.orderId}`,
-                orderId: ord.orderId,
-                userPhone: ord.phone,
-                userEmail: ord.email || '',
-                websiteTitle: ord.companyName || ord.demoTitle || 'অ্যাডমিন প্যানেল',
-                websiteCode: ord.demoCode,
-                websiteAdminId: ord.deliveredAdminId,
-                websiteAdminPass: ord.deliveredAdminPass || '—',
-                notes: 'আপনার ওয়েবসাইট সম্পূর্ণ তৈরি ও রেডি। অ্যাডমিন প্যানেলে লগইন করুন।',
-                deliveredAt: ord.createdAt
-              });
-            }
-          }
+        // Filter credentials delivered to this user
+        const matchingCreds = credsList.filter((c) => {
+          const cPhone = normalizePhone(c.userPhone);
+          const cEmail = (c.userEmail || (c as any).clientEmail || '').toLowerCase().trim();
+          const phoneMatch = userCleanPhone && cPhone && (userCleanPhone.slice(-10) === cPhone.slice(-10));
+          const emailMatch = userCleanEmail && cEmail && (userCleanEmail === cEmail);
+          return phoneMatch || emailMatch;
         });
 
-        // Deduplicate found credentials by matching orderId, websiteCode, or websiteTitle
-        // Guarantee ONLY the single most recent password that Admin set is shown, never old or mixed passwords
-        const deduplicatedFound: WebsiteDeliveryCredentials[] = [];
-        for (const cred of found) {
-          const existingIdx = deduplicatedFound.findIndex(item => {
-            const sameOrder = (cred.orderId && item.orderId && cred.orderId === item.orderId);
-            const sameCode = (cred.websiteCode && item.websiteCode && cred.websiteCode === item.websiteCode);
-            const sameTitle = (cred.websiteTitle && item.websiteTitle && cred.websiteTitle.trim().toLowerCase() === item.websiteTitle.trim().toLowerCase());
-            return sameOrder || sameCode || sameTitle;
+        // Resolve authoritative credentials:
+        // Order's admin credentials set by Admin in Admin Panel take authoritative priority!
+        const rawCandidates: WebsiteDeliveryCredentials[] = [];
+
+        // 1. Process active orders that have credentials or match a delivery
+        for (const ord of userOrders) {
+          const ordOrderId = String(ord.orderId || (ord as any).id || '').trim();
+          const ordDemoCode = String(ord.demoCode || '').trim();
+
+          const matchedDelivery = matchingCreds.find(c => {
+            const cOrder = String(c.orderId || '').trim();
+            const cCode = String(c.websiteCode || '').trim();
+            if (cOrder && ordOrderId && cOrder === ordOrderId) return true;
+            if (cCode && ordDemoCode && (cCode === ordDemoCode || cCode.replace('#', '') === ordDemoCode.replace('#', ''))) return true;
+            if (userOrders.length <= 1) return true;
+            return false;
           });
 
-          if (existingIdx === -1) {
-            deduplicatedFound.push({ ...cred });
-          } else {
-            // Merge keeping the latest updated ID and Password
-            deduplicatedFound[existingIdx] = {
-              ...deduplicatedFound[existingIdx],
-              ...cred,
-              websiteAdminId: cred.websiteAdminId || deduplicatedFound[existingIdx].websiteAdminId,
-              websiteAdminPass: cred.websiteAdminPass || deduplicatedFound[existingIdx].websiteAdminPass,
-              deliveredAt: cred.deliveredAt || deduplicatedFound[existingIdx].deliveredAt,
-            };
+          const hasOrderCreds = Boolean(ord.deliveredAdminId && ord.deliveredAdminPass);
+          if (hasOrderCreds || matchedDelivery) {
+            const finalAdminId = (hasOrderCreds ? ord.deliveredAdminId : matchedDelivery?.websiteAdminId) || 'admin';
+            const finalAdminPass = (hasOrderCreds ? ord.deliveredAdminPass : matchedDelivery?.websiteAdminPass) || '—';
+            rawCandidates.push({
+              id: matchedDelivery?.id || `cred_ord_${ordOrderId.replace(/[^a-zA-Z0-9_-]/g, '_')}`,
+              orderId: ordOrderId,
+              userPhone: ord.phone,
+              userEmail: ord.email || '',
+              websiteTitle: ord.companyName || ord.demoTitle || matchedDelivery?.websiteTitle || 'ওয়েবসাইট অ্যাডমিন প্যানেল',
+              websiteCode: ord.demoCode,
+              websiteAdminId: finalAdminId,
+              websiteAdminPass: finalAdminPass,
+              notes: matchedDelivery?.notes || 'আপনার ওয়েবসাইট সম্পূর্ণ তৈরি ও রেডি। অ্যাডমিন প্যানেলে লগইন করুন।',
+              deliveredAt: matchedDelivery?.deliveredAt || ord.createdAt || new Date().toLocaleString('bn-BD'),
+              updatedAt: Math.max(Number(matchedDelivery?.updatedAt) || 0, Date.now())
+            });
+          }
+        }
+
+        // 2. Also include any delivered credential that wasn't tied to the above orders
+        for (const c of matchingCreds) {
+          const alreadyLinked = rawCandidates.some(cand => {
+            const sameOrder = cand.orderId && c.orderId && cand.orderId === c.orderId;
+            const sameCode = cand.websiteCode && c.websiteCode && (cand.websiteCode === c.websiteCode || cand.websiteCode.replace('#', '') === c.websiteCode.replace('#', ''));
+            return sameOrder || sameCode;
+          });
+          if (!alreadyLinked) {
+            rawCandidates.push(c);
+          }
+        }
+
+        // 3. Strict deduplication: Sort newest first, then keep strictly ONE latest per order or website
+        rawCandidates.sort((a, b) => (Number(b.updatedAt) || 0) - (Number(a.updatedAt) || 0));
+
+        const deduplicatedFound: WebsiteDeliveryCredentials[] = [];
+        for (const item of rawCandidates) {
+          const itemOrder = String(item.orderId || '').trim();
+          const itemCode = String(item.websiteCode || '').trim();
+          const itemTitle = String(item.websiteTitle || '').trim().toLowerCase();
+
+          const exists = deduplicatedFound.some(existing => {
+            const exOrder = String(existing.orderId || '').trim();
+            const exCode = String(existing.websiteCode || '').trim();
+            const exTitle = String(existing.websiteTitle || '').trim().toLowerCase();
+
+            if (itemOrder && exOrder && itemOrder === exOrder) return true;
+            if (itemCode && exCode && (itemCode === exCode || itemCode.replace('#', '') === exCode.replace('#', ''))) return true;
+            if (userOrders.length <= 1) return true;
+            if (itemTitle && exTitle && (itemTitle === exTitle || itemTitle.includes(exTitle) || exTitle.includes(itemTitle))) return true;
+            return false;
+          });
+
+          if (!exists) {
+            deduplicatedFound.push(item);
           }
         }
 
@@ -622,6 +644,37 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
       const cleanEmail = emailInput.trim().toLowerCase();
       const cleanName = manualName.trim() || cleanEmail.split('@')[0] || 'BongoWeb Member';
 
+      // 1. One name cannot have multiple accounts until verified/completed
+      const allUsers = await apiGetUsers();
+      const nameExists = allUsers.some(
+        u => u.name && u.name.trim().toLowerCase() === cleanName.toLowerCase()
+      );
+      if (nameExists) {
+        setAuthError('এই নাম দিয়ে ইতোমধ্যে একটি অ্যাকাউন্ট তৈরি করা হয়েছে। অনুগ্রহ করে ভিন্ন একটি নাম ব্যবহার করুন।');
+        setSubmittingNumber(false);
+        return;
+      }
+
+      // 2. One email can have only one account
+      const emailExists = allUsers.some(
+        u => u.email && u.email.trim().toLowerCase() === cleanEmail
+      );
+      if (emailExists) {
+        setAuthError('এই ইমেইল দিয়ে ইতোমধ্যে একটি অ্যাকাউন্ট রয়েছে। অনুগ্রহ করে সাইন ইন করুন।');
+        setSubmittingNumber(false);
+        return;
+      }
+
+      // 3. One phone can have only one account
+      const phoneExists = allUsers.some(
+        u => u.phone && u.phone.trim().replace(/\s+/g, '') === cleanPhone
+      );
+      if (phoneExists) {
+        setAuthError('এই মোবাইল নম্বর দিয়ে ইতোমধ্যে একটি অ্যাকাউন্ট রয়েছে। একটি নম্বরে কেবল একটি অ্যাকাউন্ট তৈরি সম্ভব।');
+        setSubmittingNumber(false);
+        return;
+      }
+
       const newUser: UserAccount = {
         name: cleanName,
         phone: cleanPhone,
@@ -631,7 +684,12 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
         numberVerificationCallPending: true
       };
 
-      await apiRegisterUser(newUser);
+      const regRes = await apiRegisterUser(newUser);
+      if (!regRes.success) {
+        setAuthError(regRes.error || 'Failed to create account. Please try again.');
+        setSubmittingNumber(false);
+        return;
+      }
 
       setCurrentUser(newUser);
       localStorage.setItem('bongoweb_user', JSON.stringify(newUser));
@@ -1540,26 +1598,6 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
   // ==========================================
   return (
     <div className="w-full flex flex-col font-sans pb-28 pt-2 animate-fadeIn">
-      {/* 1. Global Pending Verification Notice (If any pending orders exist) */}
-      {pendingOrders.length > 0 && (
-        <section className="max-w-4xl mx-auto px-4 sm:px-6 w-full mb-4">
-          <div className="p-4 rounded-2xl bg-[#FFD552]/20 border border-[#FFD552] text-xs sm:text-sm font-bold text-[#8A6D00] flex items-center justify-between gap-3 shadow-xs">
-            <div className="flex items-center gap-2.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#E53935] animate-ping shrink-0" />
-              <span>
-                আপনার পেমেন্ট ভেরিফিকেশন প্রক্রিয়াধীন রয়েছে (অর্ডার {pendingOrders[0].orderId})। অনুগ্রহ করে ১ মিনিট থেকে ১ ঘণ্টা অপেক্ষা করুন।
-              </span>
-            </div>
-            <button
-              onClick={() => navigateSubView('pending-orders')}
-              className="px-3 py-1 rounded-xl bg-[#8A6D00] text-white text-xs font-bold shrink-0 hover:bg-[#725a00] cursor-pointer"
-            >
-              বিবরণ দেখুন
-            </button>
-          </div>
-        </section>
-      )}
-
       {/* 2. SECTION: আপনার Website এর বিস্তারিত (Requirement 6 & Menu Item 2) */}
       <section id="website-credentials-section" className="max-w-4xl mx-auto px-4 sm:px-6 w-full mb-5 scroll-mt-24">
         {userCredentialsList.length > 0 ? (
@@ -1578,16 +1616,6 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                 {userCredentialsList.length} টি ওয়েবসাইট রেডি
               </span>
             </div>
-
-            {/* If payment is in verification status, show that notice right here as required */}
-            {pendingOrders.length > 0 && (
-              <div className="p-3 rounded-xl bg-[#FFD552]/20 border border-[#FFD552] text-xs text-[#8A6D00] font-semibold flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 shrink-0 text-[#8A6D00]" />
-                <span>
-                  বিজ্ঞপ্তি: আপনার নতুন ওয়েবসাইটের পেমেন্ট বর্তমানে 'যাচাইকরণ' (Verification) স্ট্যাটাসে রয়েছে।
-                </span>
-              </div>
-            )}
 
             {/* Each website's details shown separately (Requirement 6) */}
             <div className="space-y-3">
@@ -1748,7 +1776,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
               </p>
             </div>
 
-            <div className="p-3.5 rounded-2xl bg-slate-50/80 border border-slate-200/70 space-y-1">
+            <div className="p-3.5 rounded-2xl bg-slate-50/80 border border-slate-200/70 space-y-1 relative">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
                   {currentUser.phone && !currentUser.phone.includes('_') && !currentUser.phone.includes('@') && /\d{6,}/.test(currentUser.phone)
@@ -1756,32 +1784,35 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                     : 'Account Status (স্ট্যাটাস)'}
                 </span>
 
+                {/* Corner Question Mark (?) for Number Verification */}
                 {currentUser.phone && !currentUser.phone.includes('_') && !currentUser.phone.includes('@') && /\d{6,}/.test(currentUser.phone) && (
-                  <div className="flex items-center gap-1.5">
-                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold inline-flex items-center gap-1 ${
-                      currentUser.numberVerified
-                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                        : 'bg-amber-50 text-amber-700 border border-amber-200'
-                    }`}>
-                      <span className={`w-1.5 h-1.5 rounded-full ${currentUser.numberVerified ? 'bg-emerald-500' : 'bg-amber-500'}`} />
-                      <span>{currentUser.numberVerified ? 'Verified' : 'Unverified'}</span>
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setShowVerificationExplainerModal(true)}
-                      className="w-4 h-4 rounded-full bg-slate-200 hover:bg-[#2B47EE] hover:text-white text-slate-600 inline-flex items-center justify-center transition-colors cursor-pointer"
-                      title="নম্বর ভেরিফিকেশন তথ্য দেখুন"
-                    >
-                      <HelpCircle className="w-3 h-3" />
-                    </button>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowVerificationExplainerModal(true)}
+                    className="w-5 h-5 rounded-full bg-slate-200 hover:bg-[#2B47EE] hover:text-white text-slate-600 inline-flex items-center justify-center transition-colors cursor-pointer text-xs font-black shadow-2xs"
+                    title="নম্বর ভেরিফিকেশন নীতিমালা ও তথ্য দেখুন (?)"
+                    aria-label="নম্বর ভেরিফিকেশন তথ্য"
+                  >
+                    ?
+                  </button>
                 )}
               </div>
 
               {currentUser.phone && !currentUser.phone.includes('_') && !currentUser.phone.includes('@') && /\d{6,}/.test(currentUser.phone) ? (
-                <p className="text-xs sm:text-sm font-mono font-bold text-[#2B47EE] select-all">
-                  {currentUser.phone}
-                </p>
+                <div className="flex items-center justify-between gap-2 pt-0.5">
+                  <p className="text-xs sm:text-sm font-mono font-bold text-[#2B47EE] select-all">
+                    {currentUser.phone}
+                  </p>
+                  {/* Badge at the end of phone number */}
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold inline-flex items-center gap-1 shrink-0 ${
+                    currentUser.numberVerified
+                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                      : 'bg-amber-50 text-amber-700 border border-amber-200'
+                  }`}>
+                    <span className={`w-1.5 h-1.5 rounded-full ${currentUser.numberVerified ? 'bg-emerald-500' : 'bg-amber-500'}`} />
+                    <span>{currentUser.numberVerified ? '✓ Verified' : 'Unverified'}</span>
+                  </span>
+                </div>
               ) : (
                 <p className="text-xs sm:text-sm font-bold text-emerald-600 flex items-center gap-1.5">
                   <CheckCircle2 className="w-3.5 h-3.5 shrink-0 text-emerald-500" />

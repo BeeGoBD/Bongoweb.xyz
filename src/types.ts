@@ -132,6 +132,7 @@ export interface WebsiteDeliveryCredentials {
   websiteAdminPass: string;
   notes?: string;
   deliveredAt: string;
+  updatedAt?: number;
 }
 
 export interface PasswordResetRequest {

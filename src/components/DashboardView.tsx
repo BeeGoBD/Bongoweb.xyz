@@ -3,7 +3,7 @@ import {
   Search, ArrowLeft, Eye, ArrowRight, Star, 
   Server, RefreshCw, Sparkles
 } from 'lucide-react';
-import { WebsiteDemo, WebsiteCategory, UserAccount } from '../types';
+import { WebsiteDemo, WebsiteCategory } from '../types';
 import { apiGetWebsites, subscribeToWebsites } from '../utils/api';
 import { WEBSITE_DEMOS } from '../data/mockData';
 import { useLanguage } from '../utils/LanguageContext';
@@ -25,7 +25,6 @@ export default function DashboardView({
   const [searchQuery, setSearchQuery] = useState('');
   const [websites, setWebsites] = useState<WebsiteDemo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [currentUser, setCurrentUser] = useState<UserAccount | null>(null);
   const [isScrolling, setIsScrolling] = useState(false);
   const scrollTimeoutRef = useRef<any>(null);
   const { language, t } = useLanguage();
@@ -49,30 +48,6 @@ export default function DashboardView({
 
   // Exactly one mock website as requested by the user for testing & editing
   const fallbackSingleMock = [WEBSITE_DEMOS[0]];
-
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem('bongoweb_user');
-      if (stored) {
-        setCurrentUser(JSON.parse(stored));
-      }
-    } catch (_) {}
-
-    const handleUserSync = () => {
-      try {
-        const stored = localStorage.getItem('bongoweb_user');
-        setCurrentUser(stored ? JSON.parse(stored) : null);
-      } catch (_) {
-        setCurrentUser(null);
-      }
-    };
-    window.addEventListener('storage', handleUserSync);
-    window.addEventListener('bongoweb_credentials_updated', handleUserSync);
-    return () => {
-      window.removeEventListener('storage', handleUserSync);
-      window.removeEventListener('bongoweb_credentials_updated', handleUserSync);
-    };
-  }, []);
 
   useEffect(() => {
     apiGetWebsites()
@@ -135,31 +110,6 @@ export default function DashboardView({
 
   return (
     <div className="w-full flex flex-col font-sans pb-28 pt-2 animate-fadeIn">
-      {/* Notice: Unverified Mobile Number (24-Hour Call Policy) */}
-      {currentUser && currentUser.numberVerified !== true && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 w-full mb-3">
-          <div className="bg-amber-50 border border-amber-200/90 rounded-2xl p-3 sm:px-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-amber-950 shadow-2xs">
-            <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping shrink-0" />
-              <span>
-                <strong>নম্বর ভেরিফিকেশন অপেক্ষমান ({currentUser.phone || 'মোবাইল নম্বর'})</strong>: আমাদের টিম সর্বোচ্চ ২৪ ঘণ্টার মধ্যে কল করবে। কল রিসিভ না করলে বা রেসপন্স না পেলে ২৪ ঘণ্টা পর অ্যাকাউন্ট সাময়িকভাবে সীমাবদ্ধ (Restrict) করা হবে।
-              </span>
-            </div>
-            <a 
-              href="/account/terms" 
-              onClick={(e) => {
-                e.preventDefault();
-                window.history.pushState({}, '', '/account/terms');
-                window.dispatchEvent(new PopStateEvent('popstate'));
-              }}
-              className="underline font-bold text-amber-800 hover:text-indigo-600 shrink-0 self-end sm:self-auto cursor-pointer"
-            >
-              ভেরিফিকেশন নীতিমালা →
-            </a>
-          </div>
-        </section>
-      )}
-
       {/* 1. Compact Top Bar: Return Indicator + Top Search */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 w-full mb-5">
         <div className="bg-white border border-slate-200/90 rounded-2xl px-3.5 py-2.5 sm:px-5 sm:py-3 shadow-2xs hover:shadow-xs transition-shadow flex items-center justify-between gap-3">

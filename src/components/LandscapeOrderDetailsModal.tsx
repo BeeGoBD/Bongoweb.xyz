@@ -198,15 +198,20 @@ export default function LandscapeOrderDetailsModal({
 
                 // Find matching credentials for this specific order
                 const ordCleanPhone = normalizePhone(ord.phone);
-                const matchingCred = credentials.find(c => {
+                const foundCred = credentials.find(c => {
                   if (c.orderId && ord.orderId && c.orderId.trim() === ord.orderId.trim()) return true;
                   const cPhone = normalizePhone(c.userPhone);
                   if (ordCleanPhone && cPhone && (ordCleanPhone.slice(-10) === cPhone.slice(-10))) {
                     if (!c.websiteCode || c.websiteCode === ord.demoCode || !ord.demoCode) return true;
                   }
                   return false;
-                }) || (ord.deliveredAdminId ? {
-                  id: `ORD-DELIV-${ord.orderId}`,
+                });
+                const matchingCred = foundCred ? {
+                  ...foundCred,
+                  websiteAdminId: ord.deliveredAdminId || foundCred.websiteAdminId,
+                  websiteAdminPass: ord.deliveredAdminPass || foundCred.websiteAdminPass,
+                } : (ord.deliveredAdminId ? {
+                  id: `cred_ord_${ord.orderId}`,
                   orderId: ord.orderId,
                   userPhone: ord.phone,
                   userEmail: ord.email || '',

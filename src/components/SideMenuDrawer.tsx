@@ -14,6 +14,7 @@ interface SideMenuDrawerProps {
   onGoToCategoryLanding?: () => void;
   onOpenLogoShowcase?: () => void;
   onOpenOrderDetails?: () => void;
+  onOpenWebsiteCredentials?: () => void;
 }
 
 export default function SideMenuDrawer({
@@ -21,7 +22,8 @@ export default function SideMenuDrawer({
   onClose,
   onSelectTab,
   onOpenLogoShowcase: _onOpenLogoShowcase,
-  onOpenOrderDetails
+  onOpenOrderDetails,
+  onOpenWebsiteCredentials
 }: SideMenuDrawerProps) {
   const [ticketModalOpen, setTicketModalOpen] = useState(false);
   const [ticketReason, setTicketReason] = useState('');
@@ -112,14 +114,12 @@ export default function SideMenuDrawer({
             {/* 2. ওয়েবসাইট আইডি ও পাসওয়ার্ড (Website ID & Password) */}
             <button
               onClick={() => {
-                onSelectTab('account');
                 onClose();
-                setTimeout(() => {
-                  const el = document.getElementById('website-credentials-section');
-                  if (el) {
-                    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                  }
-                }, 120);
+                if (onOpenWebsiteCredentials) {
+                  onOpenWebsiteCredentials();
+                } else {
+                  onSelectTab('account');
+                }
               }}
               className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl hover:bg-[#EEF2FF] text-[#0D253D] hover:text-[#2B47EE] transition-all text-xs font-bold text-left cursor-pointer group border border-[#E5EDF5] hover:border-[#2B47EE]/30 shadow-2xs"
             >

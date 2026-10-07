@@ -253,6 +253,7 @@ interface DatabaseSchema {
     password?: string;
     registeredAt: string;
     isRestricted?: boolean;
+    numberVerified?: boolean;
     photoUrl?: string;
     clientId?: string;
   }>;
@@ -633,26 +634,52 @@ async function startServer() {
     }
 
     const cleanEmail = email.trim().toLowerCase();
-    const cleanPhone = phone ? phone.trim() : '';
+    const cleanPhone = phone ? phone.trim().replace(/\s+/g, '') : '';
+    const cleanName = name.trim();
 
-    // Check duplicate email
-    const exists = db.users.some(
-      u => (u.email && u.email.toLowerCase() === cleanEmail) || (cleanPhone && u.phone === cleanPhone)
+    // 1. One name cannot be registered twice until completed/verified
+    const nameExists = (db.users || []).some(
+      u => u.name && u.name.trim().toLowerCase() === cleanName.toLowerCase()
     );
-
-    if (exists) {
+    if (nameExists) {
       return res.status(400).json({
         success: false,
-        error: 'এই ইমেইল দিয়ে ইতিমধ্যে একটি অ্যাকাউন্ট তৈরি করা হয়েছে!'
+        error: 'এই নাম দিয়ে ইতোমধ্যে একটি অ্যাকাউন্ট তৈরি করা হয়েছে! অনুগ্রহ করে ভিন্ন একটি নাম ব্যবহার করুন।'
       });
     }
 
+    // 2. One email can have only one account
+    const emailExists = (db.users || []).some(
+      u => u.email && u.email.trim().toLowerCase() === cleanEmail
+    );
+    if (emailExists) {
+      return res.status(400).json({
+        success: false,
+        error: 'এই ইমেইল দিয়ে ইতোমধ্যে একটি অ্যাকাউন্ট রয়েছে! অনুগ্রহ করে সাইন ইন করুন।'
+      });
+    }
+
+    // 3. One phone can have only one account
+    if (cleanPhone) {
+      const phoneExists = (db.users || []).some(
+        u => u.phone && u.phone.trim().replace(/\s+/g, '') === cleanPhone
+      );
+      if (phoneExists) {
+        return res.status(400).json({
+          success: false,
+          error: 'এই মোবাইল নম্বর দিয়ে ইতোমধ্যে একটি অ্যাকাউন্ট রয়েছে! একটি নম্বরে কেবল একটি অ্যাকাউন্ট তৈরি সম্ভব।'
+        });
+      }
+    }
+
     const newUser = {
-      name: name.trim(),
+      name: cleanName,
       phone: cleanPhone || '',
       email: cleanEmail,
       password: password ? password.trim() : undefined,
-      registeredAt: new Date().toLocaleDateString('bn-BD')
+      registeredAt: new Date().toLocaleDateString('bn-BD'),
+      numberVerified: false,
+      numberVerificationCallPending: true
     };
 
     db.users.push(newUser);
@@ -1394,6 +1421,18 @@ async function startServer() {
     res.json(db.users);
   });
 
+  // VERIFY USER NUMBER
+  app.put('/api/users/:phone/verify-number', (req: Request, res: Response) => {
+    const db = readDb();
+    const cleanPhone = String(req.params.phone || '').replace(/[^0-9]/g, '');
+    const user = db.users.find(u => String(u.phone || '').replace(/[^0-9]/g, '') === cleanPhone);
+    if (user) {
+      user.numberVerified = req.body.numberVerified !== undefined ? Boolean(req.body.numberVerified) : true;
+      writeDb(db);
+    }
+    res.json(db.users);
+  });
+
   // 4. WEBSITES CATALOG & STOCKS (Full real edit, add, delete, persist)
   app.get('/api/websites', (req: Request, res: Response) => {
     const db = readDb();
@@ -1462,12 +1501,56 @@ async function startServer() {
   // 5. DELIVERED CREDENTIALS
   app.get('/api/credentials', (req: Request, res: Response) => {
     const db = readDb();
-    res.json(db.deliveredCredentials || []);
+    const creds = Array.isArray(db.deliveredCredentials) ? [...db.deliveredCredentials] : [];
+    // Sort latest first
+    creds.sort((a, b) => (Number(b.updatedAt) || 0) - (Number(a.updatedAt) || 0));
+
+    // Deduplicate keeping ONLY the single freshest record per order / client website
+    const deduplicated: any[] = [];
+    for (const c of creds) {
+      const safeOrderId = String(c.orderId || '').trim();
+      const phoneDigits = String(c.userPhone || '').replace(/\D/g, '').slice(-10);
+      const webCode = String(c.websiteCode || '').trim();
+      const existingIdx = deduplicated.findIndex((x) => {
+        const xOrder = String(x.orderId || '').trim();
+        const xDigits = String(x.userPhone || '').replace(/\D/g, '').slice(-10);
+        const xCode = String(x.websiteCode || '').trim();
+        if (safeOrderId && xOrder && safeOrderId === xOrder) return true;
+        if (phoneDigits && xDigits && phoneDigits === xDigits) {
+          if (!webCode || !xCode || webCode === xCode) return true;
+        }
+        return false;
+      });
+      if (existingIdx === -1) {
+        deduplicated.push(c);
+      }
+    }
+    res.json(deduplicated);
   });
 
   app.post('/api/credentials', (req: Request, res: Response) => {
     const db = readDb();
-    const cred = req.body;
+    const cred = { ...req.body, updatedAt: Number(req.body.updatedAt) || Date.now() };
+    const safeOrderId = String(cred.orderId || '').trim();
+    const phoneDigits = String(cred.userPhone || '').replace(/\D/g, '').slice(-10);
+    const webCode = String(cred.websiteCode || '').trim();
+    const targetId = String(cred.id || '').trim();
+
+    const currentList = Array.isArray(db.deliveredCredentials) ? db.deliveredCredentials : [];
+    // Purge any older credentials for this order or client website
+    db.deliveredCredentials = currentList.filter((c: any) => {
+      const cOrder = String(c.orderId || '').trim();
+      const cDigits = String(c.userPhone || '').replace(/\D/g, '').slice(-10);
+      const cCode = String(c.websiteCode || '').trim();
+      const cId = String(c.id || '').trim();
+      if (targetId && cId && targetId === cId) return false;
+      if (safeOrderId && cOrder && safeOrderId === cOrder) return false;
+      if (phoneDigits && cDigits && phoneDigits === cDigits) {
+        if (!webCode || !cCode || webCode === cCode) return false;
+      }
+      return true;
+    });
+
     db.deliveredCredentials.unshift(cred);
     writeDb(db);
 

@@ -14,6 +14,7 @@ import NotificationsModal from './components/NotificationsModal';
 import SideMenuDrawer from './components/SideMenuDrawer';
 import AdminPanelView from './components/AdminPanelView';
 import LandscapeOrderDetailsModal from './components/LandscapeOrderDetailsModal';
+import WebsiteCredentialsModal from './components/WebsiteCredentialsModal';
 
 type ViewMode = 
   | 'category-picker' 
@@ -65,6 +66,7 @@ export default function App() {
   const [unreadNotifications, setUnreadNotifications] = useState(0);
   const [sideMenuOpen, setSideMenuOpen] = useState(false);
   const [landscapeOrderModalOpen, setLandscapeOrderModalOpen] = useState(false);
+  const [websiteCredentialsModalOpen, setWebsiteCredentialsModalOpen] = useState(false);
 
   // Helper to extract demo by code (e.g. 1042 or #1042 or custom uploaded websites)
   const findDemoByCode = (rawCode: string): WebsiteDemo | null => {
@@ -448,6 +450,17 @@ export default function App() {
         onSelectTab={handleTabChange}
         onGoToCategoryLanding={handleBackToCategoryPicker}
         onOpenOrderDetails={() => setLandscapeOrderModalOpen(true)}
+        onOpenWebsiteCredentials={() => setWebsiteCredentialsModalOpen(true)}
+      />
+
+      {/* Dedicated Website Credentials Modal (Menu Option 2) */}
+      <WebsiteCredentialsModal
+        isOpen={websiteCredentialsModalOpen}
+        onClose={() => setWebsiteCredentialsModalOpen(false)}
+        onGoToDashboard={() => {
+          setWebsiteCredentialsModalOpen(false);
+          handleTabChange('dashboard');
+        }}
       />
 
       {/* Landscape Order Details & Live Credentials Modal */}
