@@ -49,7 +49,18 @@ interface AccountViewProps {
 export type AccountSubView = 'overview' | 'total-orders' | 'pending-orders' | 'privacy' | 'terms' | 'reports' | 'recover-email';
 
 export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: AccountViewProps) {
-  const [currentUser, setCurrentUser] = useState<UserAccount | null>(null);
+  const [currentUser, setCurrentUser] = useState<UserAccount | null>(() => {
+    try {
+      const stored = localStorage.getItem('bongoweb_user');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed && (parsed.phone || parsed.email || parsed.name)) {
+          return parsed;
+        }
+      }
+    } catch (_) {}
+    return null;
+  });
   const [orders, setOrders] = useState<ClientOrder[]>([]);
   const [selectedReceiptOrder, setSelectedReceiptOrder] = useState<ClientOrder | null>(null);
   const [userCredentialsList, setUserCredentialsList] = useState<WebsiteDeliveryCredentials[]>([]);
@@ -75,6 +86,9 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
 
   // Copy Feedback State
   const [copiedField, setCopiedField] = useState<string | null>(null);
+
+  // Phone Verification Info Modal State (Requirement 2)
+  const [showVerificationExplainerModal, setShowVerificationExplainerModal] = useState(false);
 
   // Descope SDK integration
   const descope = useDescope();
@@ -216,18 +230,29 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
       const storedUser = localStorage.getItem('bongoweb_user');
       if (storedUser) {
         const parsed: UserAccount = JSON.parse(storedUser);
-        const allUsers = await apiGetUsers();
-        const latest = allUsers.find(u => 
-          (parsed.phone && u.phone === parsed.phone) || 
-          (parsed.email && u.email && u.email.toLowerCase() === parsed.email.toLowerCase()) || 
-          (parsed.username && (u as any).username && (u as any).username === parsed.username)
-        ) || parsed;
-        if (latest.isRestricted) {
-          handleLogout();
-          setAuthError('🚫 আপনার অ্যাকাউন্টটি সাময়িকভাবে সীমাবদ্ধ (Restricted) করা হয়েছে।');
-          return;
+        setCurrentUser((prev) => prev || parsed);
+
+        try {
+          const allUsers = await apiGetUsers();
+          const cleanPhone = parsed.phone ? normalizePhone(parsed.phone) : '';
+          const cleanEmail = parsed.email ? parsed.email.toLowerCase().trim() : '';
+
+          const latest = allUsers.find(u => 
+            (cleanPhone && normalizePhone(u.phone) === cleanPhone) || 
+            (cleanEmail && u.email && u.email.toLowerCase().trim() === cleanEmail) || 
+            (parsed.username && (u as any).username && (u as any).username === parsed.username)
+          ) || parsed;
+
+          if (latest.isRestricted) {
+            handleLogout();
+            setAuthError('🚫 আপনার অ্যাকাউন্টটি সাময়িকভাবে সীমাবদ্ধ (Restricted) করা হয়েছে।');
+            return;
+          }
+          setCurrentUser(latest);
+          localStorage.setItem('bongoweb_user', JSON.stringify(latest));
+        } catch (_) {
+          setCurrentUser((prev) => prev || parsed);
         }
-        setCurrentUser(latest);
 
         // Fetch orders first to cross-reference credentials
         const allOrders = await apiGetOrders();
@@ -246,18 +271,29 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
           return phoneMatch || emailMatch;
         });
 
-        // Also include any credentials stored directly on user's orders if not already in list
+        // Filter orders for current user, excluding orders in bin or trash
         const userOrders = allOrders.filter(o => {
+          if (o.status === 'bin' || o.status === 'cancelled') return false;
           const oPhone = normalizePhone(o.phone);
           const oEmail = (o.email || '').toLowerCase().trim();
           return (userCleanPhone && oPhone && userCleanPhone.slice(-10) === oPhone.slice(-10)) ||
                  (userCleanEmail && oEmail && userCleanEmail === oEmail);
         });
 
+        // Sync latest credentials from active orders
         userOrders.forEach(ord => {
           if (ord.deliveredAdminId) {
-            const exists = found.some(f => (f.orderId && f.orderId === ord.orderId) || (f.websiteCode === ord.demoCode));
-            if (!exists) {
+            const existingIdx = found.findIndex(f => 
+              (f.orderId && ord.orderId && f.orderId === ord.orderId) || 
+              (f.websiteCode && ord.demoCode && f.websiteCode === ord.demoCode)
+            );
+            if (existingIdx >= 0) {
+              // Overwrite with order's credentials if present
+              found[existingIdx].websiteAdminId = ord.deliveredAdminId;
+              if (ord.deliveredAdminPass) {
+                found[existingIdx].websiteAdminPass = ord.deliveredAdminPass;
+              }
+            } else {
               found.push({
                 id: `ORD-DELIV-${ord.orderId}`,
                 orderId: ord.orderId,
@@ -274,7 +310,32 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
           }
         });
 
-        setUserCredentialsList(found);
+        // Deduplicate found credentials by matching orderId, websiteCode, or websiteTitle
+        // Guarantee ONLY the single most recent password that Admin set is shown, never old or mixed passwords
+        const deduplicatedFound: WebsiteDeliveryCredentials[] = [];
+        for (const cred of found) {
+          const existingIdx = deduplicatedFound.findIndex(item => {
+            const sameOrder = (cred.orderId && item.orderId && cred.orderId === item.orderId);
+            const sameCode = (cred.websiteCode && item.websiteCode && cred.websiteCode === item.websiteCode);
+            const sameTitle = (cred.websiteTitle && item.websiteTitle && cred.websiteTitle.trim().toLowerCase() === item.websiteTitle.trim().toLowerCase());
+            return sameOrder || sameCode || sameTitle;
+          });
+
+          if (existingIdx === -1) {
+            deduplicatedFound.push({ ...cred });
+          } else {
+            // Merge keeping the latest updated ID and Password
+            deduplicatedFound[existingIdx] = {
+              ...deduplicatedFound[existingIdx],
+              ...cred,
+              websiteAdminId: cred.websiteAdminId || deduplicatedFound[existingIdx].websiteAdminId,
+              websiteAdminPass: cred.websiteAdminPass || deduplicatedFound[existingIdx].websiteAdminPass,
+              deliveredAt: cred.deliveredAt || deduplicatedFound[existingIdx].deliveredAt,
+            };
+          }
+        }
+
+        setUserCredentialsList(deduplicatedFound);
 
         // Fetch reports for current user
         apiGetReports().then((allReps) => {
@@ -336,11 +397,16 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
         setCurrentUser(synced);
         localStorage.setItem('bongoweb_user', JSON.stringify(synced));
         sessionStorage.setItem('bongoweb_user', JSON.stringify(synced));
-        loadUserData();
-
-        setSubView('overview');
-        window.history.pushState({}, '', '/account');
+        localStorage.setItem('bongoweb_active_view', 'dashboard');
+        sessionStorage.setItem('bongoweb_active_view', 'dashboard');
         window.dispatchEvent(new CustomEvent('bongoweb_credentials_updated'));
+        await loadUserData();
+
+        if (onGoToDashboard) {
+          onGoToDashboard();
+        } else {
+          window.location.href = '/';
+        }
         return;
       }
     } catch (err: any) {
@@ -529,13 +595,14 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
     setCurrentUser(detectedUser);
     localStorage.setItem('bongoweb_user', JSON.stringify(detectedUser));
     sessionStorage.setItem('bongoweb_user', JSON.stringify(detectedUser));
+    localStorage.setItem('bongoweb_active_view', 'dashboard');
+    sessionStorage.setItem('bongoweb_active_view', 'dashboard');
     window.dispatchEvent(new Event('bongoweb_credentials_updated'));
     await loadUserData();
-    setSubView('overview');
     if (onGoToDashboard) {
       onGoToDashboard();
     } else {
-      window.history.pushState({}, '', '/account');
+      window.location.href = '/';
     }
   };
 
@@ -569,13 +636,14 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
       setCurrentUser(newUser);
       localStorage.setItem('bongoweb_user', JSON.stringify(newUser));
       sessionStorage.setItem('bongoweb_user', JSON.stringify(newUser));
+      localStorage.setItem('bongoweb_active_view', 'dashboard');
+      sessionStorage.setItem('bongoweb_active_view', 'dashboard');
       window.dispatchEvent(new Event('bongoweb_credentials_updated'));
       await loadUserData();
-      setSubView('overview');
       if (onGoToDashboard) {
         onGoToDashboard();
       } else {
-        window.history.pushState({}, '', '/account');
+        window.location.href = '/';
       }
     } catch (_) {
       setAuthError('Failed to create account. Please try again.');
@@ -858,6 +926,22 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                     </button>
                   )}
                 </div>
+
+                {/* Bottom Option: "I don't have my email" */}
+                <div className="text-center pt-2 border-t border-slate-100">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowEmailRecoveryPage(true);
+                      setSubView('recover-email');
+                      window.history.pushState({}, '', '/account/recover-email');
+                    }}
+                    className="text-xs text-[#AB55F7] hover:text-[#9333EA] font-bold underline cursor-pointer inline-flex items-center gap-1.5 py-1.5 px-3 rounded-lg hover:bg-purple-50 transition-colors"
+                  >
+                    <HelpCircle className="w-3.5 h-3.5" />
+                    <span>I don't have my email</span>
+                  </button>
+                </div>
               </div>
 
             </div>
@@ -977,14 +1061,6 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                         className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50/70 border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#2B47EE] focus:ring-2 focus:ring-[#2B47EE]/20 transition-all shadow-2xs font-mono font-medium"
                       />
                     </div>
-                  </div>
-
-                  {/* Verification Policy Notice */}
-                  <div className="p-3 rounded-xl bg-amber-50/80 border border-amber-200/90 text-amber-900 text-xs flex items-start gap-2">
-                    <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                    <span>
-                      আমাদের টিম সর্বোচ্চ ২৪ ঘণ্টার মধ্যে এই নম্বরে কল করে নম্বরটি ভেরিফাই করবে। কল রিসিভ না করলে অ্যাকাউন্ট সীমাবদ্ধ (Restrict) করা হতে পারে।
-                    </span>
                   </div>
 
                   {/* Create Account Button */}
@@ -1484,9 +1560,9 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
         </section>
       )}
 
-      {/* 2. SECTION: আপনার Website এর বিস্তারিত (Requirement 6) */}
-      {userCredentialsList.length > 0 && (
-        <section className="max-w-4xl mx-auto px-4 sm:px-6 w-full mb-5">
+      {/* 2. SECTION: আপনার Website এর বিস্তারিত (Requirement 6 & Menu Item 2) */}
+      <section id="website-credentials-section" className="max-w-4xl mx-auto px-4 sm:px-6 w-full mb-5 scroll-mt-24">
+        {userCredentialsList.length > 0 ? (
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div>
@@ -1585,8 +1661,36 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
               ))}
             </div>
           </div>
-        </section>
-      )}
+        ) : (
+          <div className="p-5 sm:p-6 rounded-3xl bg-white border border-[#E5EDF5] shadow-xs space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-[#EEF2FF] text-[#2B47EE] flex items-center justify-center font-bold text-xs">
+                  ২
+                </div>
+                <div>
+                  <h3 className="text-sm sm:text-base font-black text-[#0D253D]">
+                    আপনার Website এর বিস্তারিত (Website ID ও Password)
+                  </h3>
+                  <p className="text-xs text-[#64748D]">
+                    অ্যাডমিন আইডি ও পাসওয়ার্ড অ্যাক্সেস ড্যাশবোর্ড
+                  </p>
+                </div>
+              </div>
+              <span className="px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-semibold">
+                অপেক্ষমান
+              </span>
+            </div>
+            <div className="p-4 rounded-2xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs text-[#64748D] leading-relaxed flex items-start gap-3">
+              <Key className="w-5 h-5 text-[#2B47EE] shrink-0 mt-0.5" />
+              <div>
+                <p className="font-bold text-[#0D253D] mb-0.5">কোনো সক্রিয় ওয়েবসাইট আইডি-পাসওয়ার্ড এখনও ডেলিভারি হয়নি</p>
+                <p>আপনার অর্ডার অনুমোদিত ও সম্পন্ন হওয়ার সাথে সাথেই আমাদের ইঞ্জিনিয়ার টিম কর্তৃক প্রস্তুতকৃত ওয়েবসাইটের অ্যাডমিন আইডি ও পাসওয়ার্ড সরাসরি এখানে প্রদর্শিত হবে।</p>
+              </div>
+            </div>
+          </div>
+        )}
+      </section>
 
       {/* 3. SECTION: CLIENT ACCOUNT / PROFILE SECTION (Requirement 2) */}
       <section className="max-w-4xl mx-auto px-4 sm:px-6 w-full mb-6">
@@ -1645,11 +1749,35 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
             </div>
 
             <div className="p-3.5 rounded-2xl bg-slate-50/80 border border-slate-200/70 space-y-1">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                {currentUser.phone && !currentUser.phone.includes('_') && !currentUser.phone.includes('@') && /\d{6,}/.test(currentUser.phone)
-                  ? 'Phone Number (মোবাইল)'
-                  : 'Account Status (স্ট্যাটাস)'}
-              </span>
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                  {currentUser.phone && !currentUser.phone.includes('_') && !currentUser.phone.includes('@') && /\d{6,}/.test(currentUser.phone)
+                    ? 'Phone Number (মোবাইল)'
+                    : 'Account Status (স্ট্যাটাস)'}
+                </span>
+
+                {currentUser.phone && !currentUser.phone.includes('_') && !currentUser.phone.includes('@') && /\d{6,}/.test(currentUser.phone) && (
+                  <div className="flex items-center gap-1.5">
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold inline-flex items-center gap-1 ${
+                      currentUser.numberVerified
+                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                        : 'bg-amber-50 text-amber-700 border border-amber-200'
+                    }`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${currentUser.numberVerified ? 'bg-emerald-500' : 'bg-amber-500'}`} />
+                      <span>{currentUser.numberVerified ? 'Verified' : 'Unverified'}</span>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setShowVerificationExplainerModal(true)}
+                      className="w-4 h-4 rounded-full bg-slate-200 hover:bg-[#2B47EE] hover:text-white text-slate-600 inline-flex items-center justify-center transition-colors cursor-pointer"
+                      title="নম্বর ভেরিফিকেশন তথ্য দেখুন"
+                    >
+                      <HelpCircle className="w-3 h-3" />
+                    </button>
+                  </div>
+                )}
+              </div>
+
               {currentUser.phone && !currentUser.phone.includes('_') && !currentUser.phone.includes('@') && /\d{6,}/.test(currentUser.phone) ? (
                 <p className="text-xs sm:text-sm font-mono font-bold text-[#2B47EE] select-all">
                   {currentUser.phone}
@@ -1939,6 +2067,54 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                 </div>
               </form>
             )}
+          </div>
+        </div>
+      )}
+      {/* Phone Verification Explanation Modal (Requirement 2) */}
+      {showVerificationExplainerModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0D253D]/60 backdrop-blur-xs animate-fadeIn">
+          <div className="w-full max-w-md bg-white rounded-3xl border border-slate-200 shadow-2xl p-6 sm:p-7 relative space-y-4 animate-slideUpModal">
+            <button
+              type="button"
+              onClick={() => setShowVerificationExplainerModal(false)}
+              className="absolute top-4 right-4 p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shadow-2xs shrink-0">
+                <HelpCircle className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-base font-black text-[#0D253D]">
+                  নম্বর ভেরিফিকেশন তথ্য
+                </h3>
+                <span className="text-[11px] font-bold text-slate-500">
+                  Phone Verification Policy
+                </span>
+              </div>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-amber-50/60 border border-amber-200/80 space-y-2 text-xs sm:text-sm text-slate-800 leading-relaxed">
+              <p className="font-semibold text-amber-900">
+                আপনার নম্বর verification অপেক্ষমাণ।
+              </p>
+              <p className="text-slate-700">
+                আমাদের verification team সর্বোচ্চ 24 ঘণ্টার মধ্যে call করবে। 24 ঘণ্টায় call না ধরলে account সীমাবদ্ধ / restrict করা হতে পারে। অনুগ্রহ করে কলটি গ্রহণ করুন।
+              </p>
+              <p className="text-[11px] text-slate-500 pt-1">
+                কলটি সফলভাবে সম্পন্ন হলে আপনার স্ট্যাটাস স্থায়ীভাবে <strong className="text-emerald-600 font-bold">Verified</strong> হয়ে যাবে।
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowVerificationExplainerModal(false)}
+              className="w-full py-3 rounded-xl bg-gradient-to-r from-[#2B47EE] to-[#7C3AED] hover:from-[#203CD4] hover:to-[#6D28D9] text-white text-xs sm:text-sm font-bold shadow-xs transition-all cursor-pointer"
+            >
+              বুঝেছি (Got it)
+            </button>
           </div>
         </div>
       )}

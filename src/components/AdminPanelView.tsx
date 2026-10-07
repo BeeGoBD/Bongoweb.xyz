@@ -1132,11 +1132,19 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
       deliveredAt: new Date().toLocaleString('bn-BD')
     };
 
-    // Keep separate credentials for each website
-    const updatedCreds = [newCred, ...deliveredCreds.filter((c) => !(c.userPhone === selectedUserForDelivery.phone && c.websiteCode === websiteCode))];
+    // Keep single latest credentials for this website/order so old password never appears
+    const targetOrderId = chosenOrder?.orderId || selectedDeliveryOrder || '';
+    const updatedCreds = [
+      newCred, 
+      ...deliveredCreds.filter((c) => {
+        const sameOrder = targetOrderId && c.orderId === targetOrderId;
+        const sameUserWeb = c.userPhone === selectedUserForDelivery.phone && (c.websiteCode === websiteCode || !websiteCode || !c.websiteCode);
+        return !sameOrder && !sameUserWeb;
+      })
+    ];
     setDeliveredCreds(updatedCreds);
     saveDeliveredCreds(updatedCreds);
-    await apiDeliverCredentials(newCred);
+    await apiDeliverCredentials(newCred, targetOrderId);
 
     // Update order with delivered credentials so Mark Complete is immediately unlocked and visible in customer menu
     const updatedOrders = orders.map((o) => {
@@ -1157,8 +1165,9 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
     setOrders(updatedOrders);
     saveOrders(updatedOrders);
 
-    if (chosenOrder) {
-      await apiUpdateOrderStatus(chosenOrder.orderId || (chosenOrder as any).id, chosenOrder.status, {
+    const finalTargetId = chosenOrder?.orderId || (chosenOrder as any)?.id || selectedDeliveryOrder;
+    if (finalTargetId) {
+      await apiUpdateOrderStatus(finalTargetId, chosenOrder?.status || 'approved', {
         hasDeliveredCredentials: true,
         deliveredAdminId: deliveryAdminId.trim(),
         deliveredAdminPass: deliveryAdminPass.trim()
@@ -2602,9 +2611,13 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                                       };
                                       setSelectedUserForDelivery(matchingUser);
                                       setSelectedDeliveryOrder(ord.orderId || (ord as any).id || ord.demoCode);
+                                      const existingCred = deliveredCreds.find(c => 
+                                        (c.orderId && ord.orderId && c.orderId === ord.orderId) || 
+                                        (c.userPhone === ord.phone && (c.websiteCode === ord.demoCode || !c.websiteCode))
+                                      );
                                       const safeDigits = ord.phone ? String(ord.phone).replace(/\D/g, '').slice(-4) : Math.floor(1000 + Math.random() * 9000);
-                                      setDeliveryAdminId(ord.deliveredAdminId || `admin_${safeDigits}`);
-                                      setDeliveryAdminPass(ord.deliveredAdminPass || `pass${Math.floor(1000 + Math.random() * 9000)}`);
+                                      setDeliveryAdminId(ord.deliveredAdminId || existingCred?.websiteAdminId || `admin_${safeDigits}`);
+                                      setDeliveryAdminPass(ord.deliveredAdminPass || existingCred?.websiteAdminPass || `pass${Math.floor(1000 + Math.random() * 9000)}`);
                                     }}
                                     className={`w-full min-h-[44px] py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs active:scale-[0.98] ${
                                       hasCredentialsSent
@@ -2659,15 +2672,19 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                                     };
                                     setSelectedUserForDelivery(matchingUser);
                                     setSelectedDeliveryOrder(ord.orderId || (ord as any).id || ord.demoCode);
+                                    const existingCred = deliveredCreds.find(c => 
+                                      (c.orderId && ord.orderId && c.orderId === ord.orderId) || 
+                                      (c.userPhone === ord.phone && (c.websiteCode === ord.demoCode || !c.websiteCode))
+                                    );
                                     const safeDigits = ord.phone ? String(ord.phone).replace(/\D/g, '').slice(-4) : Math.floor(1000 + Math.random() * 9000);
-                                    setDeliveryAdminId(ord.deliveredAdminId || `admin_${safeDigits}`);
-                                    setDeliveryAdminPass(ord.deliveredAdminPass || `pass${Math.floor(1000 + Math.random() * 9000)}`);
+                                    setDeliveryAdminId(ord.deliveredAdminId || existingCred?.websiteAdminId || `admin_${safeDigits}`);
+                                    setDeliveryAdminPass(ord.deliveredAdminPass || existingCred?.websiteAdminPass || `pass${Math.floor(1000 + Math.random() * 9000)}`);
                                   }}
                                   className="py-2.5 px-3.5 rounded-xl bg-[#0E2417] hover:bg-[#173826] text-[#4EEDB0] border border-[#173826] text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
                                   title="গ্রাহকের ওয়েবসাইটের আইডি ও পাসওয়ার্ড পরিবর্তন করুন"
                                 >
                                   <Key className="w-3.5 h-3.5" />
-                                  <span>আইডি-পাসওয়ার্ড পরিবর্তন (Edit ID-Pass)</span>
+                                  <span>১. ID Password পরিবর্তন</span>
                                 </button>
 
                                 <button
@@ -2677,7 +2694,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                                   title="অর্ডারটি মুছুন ও রিসাইকেল বিনে পাঠান (গ্রাহকের মেনু ডিটেইলস থেকেও আইডি-পাসওয়ার্ড মুছে যাবে)"
                                 >
                                   <Trash2 className="w-3.5 h-3.5" />
-                                  <span>রিসাইকেল বিনে পাঠান (মুছুন)</span>
+                                  <span>২. Recycle Bin এ পাঠাও</span>
                                 </button>
                               </div>
                             )}

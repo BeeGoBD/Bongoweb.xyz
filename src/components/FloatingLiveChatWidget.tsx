@@ -215,7 +215,7 @@ export default function FloatingLiveChatWidget() {
       {/* 1. Round Floating Hover Button with Pulse Animation & Live Vibe */}
       <div 
         id="floating-live-chat-round-button"
-        className="fixed bottom-5 right-5 sm:bottom-7 sm:right-7 z-50 flex items-center gap-3 select-none"
+        className="fixed bottom-6 right-5 sm:bottom-8 sm:right-8 z-50 flex items-center gap-3 select-none pointer-events-auto"
       >
         {/* Friendly Hover Pill Badge */}
         {!isOpen && (
@@ -265,7 +265,7 @@ export default function FloatingLiveChatWidget() {
       {isOpen && (
         <div 
           id="floating-live-chat-panel"
-          className="fixed bottom-22 right-3 sm:bottom-26 sm:right-7 z-50 w-[94vw] sm:w-[380px] max-h-[580px] h-[540px] bg-white rounded-3xl shadow-[0_20px_70px_rgba(13,37,61,0.25)] border border-slate-200/90 overflow-hidden flex flex-col text-[#0D253D] animate-slideUpModal select-none"
+          className="fixed bottom-24 right-3 sm:bottom-28 sm:right-8 z-50 w-[94vw] sm:w-[380px] max-h-[80vh] h-[540px] bg-white rounded-3xl shadow-[0_20px_70px_rgba(13,37,61,0.25)] border border-slate-200/90 overflow-hidden flex flex-col text-[#0D253D] animate-slideUpModal select-none"
           role="dialog"
         >
           {/* Header */}

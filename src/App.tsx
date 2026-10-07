@@ -26,7 +26,37 @@ type ViewMode =
   | 'admin';
 
 export default function App() {
-  const [viewMode, setViewMode] = useState<ViewMode>('category-picker');
+  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    if (typeof window !== 'undefined') {
+      const p = window.location.pathname;
+      if (p.startsWith('/admin')) return 'admin';
+      if (p.startsWith('/website')) return 'website-detail';
+      if (p.startsWith('/order')) return 'order-page';
+      if (p.startsWith('/after-order')) return 'after-order';
+      if (p.startsWith('/live-chat')) return 'live-chat';
+      if (p.startsWith('/account') || p.startsWith('/recover-email')) return 'account';
+      if (p.startsWith('/dashboard')) return 'dashboard';
+
+      // Check if logged in user exists in localStorage
+      try {
+        const storedUser = localStorage.getItem('bongoweb_user');
+        if (storedUser) {
+          const u = JSON.parse(storedUser);
+          if (u && (u.phone || u.email || u.name)) {
+            // Logged-in user: by default dashboard will open first!
+            return 'dashboard';
+          }
+        }
+      } catch (_) {}
+
+      const saved = sessionStorage.getItem('bongoweb_active_view') || localStorage.getItem('bongoweb_active_view');
+      if (saved === 'dashboard') return 'dashboard';
+      if (saved === 'account') return 'account';
+      if (saved === 'live-chat') return 'live-chat';
+      if (saved === 'after-order') return 'after-order';
+    }
+    return 'category-picker';
+  });
   const [selectedCategory, setSelectedCategory] = useState<WebsiteCategory>('ecommerce');
   const [activeDemo, setActiveDemo] = useState<WebsiteDemo | null>(null);
 
@@ -127,9 +157,27 @@ export default function App() {
     }
 
     // Default root path "/"
-    const savedView = sessionStorage.getItem('bongoweb_active_view') || localStorage.getItem('bongoweb_active_view');
+    let hasLoggedInUser = false;
+    try {
+      const storedUser = localStorage.getItem('bongoweb_user');
+      if (storedUser) {
+        const u = JSON.parse(storedUser);
+        if (u && (u.phone || u.email || u.name)) {
+          hasLoggedInUser = true;
+        }
+      }
+    } catch (_) {}
+
     const savedCategory = sessionStorage.getItem('bongoweb_chosen_category') || localStorage.getItem('bongoweb_chosen_category');
-    
+    const savedView = sessionStorage.getItem('bongoweb_active_view') || localStorage.getItem('bongoweb_active_view');
+
+    // If logged-in user visits the website: by default dashboard will open first!
+    if (hasLoggedInUser) {
+      if (savedCategory) setSelectedCategory(savedCategory as WebsiteCategory);
+      setViewMode('dashboard');
+      return;
+    }
+
     if (savedView === 'category-picker') {
       setViewMode('category-picker');
     } else if (savedView === 'account') {
@@ -187,8 +235,21 @@ export default function App() {
     };
   }, [parseCurrentUrl]);
 
-  // Navigate to Category Picker (URL remains root "/")
+  // Navigate to Category Picker or Dashboard (URL remains root "/")
   const handleBackToCategoryPicker = () => {
+    try {
+      const storedUser = localStorage.getItem('bongoweb_user');
+      if (storedUser) {
+        const u = JSON.parse(storedUser);
+        if (u && (u.phone || u.email || u.name)) {
+          setViewMode('dashboard');
+          window.history.pushState({}, '', '/');
+          window.scrollTo({ top: 0, behavior: 'instant' });
+          return;
+        }
+      }
+    } catch (_) {}
+
     sessionStorage.removeItem('bongoweb_chosen_category');
     localStorage.removeItem('bongoweb_chosen_category');
     localStorage.setItem('bongoweb_active_view', 'category-picker');

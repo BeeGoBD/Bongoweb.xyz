@@ -1357,14 +1357,18 @@ export async function apiGetDeliveredCredentials(): Promise<WebsiteDeliveryCrede
     creds = [...localCache.deliveredCredentials];
   }
 
-  // Also include credentials embedded on orders so customer never misses them
+  // Also synchronize credentials embedded on orders so customer never misses them and always sees latest
   for (const o of (localCache.orders || [])) {
     if (o && o.deliveredAdminId && o.deliveredAdminPass) {
-      const exists = creds.some(c => 
+      const matchIndex = creds.findIndex(c => 
         (c.orderId && c.orderId === o.orderId) || 
-        (normalizePhone(c.userPhone) === normalizePhone(o.phone) && (c.websiteCode === o.demoCode || !c.websiteCode))
+        (normalizePhone(c.userPhone) === normalizePhone(o.phone) && (c.websiteCode === o.demoCode || !c.websiteCode || !o.demoCode))
       );
-      if (!exists) {
+      if (matchIndex >= 0) {
+        // Always ensure latest order credentials prevail if updated by admin
+        creds[matchIndex].websiteAdminId = o.deliveredAdminId;
+        creds[matchIndex].websiteAdminPass = o.deliveredAdminPass;
+      } else {
         creds.push({
           id: `order-cred-${o.orderId}`,
           orderId: o.orderId,
@@ -1387,9 +1391,25 @@ export async function apiGetDeliveredCredentials(): Promise<WebsiteDeliveryCrede
 }
 
 export async function apiAddDeliveredCredentials(cred: WebsiteDeliveryCredentials, targetOrderId?: string): Promise<WebsiteDeliveryCredentials[]> {
-  const safeId = String(cred?.id || `DELIV-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`);
+  const safeOrderId = String(targetOrderId || cred.orderId || '').trim();
+  const cleanPhone = normalizePhone(cred.userPhone);
+  const websiteCode = cred.websiteCode || '';
+
+  // Find existing credential matching this order or this user+website
+  const existing = localCache.deliveredCredentials.find(c => 
+    (safeOrderId && c.orderId === safeOrderId) ||
+    (c.id === cred.id) ||
+    (cleanPhone && normalizePhone(c.userPhone) === cleanPhone && (c.websiteCode === websiteCode || !c.websiteCode || !websiteCode))
+  );
+
+  const safeId = existing?.id || String(cred?.id || `DELIV-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`);
   const cleanId = safeId.replace(/[^a-zA-Z0-9_-]/g, '_');
-  const safeCred = { ...cred, id: safeId };
+  const safeCred: WebsiteDeliveryCredentials = { 
+    ...cred, 
+    id: safeId,
+    orderId: safeOrderId || existing?.orderId || cred.orderId || '',
+    deliveredAt: cred.deliveredAt || new Date().toLocaleString('bn-BD')
+  };
 
   try {
     await setDoc(doc(db, 'deliveredCredentials', cleanId), safeCred);
@@ -1397,13 +1417,34 @@ export async function apiAddDeliveredCredentials(cred: WebsiteDeliveryCredential
     console.warn('Firestore add credentials notice:', err);
   }
 
+  // Remove any conflicting older credentials for the same order or user's website so ONLY latest exists
+  const oldIdsToDelete: string[] = [];
+  localCache.deliveredCredentials = localCache.deliveredCredentials.filter(c => {
+    const isSameOrder = safeOrderId && c.orderId === safeOrderId;
+    const isSameUserWebsite = cleanPhone && normalizePhone(c.userPhone) === cleanPhone && (c.websiteCode === websiteCode || !websiteCode || !c.websiteCode);
+    const isSameId = c.id === safeId;
+    if ((isSameOrder || isSameUserWebsite) && !isSameId) {
+      oldIdsToDelete.push(c.id);
+      return false;
+    }
+    return c.id !== safeId;
+  });
+
+  // Delete older duplicates from Firestore in background
+  for (const oldId of oldIdsToDelete) {
+    try {
+      const cleanOldId = oldId.replace(/[^a-zA-Z0-9_-]/g, '_');
+      deleteDoc(doc(db, 'deliveredCredentials', cleanOldId)).catch(() => {});
+    } catch (_) {}
+  }
+
   localCache.deliveredCredentials.unshift(safeCred);
   localStorage.setItem('bongoweb_delivered_credentials', JSON.stringify(localCache.deliveredCredentials));
 
-  // Auto-mark order credentials as delivered
-  const orderTarget = targetOrderId 
-    ? localCache.orders.find(o => o.orderId === targetOrderId)
-    : localCache.orders.find(o => (o.phone === safeCred.userPhone && (o.demoCode === safeCred.websiteCode || o.companyName === safeCred.websiteTitle)));
+  // Auto-mark order credentials as delivered and sync latest ID & Password
+  const orderTarget = safeOrderId 
+    ? localCache.orders.find(o => o.orderId === safeOrderId || (o as any).id === safeOrderId)
+    : localCache.orders.find(o => (normalizePhone(o.phone) === cleanPhone && (o.demoCode === safeCred.websiteCode || o.companyName === safeCred.websiteTitle)));
 
   if (orderTarget) {
     await apiUpdateOrderStatus(orderTarget.orderId, orderTarget.status, {

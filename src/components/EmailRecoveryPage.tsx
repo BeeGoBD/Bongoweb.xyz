@@ -45,13 +45,17 @@ export default function EmailRecoveryPage({ onBack }: EmailRecoveryPageProps) {
           const parsed: EmailRecoveryRequest = JSON.parse(stored);
           setActiveRequest(parsed);
 
-          // Sync fresh status from API in case admin approved/changed it
+          // Sync fresh status from API in case admin approved/changed or deleted it
           try {
             const all = await apiGetEmailRecoveries();
             const fresh = all.find((r) => r.id === parsed.id);
             if (fresh) {
               setActiveRequest(fresh);
               localStorage.setItem('bongoweb_email_recovery_request', JSON.stringify(fresh));
+            } else if (all.length > 0) {
+              // Admin deleted the request (e.g. client missed the call) - allow re-applying
+              setActiveRequest(null);
+              localStorage.removeItem('bongoweb_email_recovery_request');
             }
           } catch (_) {}
         }
@@ -401,6 +405,134 @@ export default function EmailRecoveryPage({ onBack }: EmailRecoveryPageProps) {
   }
 
   // ========================================================
+  // SUB-PAGE: Providing Previously Used Phone Number (Option 3 = Yes)
+  // ========================================================
+  if (isProvidingPhonePage && rememberPhone === true) {
+    return (
+      <div className="w-full min-h-[calc(100vh-120px)] flex flex-col items-center justify-start py-6 sm:py-10 px-4 bg-[#FAF6F0] font-sans animate-fadeIn select-none">
+        <div className="max-w-md w-full space-y-4">
+          <button
+            type="button"
+            onClick={() => setIsProvidingPhonePage(false)}
+            className="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>← অপশন তালিকায় ফিরে যান</span>
+          </button>
+
+          <div className="bg-white border border-slate-200/90 rounded-[28px] p-6 sm:p-8 shadow-[0_20px_50px_-12px_rgba(171,85,247,0.18),0_4px_16px_rgba(0,0,0,0.03)] space-y-5">
+            <div className="text-center space-y-1">
+              <div className="w-14 h-14 rounded-2xl bg-purple-50 text-[#AB55F7] flex items-center justify-center mx-auto mb-2 border border-purple-200 shadow-xs">
+                <Phone className="w-7 h-7" />
+              </div>
+              <h2 className="text-xl font-black text-[#0D253D] tracking-tight">
+                পূর্বের ব্যবহৃত মোবাইল নম্বর
+              </h2>
+              <p className="text-xs text-slate-500">
+                What was your mobile number? (Remember: Yes)
+              </p>
+            </div>
+
+            <p className="text-xs text-slate-600 leading-relaxed bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+              যেহেতু আপনি জানিয়েছেন যে আপনার পূর্বের ব্যবহৃত মোবাইল নম্বরটি মনে আছে, অনুগ্রহ করে সেই মোবাইল নম্বরটি নিচে লিখুন। আমাদের সাপোর্ট টিম <strong className="text-[#AB55F7]">১ থেকে ৪৮ ঘণ্টার মধ্যে</strong> সরাসরি এই নম্বরে কল করে অ্যাকাউন্ট যাচাই করবে।
+            </p>
+
+            {errorMsg && (
+              <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs font-bold flex items-center gap-2 animate-shake">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{errorMsg}</span>
+              </div>
+            )}
+
+            <div className="space-y-1.5">
+              <label className="block text-xs font-bold text-slate-800">
+                পূর্বে ব্যবহৃত মোবাইল নম্বরটি লিখুন:
+              </label>
+              <div className="relative">
+                <Phone className="w-4 h-4 text-[#AB55F7] absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="tel"
+                  autoFocus
+                  required
+                  placeholder="যেমন: 017XXXXXXXX বা 019XXXXXXXX"
+                  value={phoneNumber}
+                  onChange={(e) => {
+                    setPhoneNumber(e.target.value);
+                    if (errorMsg) setErrorMsg('');
+                  }}
+                  className="w-full pl-10 pr-4 py-3.5 rounded-xl bg-white border border-purple-200 text-sm font-mono font-bold text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#AB55F7] focus:ring-2 focus:ring-[#AB55F7]/20 transition-all shadow-2xs"
+                />
+              </div>
+              <p className="text-[10px] text-slate-500">
+                * সচল নম্বর দিন যাতে সাপোর্ট টিম সরাসরি আপনার সাথে ফোনে কথা বলতে পারে।
+              </p>
+            </div>
+
+            {/* Note on 1-48 hours and missing calls */}
+            <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-950 text-xs space-y-1">
+              <div className="font-bold flex items-center gap-1.5 text-amber-900">
+                <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
+                <span>গুরুত্বপূর্ণ নির্দেশনা:</span>
+              </div>
+              <p className="text-[11px] leading-relaxed">
+                আমাদের সাপোর্ট টিম ১ থেকে ৪৮ ঘণ্টার মধ্যে কল করবে। কল মিস করলে আপনার রিকোয়েস্টটি মুছে ফেলা হবে এবং পুনরায় নতুন করে আবেদন করতে হবে।
+              </p>
+            </div>
+
+            <div className="space-y-2 pt-1">
+              {/* Primary Submit button directly from this page */}
+              <button
+                type="button"
+                disabled={submitting}
+                onClick={(e) => {
+                  if (!phoneNumber.trim() || phoneNumber.trim().length < 9) {
+                    setErrorMsg('অনুগ্রহ করে সঠিক মোবাইল নম্বরটি লিখুন (ন্যূনতম ১০ বা ১১ সংখ্যা)।');
+                    return;
+                  }
+                  if (!gmailIssue) {
+                    setErrorMsg('অনুগ্রহ করে অপশন ১ থেকে জিমেইল সমস্যাটি প্রথমে বেছে নিন।');
+                    setIsProvidingPhonePage(false);
+                    return;
+                  }
+                  if (purchasedBefore === null) {
+                    setErrorMsg('অনুগ্রহ করে অপশন ২ (পূর্বে ক্রয় করেছিলেন কিনা) নির্বাচন করুন।');
+                    setIsProvidingPhonePage(false);
+                    return;
+                  }
+                  handleSubmit(e as any);
+                }}
+                className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#AB55F7] to-[#7C3AED] hover:from-[#9333EA] hover:to-[#6D28D9] disabled:opacity-50 text-white font-bold text-xs sm:text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                {submitting ? (
+                  <span className="flex items-center gap-2">
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    <span>রিকোয়েস্ট দাখিল হচ্ছে...</span>
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-2">
+                    <span>রিকোয়েস্ট সাবমিট করুন (Submit)</span>
+                    <Send className="w-4 h-4" />
+                  </span>
+                )}
+              </button>
+
+              {/* Secondary button to return to main form with saved number */}
+              <button
+                type="button"
+                onClick={() => setIsProvidingPhonePage(false)}
+                className="w-full py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+              >
+                <span>সংরক্ষণ করুন ও মূল ফর্মে ফিরুন</span>
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ========================================================
   // VIEW 2: NEW FORM SELECTION (3 Options with selection images/cards)
   // ========================================================
   return (
@@ -672,14 +804,21 @@ export default function EmailRecoveryPage({ onBack }: EmailRecoveryPageProps) {
               </button>
             </div>
 
-            {/* When either Yes or No is selected, provide their phone number */}
-            {isProvidingPhonePage && (
+            {/* Option 3 Details (When Yes or No is selected) */}
+            {rememberPhone === true && (
               <div className="mt-3 p-4 rounded-2xl bg-purple-50/80 border border-purple-200 space-y-2 animate-fadeIn">
-                <label className="block text-xs font-bold text-purple-950">
-                  {rememberPhone 
-                    ? 'পূর্বে ব্যবহৃত মোবাইল নম্বরটি লিখুন:' 
-                    : 'সাপোর্ট টিম যে নম্বরে কল করবে সেই সচল মোবাইল নম্বর দিন:'}
-                </label>
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-bold text-purple-950">
+                    পূর্বে ব্যবহৃত মোবাইল নম্বর:
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setIsProvidingPhonePage(true)}
+                    className="text-xs text-[#AB55F7] hover:text-[#7C3AED] font-bold underline cursor-pointer"
+                  >
+                    {phoneNumber ? 'নম্বর পরিবর্তন করুন' : 'নম্বর লিখুন (পৃষ্ঠা খুলুন)'}
+                  </button>
+                </div>
                 <div className="relative">
                   <Phone className="w-4 h-4 text-[#AB55F7] absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
@@ -693,6 +832,28 @@ export default function EmailRecoveryPage({ onBack }: EmailRecoveryPageProps) {
                 </div>
                 <p className="text-[11px] text-purple-800">
                   📞 এই নম্বরেই আমাদের সাপোর্ট টিম কল করে অ্যাকাউন্ট যাচাই করবে।
+                </p>
+              </div>
+            )}
+
+            {rememberPhone === false && (
+              <div className="mt-3 p-4 rounded-2xl bg-amber-50/80 border border-amber-200 space-y-2 animate-fadeIn">
+                <label className="block text-xs font-bold text-amber-950">
+                  সাপোর্ট টিম যে সচল নম্বরে কল করবে সেই নম্বর দিন:
+                </label>
+                <div className="relative">
+                  <Phone className="w-4 h-4 text-amber-600 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="tel"
+                    required
+                    placeholder="যেমন: 017XXXXXXXX বা 019XXXXXXXX"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 rounded-xl bg-white border border-amber-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 font-mono font-bold shadow-2xs"
+                  />
+                </div>
+                <p className="text-[11px] text-amber-800">
+                  ⚠️ যেহেতু পূর্বের নম্বর মনে নেই, তাই এই সচল নম্বরে কল করে বিকল্প তথ্যাদি দিয়ে যাচাই করা হবে।
                 </p>
               </div>
             )}
