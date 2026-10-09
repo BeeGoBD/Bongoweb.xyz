@@ -1,780 +1,121 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { 
-  Send, Headphones, CheckCircle2, User, Sparkles, 
-  CheckCheck, LogOut, Clock, Plus, AlertCircle, ArrowRight, X,
-  ShieldCheck, RefreshCw, MessageSquare, Ticket, RotateCcw, KeyRound
-} from 'lucide-react';
-import { SupportChatMessage, UserAccount } from '../types';
-import { 
-  apiActivateChat, apiSendChatMessage, apiEndChat, apiReopenChat, subscribeToSingleChatThread, 
-  normalizePhone, apiGetLiveChatEnabled, apiRequestPasswordReset
-} from '../utils/api';
-import { realtimeManager } from '../utils/realtime';
-import ClientSecurityCodeModal from './ClientSecurityCodeModal';
-
-// Helper to guarantee 100% zero message duplication
-const deduplicateChatMessages = (msgs: SupportChatMessage[]): SupportChatMessage[] => {
-  if (!Array.isArray(msgs)) return [];
-  const seenIds = new Set<string>();
-  const seenContent = new Set<string>();
-  const result: SupportChatMessage[] = [];
-
-  for (const m of msgs) {
-    if (!m || !m.text) continue;
-    const contentKey = `${m.sender}:${m.text.trim()}`;
-    if (seenIds.has(m.id) || seenContent.has(contentKey)) {
-      continue;
-    }
-    seenIds.add(m.id);
-    seenContent.add(contentKey);
-    result.push(m);
-  }
-  return result;
-};
+import React, { useEffect, useState } from 'react';
+import { MessageSquare, Sparkles, CheckCircle2, Phone, ArrowRight } from 'lucide-react';
+import { openAlapaiChat } from '../utils/alapai';
+import { useLanguage } from '../utils/LanguageContext';
 
 export default function LiveChatView() {
-  // Live Chat System Toggle (Admin On/Off)
-  const [isLiveChatOnline, setIsLiveChatOnline] = useState<boolean>(true);
+  const { t } = useLanguage();
+  const [chatOpened, setChatOpened] = useState(false);
 
-  // Ticket Submission State (When Chat is OFF)
-  const [ticketDescription, setTicketDescription] = useState('');
-  const [ticketSubmitted, setTicketSubmitted] = useState(false);
-  const [submittedTicketId, setSubmittedTicketId] = useState('');
-
-  // Onboarding / Activation State
-  const [isActivated, setIsActivated] = useState(false);
-  const [selectedLanguage, setSelectedLanguage] = useState<'bn' | 'en'>('bn');
-  const [userName, setUserName] = useState('');
-  const [userPhone, setUserPhone] = useState('');
-  const [onboardingError, setOnboardingError] = useState('');
-  const [isStarting, setIsStarting] = useState(false);
-
-  // Active Chat State
-  const [inputVal, setInputVal] = useState('');
-  const [messages, setMessages] = useState<SupportChatMessage[]>([]);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  // Inactivity Timer State (calculated from expiresAt timestamp)
-  const [timeLeft, setTimeLeft] = useState(300); // in seconds
-  const [isExpired, setIsExpired] = useState(false);
-  const [showExitConfirm, setShowExitConfirm] = useState(false);
-  const [showSecurityCodeModal, setShowSecurityCodeModal] = useState(false);
-  const [expiresTimestamp, setExpiresTimestamp] = useState<number>(Date.now() + 300000);
-
-  // Check existing session & live chat status on mount
+  // Automatically open the Alap AI chat window when entering the live chat view
   useEffect(() => {
-    // 1. Check if Live Chat is enabled by Admin
-    apiGetLiveChatEnabled().then((status) => {
-      setIsLiveChatOnline(status);
-    });
+    const timer = setTimeout(() => {
+      openAlapaiChat();
+      setChatOpened(true);
+    }, 350);
 
-    const unsubSystem = realtimeManager.on('system:chat_status', (payload) => {
-      if (typeof payload.enabled === 'boolean') {
-        setIsLiveChatOnline(payload.enabled);
-      }
-    });
-
-    try {
-      const activeSession = localStorage.getItem('bongoweb_chat_active_session');
-      if (activeSession) {
-        const session = JSON.parse(activeSession);
-        setUserName(session.name || '');
-        setUserPhone(session.phone || '');
-        setSelectedLanguage(session.language || 'bn');
-        setIsActivated(true);
-        fetchCurrentThread(session.phone);
-      } else {
-        // Pre-fill from logged in user if available
-        const storedUser = localStorage.getItem('bongoweb_user');
-        if (storedUser) {
-          const u: UserAccount = JSON.parse(storedUser);
-          if (u.name) setUserName(u.name);
-          if (u.phone) setUserPhone(u.phone);
-        }
-      }
-    } catch (e) {
-      console.error(e);
-    }
-
-    return () => {
-      unsubSystem();
-    };
+    return () => clearTimeout(timer);
   }, []);
 
-  // Fetch thread from server
-  const fetchCurrentThread = async (phone: string) => {
-    try {
-      const res = await fetch(`/api/chat/thread/${encodeURIComponent(phone)}`);
-      if (res.ok) {
-        const thread = await res.json();
-        if (thread) {
-          if (thread.messages && thread.messages.length > 0) {
-            setMessages((prev) => deduplicateChatMessages([...prev, ...thread.messages]));
-          }
-          if (thread.isClosed) {
-            setIsExpired(true);
-            return;
-          }
-          if (thread.expiresAt) {
-            setExpiresTimestamp(thread.expiresAt);
-            const remaining = Math.max(0, Math.floor((thread.expiresAt - Date.now()) / 1000));
-            setTimeLeft(remaining);
-            if (remaining <= 0) {
-              setIsExpired(true);
-            }
-          }
-        }
-      }
-    } catch (_) {}
+  const handleTriggerChat = () => {
+    openAlapaiChat();
+    setChatOpened(true);
   };
 
-  // Real-time Event Listener for instant zero-loss messages from Admin
-  useEffect(() => {
-    if (!isActivated || !userPhone) return;
+  const quickTopics = [
+    { label: t('প্যাকেজ ও মূল্য', 'Packages & Pricing') },
+    { label: t('২৪ ঘণ্টা ডেলিভারি', '24h Delivery') },
+    { label: t('বিকাশ ও নগদ পেমেন্ট', 'Payment Methods') },
+    { label: t('ডোমেন ও ক্লাউড হোস্টিং', 'Domain & Hosting') },
+  ];
 
-    const unsubs = [
-      realtimeManager.on('chat:message', (payload) => {
-        if (!payload.message) return;
-        const targetPhone = normalizePhone(payload.phone);
-        const currentPhone = normalizePhone(userPhone);
-
-        if (targetPhone === currentPhone) {
-          const newMsg: SupportChatMessage = payload.message;
-          // If the message is from client, client already has it in local state optimistically, so skip echo
-          if (newMsg.sender === 'client') return;
-
-          setMessages((prev) => deduplicateChatMessages([...prev, newMsg]));
-
-          // Reset inactivity timer when admin message arrives
-          const newExpiry = Date.now() + 5 * 60 * 1000;
-          setExpiresTimestamp(newExpiry);
-          setTimeLeft(300);
-          setIsExpired(false);
-        }
-      }),
-
-      realtimeManager.on('chat:extended', (payload) => {
-        const targetPhone = normalizePhone(payload.phone);
-        const currentPhone = normalizePhone(userPhone);
-        if (targetPhone === currentPhone && payload.expiresAt) {
-          setExpiresTimestamp(payload.expiresAt);
-          const remaining = Math.max(0, Math.floor((payload.expiresAt - Date.now()) / 1000));
-          setTimeLeft(remaining);
-          setIsExpired(false);
-        }
-      }),
-
-      realtimeManager.on('chat:ended', (payload) => {
-        const targetPhone = normalizePhone(payload.phone);
-        const currentPhone = normalizePhone(userPhone);
-        if (targetPhone === currentPhone) {
-          setIsExpired(true);
-        }
-      })
-    ];
-
-    return () => {
-      unsubs.forEach((unsub) => unsub());
-    };
-  }, [isActivated, userPhone]);
-
-  // Cloud Firestore Real-time Single Thread Listener (Guarantees direct real-time sync across devices)
-  useEffect(() => {
-    if (!isActivated || !userPhone) return;
-
-    const unsub = subscribeToSingleChatThread(userPhone, (thread) => {
-      if (thread) {
-        if (Array.isArray(thread.messages) && thread.messages.length > 0) {
-          setMessages((prev) => deduplicateChatMessages([...prev, ...thread.messages]));
-        }
-        if (thread.isClosed) {
-          setIsExpired(true);
-          return;
-        }
-        if (thread.expiresAt) {
-          setExpiresTimestamp(thread.expiresAt);
-          const remaining = Math.max(0, Math.floor((thread.expiresAt - Date.now()) / 1000));
-          setTimeLeft(remaining);
-          if (remaining <= 0) {
-            setIsExpired(true);
-          } else {
-            setIsExpired(false);
-          }
-        }
-      }
-    });
-
-    return () => unsub();
-  }, [isActivated, userPhone]);
-
-  // Real-time server sync polling every 2 seconds (Secondary fail-safe)
-  useEffect(() => {
-    if (!isActivated || !userPhone || isExpired) return;
-
-    const syncInterval = setInterval(() => {
-      fetchCurrentThread(userPhone);
-    }, 2000);
-
-    return () => clearInterval(syncInterval);
-  }, [isActivated, userPhone, isExpired]);
-
-  // Countdown timer effect
-  useEffect(() => {
-    if (!isActivated || isExpired) return;
-
-    const timer = setInterval(() => {
-      const remaining = Math.max(0, Math.floor((expiresTimestamp - Date.now()) / 1000));
-      setTimeLeft(remaining);
-
-      if (remaining <= 0) {
-        setIsExpired(true);
-      }
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [isActivated, isExpired, expiresTimestamp]);
-
-  // Auto scroll
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  // Handle Onboarding Submit (Name + Phone + Language -> Continue)
-  const handleStartChat = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setOnboardingError('');
-
-    const cleanName = userName.trim();
-    const cleanPhone = userPhone.trim();
-
-    if (!cleanName) {
-      setOnboardingError(selectedLanguage === 'bn' ? 'অনুগ্রহ করে আপনার নাম লিখুন।' : 'Please enter your full name.');
-      return;
-    }
-    if (!cleanPhone || cleanPhone.length < 10) {
-      setOnboardingError(selectedLanguage === 'bn' ? 'অনুগ্রহ করে সঠিক মোবাইল নম্বর লিখুন।' : 'Please enter a valid phone number.');
-      return;
-    }
-
-    setIsStarting(true);
-    try {
-      const welcomeText = selectedLanguage === 'bn'
-        ? `স্বাগতম ${cleanName}! BongoWeb লাইভ সাপোর্ট টিম আপনার সাথে যুক্ত হয়েছেন। আপনার ওয়েবসাইট, ডোমেইন বা যেকোনো প্রশ্ন এখানে লিখুন:`
-        : `Welcome ${cleanName}! A BongoWeb live support specialist has joined the chat. How can we help you today?`;
-
-      const thread = await apiActivateChat({
-        name: cleanName,
-        phone: cleanPhone,
-        language: selectedLanguage,
-        welcomeText
-      });
-
-      if (thread && thread.messages) {
-        setMessages(deduplicateChatMessages(thread.messages));
-      } else {
-        setMessages([{
-          id: `init-${Date.now()}`,
-          sender: 'admin',
-          text: welcomeText,
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-        }]);
-      }
-
-      const expiry = Date.now() + 5 * 60 * 1000;
-      setExpiresTimestamp(expiry);
-      setTimeLeft(300);
-      setIsExpired(false);
-      setIsActivated(true);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setIsStarting(false);
-    }
-  };
-
-  // Client Send Message
-  const handleSendMessage = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    const text = inputVal.trim();
-    if (!text || isExpired) return;
-
-    setInputVal('');
-
-    // Reset inactivity timer to 5 minutes on client response
-    const newExpiry = Date.now() + 5 * 60 * 1000;
-    setExpiresTimestamp(newExpiry);
-    setTimeLeft(300);
-
-    const msgId = `client-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
-    const newMsg: SupportChatMessage = {
-      id: msgId,
-      sender: 'client',
-      text,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    };
-
-    setMessages((prev) => deduplicateChatMessages([...prev, newMsg]));
-
-    try {
-      await apiSendChatMessage({
-        phone: userPhone,
-        sender: 'client',
-        text,
-        name: userName,
-        message: newMsg
-      });
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  // Exit Chat Action (Confirm modal -> OK)
-  const handleConfirmExit = async () => {
-    try {
-      await apiEndChat(userPhone);
-    } catch (_) {}
-
-    localStorage.removeItem('bongoweb_chat_active_session');
-    setIsActivated(false);
-    setShowExitConfirm(false);
-    setMessages([]);
-    setTimeLeft(300);
-    setIsExpired(false);
-  };
-
-  const formatTimer = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  // Handle Ticket Submit (When Live Chat is OFF)
-  const handleTicketSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setOnboardingError('');
-
-    const cleanName = userName.trim();
-    const cleanPhone = userPhone.trim();
-    const cleanDesc = ticketDescription.trim();
-
-    if (!cleanName) {
-      setOnboardingError(selectedLanguage === 'bn' ? 'অনুগ্রহ করে আপনার নাম লিখুন।' : 'Please enter your name.');
-      return;
-    }
-    if (!cleanPhone || cleanPhone.length < 10) {
-      setOnboardingError(selectedLanguage === 'bn' ? 'অনুগ্রহ করে সঠিক মোবাইল নম্বর লিখুন।' : 'Please enter a valid phone number.');
-      return;
-    }
-    if (!cleanDesc) {
-      setOnboardingError(selectedLanguage === 'bn' ? 'আপনার সমস্যার বিবরণ বা প্রশ্ন লিখুন।' : 'Please describe your inquiry.');
-      return;
-    }
-
-    const tktId = `#TKT-${Math.floor(1000 + Math.random() * 9000)}`;
-    setSubmittedTicketId(tktId);
-
-    // Save ticket to local storage and send admin notification
-    try {
-      const existing = localStorage.getItem('bongoweb_tickets');
-      const list = existing ? JSON.parse(existing) : [];
-      list.unshift({
-        id: tktId,
-        name: cleanName,
-        phone: cleanPhone,
-        description: cleanDesc,
-        createdAt: new Date().toLocaleString('bn-BD'),
-        status: 'open'
-      });
-      localStorage.setItem('bongoweb_tickets', JSON.stringify(list));
-
-      // Also trigger a reset request / support chat entry
-      await apiRequestPasswordReset({
-        id: tktId,
-        phone: cleanPhone,
-        requestedAt: new Date().toLocaleString('bn-BD'),
-        status: 'pending'
-      });
-    } catch (_) {}
-
-    setTicketSubmitted(true);
-  };
-
-  // ==========================================
-  // VIEW 1: STEP-BY-STEP ONBOARDING / TICKET FORM
-  // ==========================================
-  if (!isActivated) {
-    if (ticketSubmitted) {
-      return (
-        <div className="w-full max-w-lg mx-auto px-4 py-8 animate-fadeIn font-sans">
-          <div className="bg-[#FFFFFF] border border-[#E5EDF5] rounded-3xl p-6 sm:p-8 shadow-md text-center space-y-4">
-            <div className="w-14 h-14 mx-auto rounded-2xl bg-[#00B261]/10 text-[#00B261] flex items-center justify-center">
-              <CheckCircle2 className="w-8 h-8 stroke-[2.5]" />
-            </div>
-            <span className="px-3 py-1 rounded-full bg-[#EEF2FF] text-[#2B47EE] text-xs font-black font-mono inline-block">
-              {submittedTicketId}
-            </span>
-            <h2 className="text-xl font-black text-[#0D253D]">
-              সাপোর্ট টিকিট সফলভাবে জমা হয়েছে
-            </h2>
-            <p className="text-xs text-[#64748D] leading-relaxed max-w-sm mx-auto">
-              আমাদের টিম আপনার প্রদত্ত মোবাইল নম্বরে ({userPhone}) অতি দ্রুত যোগাযোগ করবে এবং সহায়তা প্রদান করবে।
-            </p>
-            <div className="pt-3">
-              <button
-                type="button"
-                onClick={() => {
-                  setTicketSubmitted(false);
-                  setTicketDescription('');
-                }}
-                className="px-6 py-2.5 rounded-xl bg-[#2B47EE] text-white text-xs font-bold hover:bg-[#203CD4] transition-all cursor-pointer shadow-xs"
-              >
-                নতুন টিকিট সাবমিট করুন
-              </button>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    return (
-      <div className="w-full max-w-lg mx-auto px-4 py-6 sm:py-10 animate-fadeIn font-sans">
-        <div className="bg-[#FFFFFF] border border-[#E5EDF5] rounded-3xl p-6 sm:p-8 shadow-md">
-          {/* Header: Strictly BongoWeb Live Support (২৪/৭) without excessive subtext */}
-          <div className="text-center mb-6">
-            <div className="w-14 h-14 mx-auto rounded-2xl bg-[#EEF2FF] text-[#2B47EE] flex items-center justify-center mb-3 shadow-inner">
-              <Headphones className="w-7 h-7 stroke-[2.2]" />
-            </div>
-            <h2 className="text-xl sm:text-2xl font-black text-[#0D253D] tracking-tight">
-              BongoWeb Live Support (২৪/৭)
-            </h2>
-            {!isLiveChatOnline && (
-              <div className="mt-2.5 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E53935]/10 text-[#E53935] text-xs font-bold border border-[#E53935]/20">
-                <span className="w-2 h-2 rounded-full bg-[#E53935] animate-pulse" />
-                <span>লাইভ চ্যাট বর্তমানে অফলাইন (টিকিট সাবমিট করুন)</span>
-              </div>
-            )}
-          </div>
-
-          {/* Form: If Live Chat is OFF -> Ticket Submit; If ON -> Start Live Chat */}
-          <form onSubmit={isLiveChatOnline ? handleStartChat : handleTicketSubmit} className="space-y-4">
-            {onboardingError && (
-              <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 text-xs font-bold flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 shrink-0" />
-                <span>{onboardingError}</span>
-              </div>
-            )}
-
-            {/* 1. Name */}
-            <div>
-              <label className="block text-xs font-bold text-[#0D253D] mb-1.5">
-                ১. আপনার নাম (Your Full Name) <span className="text-rose-500">*</span>
-              </label>
-              <input
-                type="text"
-                value={userName}
-                onChange={(e) => setUserName(e.target.value)}
-                placeholder="যেমন: মোঃ সাকিব আহমেদ"
-                className="w-full px-4 py-2.5 rounded-xl border border-[#E5EDF5] text-sm focus:outline-none focus:border-[#2B47EE] focus:ring-2 focus:ring-[#2B47EE]/15 bg-[#F8FAFD]"
-                required
-              />
-            </div>
-
-            {/* 2. Phone Number */}
-            <div>
-              <label className="block text-xs font-bold text-[#0D253D] mb-1.5">
-                ২. মোবাইল নম্বর (Mobile Phone Number) <span className="text-rose-500">*</span>
-              </label>
-              <input
-                type="tel"
-                value={userPhone}
-                onChange={(e) => setUserPhone(e.target.value)}
-                placeholder="যেমন: 01712345678"
-                className="w-full px-4 py-2.5 rounded-xl border border-[#E5EDF5] text-sm focus:outline-none focus:border-[#2B47EE] focus:ring-2 focus:ring-[#2B47EE]/15 bg-[#F8FAFD]"
-                required
-              />
-            </div>
-
-            {/* If Chat is ON -> Language Selector */}
-            {isLiveChatOnline ? (
-              <div>
-                <label className="block text-xs font-bold text-[#0D253D] mb-1.5">
-                  ৩. চ্যাটের ভাষা নির্বাচন করুন (Select Language) <span className="text-rose-500">*</span>
-                </label>
-                <div className="grid grid-cols-2 gap-2.5">
-                  <button
-                    type="button"
-                    onClick={() => setSelectedLanguage('bn')}
-                    className={`py-2.5 px-3 rounded-xl border-2 text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
-                      selectedLanguage === 'bn'
-                        ? 'border-[#2B47EE] bg-[#2B47EE]/5 text-[#2B47EE]'
-                        : 'border-[#E5EDF5] bg-[#FFFFFF] text-[#64748D] hover:border-[#2B47EE]/30'
-                    }`}
-                  >
-                    <span className="text-base">🇧🇩</span>
-                    <span>বাংলা (Bangla)</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedLanguage('en')}
-                    className={`py-2.5 px-3 rounded-xl border-2 text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
-                      selectedLanguage === 'en'
-                        ? 'border-[#2B47EE] bg-[#2B47EE]/5 text-[#2B47EE]'
-                        : 'border-[#E5EDF5] bg-[#FFFFFF] text-[#64748D] hover:border-[#2B47EE]/30'
-                    }`}
-                  >
-                    <span className="text-base">🇬🇧</span>
-                    <span>English</span>
-                  </button>
-                </div>
-              </div>
-            ) : (
-              /* If Chat is OFF -> Issue Details Input */
-              <div>
-                <label className="block text-xs font-bold text-[#0D253D] mb-1.5">
-                  ৩. আপনার সমস্যা বা প্রশ্ন লিখুন (Issue Details) <span className="text-rose-500">*</span>
-                </label>
-                <textarea
-                  rows={3}
-                  value={ticketDescription}
-                  onChange={(e) => setTicketDescription(e.target.value)}
-                  placeholder="আপনার ওয়েবসাইট বা যেকোনো সমস্যা বিস্তারিত লিখুন..."
-                  className="w-full px-4 py-2.5 rounded-xl border border-[#E5EDF5] text-xs text-[#0D253D] focus:outline-none focus:border-[#2B47EE] focus:ring-2 focus:ring-[#2B47EE]/15 bg-[#F8FAFD]"
-                  required
-                />
-              </div>
-            )}
-
-            {/* 4. Action Button */}
-            <div className="pt-2">
-              {isLiveChatOnline ? (
-                <button
-                  type="submit"
-                  disabled={isStarting}
-                  className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#AB55F7] via-[#9333EA] to-[#7C3AED] hover:from-[#9333EA] hover:to-[#6D28D9] text-white font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-[0_4px_16px_rgba(171,85,247,0.35)] cursor-pointer disabled:opacity-50"
-                >
-                  {isStarting ? (
-                    <>
-                      <RefreshCw className="w-4 h-4 animate-spin" />
-                      <span>সংযোগ করা হচ্ছে...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>লাইভ চ্যাট শুরু করুন (Start Live Chat)</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </>
-                  )}
-                </button>
-              ) : (
-                <button
-                  type="submit"
-                  className="w-full py-3.5 px-4 rounded-xl bg-[#00B261] hover:bg-[#009E56] text-white font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-[0_4px_16px_rgba(0,178,97,0.3)] cursor-pointer"
-                >
-                  <Ticket className="w-4 h-4" />
-                  <span>সাবমিট সাপোর্ট টিকিট (Submit Ticket)</span>
-                </button>
-              )}
-            </div>
-          </form>
-
-          {/* Clean Assurance */}
-          <div className="mt-4 pt-4 border-t border-[#E5EDF5] text-center">
-            <span className="text-[11px] text-[#64748D] inline-flex items-center gap-1.5 font-bold">
-              <ShieldCheck className="w-4 h-4 text-emerald-600" />
-              <span>২৪/৭ অফিসিয়াল কাস্টমার সাপোর্ট সার্ভিস</span>
-            </span>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // ==========================================
-  // VIEW 2: ACTIVATED LIVE CHAT WINDOW
-  // Optimized Header (Strictly: "BongoWeb Support", Active Badge, Exit Button)
-  // Sticky Bottom Interaction Area (Zero overlap with message stream)
-  // High-Contrast Theme
-  // ==========================================
   return (
-    <div className="w-full max-w-3xl mx-auto px-3 sm:px-6 py-2 sm:py-4 flex flex-col h-[calc(100vh-140px)] min-h-[520px] font-sans relative">
-      {/* 1. Header Optimization: Strictly "BongoWeb Support", Active Badge, Exit/Close Button */}
-      <div className="bg-white border border-slate-200/90 rounded-t-2xl p-3.5 sm:p-4 flex items-center justify-between shrink-0 shadow-xs z-10">
-        <div className="flex items-center gap-3">
-          <div className="relative">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#AB55F7] to-[#7C3AED] text-white flex items-center justify-center font-bold text-xs shadow-xs">
-              <Headphones className="w-4.5 h-4.5 text-white" />
-            </div>
-            <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full ring-1 ring-emerald-400" />
-          </div>
-          <div className="flex items-center gap-2.5">
-            <h3 className="text-sm sm:text-base font-black text-[#0D253D] tracking-tight">
-              BongoWeb Support
-            </h3>
-            {/* Active Status Badge */}
-            <span className="px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-300 flex items-center gap-1.5 shadow-2xs">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Active</span>
-            </span>
-          </div>
+    <div className="w-full max-w-xl mx-auto px-4 sm:px-6 py-8 sm:py-14 pb-28 animate-fadeIn font-sans">
+      {/* Clean Header */}
+      <div className="text-center space-y-3 mb-8">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/80 text-emerald-700 text-xs font-semibold">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          <span>{t('লাইভ সাপোর্ট সক্রিয়', 'Live Support Online')}</span>
         </div>
 
-        <div className="flex items-center gap-2">
-          {/* Security Code Button (Requirement 13) */}
-          <button
-            type="button"
-            onClick={() => setShowSecurityCodeModal(true)}
-            className="px-2.5 sm:px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100/80 text-[#2B47EE] border border-indigo-200 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs active:scale-95"
-            title="৫-মিনিটের সিকিউরিটি কোড দেখুন (Security Code)"
-          >
-            <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#2B47EE]" />
-            <span className="hidden sm:inline">Security Code</span>
-            <span className="sm:hidden">কোড</span>
-          </button>
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+          {t('লাইভ চ্যাট সাপোর্ট', 'Live Chat Support')}
+        </h1>
 
-          {/* Exit / Close Button */}
-          <button
-            type="button"
-            onClick={() => setShowExitConfirm(true)}
-            className="px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-rose-50 text-slate-600 hover:text-rose-600 border border-slate-200 hover:border-rose-200 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs active:scale-95"
-            title="চ্যাট থেকে বের হয়ে যান"
-          >
-            <X className="w-4 h-4" />
-            <span>Exit</span>
-          </button>
-        </div>
+        <p className="text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
+          {t(
+            'যেকোনো ওয়েবসাইট ডেমো, অর্ডার প্রক্রিয়া কিংবা টেকনিক্যাল সহযোগিতার জন্য আমাদের সাথে সরাসরি চ্যাট করুন।',
+            'Connect with us instantly for website demos, order assistance, and technical guidance.'
+          )}
+        </p>
       </div>
 
-      {/* 2. Messages Scroll Area (With generous bottom padding to guarantee zero overlap) */}
-      <div className="flex-1 bg-slate-50/70 border-x border-slate-200/80 p-3.5 sm:p-5 overflow-y-auto space-y-3.5 pb-24 sm:pb-22">
-        {deduplicateChatMessages(messages).map((msg) => {
-          const isClient = msg.sender === 'client';
-          return (
-            <div
-              key={msg.id}
-              className={`flex flex-col ${isClient ? 'items-end' : 'items-start'}`}
-            >
-              <div
-                className={`max-w-[85%] sm:max-w-[75%] rounded-2xl p-3 sm:p-3.5 text-xs sm:text-sm leading-relaxed shadow-xs ${
-                  isClient
-                    ? 'bg-gradient-to-r from-[#AB55F7] to-[#7C3AED] text-white rounded-br-xs shadow-[0_4px_12px_rgba(171,85,247,0.25)]'
-                    : 'bg-white text-slate-800 border border-slate-200/90 rounded-bl-xs'
-                }`}
-              >
-                <p className="whitespace-pre-wrap select-text">{msg.text}</p>
-                <div
-                  className={`mt-1.5 flex items-center justify-end gap-1 text-[10px] ${
-                    isClient ? 'text-white/80' : 'text-slate-400'
-                  }`}
-                >
-                  <span className="font-mono">{msg.timestamp}</span>
-                  {isClient && <CheckCheck className="w-3 h-3" />}
-                </div>
-              </div>
-            </div>
-          );
-        })}
+      {/* Primary Clean Action Card */}
+      <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-6 sm:p-8 text-center space-y-6">
+        <div className="w-16 h-16 mx-auto rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
+          <MessageSquare className="w-8 h-8 stroke-[2.2]" />
+        </div>
 
-        {/* If chat closed by Admin or session ended */}
-        {isExpired && (
-          <div className="my-2 p-3 rounded-2xl bg-amber-50 border border-amber-200/80 flex flex-wrap items-center justify-between gap-2 text-xs text-amber-900">
-            <span className="font-semibold">
-              আপনার চ্যাট সেশন সমাপ্ত হয়েছে (Your session has ended).
-            </span>
-            <button
-              type="button"
-              onClick={async () => {
-                setIsExpired(false);
-                const newExpiry = Date.now() + 5 * 60 * 1000;
-                setExpiresTimestamp(newExpiry);
-                setTimeLeft(300);
-                try {
-                  await apiReopenChat(userPhone);
-                } catch (_) {}
-              }}
-              className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#AB55F7] to-[#7C3AED] text-white text-xs font-bold transition-all shrink-0 cursor-pointer shadow-xs flex items-center gap-1.5"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-              <span>রিটেক্সট (Retext)</span>
-            </button>
+        <div className="space-y-1.5">
+          <h2 className="text-lg font-bold text-slate-900">
+            {t('Alap AI চ্যাট উইন্ডো', 'Alap AI Live Chat')}
+          </h2>
+          <p className="text-xs sm:text-sm text-slate-500 max-w-sm mx-auto">
+            {t(
+              'স্ক্রিনের নিচের ডানপাশে চ্যাট উইন্ডো চালু রয়েছে। নতুন মেসেজ পাঠিয়ে দ্রুত সমাধান পান।',
+              'The chat window is active on the bottom-right. Send a message to receive immediate answers.'
+            )}
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={handleTriggerChat}
+          className="w-full py-3.5 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-[0.99] text-white text-sm font-bold shadow-sm hover:shadow transition-all flex items-center justify-center gap-2 cursor-pointer"
+        >
+          <Sparkles className="w-4 h-4 text-amber-300" />
+          <span>{t('চ্যাট উইন্ডো খুলুন', 'Open Chat Window')}</span>
+          <ArrowRight className="w-4 h-4" />
+        </button>
+
+        {chatOpened && (
+          <div className="inline-flex items-center gap-1.5 text-xs text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-200/60">
+            <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+            <span>{t('চ্যাট উইন্ডো প্রস্তুত আছে', 'Chat window is active')}</span>
           </div>
         )}
 
-        <div ref={messagesEndRef} />
-      </div>
-
-      {/* 3. Sticky Bottom Interaction Area (Permanently docked, zero overlap) */}
-      <div className="sticky bottom-0 left-0 right-0 z-20 bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-b-2xl p-2.5 sm:p-3.5 shadow-[0_-4px_16px_rgba(0,0,0,0.04)]">
-        <form onSubmit={handleSendMessage} className="flex items-center gap-2">
-          <input
-            type="text"
-            value={inputVal}
-            onChange={(e) => setInputVal(e.target.value)}
-            disabled={isExpired}
-            placeholder={
-              isExpired
-                ? 'চ্যাট সমাপ্ত হয়েছে'
-                : selectedLanguage === 'bn'
-                ? 'আপনার মেসেজ লিখুন...'
-                : 'Type your message...'
-            }
-            className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#AB55F7] focus:ring-2 focus:ring-[#AB55F7]/15 bg-slate-50/80 disabled:opacity-50 transition-all"
-          />
-          <button
-            type="submit"
-            disabled={!inputVal.trim() || isExpired}
-            className="w-10 h-10 rounded-xl bg-gradient-to-r from-[#AB55F7] via-[#9333EA] to-[#7C3AED] hover:from-[#9333EA] hover:to-[#6D28D9] text-white flex items-center justify-center transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shadow-[0_2px_10px_rgba(171,85,247,0.35)] shrink-0 active:scale-95"
-            title="মেসেজ পাঠান"
-          >
-            <Send className="w-4 h-4 text-white" />
-          </button>
-        </form>
-      </div>
-
-      {/* Exit Confirmation Modal */}
-      {showExitConfirm && (
-        <div className="fixed inset-0 z-50 bg-[#0D253D]/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
-          <div className="bg-white rounded-2xl max-w-sm w-full p-5 sm:p-6 shadow-2xl border border-slate-100 animate-scaleIn">
-            <div className="w-11 h-11 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto mb-3 shadow-2xs">
-              <LogOut className="w-5 h-5" />
-            </div>
-            <h3 className="text-base font-black text-center text-[#0D253D] mb-1">
-              লাইভ চ্যাট সমাপ্ত করবেন?
-            </h3>
-            <p className="text-xs text-center text-slate-500 mb-5">
-              আপনি কি নিশ্চিতভাবে এই সাপোর্ট চ্যাট সেশনটি সমাপ্ত করতে চান?
-            </p>
-            <div className="grid grid-cols-2 gap-2.5">
+        {/* Quick Topics */}
+        <div className="pt-4 border-t border-slate-100">
+          <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-3">
+            {t('দ্রুত আলোচনার বিষয়সমূহ', 'Quick Topics')}
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            {quickTopics.map((topic, i) => (
               <button
+                key={i}
                 type="button"
-                onClick={() => setShowExitConfirm(false)}
-                className="py-2.5 px-3 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 cursor-pointer transition-colors"
+                onClick={handleTriggerChat}
+                className="px-3 py-1.5 rounded-lg bg-slate-50 hover:bg-blue-50 text-slate-700 hover:text-blue-700 text-xs font-medium border border-slate-200/80 hover:border-blue-200 transition-all cursor-pointer"
               >
-                বাতিল (Cancel)
+                {topic.label}
               </button>
-              <button
-                type="button"
-                onClick={handleConfirmExit}
-                className="py-2.5 px-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-xs font-bold text-white shadow-xs cursor-pointer transition-colors"
-              >
-                হ্যাঁ, সমাপ্ত করুন
-              </button>
-            </div>
+            ))}
           </div>
         </div>
-      )}
+      </div>
 
-      {/* 5-Minute Rotating Security Code Modal (Requirement 13) */}
-      <ClientSecurityCodeModal
-        isOpen={showSecurityCodeModal}
-        onClose={() => setShowSecurityCodeModal(false)}
-        onGoToLogin={() => {
-          setShowSecurityCodeModal(false);
-          window.location.href = '/account';
-        }}
-      />
+      {/* Clean Hotline Footer */}
+      <div className="mt-6 text-center text-xs text-slate-500 flex items-center justify-center gap-2">
+        <Phone className="w-3.5 h-3.5 text-slate-400" />
+        <span>{t('জরুরি ফোন হটলাইন:', 'Direct hotline:')}</span>
+        <a
+          href="tel:+8801819847250"
+          className="font-bold text-slate-700 hover:text-blue-600 transition-colors"
+        >
+          +880 1819-847250
+        </a>
+      </div>
     </div>
   );
 }

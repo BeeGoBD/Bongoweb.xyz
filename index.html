@@ -78,6 +78,34 @@
       ]
     }
     </script>
+    <!-- Alap AI Live Chat WebSocket Bridge (ensures live connection in all preview & development domains) -->
+    <script>
+      (function() {
+        var NativeWebSocket = window.WebSocket;
+        if (!NativeWebSocket) return;
+
+        class AlapaiBridgeWebSocket extends NativeWebSocket {
+          constructor(url, protocols) {
+            var targetUrl = url;
+            if (typeof url === 'string' && url.indexOf('api.alapai.app/ws/widget') !== -1) {
+              if (!window.location.hostname.endsWith('bongoweb.xyz')) {
+                var protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+                var query = url.indexOf('?') !== -1 ? url.substring(url.indexOf('?')) : '';
+                targetUrl = protocol + '//' + window.location.host + '/api/alapai-ws' + query;
+              }
+            }
+            if (protocols !== undefined) {
+              super(targetUrl, protocols);
+            } else {
+              super(targetUrl);
+            }
+          }
+        }
+
+        window.WebSocket = AlapaiBridgeWebSocket;
+      })();
+    </script>
+    <script src="https://alap-prod.sgp1.cdn.digitaloceanspaces.com/chat/widget-loader.js" data-client-id="2c8b94ad-421a-4a4e-a029-f86d59d21330" async></script>
   </head>
   <body class="font-sans antialiased text-[#0D253D] bg-[#FFFFFF] selection:bg-[#EEF2FF] selection:text-[#2B47EE]">
     <div id="root"></div>

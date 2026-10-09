@@ -383,13 +383,79 @@ async function startServer() {
     });
   }
 
-  // Handle HTTP -> WebSocket Upgrade on /ws
+  // Alap AI WebSocket Proxy Server (authorizes requests to api.alapai.app with configured domain)
+  const alapaiProxyWss = new WebSocketServer({ noServer: true });
+
+  // Handle HTTP -> WebSocket Upgrade on /ws and /api/alapai-ws
   server.on('upgrade', (request, socket, head) => {
     try {
-      const pathname = new URL(request.url || '', `http://${request.headers.host}`).pathname;
+      const parsedUrl = new URL(request.url || '', `http://${request.headers.host || 'localhost'}`);
+      const pathname = parsedUrl.pathname;
+
       if (pathname === '/ws') {
         wss.handleUpgrade(request, socket, head, (ws) => {
           wss.emit('connection', ws, request);
+        });
+      } else if (pathname === '/api/alapai-ws') {
+        alapaiProxyWss.handleUpgrade(request, socket, head, (clientWs) => {
+          const key = parsedUrl.searchParams.get('key') || '2c8b94ad-421a-4a4e-a029-f86d59d21330';
+          const upstreamUrl = `wss://api.alapai.app/ws/widget/?key=${encodeURIComponent(key)}`;
+
+          const upstreamWs = new WebSocket(upstreamUrl, {
+            headers: {
+              Origin: 'https://bongoweb.xyz',
+              'User-Agent': (request.headers['user-agent'] as string) || 'BongoWeb/1.0'
+            }
+          });
+
+          const queue: Array<{ data: any; isBinary: boolean }> = [];
+
+          clientWs.on('message', (data, isBinary) => {
+            if (upstreamWs.readyState === WebSocket.OPEN) {
+              upstreamWs.send(data, { binary: isBinary });
+            } else if (upstreamWs.readyState === WebSocket.CONNECTING) {
+              queue.push({ data, isBinary });
+            }
+          });
+
+          upstreamWs.on('open', () => {
+            while (queue.length > 0) {
+              const item = queue.shift();
+              if (item) {
+                upstreamWs.send(item.data, { binary: item.isBinary });
+              }
+            }
+          });
+
+          upstreamWs.on('message', (data, isBinary) => {
+            if (clientWs.readyState === WebSocket.OPEN) {
+              clientWs.send(data, { binary: isBinary });
+            }
+          });
+
+          upstreamWs.on('close', (code, reason) => {
+            if (clientWs.readyState === WebSocket.OPEN) {
+              clientWs.close(code, reason);
+            }
+          });
+
+          upstreamWs.on('error', (err) => {
+            console.error('[Alapai Proxy Upstream Error]:', err.message);
+            if (clientWs.readyState === WebSocket.OPEN) {
+              clientWs.close(1011, 'Alap AI upstream error');
+            }
+          });
+
+          clientWs.on('close', (code, reason) => {
+            if (upstreamWs.readyState === WebSocket.OPEN || upstreamWs.readyState === WebSocket.CONNECTING) {
+              upstreamWs.close(code, reason);
+            }
+          });
+
+          clientWs.on('error', (err) => {
+            console.error('[Alapai Proxy Client Error]:', err.message);
+            upstreamWs.close();
+          });
         });
       }
     } catch (err) {

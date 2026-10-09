@@ -15,6 +15,7 @@ import AdminPanelView from './components/AdminPanelView';
 import LandscapeOrderDetailsModal from './components/LandscapeOrderDetailsModal';
 import WebsiteCredentialsModal from './components/WebsiteCredentialsModal';
 import CategoryWebsitesView from './components/CategoryWebsitesView';
+import { openAlapaiChat } from './utils/alapai';
 
 type ViewMode = 
   | 'dashboard' 
@@ -275,6 +276,7 @@ export default function App() {
     } else if (tab === 'live-chat') {
       setViewMode('live-chat');
       window.history.pushState({}, '', '/live-chat');
+      openAlapaiChat();
     } else if (tab === 'account') {
       setViewMode('account');
       window.history.pushState({}, '', '/account');
