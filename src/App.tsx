@@ -14,9 +14,11 @@ import SideMenuDrawer from './components/SideMenuDrawer';
 import AdminPanelView from './components/AdminPanelView';
 import LandscapeOrderDetailsModal from './components/LandscapeOrderDetailsModal';
 import WebsiteCredentialsModal from './components/WebsiteCredentialsModal';
+import CategoryWebsitesView from './components/CategoryWebsitesView';
 
 type ViewMode = 
   | 'dashboard' 
+  | 'category-websites'
   | 'after-order' 
   | 'live-chat' 
   | 'account' 
@@ -140,6 +142,15 @@ export default function App() {
       return;
     }
 
+    if (path.startsWith('/category')) {
+      const cat = path.replace(/^\/category\/?/, '').split('/')[0].split('?')[0];
+      if (cat) {
+        setSelectedCategory(cat as WebsiteCategory);
+      }
+      setViewMode('category-websites');
+      return;
+    }
+
     if (path === '/dashboard' || path.startsWith('/dashboard')) {
       setViewMode('dashboard');
       return;
@@ -202,6 +213,16 @@ export default function App() {
     localStorage.setItem('bongoweb_active_view', 'dashboard');
     setViewMode('dashboard');
     window.history.pushState({}, '', '/');
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  };
+
+  // Open Category Websites View with unique URL: /category/:category
+  const handleOpenCategoryWebsites = (category: WebsiteCategory) => {
+    setSelectedCategory(category);
+    sessionStorage.setItem('bongoweb_chosen_category', category);
+    localStorage.setItem('bongoweb_chosen_category', category);
+    setViewMode('category-websites');
+    window.history.pushState({}, '', `/category/${category}`);
     window.scrollTo({ top: 0, behavior: 'instant' });
   };
 
@@ -316,7 +337,18 @@ export default function App() {
                 initialCategory={selectedCategory}
                 onOpenLiveDemo={handleOpenWebsiteDetail}
                 onOpenOrder={handleOpenOrder}
+                onSelectCategoryWebsites={handleOpenCategoryWebsites}
                 onChangeCategoryLanding={handleReturnToDashboard}
+              />
+            )}
+
+            {/* Category Websites List (URL: "/category/:category") */}
+            {viewMode === 'category-websites' && (
+              <CategoryWebsitesView
+                category={selectedCategory}
+                onBackToDashboard={handleReturnToDashboard}
+                onOpenWebsiteDetail={handleOpenWebsiteDetail}
+                onOpenOrder={handleOpenOrder}
               />
             )}
 
