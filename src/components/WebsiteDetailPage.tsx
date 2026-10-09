@@ -252,9 +252,43 @@ export default function WebsiteDetailPage({
           </section>
         )}
 
-        {/* 3. Inclusions & Action Section (Removed "Clear Package Rate" Header as Requested) */}
-        <section className="bg-[#FFFFFF] border border-[#E5EDF5] rounded-3xl p-6 sm:p-8 shadow-xs">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        {/* 3. Pricing Architecture & Inclusions Section */}
+        <section className="bg-[#FFFFFF] border border-[#E5EDF5] rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
+          {/* Transparent Financial Architecture Breakdown */}
+          <div className="p-5 sm:p-6 rounded-2xl bg-[#F8FAFD] border border-[#E5EDF5] flex flex-col md:flex-row md:items-center justify-between gap-5">
+            <div>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#EEF2FF] text-[#2B47EE] text-xs font-bold mb-2">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>স্বচ্ছ মূল্য ও আজীবন মালিকানা</span>
+              </div>
+              <h3 className="text-lg sm:text-xl font-black text-[#0D253D]">
+                এককালীন সেটআপ ফি ও নিয়মিত ক্লাউড হোস্টিং
+              </h3>
+              <p className="text-xs sm:text-sm text-[#64748D] mt-1 max-w-xl">
+                কোনো হিডেন চার্জ নেই। এককালীন ফি দিয়ে ওয়েবসাইট বুঝে নিন, সাথে মাত্র ১২০ টাকা মাসিক ক্লাউড সার্ভার খরচে নিশ্চিত করুন ৯৯.৯% আপটাইম।
+              </p>
+            </div>
+
+            <div className="flex items-center gap-4 shrink-0">
+              <div className="p-3.5 sm:p-4 rounded-xl bg-white border border-[#E5EDF5] shadow-2xs text-center min-w-[130px]">
+                <span className="text-[11px] font-semibold text-[#64748D] block">এককালীন সেটআপ</span>
+                <span className="text-xl sm:text-2xl font-black text-[#0D253D] font-mono block mt-0.5">
+                  {demo.priceTag || '৳১,৯৯০'}
+                </span>
+                <span className="text-[10px] text-[#059669] font-bold block mt-0.5">ফুল লাইভ সাইট</span>
+              </div>
+
+              <div className="p-3.5 sm:p-4 rounded-xl bg-white border border-[#2B47EE]/30 shadow-2xs text-center min-w-[130px] ring-2 ring-[#2B47EE]/10">
+                <span className="text-[11px] font-semibold text-[#64748D] block">মাসিক ক্লাউড খরচ</span>
+                <span className="text-xl sm:text-2xl font-black text-[#2B47EE] font-mono block mt-0.5">
+                  ৳১২০
+                </span>
+                <span className="text-[10px] text-[#2B47EE] font-bold block mt-0.5">সার্ভার ও ব্যাকআপ</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="p-4 rounded-2xl bg-[#F8FAFD] border border-[#E5EDF5]">
               <div className="w-10 h-10 rounded-xl bg-[#EEF2FF] text-[#2B47EE] flex items-center justify-center mb-3">
                 <Globe className="w-5 h-5 stroke-[2.2]" />
