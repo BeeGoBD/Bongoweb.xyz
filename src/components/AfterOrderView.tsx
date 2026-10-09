@@ -1,7 +1,12 @@
 import React from 'react';
 import { 
-  PhoneCall, FolderKanban, Rocket, CheckCircle2, ShieldCheck, 
-  Zap, Globe, Headphones
+  PhoneCall, 
+  FolderKanban, 
+  Rocket, 
+  CheckCircle2,
+  Clock,
+  ArrowRight,
+  ShieldCheck
 } from 'lucide-react';
 
 interface AfterOrderViewProps {
@@ -10,152 +15,165 @@ interface AfterOrderViewProps {
 }
 
 export default function AfterOrderView({ onGoToDashboard: _onGoToDashboard, onOpenLiveChat: _onOpenLiveChat }: AfterOrderViewProps) {
-  // Serialized order steps: strictly 1, 2, 3, 4 sequential numbering with 100% pure Bengali copy
+  // Professional sequential order workflow steps
   const serialSteps = [
     {
-      pointNumber: '১',
-      mainText: 'আপনাকে আমরা ফোন করে বিস্তারিত জেনে নেব।',
+      stepNum: '০১',
+      tag: 'প্রথম পদক্ষেপ',
+      stage: 'রিকোয়ারমেন্ট',
+      title: 'কনফার্মেশন ও রিকোয়ারমেন্ট কল',
+      highlight: '১৫ মিনিটের মধ্যে প্রজেক্ট ম্যানেজার কল করবেন',
+      timeEst: '১৫ মিনিট',
       icon: PhoneCall,
-      accentColor: '#2B47EE'
+      iconBg: 'bg-blue-50 text-blue-600 border-blue-100',
+      tagBg: 'bg-blue-50 text-blue-700 border-blue-100',
+      cardHover: 'hover:border-blue-400 hover:shadow-[0_8px_24px_rgba(37,99,235,0.08)]'
     },
     {
-      pointNumber: '২',
-      mainText: 'আপনার ব্যবসার লোগো ও প্রয়োজনীয় তথ্য আমরা সংগ্রহ করব।',
+      stepNum: '০২',
+      tag: 'তথ্য সংগ্রহ',
+      stage: 'ব্র্যান্ডিং',
+      title: 'ব্র্যান্ডিং ও কনটেন্ট সংগ্রহ',
+      highlight: 'লোগো, ছবি ও প্রোডাক্ট তথ্য সহজ সংগ্রহ',
+      timeEst: '২-৪ ঘণ্টা',
       icon: FolderKanban,
-      accentColor: '#FF6118'
+      iconBg: 'bg-amber-50 text-amber-600 border-amber-100',
+      tagBg: 'bg-amber-50 text-amber-700 border-amber-100',
+      cardHover: 'hover:border-amber-400 hover:shadow-[0_8px_24px_rgba(217,119,6,0.08)]'
     },
     {
-      pointNumber: '৩',
-      mainText: 'আপনার পছন্দের কালার ও ওয়েবসাইটের প্রয়োজনীয় বিষয়গুলো নিয়ে আমরা ওয়েবসাইটটি তৈরি করে দেব।',
+      stepNum: '০৩',
+      tag: 'কাস্টমাইজেশন',
+      stage: 'ডেভেলপমেন্ট',
+      title: 'ডিজাইন তৈরি ও ফিচার সেটআপ',
+      highlight: 'কালার থিম, ব্যানার ও পেমেন্ট গেটওয়ে ইন্টিগ্রেশন',
+      timeEst: '১২ ঘণ্টা',
       icon: Rocket,
-      accentColor: '#2B47EE'
+      iconBg: 'bg-purple-50 text-purple-600 border-purple-100',
+      tagBg: 'bg-purple-50 text-purple-700 border-purple-100',
+      cardHover: 'hover:border-purple-400 hover:shadow-[0_8px_24px_rgba(147,51,234,0.08)]'
     },
     {
-      pointNumber: '৪',
-      mainText: '৪৮ ঘণ্টার মধ্যে ওয়েবসাইট ডেলিভারি ও ফ্রি সাপোর্ট',
+      stepNum: '০৪',
+      tag: 'লাইভ হ্যান্ডওভার',
+      stage: 'ডেলিভারি',
+      title: 'ওয়েবসাইট ডেলিভারি ও সাপোর্ট',
+      highlight: 'ডোমেইন ও হোস্টিং সহ লাইভ সাইট হস্তান্তর',
+      timeEst: '২৪ ঘণ্টা',
       icon: CheckCircle2,
-      accentColor: '#00B261'
+      iconBg: 'bg-emerald-50 text-emerald-600 border-emerald-100',
+      tagBg: 'bg-emerald-50 text-emerald-700 border-emerald-100',
+      cardHover: 'hover:border-emerald-400 hover:shadow-[0_8px_24px_rgba(16,185,129,0.08)]'
     }
   ];
 
   return (
     <div className="w-full flex flex-col font-sans pb-28 pt-4">
-      {/* 1. SECTION: SERIALIZED ORDER STEPS (অর্ডারের পর ধারাবাহিক পদক্ষেপসমূহ) */}
-      <section className="max-w-4xl mx-auto px-4 sm:px-6 w-full mb-6">
-        <div className="text-center mb-6">
-          <span className="px-3.5 py-1 rounded-full bg-[#EEF2FF] text-[#2B47EE] text-xs font-bold border border-[#2B47EE]/20 inline-block mb-2 shadow-2xs">
-            অর্ডার নিশ্চিতকরণের পরবর্তী ধাপ
-          </span>
-          <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-[#0D253D] tracking-tight">
-            অর্ডারের পর <span className="text-[#2B47EE]">ধারাবাহিক পদক্ষেপসমূহ</span>
+      {/* SECTION: SERIALIZED ORDER STEPS (অর্ডারের পর ধারাবাহিক পদক্ষেপসমূহ) */}
+      <section className="max-w-4xl mx-auto px-4 sm:px-6 w-full">
+        {/* Header (div:nth-of-type(1)) */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold border border-blue-100/80 mb-2.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
+            <span>অর্ডার প্রসেস • Order Workflow</span>
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+            অর্ডারের পর ধারাবাহিক ৪টি পদক্ষেপ
           </h2>
-          <p className="text-xs sm:text-sm text-[#64748D] mt-1">
+          <p className="text-xs sm:text-sm text-slate-500 mt-1.5 max-w-lg mx-auto">
             আপনার পছন্দের ডিজাইনটি বেছে অর্ডার করার পর আমাদের টিম যেভাবে আপনার ওয়েবসাইটটি রেডি করবে:
           </p>
         </div>
 
-        {/* Serialized Step Cards: 100% Pure Bangla */}
-        <div className="space-y-3 mb-10">
-          {serialSteps.map((step, idx) => {
-            const Icon = step.icon;
-            return (
-              <div
-                key={`serial-step-${step.pointNumber || idx}`}
-                className="w-full min-h-[76px] sm:min-h-[86px] p-4 sm:p-5 rounded-2xl bg-[#FFFFFF] border-2 border-[#E5EDF5] hover:border-[#2B47EE] transition-all duration-200 shadow-2xs hover:shadow-md flex items-center justify-between gap-4 group"
-              >
-                <div className="flex items-center gap-3 sm:gap-4 min-w-0">
-                  {/* Serial Point Badge */}
-                  <div className="flex items-center justify-center w-10 sm:w-12 shrink-0 border-r border-[#E5EDF5] pr-3 sm:pr-4">
-                    <span className="text-xl sm:text-2xl font-black text-[#2B47EE]">
-                      {step.pointNumber}
+        {/* Targeted Order Steps Container (div:nth-of-type(2)) */}
+        <div className="w-full space-y-6">
+          {/* Visual Workflow Stepper Bar (Connected Progress Flow) */}
+          <div className="hidden sm:flex items-center justify-between p-3.5 bg-slate-50/90 rounded-2xl border border-slate-200/80">
+            {serialSteps.map((s, idx) => (
+              <React.Fragment key={s.stepNum}>
+                <div className="flex items-center gap-2.5">
+                  <span className={`w-6 h-6 rounded-lg text-xs font-bold flex items-center justify-center shrink-0 ${
+                    idx === 0 
+                      ? 'bg-blue-600 text-white shadow-xs' 
+                      : 'bg-white border border-slate-200 text-slate-700'
+                  }`}>
+                    {s.stepNum}
+                  </span>
+                  <div className="text-left">
+                    <span className="text-[11px] font-semibold text-slate-900 block leading-none">
+                      {s.stage}
+                    </span>
+                    <span className="text-[10px] text-slate-400 font-medium leading-tight">
+                      {s.timeEst}
                     </span>
                   </div>
-
-                  {/* Unique Matching Icon */}
-                  <div 
-                    className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 transition-transform"
-                    style={{
-                      backgroundColor: '#EEF2FF',
-                      color: step.accentColor
-                    }}
-                  >
-                    <Icon className="w-5 h-5 sm:w-5.5 sm:h-5.5 stroke-[2.2]" />
-                  </div>
-
-                  {/* Main Text ONLY in Pure Bangla */}
-                  <div className="min-w-0">
-                    <h3 className="text-sm sm:text-base md:text-lg font-black text-[#0D253D] group-hover:text-[#2B47EE] transition-colors leading-snug">
-                      {step.mainText}
-                    </h3>
-                  </div>
                 </div>
-
-                {/* Status Indicator */}
-                <div className="shrink-0 hidden xs:block">
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#00B261] inline-block animate-pulse" />
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* 3. SECTION: WHAT WE PROVIDE AFTER ORDER (অর্ডারের পর আমরা যা যা প্রদান করি) */}
-      <section className="max-w-4xl mx-auto px-4 sm:px-6 w-full">
-        <div className="bg-[#F8FAFD] border border-[#E5EDF5] rounded-3xl p-6 sm:p-8 md:p-10 shadow-sm relative overflow-hidden">
-          <div className="text-center max-w-2xl mx-auto mb-8">
-            <span className="px-3.5 py-1 rounded-full bg-[#EEF2FF] text-[#2B47EE] text-xs font-bold border border-[#2B47EE]/20 inline-block mb-2">
-              ভেরিফাইড ডেলিভারি সার্ভিস
-            </span>
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-[#0D253D] tracking-tight">
-              অর্ডারের পর আমরা যা যা প্রদান করি
-            </h2>
-            <p className="text-xs sm:text-sm text-[#64748D] mt-2">
-              আপনার ব্যবসার প্রতিটি ওয়েবসাইট অর্ডারের পর আমরা বিশ্বমানের ক্লাউড ইনফ্রাস্ট্রাকচার ও দীর্ঘমেয়াদী সেবা নিশ্চিত করি।
-            </p>
+                {idx < serialSteps.length - 1 && (
+                  <ArrowRight className="w-3.5 h-3.5 text-slate-300 shrink-0 mx-1" />
+                )}
+              </React.Fragment>
+            ))}
           </div>
 
-          {/* 4 Smart Deliverables */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-            <div className="p-4 sm:p-5 rounded-2xl bg-[#FFFFFF] border border-[#E5EDF5] shadow-2xs">
-              <div className="w-10 h-10 rounded-xl bg-[#EEF2FF] text-[#2B47EE] flex items-center justify-center mb-3">
-                <Zap className="w-5 h-5 stroke-[2.2]" />
-              </div>
-              <h4 className="text-sm sm:text-base font-bold text-[#0D253D]">২৪ ঘণ্টা এক্সপ্রেস ডেলিভারি</h4>
-              <p className="text-xs text-[#64748D] mt-1 leading-relaxed">
-                অর্ডার কনফার্ম করার মাত্র ২৪ ঘণ্টার মধ্যে সম্পূর্ণ কার্যকরী ওয়েবসাইট লাইভ করে দেওয়া হয়।
-              </p>
-            </div>
+          {/* Executive Step Cards Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4">
+            {serialSteps.map((step) => {
+              const Icon = step.icon;
+              return (
+                <div
+                  key={step.stepNum}
+                  className={`group relative p-4.5 sm:p-5 rounded-2xl bg-white border border-slate-200/90 ${step.cardHover} transition-all duration-200 flex flex-col justify-between gap-3 hover:-translate-y-0.5`}
+                >
+                  {/* Top Bar: Step Number + Tag + Icon */}
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2">
+                      <span className="w-7 h-7 rounded-lg bg-slate-900 text-white text-xs font-bold flex items-center justify-center shrink-0 tracking-tight shadow-xs">
+                        {step.stepNum}
+                      </span>
+                      <span className={`text-[10.5px] font-semibold px-2 py-0.5 rounded-full border ${step.tagBg}`}>
+                        {step.tag}
+                      </span>
+                    </div>
 
-            <div className="p-4 sm:p-5 rounded-2xl bg-[#FFFFFF] border border-[#E5EDF5] shadow-2xs">
-              <div className="w-10 h-10 rounded-xl bg-[#EEF2FF] text-[#2B47EE] flex items-center justify-center mb-3">
-                <Globe className="w-5 h-5 stroke-[2.2]" />
-              </div>
-              <h4 className="text-sm sm:text-base font-bold text-[#0D253D]">ফ্রি ডোমেইন ও ক্লাউড হোস্টিং</h4>
-              <p className="text-xs text-[#64748D] mt-1 leading-relaxed">
-                ১ বছরের জন্য ফ্রি অফিশিয়াল ডোমেইন এবং ৯৯.৯% আপটাইম বিশিষ্ট হাই-স্পিড ক্লাউড সার্ভার।
-              </p>
-            </div>
+                    <div className={`w-9 h-9 rounded-xl border flex items-center justify-center shrink-0 ${step.iconBg} group-hover:scale-105 transition-transform`}>
+                      <Icon className="w-4.5 h-4.5 stroke-[2.2]" />
+                    </div>
+                  </div>
 
-            <div className="p-4 sm:p-5 rounded-2xl bg-[#FFFFFF] border border-[#E5EDF5] shadow-2xs">
-              <div className="w-10 h-10 rounded-xl bg-[#00B261]/10 text-[#00B261] flex items-center justify-center mb-3">
-                <ShieldCheck className="w-5 h-5 stroke-[2.2]" />
-              </div>
-              <h4 className="text-sm sm:text-base font-bold text-[#0D253D]">১০০% মানিব্যাক সন্তুষ্টি গ্যারান্টি</h4>
-              <p className="text-xs text-[#64748D] mt-1 leading-relaxed">
-                কাজের গুণমান বা প্রতিশ্রুত ফিচারে অসন্তুষ্ট হলে কোনো প্রশ্ন ছাড়াই সম্পূর্ণ টাকা ফেরত।
-              </p>
-            </div>
+                  {/* Title & Concise Highlight */}
+                  <div>
+                    <h3 className="text-[15px] sm:text-base font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
+                      {step.title}
+                    </h3>
+                    <p className="text-xs text-slate-500 font-normal mt-1 leading-relaxed">
+                      {step.highlight}
+                    </p>
+                  </div>
 
-            <div className="p-4 sm:p-5 rounded-2xl bg-[#FFFFFF] border border-[#E5EDF5] shadow-2xs">
-              <div className="w-10 h-10 rounded-xl bg-[#EEF2FF] text-[#2B47EE] flex items-center justify-center mb-3">
-                <Headphones className="w-5 h-5 stroke-[2.2]" />
-              </div>
-              <h4 className="text-sm sm:text-base font-bold text-[#0D253D]">আজীবন ফ্রি টেকনিক্যাল সাপোর্ট</h4>
-              <p className="text-xs text-[#64748D] mt-1 leading-relaxed">
-                যেকোনো সময় সরাসরি লাইভ চ্যাট বা ফোন কলে আমাদের টেকনিক্যাল টিম থেকে ইনস্ট্যান্ট সমাধান।
-              </p>
+                  {/* Bottom Meta Pill: Timing */}
+                  <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px]">
+                    <div className="flex items-center gap-1.5 text-slate-500 font-medium">
+                      <Clock className="w-3.5 h-3.5 text-slate-400 stroke-[2.2]" />
+                      <span>আনুমানিক সময়: <strong className="text-slate-700">{step.timeEst}</strong></span>
+                    </div>
+                    <span className="text-[10px] font-semibold text-slate-400 group-hover:text-blue-600 transition-colors">
+                      ধাপ {step.stepNum}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Reassurance Footer Banner */}
+          <div className="p-3 sm:p-3.5 rounded-2xl bg-slate-50/80 border border-slate-200/70 flex items-center justify-between gap-3 text-xs text-slate-600">
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span className="font-medium text-slate-700">ফ্রি ডোমেইন, এসএসএল ও ক্লাউড হোস্টিং প্রতিটি অর্ডারের সাথে অন্তর্ভুক্ত</span>
             </div>
+            <span className="hidden sm:inline-block text-[11px] font-semibold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-100">
+              ২৪ ঘণ্টা এক্সপ্রেস ডেলিভারি
+            </span>
           </div>
         </div>
       </section>

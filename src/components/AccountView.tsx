@@ -792,37 +792,50 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
   // ==========================================
   if (!currentUser) {
     return (
-      <div className="w-full min-h-[calc(100vh-120px)] flex flex-col justify-start items-center font-sans pb-28 pt-4 sm:pt-6 relative bg-[#FAF6F0] overflow-x-hidden animate-fadeIn select-none">
+      <div className="w-full min-h-[calc(100vh-120px)] flex flex-col justify-start items-center font-sans pb-28 pt-4 sm:pt-8 relative bg-gradient-to-b from-slate-50/90 via-white to-slate-100/70 overflow-x-hidden animate-fadeIn select-none">
         
         {/* Subtle Ambient Background Brand Glow */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-gradient-to-tr from-[#2B47EE]/[0.08] via-[#7C3AED]/[0.05] to-[#4F46E5]/[0.05] rounded-full blur-3xl pointer-events-none -z-10" />
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-gradient-to-tr from-blue-500/8 via-indigo-500/5 to-purple-500/5 rounded-full blur-3xl pointer-events-none -z-10" />
 
         {/* MOBILE-FIRST CENTERED CARD */}
-        <div className="max-w-[440px] mx-auto px-4 w-full relative z-10 flex flex-col items-center mt-4 sm:mt-6">
+        <div className="max-w-[440px] mx-auto px-4 w-full relative z-10 flex flex-col items-center mt-2 sm:mt-4">
           {/* ======================================================== */}
           {/* STEP 1: EMAIL ENTRY CARD (No Sign In, No Sign Up tabs)   */}
           {/* ======================================================== */}
           {authStep === 'email' && (
-            <div className="w-full bg-white border border-slate-200/90 rounded-[28px] p-6 sm:p-8 shadow-[0_20px_50px_-12px_rgba(43,71,238,0.12),0_4px_16px_rgba(0,0,0,0.03)] space-y-4 animate-fadeIn">
+            <div className="w-full bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-[0_20px_50px_-15px_rgba(15,23,42,0.08),0_4px_20px_rgba(15,23,42,0.03)] space-y-5 animate-fadeIn">
               
+              {/* Card Header & Brand Welcome */}
+              <div className="text-center pt-1">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center mx-auto mb-3 shadow-md shadow-blue-500/20">
+                  <User className="w-6 h-6 stroke-[2.2]" />
+                </div>
+                <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+                  Welcome to Client Portal
+                </h2>
+                <p className="text-xs sm:text-[13px] text-slate-500 mt-1 max-w-xs mx-auto leading-relaxed">
+                  Manage your website orders, deliverables, and 24/7 technical support.
+                </p>
+              </div>
+
               {/* Top: Google Continue Button (Firefox-safe styling & robust fallback) */}
               <button
                 type="button"
                 onClick={handleGoogleSignIn}
                 disabled={googleLoading}
-                className="w-full py-3.5 px-4 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-300 text-slate-800 text-xs sm:text-sm font-bold shadow-xs hover:shadow-sm transition-all flex items-center justify-center gap-3 cursor-pointer group active:scale-[0.99] whitespace-nowrap select-none overflow-hidden"
+                className="w-full py-3 px-4 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-300 text-slate-800 text-xs sm:text-sm font-semibold shadow-2xs hover:shadow-xs transition-all flex items-center justify-center gap-3 cursor-pointer group active:scale-[0.99] whitespace-nowrap select-none overflow-hidden"
               >
                 <GoogleLogoIcon className="w-5 h-5 shrink-0 transition-transform group-hover:scale-105" />
                 <span className="truncate">{googleLoading ? 'Connecting to Google...' : 'Continue with Google'}</span>
               </button>
 
               {/* Divider: OR */}
-              <div className="relative my-3">
+              <div className="relative my-2">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-slate-200" />
+                  <div className="w-full border-t border-slate-200/80" />
                 </div>
-                <div className="relative flex justify-center text-[11px] uppercase tracking-wider text-slate-400 font-bold">
-                  <span className="bg-white px-3">OR</span>
+                <div className="relative flex justify-center text-[10.5px] uppercase tracking-wider text-slate-400 font-semibold">
+                  <span className="bg-white px-3">or continue with email</span>
                 </div>
               </div>
 
@@ -836,18 +849,18 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                 )}
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-800 mb-1.5">
-                    Gmail / Email Address
+                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                    Email / Gmail Address
                   </label>
                   <div className="relative">
                     <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                     <input
                       type="email"
                       required
-                      placeholder="Enter your Gmail or email address"
+                      placeholder="name@example.com"
                       value={emailInput}
                       onChange={(e) => setEmailInput(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50/70 border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#2B47EE] focus:ring-2 focus:ring-[#2B47EE]/20 transition-all shadow-2xs"
+                      className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50/70 border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10 transition-all shadow-2xs"
                     />
                   </div>
                 </div>
@@ -857,7 +870,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                   <button
                     type="submit"
                     disabled={otpSending}
-                    className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#2B47EE] to-[#7C3AED] hover:from-[#203CD4] hover:to-[#6D28D9] active:scale-[0.99] text-white font-black text-sm sm:text-base shadow-[0_6px_22px_-4px_rgba(43,71,238,0.4)] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+                    className="w-full py-3.5 px-4 rounded-xl bg-slate-900 hover:bg-blue-600 active:scale-[0.99] text-white font-bold text-sm shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
                   >
                     {otpSending ? (
                       <span className="flex items-center gap-2">
@@ -875,7 +888,11 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
               </form>
 
               {/* Bottom Option: "I don't have my email" */}
-              <div className="text-center pt-2 border-t border-slate-100">
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                <span className="text-[11px] text-slate-400 flex items-center gap-1">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>256-Bit SSL Secure</span>
+                </span>
                 <button
                   type="button"
                   onClick={() => {
@@ -883,7 +900,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                     setSubView('recover-email');
                     window.history.pushState({}, '', '/account/recover-email');
                   }}
-                  className="text-xs text-[#AB55F7] hover:text-[#9333EA] font-bold underline cursor-pointer inline-flex items-center gap-1.5 py-1.5 px-3 rounded-lg hover:bg-purple-50 transition-colors"
+                  className="text-xs text-blue-600 hover:text-blue-700 font-semibold cursor-pointer inline-flex items-center gap-1 hover:underline"
                 >
                   <HelpCircle className="w-3.5 h-3.5" />
                   <span>I don't have my email</span>
@@ -897,7 +914,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
           {/* STEP 2: VERIFICATION CODE (Auto-verifies upon 6 digits)  */}
           {/* ======================================================== */}
           {authStep === 'otp' && (
-            <div className="w-full bg-white border border-slate-200/90 rounded-[28px] p-6 sm:p-8 shadow-[0_20px_50px_-12px_rgba(43,71,238,0.12),0_4px_16px_rgba(0,0,0,0.03)] space-y-5 animate-fadeIn">
+            <div className="w-full bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-[0_20px_50px_-15px_rgba(15,23,42,0.08),0_4px_20px_rgba(15,23,42,0.03)] space-y-5 animate-fadeIn">
               
               {/* Header Icon */}
               <div className="text-center pt-1">
@@ -1009,7 +1026,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
           {/* STEP 3: NUMBER CONFIRMATION / STEP INTO ACCOUNT          */}
           {/* ======================================================== */}
           {authStep === 'number' && (
-            <div className="w-full bg-white border border-slate-200/90 rounded-[28px] p-6 sm:p-8 shadow-[0_20px_50px_-12px_rgba(43,71,238,0.12),0_4px_16px_rgba(0,0,0,0.03)] space-y-5 animate-fadeIn">
+            <div className="w-full bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-[0_20px_50px_-15px_rgba(15,23,42,0.08),0_4px_20px_rgba(15,23,42,0.03)] space-y-5 animate-fadeIn">
               
               {isOldUser ? (
                 /* ================= OLD USER FLOW ================= */
@@ -1598,232 +1615,151 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
   // ==========================================
   return (
     <div className="w-full flex flex-col font-sans pb-28 pt-2 animate-fadeIn">
-      {/* 2. SECTION: আপনার Website এর বিস্তারিত (Requirement 6 & Menu Item 2) */}
-      <section id="website-credentials-section" className="max-w-4xl mx-auto px-4 sm:px-6 w-full mb-5 scroll-mt-24">
-        {userCredentialsList.length > 0 ? (
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-base sm:text-lg font-black text-[#0D253D] flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#00B261]" />
-                  <span>আপনার Website এর বিস্তারিত</span>
-                </h3>
-                <p className="text-xs text-[#64748D]">
-                  আমাদের ইঞ্জিনিয়ার টিম কর্তৃক প্রস্তুতকৃত প্রতিটি ওয়েবসাইটের পৃথক বিস্তারিত তথ্য ও অ্যাডমিন অ্যাক্সেস:
-                </p>
-              </div>
-              <span className="px-2.5 py-0.5 rounded-full bg-[#00B261]/15 text-[#008A4B] text-xs font-bold">
-                {userCredentialsList.length} টি ওয়েবসাইট রেডি
-              </span>
-            </div>
-
-            {/* Each website's details shown separately (Requirement 6) */}
-            <div className="space-y-3">
-              {userCredentialsList.map((cred, cIdx) => (
-                <div
-                  key={cIdx}
-                  className="p-5 sm:p-6 rounded-3xl bg-gradient-to-r from-[#008A4B]/10 via-[#00B261]/15 to-[#008A4B]/10 border-2 border-[#00B261] shadow-md space-y-3.5"
-                >
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#00B261]/20 pb-3">
-                    <div className="flex items-center gap-2.5">
-                      <span className="px-2.5 py-1 rounded-full bg-[#008A4B] text-white text-xs font-bold">
-                        ✓ ওয়েবসাইট #{cIdx + 1}
-                      </span>
-                      <h4 className="text-base font-black text-[#0D253D]">
-                        {cred.websiteTitle}
-                      </h4>
-                    </div>
-                    <span className="text-[11px] text-[#64748D] font-mono">
-                      ডেলিভারি তারিখ: {cred.deliveredAt}
-                    </span>
-                  </div>
-
-                  {/* ID & Password display with 1-click copy */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="bg-white p-3.5 rounded-2xl border border-[#E5EDF5] flex items-center justify-between">
-                      <div>
-                        <span className="text-[10px] text-[#64748D] font-bold block uppercase">
-                          ওয়েবসাইট অ্যাডমিন আইডি / ইউজারনেম:
-                        </span>
-                        <span className="text-sm font-mono font-black text-[#0D253D] select-all">
-                          {cred.websiteAdminId}
-                        </span>
-                      </div>
-                      <button
-                        onClick={() => handleCopyText(cred.websiteAdminId, `id-${cred.id}`)}
-                        className="px-2.5 py-1 rounded-lg bg-[#F8FAFD] hover:bg-[#EEF2FF] text-[#2B47EE] border border-[#E5EDF5] text-[11px] font-bold transition-all flex items-center gap-1 cursor-pointer"
-                        title="আইডি কপি করুন"
-                      >
-                        {copiedField === `id-${cred.id}` ? <Check className="w-3.5 h-3.5 text-[#00B261]" /> : <Copy className="w-3.5 h-3.5" />}
-                        <span>{copiedField === `id-${cred.id}` ? 'কপি হয়েছে' : 'কপি'}</span>
-                      </button>
-                    </div>
-
-                    <div className="bg-white p-3.5 rounded-2xl border border-[#E5EDF5] flex items-center justify-between">
-                      <div>
-                        <span className="text-[10px] text-[#64748D] font-bold block uppercase">
-                          ওয়েবসাইট অ্যাডমিন পাসওয়ার্ড:
-                        </span>
-                        <span className="text-sm font-mono font-black text-[#2B47EE] select-all">
-                          {cred.websiteAdminPass}
-                        </span>
-                      </div>
-                      <button
-                        onClick={() => handleCopyText(cred.websiteAdminPass, `pass-${cred.id}`)}
-                        className="px-2.5 py-1 rounded-lg bg-[#F8FAFD] hover:bg-[#EEF2FF] text-[#2B47EE] border border-[#E5EDF5] text-[11px] font-bold transition-all flex items-center gap-1 cursor-pointer"
-                        title="পাসওয়ার্ড কপি করুন"
-                      >
-                        {copiedField === `pass-${cred.id}` ? <Check className="w-3.5 h-3.5 text-[#00B261]" /> : <Copy className="w-3.5 h-3.5" />}
-                        <span>{copiedField === `pass-${cred.id}` ? 'কপি হয়েছে' : 'কপি'}</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  {cred.notes && (
-                    <div className="bg-white/80 p-3 rounded-2xl border border-[#E5EDF5] text-xs text-[#273951]">
-                      <strong className="text-[#0D253D] block mb-0.5">ইঞ্জিনিয়ার নোট ও লগইন নির্দেশনা:</strong>
-                      <p className="leading-relaxed text-[#64748D]">{cred.notes}</p>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        ) : (
-          <div className="p-5 sm:p-6 rounded-3xl bg-white border border-[#E5EDF5] shadow-xs space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-[#EEF2FF] text-[#2B47EE] flex items-center justify-center font-bold text-xs">
-                  ২
-                </div>
-                <div>
-                  <h3 className="text-sm sm:text-base font-black text-[#0D253D]">
-                    আপনার Website এর বিস্তারিত (Website ID ও Password)
-                  </h3>
-                  <p className="text-xs text-[#64748D]">
-                    অ্যাডমিন আইডি ও পাসওয়ার্ড অ্যাক্সেস ড্যাশবোর্ড
-                  </p>
-                </div>
-              </div>
-              <span className="px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-semibold">
-                অপেক্ষমান
-              </span>
-            </div>
-            <div className="p-4 rounded-2xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs text-[#64748D] leading-relaxed flex items-start gap-3">
-              <Key className="w-5 h-5 text-[#2B47EE] shrink-0 mt-0.5" />
-              <div>
-                <p className="font-bold text-[#0D253D] mb-0.5">কোনো সক্রিয় ওয়েবসাইট আইডি-পাসওয়ার্ড এখনও ডেলিভারি হয়নি</p>
-                <p>আপনার অর্ডার অনুমোদিত ও সম্পন্ন হওয়ার সাথে সাথেই আমাদের ইঞ্জিনিয়ার টিম কর্তৃক প্রস্তুতকৃত ওয়েবসাইটের অ্যাডমিন আইডি ও পাসওয়ার্ড সরাসরি এখানে প্রদর্শিত হবে।</p>
-              </div>
-            </div>
-          </div>
-        )}
-      </section>
-
       {/* 3. SECTION: CLIENT ACCOUNT / PROFILE SECTION (Requirement 2) */}
       <section className="max-w-4xl mx-auto px-4 sm:px-6 w-full mb-6">
-        <div className="bg-white border border-slate-200/90 rounded-[24px] p-5 sm:p-7 shadow-xs space-y-5">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#2B47EE] to-[#7C3AED] text-white flex items-center justify-center font-black text-base shadow-xs">
-                {(currentUser.name || 'U').charAt(0).toUpperCase()}
+        <div className="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-7 shadow-xs space-y-6">
+          {/* Header Profile Section */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+            <div className="flex items-center gap-3.5">
+              <div className="relative">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center font-bold text-lg sm:text-xl shadow-md shadow-blue-500/20">
+                  {(currentUser.name || 'U').charAt(0).toUpperCase()}
+                </div>
+                <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-white flex items-center justify-center shadow-xs">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                </div>
               </div>
               <div>
-                <div className="flex items-center gap-2">
-                  <h2 className="text-base sm:text-lg font-black text-[#0D253D]">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h2 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
                     {currentUser.name || 'ক্লায়েন্ট প্রোফাইল'}
                   </h2>
-                  <span className="px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200/80 text-emerald-700 text-[10px] font-bold inline-flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                    সক্রিয় অ্যাকাউন্ট
+                  <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200/80 text-emerald-700 text-xs font-semibold inline-flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                    Verified Client
                   </span>
                 </div>
-                <p className="text-xs text-slate-500 font-mono mt-0.5">
-                  রেজিস্ট্রেশন: {currentUser.registeredAt}
-                </p>
+                <div className="flex items-center gap-3 text-xs text-slate-500 mt-0.5">
+                  <span>Joined: {currentUser.registeredAt}</span>
+                  <span>•</span>
+                  <span className="font-mono text-slate-600">ID: {currentUser.clientId || 'BW-CLIENT'}</span>
+                </div>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+
+            <div className="flex items-center gap-2 self-start sm:self-auto">
               <button
                 type="button"
                 onClick={() => setShowSecurityCodeModal(true)}
-                className="px-3.5 py-2 rounded-xl bg-slate-50 hover:bg-[#EEF2FF] text-[#2B47EE] border border-slate-200 hover:border-[#2B47EE]/30 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs active:scale-95"
+                className="px-3.5 py-2 rounded-xl bg-blue-50 hover:bg-blue-600 text-blue-700 hover:text-white border border-blue-200/80 hover:border-transparent text-xs font-semibold transition-all flex items-center gap-2 cursor-pointer shadow-xs active:scale-95 group"
                 title="৫-মিনিটের সিকিউরিটি কোড দেখুন"
               >
-                <ShieldCheck className="w-4 h-4 text-[#2B47EE]" />
+                <ShieldCheck className="w-4 h-4 text-blue-600 group-hover:text-white transition-colors" />
                 <span>Security Code</span>
               </button>
             </div>
           </div>
 
-          {/* Clean Fields: Profile Name, Email Address, Verification / Phone */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div className="p-3.5 rounded-2xl bg-slate-50/80 border border-slate-200/70 space-y-1">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                Full Name (নাম)
-              </span>
-              <p className="text-xs sm:text-sm font-bold text-slate-800 truncate">
-                {currentUser.name}
+          {/* Account Details 4-Column Balanced Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-3.5">
+            {/* 1. Full Name */}
+            <div className="p-3.5 sm:p-4 rounded-xl bg-slate-50/70 border border-slate-200/80 hover:border-slate-300 transition-all space-y-1.5">
+              <div className="flex items-center gap-2 text-slate-500">
+                <User className="w-4 h-4 text-blue-600" />
+                <span className="text-[11px] font-semibold uppercase tracking-wider">
+                  Full Name (নাম)
+                </span>
+              </div>
+              <p className="text-sm font-bold text-slate-900 truncate">
+                {currentUser.name || 'N/A'}
               </p>
             </div>
 
-            <div className="p-3.5 rounded-2xl bg-slate-50/80 border border-slate-200/70 space-y-1">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                Email Address (ইমেইল)
-              </span>
-              <p className="text-xs sm:text-sm font-mono font-bold text-slate-800 truncate select-all">
+            {/* 2. Email Address with Copy */}
+            <div className="p-3.5 sm:p-4 rounded-xl bg-slate-50/70 border border-slate-200/80 hover:border-slate-300 transition-all space-y-1.5">
+              <div className="flex items-center justify-between text-slate-500">
+                <div className="flex items-center gap-2">
+                  <Mail className="w-4 h-4 text-indigo-600" />
+                  <span className="text-[11px] font-semibold uppercase tracking-wider">
+                    Email Address
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleCopyText(currentUser.email, 'email')}
+                  className="text-slate-400 hover:text-blue-600 transition-colors p-0.5"
+                  title="Copy email"
+                >
+                  {copiedField === 'email' ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                </button>
+              </div>
+              <p className="text-xs sm:text-sm font-mono font-bold text-slate-900 truncate select-all">
                 {currentUser.email}
               </p>
             </div>
 
-            <div className="p-3.5 rounded-2xl bg-slate-50/80 border border-slate-200/70 space-y-1 relative">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                  {currentUser.phone && !currentUser.phone.includes('_') && !currentUser.phone.includes('@') && /\d{6,}/.test(currentUser.phone)
-                    ? 'Phone Number (মোবাইল)'
-                    : 'Account Status (স্ট্যাটাস)'}
-                </span>
-
-                {/* Corner Question Mark (?) for Number Verification */}
+            {/* 3. Phone / Mobile */}
+            <div className="p-3.5 sm:p-4 rounded-xl bg-slate-50/70 border border-slate-200/80 hover:border-slate-300 transition-all space-y-1.5">
+              <div className="flex items-center justify-between text-slate-500">
+                <div className="flex items-center gap-2">
+                  <Phone className="w-4 h-4 text-emerald-600" />
+                  <span className="text-[11px] font-semibold uppercase tracking-wider">
+                    Phone (মোবাইল)
+                  </span>
+                </div>
                 {currentUser.phone && !currentUser.phone.includes('_') && !currentUser.phone.includes('@') && /\d{6,}/.test(currentUser.phone) && (
                   <button
                     type="button"
                     onClick={() => setShowVerificationExplainerModal(true)}
-                    className="w-5 h-5 rounded-full bg-slate-200 hover:bg-[#2B47EE] hover:text-white text-slate-600 inline-flex items-center justify-center transition-colors cursor-pointer text-xs font-black shadow-2xs"
-                    title="নম্বর ভেরিফিকেশন নীতিমালা ও তথ্য দেখুন (?)"
-                    aria-label="নম্বর ভেরিফিকেশন তথ্য"
+                    className="w-4.5 h-4.5 rounded-full bg-slate-200 hover:bg-blue-600 hover:text-white text-slate-600 inline-flex items-center justify-center transition-colors cursor-pointer text-[10px] font-bold"
+                    title="Verification info"
                   >
                     ?
                   </button>
                 )}
               </div>
-
               {currentUser.phone && !currentUser.phone.includes('_') && !currentUser.phone.includes('@') && /\d{6,}/.test(currentUser.phone) ? (
-                <div className="flex items-center justify-between gap-2 pt-0.5">
-                  <p className="text-xs sm:text-sm font-mono font-bold text-[#2B47EE] select-all">
+                <div className="flex items-center justify-between gap-1">
+                  <p className="text-xs sm:text-sm font-mono font-bold text-slate-900 select-all truncate">
                     {currentUser.phone}
                   </p>
-                  {/* Badge at the end of phone number */}
-                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold inline-flex items-center gap-1 shrink-0 ${
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold inline-flex items-center gap-1 shrink-0 ${
                     currentUser.numberVerified
                       ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                       : 'bg-amber-50 text-amber-700 border border-amber-200'
                   }`}>
-                    <span className={`w-1.5 h-1.5 rounded-full ${currentUser.numberVerified ? 'bg-emerald-500' : 'bg-amber-500'}`} />
-                    <span>{currentUser.numberVerified ? '✓ Verified' : 'Unverified'}</span>
+                    <span>{currentUser.numberVerified ? 'Verified' : 'Unverified'}</span>
                   </span>
                 </div>
               ) : (
-                <p className="text-xs sm:text-sm font-bold text-emerald-600 flex items-center gap-1.5">
+                <p className="text-xs sm:text-sm font-semibold text-emerald-600 flex items-center gap-1.5">
                   <CheckCircle2 className="w-3.5 h-3.5 shrink-0 text-emerald-500" />
                   <span>ইমেইল ভেরিফাইড ✓</span>
                 </p>
               )}
             </div>
+
+            {/* 4. Security & Protection Level */}
+            <div className="p-3.5 sm:p-4 rounded-xl bg-slate-50/70 border border-slate-200/80 hover:border-slate-300 transition-all space-y-1.5">
+              <div className="flex items-center gap-2 text-slate-500">
+                <Shield className="w-4 h-4 text-purple-600" />
+                <span className="text-[11px] font-semibold uppercase tracking-wider">
+                  Protection
+                </span>
+              </div>
+              <div className="flex items-center justify-between gap-1">
+                <p className="text-xs sm:text-sm font-bold text-slate-900">
+                  Active Tier
+                </p>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-200 shrink-0">
+                  256-bit SSL
+                </span>
+              </div>
+            </div>
           </div>
 
-          {/* Sign Out & Report Buttons */}
-          <div className="pt-3 border-t border-[#E5EDF5] flex flex-col sm:flex-row items-center justify-between gap-2.5">
+          {/* Action Footer */}
+          <div className="pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3">
             <button
               type="button"
               onClick={() => {
@@ -1831,15 +1767,15 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                 setReportSuccess('');
                 setShowReportModal(true);
               }}
-              className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-[#EEF2FF] hover:bg-[#2B47EE] text-[#2B47EE] hover:text-white border border-[#2B47EE]/30 text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
+              className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 hover:text-blue-600 border border-slate-200 text-xs font-semibold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
             >
-              <Flag className="w-4 h-4" />
+              <Flag className="w-4 h-4 text-slate-400" />
               <span>রিপোর্ট / অভিযোগ জানান (Submit Report)</span>
             </button>
 
             <button
               onClick={handleLogout}
-              className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#F8FAFD] hover:bg-[#E53935]/10 text-[#64748D] hover:text-[#E53935] border border-[#E5EDF5] text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
+              className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-slate-50 hover:bg-rose-50 text-slate-600 hover:text-rose-600 border border-slate-200 hover:border-rose-200 text-xs font-semibold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
             >
               <LogOut className="w-4 h-4" />
               <span>সাইন আউট (Sign Out)</span>
@@ -1850,49 +1786,68 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
 
       {/* SECTION: PROFESSIONAL POLICIES */}
       <section className="max-w-4xl mx-auto px-4 sm:px-6 w-full space-y-3">
-        <div className="bg-[#FFFFFF] border border-[#E5EDF5] rounded-3xl p-6 sm:p-7 shadow-xs space-y-4">
-          <div>
-            <h3 className="text-base font-black text-[#0D253D]">
-              অ্যাকাউন্ট সেটিংস ও নীতিমালা (Account Settings & Policies)
-            </h3>
-            <p className="text-xs text-[#64748D]">
-              BongoWeb সার্ভিস ব্যবহারের নিয়মাবলি ও নীতিসমূহ:
-            </p>
+        <div className="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-7 shadow-xs space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                <FileText className="w-4 h-4 text-blue-600" />
+                <span>Policies & Terms (অ্যাকাউন্ট নীতিমালা ও শর্তাবলি)</span>
+              </h3>
+              <p className="text-xs text-slate-500 mt-0.5">
+                BongoWeb সার্ভিস ব্যবহার ও ক্লায়েন্ট নিরাপত্তা সম্পর্কিত নীতিমালা:
+              </p>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             {/* Privacy Policy */}
             <button
               onClick={() => navigateSubView('privacy')}
-              className="p-4 rounded-2xl bg-[#F8FAFD] hover:bg-[#EEF2FF] border border-[#E5EDF5] hover:border-[#2B47EE]/30 text-left transition-all cursor-pointer group shadow-2xs"
+              className="p-4 sm:p-5 rounded-xl bg-slate-50/70 hover:bg-white border border-slate-200/80 hover:border-blue-400 hover:shadow-xs text-left transition-all cursor-pointer group flex flex-col justify-between"
             >
-              <div className="flex items-center justify-between mb-2">
-                <ShieldCheck className="w-5 h-5 text-[#2B47EE]" />
-                <ArrowRight className="w-4 h-4 text-[#64748D] group-hover:text-[#2B47EE] group-hover:translate-x-0.5 transition-all" />
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center group-hover:scale-105 transition-transform">
+                    <ShieldCheck className="w-5 h-5" />
+                  </div>
+                  <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-blue-600 group-hover:translate-x-0.5 transition-all" />
+                </div>
+                <h4 className="text-sm font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
+                  Privacy Policy (গোপনীয়তা নীতিমালা)
+                </h4>
+                <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                  গ্রাহকের তথ্যের সুরক্ষা, এনক্রিপশন ও গোপনীয়তা রক্ষার পূর্ণাঙ্গ নীতিমালা পড়ুন।
+                </p>
               </div>
-              <h4 className="text-xs sm:text-sm font-bold text-[#0D253D] group-hover:text-[#2B47EE]">
-                Privacy Policy
-              </h4>
-              <p className="text-[11px] text-[#64748D] mt-0.5">
-                গ্রাহকের তথ্যের সুরক্ষা ও গোপনীয়তা নীতিমালা পড়ুন
-              </p>
+              <div className="pt-3 mt-3 border-t border-slate-200/50 flex items-center justify-between text-[11px] text-slate-400 font-medium">
+                <span>Updated Oct 2026</span>
+                <span className="text-blue-600 font-semibold group-hover:underline">Read Policy →</span>
+              </div>
             </button>
 
             {/* Terms & Conditions */}
             <button
               onClick={() => navigateSubView('terms')}
-              className="p-4 rounded-2xl bg-[#F8FAFD] hover:bg-[#EEF2FF] border border-[#E5EDF5] hover:border-[#2B47EE]/30 text-left transition-all cursor-pointer group shadow-2xs"
+              className="p-4 sm:p-5 rounded-xl bg-slate-50/70 hover:bg-white border border-slate-200/80 hover:border-blue-400 hover:shadow-xs text-left transition-all cursor-pointer group flex flex-col justify-between"
             >
-              <div className="flex items-center justify-between mb-2">
-                <FileText className="w-5 h-5 text-[#2B47EE]" />
-                <ArrowRight className="w-4 h-4 text-[#64748D] group-hover:text-[#2B47EE] group-hover:translate-x-0.5 transition-all" />
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 border border-indigo-100 flex items-center justify-center group-hover:scale-105 transition-transform">
+                    <FileText className="w-5 h-5" />
+                  </div>
+                  <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-blue-600 group-hover:translate-x-0.5 transition-all" />
+                </div>
+                <h4 className="text-sm font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
+                  Terms & Conditions (সার্ভিস শর্তাবলি)
+                </h4>
+                <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                  ওয়েবসাইট ডেলিভারি, ফ্রি হোস্টিং এবং সার্ভিস ব্যবহারের আইনগত শর্তসমূহ।
+                </p>
               </div>
-              <h4 className="text-xs sm:text-sm font-bold text-[#0D253D] group-hover:text-[#2B47EE]">
-                Terms & Conditions
-              </h4>
-              <p className="text-[11px] text-[#64748D] mt-0.5">
-                সার্ভিস ব্যবহার ও ওয়েবসাইট ডেলিভারির শর্তাবলি
-              </p>
+              <div className="pt-3 mt-3 border-t border-slate-200/50 flex items-center justify-between text-[11px] text-slate-400 font-medium">
+                <span>24h Delivery SLA</span>
+                <span className="text-blue-600 font-semibold group-hover:underline">Read Terms →</span>
+              </div>
             </button>
           </div>
         </div>

@@ -177,26 +177,29 @@ export default function DashboardView({
       className="w-full h-[calc(100dvh-4rem-4rem)] sm:h-[calc(100vh-4.25rem-4.5rem)] max-h-[calc(100dvh-4rem-4rem)] sm:max-h-[calc(100vh-4.25rem-4.5rem)] overflow-hidden flex flex-col justify-between items-center px-4 sm:px-6 py-2.5 sm:py-4 select-none bg-gradient-to-b from-slate-50/80 via-white to-slate-100/60 font-sans"
     >
       {/* Main Targeted Section (section:nth-of-type(1)) */}
-      <section className="max-w-2xl sm:max-w-3xl w-full mx-auto h-full flex flex-col justify-between py-1 sm:py-2">
+      <section className="max-w-2xl sm:max-w-3xl w-full mx-auto h-full flex flex-col justify-between py-1.5 sm:py-2.5">
         
         {/* Clean, Refined Header */}
-        <header className="shrink-0 text-center pt-1 pb-1">
-          <h1 className="text-lg sm:text-2xl font-bold text-slate-900 tracking-tight">
+        <header className="shrink-0 text-center pt-0.5 pb-1">
+          <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-blue-50 text-blue-700 text-[11px] font-semibold tracking-wide mb-1 border border-blue-100/80">
+            <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
+            <span>{language === 'en' ? 'Interactive Demos' : 'লাইভ ওয়েবসাইট ডেমো'}</span>
+          </div>
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
             {language === 'en' ? 'Website Categories' : 'ক্যাটাগরি নির্বাচন করুন'}
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
             {language === 'en' 
-              ? 'Choose a category to browse all live website demos' 
+              ? 'Choose a category to browse ready-to-launch website demos' 
               : 'সবগুলো লাইভ ওয়েবসাইট ডেমো দেখতে একটি ক্যাটাগরি বেছে নিন'}
           </p>
         </header>
 
-        {/* Clean Category List (Evenly Distributed to Fill Viewport) */}
-        <div className="flex-1 flex flex-col justify-between gap-3 sm:gap-3.5 my-auto w-full py-1 sm:py-2 min-h-0">
+        {/* Clean Category List (Polished, Balanced & Tactile) */}
+        <div className="flex-1 flex flex-col justify-between gap-3 sm:gap-3.5 my-auto w-full py-1.5 min-h-0">
           {categoryContacts.map((cat) => {
             const IconComponent = cat.icon;
             const demoCount = WEBSITE_DEMOS.filter(d => d.category === cat.id).length;
-            const features = language === 'en' ? cat.featuresEn : cat.featuresBn;
 
             return (
               <div
@@ -211,60 +214,40 @@ export default function DashboardView({
                   }
                 }}
                 aria-label={`Select ${language === 'en' ? cat.nameEn : cat.nameBn}`}
-                className={`group relative w-full flex-1 min-h-[76px] sm:min-h-[88px] max-h-[110px] sm:max-h-[125px] px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-2xl bg-white border border-slate-200/90 ${cat.cardBorderHover} shadow-xs hover:shadow-lg transition-all duration-200 cursor-pointer flex items-center justify-between gap-3.5 sm:gap-5 hover:-translate-y-0.5 active:translate-y-0 outline-none focus-visible:ring-2 focus-visible:ring-blue-500`}
+                className={`group w-full flex-1 min-h-[74px] sm:min-h-[84px] max-h-[105px] px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-2xl bg-white border border-slate-200/90 ${cat.cardBorderHover} shadow-xs ${cat.hoverShadow} transition-all duration-200 cursor-pointer flex items-center justify-between gap-3.5 sm:gap-5 hover:-translate-y-0.5 active:translate-y-0 outline-none focus-visible:ring-2 focus-visible:ring-blue-500`}
               >
-                {/* Left: Icon & Category Details */}
+                {/* Left: Clean Icon & Category Details */}
                 <div className="flex items-center gap-3.5 sm:gap-4.5 min-w-0 flex-1">
-                  <div className={`w-11 h-11 sm:w-13 sm:h-13 rounded-xl sm:rounded-2xl ${cat.iconBg} flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-105 shadow-xs`}>
+                  <div className={`w-11 h-11 sm:w-12 sm:h-12 rounded-2xl ${cat.iconBg} flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-105 shadow-sm`}>
                     <IconComponent className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.2]" />
                   </div>
 
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <h2 className="text-[14.5px] sm:text-[16.5px] font-bold text-slate-900 group-hover:text-blue-600 transition-colors truncate">
+                      <h2 className="text-[15px] sm:text-base font-bold text-slate-900 group-hover:text-blue-600 transition-colors truncate">
                         {language === 'en' ? cat.nameEn : cat.nameBn}
                       </h2>
-                      <span className={`shrink-0 text-[10px] sm:text-[11px] font-semibold px-2 sm:px-2.5 py-0.5 rounded-full ${cat.badgeBg} ${cat.badgeText} border ${cat.badgeBorder}`}>
-                        {language === 'en' ? cat.tagEn : cat.tagBn}
+                      <span className={`inline-flex items-center gap-1 text-[10.5px] sm:text-[11px] font-semibold px-2 sm:px-2.5 py-0.5 rounded-full ${cat.badgeBg} ${cat.badgeText} border ${cat.badgeBorder} shrink-0`}>
+                        <span className="w-1 h-1 rounded-full bg-current opacity-70" />
+                        <span>{demoCount} {language === 'en' ? 'Templates' : 'টেমপ্লেট'}</span>
                       </span>
-                      <span className="hidden sm:inline-flex text-[11px] font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">
-                        {demoCount} {language === 'en' ? 'Templates' : 'টেমপ্লেট'}
-                      </span>
-                    </div>
-                    <p className="text-[11.5px] sm:text-xs text-slate-500 font-medium truncate mt-0.5">
-                      {language === 'en' ? cat.descEn : cat.descBn}
-                    </p>
-
-                    {/* Micro Features Chips to beautifully cover horizontal space */}
-                    <div className="hidden xs:flex items-center gap-1.5 mt-1.5 flex-wrap">
-                      {features.slice(0, 3).map((feat, i) => (
-                        <span 
-                          key={i} 
-                          className="text-[10px] sm:text-[10.5px] font-medium text-slate-600 bg-slate-50 border border-slate-200/70 px-1.5 sm:px-2 py-0.5 rounded-md"
-                        >
-                          {feat}
-                        </span>
-                      ))}
                     </div>
                   </div>
                 </div>
 
-                {/* Right: Starting Price & Action Button */}
-                <div className="shrink-0 flex items-center gap-3 pl-2">
-                  <div className="text-right hidden sm:block">
-                    <span className="text-[10px] text-slate-400 block font-medium">
+                {/* Right: Starting Price & Category Action Arrow */}
+                <div className="shrink-0 flex items-center gap-3 sm:gap-4 pl-1">
+                  <div className="text-right">
+                    <span className="text-[10px] text-slate-400 block font-medium leading-none">
                       {language === 'en' ? 'Starts at' : 'শুরু মাত্র'}
                     </span>
-                    <span className="text-xs sm:text-sm font-bold text-slate-900">
+                    <span className="text-xs sm:text-sm font-bold text-slate-900 mt-0.5 block">
                       {cat.startingPrice}
                     </span>
                   </div>
 
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl bg-slate-100 text-slate-700 group-hover:bg-blue-600 group-hover:text-white transition-all duration-200 shadow-2xs">
-                    <span className="text-xs font-semibold hidden md:inline-block">
-                      {language === 'en' ? 'Explore' : 'দেখুন'}
-                    </span>
-                    <ChevronRight className="w-4 h-4 stroke-[2.2] group-hover:translate-x-0.5 transition-transform" />
+                  <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-slate-100/90 border border-slate-200/60 flex items-center justify-center text-slate-500 ${cat.actionHoverBg} transition-all duration-200 shadow-2xs group-hover:scale-105`}>
+                    <ChevronRight className="w-4 h-4 sm:w-4.5 sm:h-4.5 stroke-[2.2] group-hover:translate-x-0.5 transition-transform" />
                   </div>
                 </div>
               </div>
@@ -272,10 +255,10 @@ export default function DashboardView({
           })}
         </div>
 
-        {/* Colorful, Confident Micro Footer */}
+        {/* Clean, Subtle Micro Footer */}
         <footer className="shrink-0 text-center py-1">
-          <div className="inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-slate-100/90 border border-slate-200 text-[11px] sm:text-xs text-slate-600 font-medium">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/90 border border-slate-200/80 shadow-2xs text-[11px] sm:text-xs text-slate-600 font-medium">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
             <span>
               {language === 'en' 
                 ? 'Ready in 24h • Domain & Hosting Included • 100% Responsive' 
