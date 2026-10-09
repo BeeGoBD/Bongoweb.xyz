@@ -307,14 +307,11 @@ export default function DashboardView({
                       {language === 'en' ? cat.nameEn : cat.nameBn}
                     </h2>
 
-                    {/* Row 2: Highlighting Section for Category Demand & Purpose */}
-                    <div className="flex items-center gap-1.5 sm:gap-2 mt-1 min-w-0">
-                      <span className={`inline-flex items-center gap-1 text-[9.5px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full border shrink-0 leading-none ${cat.demandBadgeBg}`}>
+                    {/* Row 2: Highlighting Badge for Category Demand */}
+                    <div className="flex items-center gap-1.5 mt-1 min-w-0">
+                      <span className={`inline-flex items-center gap-1 text-[10px] sm:text-[10.5px] font-bold px-2.5 py-0.5 rounded-full border shrink-0 leading-none ${cat.demandBadgeBg}`}>
                         <span>{language === 'en' ? cat.demandBadgeEn : cat.demandBadgeBn}</span>
                       </span>
-                      <p className="text-[10.5px] sm:text-[11.5px] font-medium text-slate-500 truncate min-w-0 leading-tight">
-                        {language === 'en' ? cat.demandHighlightEn : cat.demandHighlightBn}
-                      </p>
                     </div>
                   </div>
                 </div>
