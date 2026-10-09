@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   MessageCircle, X, Send, User, Phone, Globe, 
-  CheckCircle2, Clock, Headphones, Minimize2, Sparkles, AlertCircle
+  CheckCircle2, Clock, Headphones, Minimize2, Sparkles, AlertCircle, ShieldCheck
 } from 'lucide-react';
 import { 
   SupportChatMessage, SupportChatThread 
@@ -11,6 +11,7 @@ import {
   normalizePhone, apiGetLiveChatEnabled 
 } from '../utils/api';
 import { realtimeManager } from '../utils/realtime';
+import ClientSecurityCodeModal from './ClientSecurityCodeModal';
 
 export default function FloatingLiveChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
@@ -30,6 +31,7 @@ export default function FloatingLiveChatWidget() {
   const [isLiveOnline, setIsLiveOnline] = useState(true);
   const [isAgentTyping, setIsAgentTyping] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [showSecurityCodeModal, setShowSecurityCodeModal] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -296,6 +298,17 @@ export default function FloatingLiveChatWidget() {
               </div>
 
               <div className="flex items-center gap-1">
+                {/* 5-Min Rotating Security Code Icon Button (Requirement 13) */}
+                <button
+                  type="button"
+                  onClick={() => setShowSecurityCodeModal(true)}
+                  className="p-1.5 rounded-xl text-white/80 hover:text-white hover:bg-white/15 transition-colors cursor-pointer flex items-center gap-1 text-[10px] font-bold"
+                  title="৫-মিনিটের সিকিউরিটি কোড (Security Code)"
+                >
+                  <ShieldCheck className="w-4 h-4 text-emerald-300" />
+                  <span className="hidden sm:inline">কোড</span>
+                </button>
+
                 {isActivated && (
                   <button
                     type="button"
@@ -512,6 +525,17 @@ export default function FloatingLiveChatWidget() {
           )}
         </div>
       )}
+
+      {/* 5-Minute Rotating Security Code Modal (Requirement 13) */}
+      <ClientSecurityCodeModal
+        isOpen={showSecurityCodeModal}
+        onClose={() => setShowSecurityCodeModal(false)}
+        onGoToLogin={() => {
+          setShowSecurityCodeModal(false);
+          setIsOpen(false);
+          window.location.href = '/account';
+        }}
+      />
     </>
   );
 }

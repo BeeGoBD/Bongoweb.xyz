@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { WebsiteCategory, WebsiteDemo } from './types';
 import { WEBSITE_DEMOS } from './data/mockData';
-import CategorySelectionLanding from './components/CategorySelectionLanding';
 import FixedHeader from './components/FixedHeader';
 import FixedBottomNav, { BottomTabType } from './components/FixedBottomNav';
 import DashboardView from './components/DashboardView';
@@ -17,13 +16,12 @@ import LandscapeOrderDetailsModal from './components/LandscapeOrderDetailsModal'
 import WebsiteCredentialsModal from './components/WebsiteCredentialsModal';
 
 type ViewMode = 
-  | 'category-picker' 
   | 'dashboard' 
   | 'after-order' 
   | 'live-chat' 
   | 'account' 
   | 'website-detail' 
-  | 'order-page'
+  | 'order-page' 
   | 'admin';
 
 export default function App() {
@@ -38,25 +36,14 @@ export default function App() {
       if (p.startsWith('/account') || p.startsWith('/recover-email')) return 'account';
       if (p.startsWith('/dashboard')) return 'dashboard';
 
-      // Check if logged in user exists in localStorage
-      try {
-        const storedUser = localStorage.getItem('bongoweb_user');
-        if (storedUser) {
-          const u = JSON.parse(storedUser);
-          if (u && (u.phone || u.email || u.name)) {
-            // Logged-in user: by default dashboard will open first!
-            return 'dashboard';
-          }
-        }
-      } catch (_) {}
-
       const saved = sessionStorage.getItem('bongoweb_active_view') || localStorage.getItem('bongoweb_active_view');
       if (saved === 'dashboard') return 'dashboard';
       if (saved === 'account') return 'account';
       if (saved === 'live-chat') return 'live-chat';
       if (saved === 'after-order') return 'after-order';
     }
-    return 'category-picker';
+    // Directly land on Dashboard for any visitor (logged-in or guest)
+    return 'dashboard';
   });
   const [selectedCategory, setSelectedCategory] = useState<WebsiteCategory>('ecommerce');
   const [activeDemo, setActiveDemo] = useState<WebsiteDemo | null>(null);
@@ -159,41 +146,11 @@ export default function App() {
     }
 
     // Default root path "/"
-    let hasLoggedInUser = false;
-    try {
-      const storedUser = localStorage.getItem('bongoweb_user');
-      if (storedUser) {
-        const u = JSON.parse(storedUser);
-        if (u && (u.phone || u.email || u.name)) {
-          hasLoggedInUser = true;
-        }
-      }
-    } catch (_) {}
-
     const savedCategory = sessionStorage.getItem('bongoweb_chosen_category') || localStorage.getItem('bongoweb_chosen_category');
-    const savedView = sessionStorage.getItem('bongoweb_active_view') || localStorage.getItem('bongoweb_active_view');
+    if (savedCategory) setSelectedCategory(savedCategory as WebsiteCategory);
 
-    // If logged-in user visits the website: by default dashboard will open first!
-    if (hasLoggedInUser) {
-      if (savedCategory) setSelectedCategory(savedCategory as WebsiteCategory);
-      setViewMode('dashboard');
-      return;
-    }
-
-    if (savedView === 'category-picker') {
-      setViewMode('category-picker');
-    } else if (savedView === 'account') {
-      setViewMode('account');
-    } else if (savedView === 'live-chat') {
-      setViewMode('live-chat');
-    } else if (savedView === 'after-order') {
-      setViewMode('after-order');
-    } else if (savedView === 'dashboard' || savedCategory) {
-      if (savedCategory) setSelectedCategory(savedCategory as WebsiteCategory);
-      setViewMode('dashboard');
-    } else {
-      setViewMode('category-picker');
-    }
+    // Directly land on Dashboard for any visitor (logged-in or guest)
+    setViewMode('dashboard');
   }, []);
 
   // Synchronize current view mode to storage
@@ -236,30 +193,6 @@ export default function App() {
       window.removeEventListener('hashchange', handleNavigation);
     };
   }, [parseCurrentUrl]);
-
-  // Navigate to Category Picker or Dashboard (URL remains root "/")
-  const handleBackToCategoryPicker = () => {
-    try {
-      const storedUser = localStorage.getItem('bongoweb_user');
-      if (storedUser) {
-        const u = JSON.parse(storedUser);
-        if (u && (u.phone || u.email || u.name)) {
-          setViewMode('dashboard');
-          window.history.pushState({}, '', '/');
-          window.scrollTo({ top: 0, behavior: 'instant' });
-          return;
-        }
-      }
-    } catch (_) {}
-
-    sessionStorage.removeItem('bongoweb_chosen_category');
-    localStorage.removeItem('bongoweb_chosen_category');
-    localStorage.setItem('bongoweb_active_view', 'category-picker');
-    sessionStorage.setItem('bongoweb_active_view', 'category-picker');
-    setViewMode('category-picker');
-    window.history.pushState({}, '', '/');
-    window.scrollTo({ top: 0, behavior: 'instant' });
-  };
 
   // Select Category -> Enters Dashboard (URL is root domain "/")
   const handleSelectCategory = (category: WebsiteCategory) => {
@@ -336,20 +269,12 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#FFFFFF] text-[#0D253D] antialiased selection:bg-[#EEF2FF] selection:text-[#2B47EE] flex flex-col justify-between font-sans">
-      {/* 1. Category Choosing Landing Screen (No special URL, at base domain "/") */}
-      {viewMode === 'category-picker' && (
-        <CategorySelectionLanding 
-          onSelectCategory={handleSelectCategory}
-          onNavigateToTab={(tab) => handleTabChange(tab)}
-        />
-      )}
-
-      {/* 2. Standalone Leaf Green Admin Panel */}
+      {/* 1. Standalone Executive Admin Panel */}
       {viewMode === 'admin' && (
-        <AdminPanelView onBackToApp={handleBackToCategoryPicker} />
+        <AdminPanelView onBackToApp={handleReturnToDashboard} />
       )}
 
-      {/* 3. Dedicated Website Full Page (Unique URL: /website/:code, NO hover modal overlay) */}
+      {/* 2. Dedicated Website Full Page (Unique URL: /website/:code, NO hover modal overlay) */}
       {viewMode === 'website-detail' && (
         <WebsiteDetailPage
           demo={activeDemo || findDemoByCode('') || WEBSITE_DEMOS[0]}
@@ -358,7 +283,7 @@ export default function App() {
         />
       )}
 
-      {/* 4. Dedicated Order Full Page (Unique URL: /order/:code) */}
+      {/* 3. Dedicated Order Full Page (Unique URL: /order/:code) */}
       {viewMode === 'order-page' && (
         <OrderPageView
           demo={activeDemo || findDemoByCode('') || WEBSITE_DEMOS[0]}
@@ -371,12 +296,12 @@ export default function App() {
         />
       )}
 
-      {/* 5. Main App Container (Dashboard, After Order, Live Chat, Account) */}
-      {viewMode !== 'category-picker' && viewMode !== 'admin' && viewMode !== 'website-detail' && viewMode !== 'order-page' && (
+      {/* 4. Main App Container (Dashboard, After Order, Live Chat, Account) */}
+      {viewMode !== 'admin' && viewMode !== 'website-detail' && viewMode !== 'order-page' && (
         <div className="w-full min-h-screen flex flex-col bg-[#FFFFFF]">
           {/* Fixed Header */}
           <FixedHeader
-            onBackToCategoryPicker={handleBackToCategoryPicker}
+            onBackToCategoryPicker={handleReturnToDashboard}
             onOpenNotifications={() => setNotificationsOpen(true)}
             onOpenMenu={() => setSideMenuOpen(true)}
             unreadCount={unreadNotifications}
@@ -391,7 +316,7 @@ export default function App() {
                 initialCategory={selectedCategory}
                 onOpenLiveDemo={handleOpenWebsiteDetail}
                 onOpenOrder={handleOpenOrder}
-                onChangeCategoryLanding={handleBackToCategoryPicker}
+                onChangeCategoryLanding={handleReturnToDashboard}
               />
             )}
 
@@ -448,7 +373,7 @@ export default function App() {
         isOpen={sideMenuOpen}
         onClose={() => setSideMenuOpen(false)}
         onSelectTab={handleTabChange}
-        onGoToCategoryLanding={handleBackToCategoryPicker}
+        onGoToCategoryLanding={handleReturnToDashboard}
         onOpenOrderDetails={() => setLandscapeOrderModalOpen(true)}
         onOpenWebsiteCredentials={() => setWebsiteCredentialsModalOpen(true)}
       />

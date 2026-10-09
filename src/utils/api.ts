@@ -1,7 +1,7 @@
 import { 
   UserAccount, ClientOrder, SupportChatThread, SupportChatMessage, 
   WebsiteDemo, WebsiteDeliveryCredentials, PasswordResetRequest, AdminConfig, UserReport,
-  BrandLogoConfig, EmailRecoveryRequest
+  BrandLogoConfig, EmailRecoveryRequest, CallBackRequest
 } from '../types';
 import { WEBSITE_DEMOS } from '../data/mockData';
 import { 
@@ -25,6 +25,7 @@ export interface CompleteDatabaseState {
   deliveredCredentials: WebsiteDeliveryCredentials[];
   resetRequests: PasswordResetRequest[];
   reports: UserReport[];
+  callBackRequests: CallBackRequest[];
 }
 
 // In-memory cache for instant UI rendering
@@ -41,7 +42,8 @@ let localCache: CompleteDatabaseState = {
   customWebsites: [],
   deliveredCredentials: [],
   resetRequests: [],
-  reports: []
+  reports: [],
+  callBackRequests: []
 };
 
 // Helper to strip undefined fields so Firestore writes never fail
@@ -114,6 +116,9 @@ try {
 
   const cw = localStorage.getItem('bongoweb_custom_catalog');
   if (cw) localCache.customWebsites = JSON.parse(cw);
+
+  const cb = localStorage.getItem('bongoweb_callback_requests');
+  if (cb) localCache.callBackRequests = JSON.parse(cb);
 } catch (_) {}
 
 // ---------------- UNIVERSAL DATA FETCHER ----------------
@@ -126,17 +131,19 @@ export async function pullFromCloudVault(): Promise<{
   resets: PasswordResetRequest[];
   reports: UserReport[];
   customWebsites: WebsiteDemo[];
+  callBackRequests?: CallBackRequest[];
   adminConfig?: AdminConfig;
 }> {
   try {
     // 1. Fetch from Cloud Firestore
-    const [ordersSnap, chatsSnap, usersSnap, credsSnap, resetsSnap, sitesSnap] = await Promise.all([
+    const [ordersSnap, chatsSnap, usersSnap, credsSnap, resetsSnap, sitesSnap, callBackSnap] = await Promise.all([
       getDocs(collection(db, 'orders')).catch(() => null),
       getDocs(collection(db, 'supportChats')).catch(() => null),
       getDocs(collection(db, 'users')).catch(() => null),
       getDocs(collection(db, 'deliveredCredentials')).catch(() => null),
       getDocs(collection(db, 'resetRequests')).catch(() => null),
-      getDocs(collection(db, 'customWebsites')).catch(() => null)
+      getDocs(collection(db, 'customWebsites')).catch(() => null),
+      getDocs(collection(db, 'callBackRequests')).catch(() => null)
     ]);
 
     if (ordersSnap) {
@@ -162,6 +169,10 @@ export async function pullFromCloudVault(): Promise<{
     if (sitesSnap && !sitesSnap.empty) {
       localCache.customWebsites = sitesSnap.docs.map(d => d.data() as WebsiteDemo);
       localStorage.setItem('bongoweb_custom_catalog', JSON.stringify(localCache.customWebsites));
+    }
+    if (callBackSnap) {
+      localCache.callBackRequests = callBackSnap.empty ? [] : callBackSnap.docs.map(d => d.data() as CallBackRequest);
+      localStorage.setItem('bongoweb_callback_requests', JSON.stringify(localCache.callBackRequests));
     }
 
     try {
@@ -1931,6 +1942,300 @@ export async function apiResolveResetRequest(
   return localCache.resetRequests;
 }
 
+// ---------------- ADMIN UPDATE USER DETAILS & TAGGING ----------------
+export async function apiAdminUpdateUserDetails(params: {
+  targetPhone: string;
+  targetEmail?: string;
+  newEmail: string;
+  newPhone: string;
+  tag?: string;
+  newPassword?: string;
+  pendingRequestId?: string;
+}): Promise<{ success: boolean; error?: string; updatedUser?: UserAccount; resetRecord?: PasswordResetRequest }> {
+  const oldPhone = String(params.targetPhone || '').trim();
+  const oldEmail = String(params.targetEmail || '').trim().toLowerCase();
+  const cleanNewEmail = String(params.newEmail || '').trim().toLowerCase();
+  const cleanNewPhone = String(params.newPhone || '').trim().replace(/\s+/g, '');
+  const cleanTag = String(params.tag || '').trim();
+  const cleanNewPassword = String(params.newPassword || '').trim();
+
+  if (!cleanNewPhone) {
+    return { success: false, error: 'মোবাইল নম্বর আবশ্যক।' };
+  }
+
+  // Check if target user exists
+  const existingUsers = await apiGetUsers();
+  const targetUser = existingUsers.find(u => 
+    (oldPhone && (normalizePhone(u.phone) === normalizePhone(oldPhone) || u.phone.trim() === oldPhone)) ||
+    (oldEmail && u.email && u.email.toLowerCase().trim() === oldEmail)
+  );
+
+  if (!targetUser) {
+    return { success: false, error: 'ইউজার খুঁজে পাওয়া যায়নি।' };
+  }
+
+  // Check if new email conflicts with ANOTHER user
+  if (cleanNewEmail && cleanNewEmail !== (targetUser.email || '').toLowerCase().trim()) {
+    const emailConflict = existingUsers.some(u => 
+      normalizePhone(u.phone) !== normalizePhone(targetUser.phone) && 
+      u.email && 
+      u.email.toLowerCase().trim() === cleanNewEmail
+    );
+    if (emailConflict) {
+      return { success: false, error: 'এই নতুন ইমেইল দিয়ে ইতোমধ্যে অন্য একটি অ্যাকাউন্ট বিদ্যমান।' };
+    }
+  }
+
+  // Check if new phone conflicts with ANOTHER user
+  if (cleanNewPhone && normalizePhone(cleanNewPhone) !== normalizePhone(targetUser.phone)) {
+    const phoneConflict = existingUsers.some(u => 
+      normalizePhone(u.phone) !== normalizePhone(targetUser.phone) && 
+      u.phone && 
+      (normalizePhone(u.phone) === normalizePhone(cleanNewPhone) || u.phone.trim() === cleanNewPhone)
+    );
+    if (phoneConflict) {
+      return { success: false, error: 'এই নতুন মোবাইল নম্বর দিয়ে ইতোমধ্যে অন্য একটি অ্যাকাউন্ট বিদ্যমান।' };
+    }
+  }
+
+  const previousEmail = targetUser.email || '';
+  const previousPhone = targetUser.phone || '';
+  const hasEmailChanged = cleanNewEmail ? previousEmail.toLowerCase() !== cleanNewEmail : false;
+  const hasPhoneChanged = normalizePhone(previousPhone) !== normalizePhone(cleanNewPhone);
+  const hasPasswordChanged = !!cleanNewPassword && cleanNewPassword !== targetUser.password;
+
+  let changeType: 'email' | 'phone' | 'both' | 'password' = 'phone';
+  if (hasEmailChanged && hasPhoneChanged) {
+    changeType = 'both';
+  } else if (hasEmailChanged) {
+    changeType = 'email';
+  } else if (hasPhoneChanged) {
+    changeType = 'phone';
+  } else if (hasPasswordChanged) {
+    changeType = 'password';
+  }
+
+  const nowFormatted = new Date().toLocaleString('bn-BD');
+
+  const updatedUser: UserAccount = {
+    ...targetUser,
+    email: cleanNewEmail || targetUser.email,
+    phone: cleanNewPhone,
+    password: cleanNewPassword || targetUser.password,
+    isRestricted: false
+  };
+  (updatedUser as any).isPasswordReset = true;
+  (updatedUser as any).passwordResetAt = nowFormatted;
+
+  // 1. Create audit record for Reset Password User List
+  const resetId = `CHANGE-${Date.now()}`;
+  const summaryParts: string[] = [];
+  if (previousPhone !== cleanNewPhone) summaryParts.push(`নম্বর: ${previousPhone} ➔ ${cleanNewPhone}`);
+  if (previousEmail !== cleanNewEmail && cleanNewEmail) summaryParts.push(`ইমেইল: ${previousEmail || 'ছিল না'} ➔ ${cleanNewEmail}`);
+  if (hasPasswordChanged) summaryParts.push(`পাসওয়ার্ড রিসেট: ${cleanNewPassword}`);
+  if (cleanTag) summaryParts.push(`[ট্যাগ: ${cleanTag}]`);
+
+  const changeSummary = summaryParts.join(' | ') || `তথ্য আপডেট করা হয়েছে [ট্যাগ: ${cleanTag || 'ID Reset'}]`;
+
+  const resetRecord: PasswordResetRequest = {
+    id: resetId,
+    phone: cleanNewPhone,
+    userName: targetUser.name,
+    oldEmail: previousEmail,
+    newEmail: cleanNewEmail || previousEmail,
+    oldPhone: previousPhone,
+    newPhone: cleanNewPhone,
+    changeType,
+    changeSummary,
+    tag: cleanTag || (changeType === 'both' ? 'Email & Phone Changed' : changeType === 'email' ? 'Email Changed' : changeType === 'phone' ? 'Phone Changed' : 'Password Reset'),
+    status: 'reset',
+    requestedAt: nowFormatted,
+    resolvedAt: nowFormatted,
+    newPasswordAssigned: cleanNewPassword || targetUser.password
+  };
+
+  // 2. Persist to Firestore: remove old user doc if phone changed, set new user doc
+  try {
+    const cleanOldPhone = normalizePhone(oldPhone) || oldPhone;
+    const cleanDocNewPhone = normalizePhone(cleanNewPhone) || cleanNewPhone;
+
+    if (cleanOldPhone !== cleanDocNewPhone) {
+      await deleteDoc(doc(db, 'users', cleanOldPhone)).catch(() => {});
+    }
+    await setDoc(doc(db, 'users', cleanDocNewPhone), cleanFirestoreData(updatedUser));
+    await setDoc(doc(db, 'resetRequests', resetId), cleanFirestoreData(resetRecord));
+
+    if (params.pendingRequestId) {
+      const cleanPendingId = params.pendingRequestId.replace(/[^a-zA-Z0-9_-]/g, '_');
+      await updateDoc(doc(db, 'resetRequests', cleanPendingId), {
+        status: 'reset',
+        resolvedAt: nowFormatted,
+        newPasswordAssigned: cleanNewPassword || targetUser.password
+      }).catch(() => {});
+    }
+  } catch (err) {
+    console.warn('Firestore admin update user details notice:', err);
+  }
+
+  // 3. Cascade update in Orders (so customer order history stays 100% attached on both sides)
+  try {
+    const currentOrders = await apiGetOrders();
+    let ordersModified = false;
+    const updatedOrders = currentOrders.map(ord => {
+      const isMatch = 
+        (previousPhone && normalizePhone(ord.phone) === normalizePhone(previousPhone)) ||
+        (previousEmail && ord.email && ord.email.toLowerCase().trim() === previousEmail.toLowerCase());
+
+      if (isMatch) {
+        ordersModified = true;
+        return {
+          ...ord,
+          phone: cleanNewPhone,
+          email: cleanNewEmail || ord.email
+        };
+      }
+      return ord;
+    });
+
+    if (ordersModified) {
+      localCache.orders = updatedOrders;
+      localStorage.setItem('bongoweb_orders', JSON.stringify(updatedOrders));
+      // update Firestore orders in background
+      for (const ord of updatedOrders) {
+        if (ord.orderId) {
+          const cId = ord.orderId.replace(/[^a-zA-Z0-9_-]/g, '_');
+          updateDoc(doc(db, 'orders', cId), { phone: cleanNewPhone, email: cleanNewEmail || ord.email }).catch(() => {});
+        }
+      }
+    }
+  } catch (_) {}
+
+  // 4. Cascade update in Delivered Credentials (so customer website access stays 100% attached)
+  try {
+    const currentCreds = await apiGetCredentials();
+    let credsModified = false;
+    const updatedCreds = currentCreds.map(c => {
+      const isMatch = 
+        (previousPhone && normalizePhone(c.userPhone) === normalizePhone(previousPhone)) ||
+        (previousEmail && c.userEmail && c.userEmail.toLowerCase().trim() === previousEmail.toLowerCase());
+
+      if (isMatch) {
+        credsModified = true;
+        return {
+          ...c,
+          userPhone: cleanNewPhone,
+          userEmail: cleanNewEmail || c.userEmail
+        };
+      }
+      return c;
+    });
+
+    if (credsModified) {
+      localCache.deliveredCredentials = updatedCreds;
+      localStorage.setItem('bongoweb_delivered_credentials', JSON.stringify(updatedCreds));
+      for (const c of updatedCreds) {
+        if (c.id) {
+          updateDoc(doc(db, 'deliveredCredentials', c.id), { userPhone: cleanNewPhone, userEmail: cleanNewEmail || c.userEmail }).catch(() => {});
+        }
+      }
+    }
+  } catch (_) {}
+
+  // 4b. Cascade update in Chat Threads (so customer chat history stays 100% attached on both sides)
+  try {
+    const currentThreads = await apiGetChatThreads();
+    let threadsModified = false;
+    const cleanOldPhone = normalizePhone(oldPhone) || oldPhone;
+    const cleanDocNewPhone = normalizePhone(cleanNewPhone) || cleanNewPhone;
+
+    const updatedThreads = currentThreads.map(th => {
+      const isMatch = 
+        (previousPhone && normalizePhone(th.userPhone) === normalizePhone(previousPhone)) ||
+        (previousEmail && th.userEmail && th.userEmail.toLowerCase().trim() === previousEmail.toLowerCase());
+
+      if (isMatch) {
+        threadsModified = true;
+        return {
+          ...th,
+          userPhone: cleanDocNewPhone,
+          userEmail: cleanNewEmail || th.userEmail
+        };
+      }
+      return th;
+    });
+
+    if (threadsModified) {
+      localCache.supportChats = updatedThreads;
+      localStorage.setItem('bongoweb_support_chats', JSON.stringify(updatedThreads));
+      if (cleanOldPhone !== cleanDocNewPhone) {
+        await deleteDoc(doc(db, 'supportChats', cleanOldPhone)).catch(() => {});
+      }
+      const matchedTh = updatedThreads.find(th => normalizePhone(th.userPhone) === cleanDocNewPhone);
+      if (matchedTh) {
+        await setDoc(doc(db, 'supportChats', cleanDocNewPhone), cleanFirestoreData(matchedTh)).catch(() => {});
+      }
+    }
+  } catch (_) {}
+
+  // 5. Update localCache.users
+  const updatedUserList = (localCache.users || []).map(u => {
+    if (
+      (previousPhone && normalizePhone(u.phone) === normalizePhone(previousPhone)) ||
+      (previousEmail && u.email && u.email.toLowerCase().trim() === previousEmail.toLowerCase())
+    ) {
+      return updatedUser;
+    }
+    return u;
+  });
+  localCache.users = updatedUserList;
+  localStorage.setItem('bongoweb_registered_users', JSON.stringify(updatedUserList));
+
+  // 6. Update localCache.resetRequests (prepend resetRecord, and if pendingRequestId, mark pending as resolved)
+  let updatedResetReqs = (localCache.resetRequests || []).map(r => {
+    if (params.pendingRequestId && r.id === params.pendingRequestId) {
+      return {
+        ...r,
+        status: 'reset' as const,
+        resolvedAt: nowFormatted,
+        newPasswordAssigned: cleanNewPassword || targetUser.password
+      };
+    }
+    return r;
+  });
+  updatedResetReqs = [resetRecord, ...updatedResetReqs];
+  localCache.resetRequests = updatedResetReqs;
+  localStorage.setItem('bongoweb_reset_requests', JSON.stringify(localCache.resetRequests));
+
+  // 7. If currently logged in user in active browser is this user, update session seamlessly
+  try {
+    const stored = localStorage.getItem('bongoweb_user');
+    if (stored) {
+      const u = JSON.parse(stored);
+      if (
+        (previousPhone && normalizePhone(u.phone) === normalizePhone(previousPhone)) ||
+        (previousEmail && u.email && u.email.toLowerCase().trim() === previousEmail.toLowerCase())
+      ) {
+        localStorage.setItem('bongoweb_user', JSON.stringify(updatedUser));
+        sessionStorage.setItem('bongoweb_user', JSON.stringify(updatedUser));
+        window.dispatchEvent(new Event('bongoweb_credentials_updated'));
+      }
+    }
+  } catch (_) {}
+
+  // 8. Dispatch global events so both sides update immediately in real-time
+  try {
+    window.dispatchEvent(new Event('storage'));
+    window.dispatchEvent(new Event('bongoweb_user_updated'));
+    window.dispatchEvent(new CustomEvent('bongoweb_profile_changed', { detail: updatedUser }));
+  } catch (_) {}
+
+  return {
+    success: true,
+    updatedUser,
+    resetRecord
+  };
+}
+
 // ---------------- REALTIME FIRESTORE SUBSCRIPTIONS ----------------
 export function subscribeToOrders(callback: (orders: ClientOrder[]) => void): () => void {
   try {
@@ -2440,4 +2745,251 @@ export function subscribeToEmailRecoveries(callback: (list: EmailRecoveryRequest
     return () => {};
   }
 }
+
+// ---------------- CALL BACK REQUEST DESK ----------------
+export async function apiGetCallBackRequests(): Promise<CallBackRequest[]> {
+  try {
+    const snap = await getDocs(collection(db, 'callBackRequests'));
+    if (!snap.empty) {
+      const list = snap.docs.map(d => d.data() as CallBackRequest);
+      localCache.callBackRequests = list;
+      localStorage.setItem('bongoweb_callback_requests', JSON.stringify(list));
+      return list;
+    }
+  } catch (_) {}
+
+  const stored = localStorage.getItem('bongoweb_callback_requests');
+  if (stored) {
+    try {
+      const parsed = JSON.parse(stored);
+      if (Array.isArray(parsed)) {
+        localCache.callBackRequests = parsed;
+        return parsed;
+      }
+    } catch (_) {}
+  }
+
+  return localCache.callBackRequests || [];
+}
+
+export async function apiSubmitCallBackRequest(params: {
+  name: string;
+  phone: string;
+  reason: string;
+}): Promise<CallBackRequest> {
+  const cleanPhone = String(params.phone || '').trim();
+  const cleanName = String(params.name || '').trim();
+  const cleanReason = String(params.reason || '').trim();
+  const nowFormatted = new Date().toLocaleString('bn-BD');
+
+  const newReq: CallBackRequest = {
+    id: `CALL-${Date.now()}`,
+    name: cleanName,
+    phone: cleanPhone,
+    reason: cleanReason,
+    requestedAt: nowFormatted,
+    status: 'pending'
+  };
+
+  const cleanId = newReq.id.replace(/[^a-zA-Z0-9_-]/g, '_');
+
+  // 1. Save to Cloud Firestore
+  try {
+    await setDoc(doc(db, 'callBackRequests', cleanId), cleanFirestoreData(newReq));
+  } catch (err) {
+    console.warn('Firestore submit callback request notice:', err);
+  }
+
+  // Also mirror in resetRequests so it appears in resetRequests if queried
+  const mirroredReset: PasswordResetRequest = {
+    id: newReq.id,
+    phone: cleanPhone,
+    userName: cleanName,
+    reason: cleanReason,
+    requestedAt: nowFormatted,
+    status: 'pending',
+    type: 'call_back',
+    tag: 'Call Back Request'
+  };
+  try {
+    await setDoc(doc(db, 'resetRequests', cleanId), cleanFirestoreData(mirroredReset));
+    localCache.resetRequests = [mirroredReset, ...localCache.resetRequests.filter(r => r.id !== newReq.id)];
+    localStorage.setItem('bongoweb_reset_requests', JSON.stringify(localCache.resetRequests));
+  } catch (_) {}
+
+  // 2. Update localCache & localStorage
+  localCache.callBackRequests = [newReq, ...(localCache.callBackRequests || []).filter(r => r.id !== newReq.id)];
+  localStorage.setItem('bongoweb_callback_requests', JSON.stringify(localCache.callBackRequests));
+  localStorage.setItem('bongoweb_my_active_callback_request', JSON.stringify(newReq));
+
+  // 3. Dispatch events for real-time multi-device sync
+  try {
+    window.dispatchEvent(new Event('storage'));
+    window.dispatchEvent(new Event('bongoweb_callback_requests_updated'));
+    window.dispatchEvent(new CustomEvent('bongoweb_callback_created', { detail: newReq }));
+  } catch (_) {}
+
+  return newReq;
+}
+
+export async function apiApproveCallBackRequest(id: string): Promise<CallBackRequest[]> {
+  const safeId = String(id || '').trim();
+  const cleanId = safeId.replace(/[^a-zA-Z0-9_-]/g, '_');
+  const nowFormatted = new Date().toLocaleString('bn-BD');
+
+  try {
+    await updateDoc(doc(db, 'callBackRequests', cleanId), {
+      status: 'approved',
+      approvedAt: nowFormatted
+    });
+  } catch (err) {
+    console.warn('Firestore approve callback request notice:', err);
+  }
+
+  try {
+    await updateDoc(doc(db, 'resetRequests', cleanId), {
+      status: 'approved',
+      approvedAt: nowFormatted,
+      resolvedAt: nowFormatted
+    }).catch(() => {});
+  } catch (_) {}
+
+  // Update localCache
+  localCache.callBackRequests = (localCache.callBackRequests || []).map(r => 
+    r.id === safeId ? { ...r, status: 'approved' as const, approvedAt: nowFormatted } : r
+  );
+  localStorage.setItem('bongoweb_callback_requests', JSON.stringify(localCache.callBackRequests));
+
+  localCache.resetRequests = (localCache.resetRequests || []).map(r => 
+    r.id === safeId ? { ...r, status: 'approved' as const, approvedAt: nowFormatted, resolvedAt: nowFormatted } : r
+  );
+  localStorage.setItem('bongoweb_reset_requests', JSON.stringify(localCache.resetRequests));
+
+  // Update client's own active request if matching
+  try {
+    const active = localStorage.getItem('bongoweb_my_active_callback_request');
+    if (active) {
+      const parsed: CallBackRequest = JSON.parse(active);
+      if (parsed.id === safeId) {
+        parsed.status = 'approved';
+        parsed.approvedAt = nowFormatted;
+        localStorage.setItem('bongoweb_my_active_callback_request', JSON.stringify(parsed));
+      }
+    }
+  } catch (_) {}
+
+  try {
+    window.dispatchEvent(new Event('storage'));
+    window.dispatchEvent(new Event('bongoweb_callback_requests_updated'));
+  } catch (_) {}
+
+  return localCache.callBackRequests;
+}
+
+export async function apiRejectCallBackRequest(id: string): Promise<CallBackRequest[]> {
+  const safeId = String(id || '').trim();
+  const cleanId = safeId.replace(/[^a-zA-Z0-9_-]/g, '_');
+  const nowFormatted = new Date().toLocaleString('bn-BD');
+
+  try {
+    await updateDoc(doc(db, 'callBackRequests', cleanId), {
+      status: 'rejected',
+      rejectedAt: nowFormatted
+    });
+  } catch (err) {
+    console.warn('Firestore reject callback request notice:', err);
+  }
+
+  try {
+    await updateDoc(doc(db, 'resetRequests', cleanId), {
+      status: 'rejected',
+      resolvedAt: nowFormatted
+    }).catch(() => {});
+  } catch (_) {}
+
+  localCache.callBackRequests = (localCache.callBackRequests || []).map(r => 
+    r.id === safeId ? { ...r, status: 'rejected' as const, rejectedAt: nowFormatted } : r
+  );
+  localStorage.setItem('bongoweb_callback_requests', JSON.stringify(localCache.callBackRequests));
+
+  localCache.resetRequests = (localCache.resetRequests || []).map(r => 
+    r.id === safeId ? { ...r, status: 'rejected' as const, resolvedAt: nowFormatted } : r
+  );
+  localStorage.setItem('bongoweb_reset_requests', JSON.stringify(localCache.resetRequests));
+
+  try {
+    const active = localStorage.getItem('bongoweb_my_active_callback_request');
+    if (active) {
+      const parsed: CallBackRequest = JSON.parse(active);
+      if (parsed.id === safeId) {
+        parsed.status = 'rejected';
+        parsed.rejectedAt = nowFormatted;
+        localStorage.setItem('bongoweb_my_active_callback_request', JSON.stringify(parsed));
+      }
+    }
+  } catch (_) {}
+
+  try {
+    window.dispatchEvent(new Event('storage'));
+    window.dispatchEvent(new Event('bongoweb_callback_requests_updated'));
+  } catch (_) {}
+
+  return localCache.callBackRequests;
+}
+
+export async function apiRemoveCallBackRequest(id: string): Promise<CallBackRequest[]> {
+  const safeId = String(id || '').trim();
+  const cleanId = safeId.replace(/[^a-zA-Z0-9_-]/g, '_');
+
+  try {
+    await deleteDoc(doc(db, 'callBackRequests', cleanId));
+  } catch (err) {
+    console.warn('Firestore delete callback request notice:', err);
+  }
+
+  try {
+    await deleteDoc(doc(db, 'resetRequests', cleanId)).catch(() => {});
+  } catch (_) {}
+
+  localCache.callBackRequests = (localCache.callBackRequests || []).filter(r => r.id !== safeId);
+  localStorage.setItem('bongoweb_callback_requests', JSON.stringify(localCache.callBackRequests));
+
+  localCache.resetRequests = (localCache.resetRequests || []).filter(r => r.id !== safeId);
+  localStorage.setItem('bongoweb_reset_requests', JSON.stringify(localCache.resetRequests));
+
+  // If this matches user's active call back request, remove it completely so it no longer shows
+  try {
+    const active = localStorage.getItem('bongoweb_my_active_callback_request');
+    if (active) {
+      const parsed: CallBackRequest = JSON.parse(active);
+      if (parsed.id === safeId) {
+        localStorage.removeItem('bongoweb_my_active_callback_request');
+      }
+    }
+  } catch (_) {}
+
+  try {
+    window.dispatchEvent(new Event('storage'));
+    window.dispatchEvent(new Event('bongoweb_callback_requests_updated'));
+  } catch (_) {}
+
+  return localCache.callBackRequests;
+}
+
+export function subscribeToCallBackRequests(callback: (list: CallBackRequest[]) => void): () => void {
+  try {
+    return onSnapshot(collection(db, 'callBackRequests'), (snapshot) => {
+      const list = snapshot.docs.map(d => d.data() as CallBackRequest);
+      list.sort((a, b) => (b.requestedAt || '').localeCompare(a.requestedAt || ''));
+      localCache.callBackRequests = list;
+      localStorage.setItem('bongoweb_callback_requests', JSON.stringify(list));
+      callback(list);
+    }, (err) => {
+      console.warn('CallBackRequests onSnapshot notice:', err);
+    });
+  } catch (_) {
+    return () => {};
+  }
+}
+
 

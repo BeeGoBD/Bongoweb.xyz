@@ -139,9 +139,33 @@ export interface PasswordResetRequest {
   id: string;
   phone: string;
   requestedAt: string;
-  status: 'pending' | 'reset' | 'rejected' | 'call_not_received';
+  status: 'pending' | 'reset' | 'rejected' | 'call_not_received' | 'approved';
   resolvedAt?: string;
+  approvedAt?: string;
   newPasswordAssigned?: string;
+  // Detail Changes & Tagging Tracking
+  userName?: string;
+  oldEmail?: string;
+  newEmail?: string;
+  oldPhone?: string;
+  newPhone?: string;
+  changeType?: 'email' | 'phone' | 'both' | 'password';
+  changeSummary?: string;
+  tag?: string;
+  reason?: string;
+  type?: 'reset' | 'call_back';
+}
+
+export interface CallBackRequest {
+  id: string;
+  name: string;
+  phone: string;
+  reason: string;
+  requestedAt: string;
+  status: 'pending' | 'approved' | 'rejected';
+  approvedAt?: string;
+  rejectedAt?: string;
+  notes?: string;
 }
 
 export interface AdminConfig {

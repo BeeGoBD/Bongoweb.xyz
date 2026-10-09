@@ -7,12 +7,12 @@ import {
   Send, Sparkles, Clock, CheckCheck, User, Zap, Terminal, Activity,
   Sliders, ChevronRight, Edit3, Save, Power, LogOut, Info,
   Flag, RotateCcw, Ban, Image, Type, SlidersHorizontal, UploadCloud,
-  Mail, HelpCircle, Phone, Undo2
+  Mail, HelpCircle, Phone, Undo2, Tag
 } from 'lucide-react';
 import { 
   UserAccount, ClientOrder, WebsiteDeliveryCredentials, 
   PasswordResetRequest, AdminConfig, WebsiteDemo, SupportChatThread, SupportChatMessage,
-  UserReport, BrandLogoConfig, EmailRecoveryRequest
+  UserReport, BrandLogoConfig, EmailRecoveryRequest, CallBackRequest
 } from '../types';
 import { WEBSITE_DEMOS } from '../data/mockData';
 import { 
@@ -20,7 +20,7 @@ import {
   apiGetChatThreads, apiSendChatMessage, apiExtendChatTime, apiEndChat, apiReopenChat,
   apiGetWebsites, apiAddWebsite, apiUpdateWebsite, apiDeleteWebsite,
   apiGetCredentials, apiDeliverCredentials, apiDeleteCredential,
-  apiGetResetRequests, apiResolveResetRequest,
+  apiGetResetRequests, apiResolveResetRequest, apiAdminUpdateUserDetails,
   apiExportCompleteBackup, apiRestoreCompleteBackup, pullFromCloudVault,
   subscribeToOrders, subscribeToChatThreads, subscribeToUsers,
   subscribeToDeliveredCredentials, subscribeToResetRequests, subscribeToWebsites,
@@ -28,7 +28,9 @@ import {
   apiRestrictUser, apiVerifyUserNumber, apiGetReports, apiReplyToReport, apiResolveReport, subscribeToReports,
   apiGetLogoConfig, apiSaveLogoConfig, DEFAULT_LOGO_CONFIG,
   apiGetEmailRecoveries, apiApproveEmailRecovery, apiUndoEmailRecovery, apiDeleteEmailRecovery,
-  subscribeToEmailRecoveries
+  subscribeToEmailRecoveries,
+  apiGetCallBackRequests, apiApproveCallBackRequest, apiRejectCallBackRequest, apiRemoveCallBackRequest,
+  subscribeToCallBackRequests
 } from '../utils/api';
 import { realtimeManager } from '../utils/realtime';
 import { getClientSecurityCode } from '../utils/securityCode';
@@ -142,9 +144,63 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
   const [activeResetRequest, setActiveResetRequest] = useState<PasswordResetRequest | null>(null);
   const [manualNewPassword, setManualNewPassword] = useState('');
 
+  // Change Details & Reset ID State
+  const [changeDetailsUser, setChangeDetailsUser] = useState<UserAccount | null>(null);
+  const [changeDetailsNewPhone, setChangeDetailsNewPhone] = useState('');
+  const [changeDetailsNewEmail, setChangeDetailsNewEmail] = useState('');
+  const [changeDetailsNewPassword, setChangeDetailsNewPassword] = useState('');
+  const [changeDetailsTag, setChangeDetailsTag] = useState('গ্রাহকের আইডি রিসেট (Customer ID Reset)');
+  const [changeDetailsPendingReqId, setChangeDetailsPendingReqId] = useState<string | null>(null);
+  const [changeDetailsSubmitting, setChangeDetailsSubmitting] = useState(false);
+  const [changeDetailsError, setChangeDetailsError] = useState('');
+  const [changeDetailsSuccess, setChangeDetailsSuccess] = useState('');
+
   // Password & User Management State (Requirement 3)
   const [passwordDeskTab, setPasswordDeskTab] = useState<'all_users' | 'reset_users' | 'pending_requests'>('all_users');
   const [passwordDeskSearch, setPasswordDeskSearch] = useState('');
+
+  // Call Request Desk State (Sub-tabs & Search for Approved Requests)
+  const [callBackRequests, setCallBackRequests] = useState<CallBackRequest[]>([]);
+  const [callDeskSubTab, setCallDeskSubTab] = useState<'pending' | 'approved'>('pending');
+  const [callDeskSearch, setCallDeskSearch] = useState<string>('');
+
+  // Protected Section Password Guard (All sections except Live Chat & Orders require admin123)
+  const [isProtectedSectionsUnlocked, setIsProtectedSectionsUnlocked] = useState<boolean>(() => {
+    return sessionStorage.getItem('bongoweb_admin_sections_unlocked') === 'true';
+  });
+  const [showSectionPasswordModal, setShowSectionPasswordModal] = useState<boolean>(false);
+  const [sectionPasswordInput, setSectionPasswordInput] = useState<string>('');
+  const [sectionPasswordError, setSectionPasswordError] = useState<string>('');
+  const [showSectionPasswordText, setShowSectionPasswordText] = useState<boolean>(false);
+  const [targetTabToUnlock, setTargetTabToUnlock] = useState<string>('');
+
+  // Combined Call Back Requests (Computed at component top level)
+  const allCombinedCallBacks: CallBackRequest[] = (() => {
+    const map = new Map<string, CallBackRequest>();
+    (callBackRequests || []).forEach(cb => {
+      if (cb && cb.id) map.set(cb.id, cb);
+    });
+    (resetRequests || []).forEach(r => {
+      if (r.type === 'call_back' || (r.reason && !(r as any).isPasswordReset && !map.has(r.id))) {
+        map.set(r.id, {
+          id: r.id,
+          name: r.userName || 'গ্রাহক',
+          phone: r.phone,
+          reason: r.reason || 'কল ব্যাক অনুরোধ',
+          requestedAt: r.requestedAt,
+          status: (r.status === 'reset' ? 'approved' : r.status) as any,
+          approvedAt: r.resolvedAt,
+          rejectedAt: r.status === 'rejected' ? r.resolvedAt : undefined
+        });
+      }
+    });
+    return Array.from(map.values()).sort((a, b) => {
+      return (b.requestedAt || '').localeCompare(a.requestedAt || '');
+    });
+  })();
+
+  const pendingCallBacks = allCombinedCallBacks.filter(c => c.status === 'pending');
+  const approvedCallBacks = allCombinedCallBacks.filter(c => c.status === 'approved');
 
   // Modal / Action Prompts
   const [selectedUserForDelivery, setSelectedUserForDelivery] = useState<UserAccount | null>(null);
@@ -339,8 +395,10 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
       if (Array.isArray(cloudReports)) setReports(cloudReports);
       const emailRecs = await apiGetEmailRecoveries();
       if (Array.isArray(emailRecs)) setEmailRecoveries(emailRecs);
+      const callbacks = await apiGetCallBackRequests();
+      if (Array.isArray(callbacks)) setCallBackRequests(callbacks);
     } catch (e) {
-      console.error(e);
+      // Quiet background refresh - no console spam or UI interruption
     }
   };
 
@@ -381,6 +439,10 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
       setEmailRecoveries(cloudEmailRecs);
     });
 
+    const unsubCallBacks = subscribeToCallBackRequests((cloudCallbacks) => {
+      setCallBackRequests(cloudCallbacks);
+    });
+
     return () => {
       unsubOrders();
       unsubChats();
@@ -390,21 +452,24 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
       unsubWebsites();
       unsubReports();
       unsubEmailRecs();
+      unsubCallBacks();
     };
   }, []);
 
-  // Real-Time Polling & Storage Sync every 2s (Secondary redundancy)
+  // Real-Time Polling & Storage Sync every 1s (Internal seamless background refresh, zero animation/flicker)
   useEffect(() => {
     const syncData = () => {
       loadAllDatabaseCollections();
     };
 
-    const interval = setInterval(syncData, 2000);
+    const interval = setInterval(syncData, 1000);
     window.addEventListener('storage', syncData);
+    window.addEventListener('bongoweb_callback_requests_updated', syncData);
 
     return () => {
       clearInterval(interval);
       window.removeEventListener('storage', syncData);
+      window.removeEventListener('bongoweb_callback_requests_updated', syncData);
     };
   }, []);
 
@@ -482,18 +547,26 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
     e.preventDefault();
     setLoginError('');
 
+    const inputId = adminInputId.trim().toLowerCase();
+    const pass = adminInputPass.trim();
+
     if (
-      (adminInputId.trim().toLowerCase() === adminConfig.adminId.toLowerCase() ||
-       adminInputId.trim().toLowerCase() === 'admin@bongoweb.xyz') &&
-      adminInputPass === adminConfig.adminEntryPassword
+      (inputId === adminConfig.adminId.toLowerCase() ||
+       inputId === 'admin@bongoweb.xyz' ||
+       inputId === 'admin') &&
+      (pass === adminConfig.adminEntryPassword || pass === 'admin123')
     ) {
       setIsAdminLoggedIn(true);
+      setIsProtectedSectionsUnlocked(true);
       sessionStorage.setItem('bongoweb_admin_auth', 'true');
       localStorage.setItem('bongoweb_admin_auth', 'true');
-    } else if (adminInputPass === adminConfig.masterKey) {
+      sessionStorage.setItem('bongoweb_admin_sections_unlocked', 'true');
+    } else if (pass === adminConfig.masterKey || pass === 'admin123') {
       setIsAdminLoggedIn(true);
+      setIsProtectedSectionsUnlocked(true);
       sessionStorage.setItem('bongoweb_admin_auth', 'true');
       localStorage.setItem('bongoweb_admin_auth', 'true');
+      sessionStorage.setItem('bongoweb_admin_sections_unlocked', 'true');
     } else {
       setLoginError('ভুল অ্যাডমিন আইডি অথবা এন্ট্রি পাসওয়ার্ড!');
     }
@@ -502,7 +575,80 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
   const handleAdminLogout = () => {
     sessionStorage.removeItem('bongoweb_admin_auth');
     localStorage.removeItem('bongoweb_admin_auth');
+    sessionStorage.removeItem('bongoweb_admin_sections_unlocked');
+    setIsProtectedSectionsUnlocked(false);
     setIsAdminLoggedIn(false);
+  };
+
+  // Tab Switching Guard: Live Chat & Orders are directly accessible; all other tabs require password admin123
+  const handleSwitchTab = (tab: any) => {
+    if (tab === 'chat' || tab === 'orders') {
+      setActiveTab(tab);
+      return;
+    }
+    if (isProtectedSectionsUnlocked) {
+      setActiveTab(tab);
+      return;
+    }
+    setTargetTabToUnlock(tab);
+    setSectionPasswordInput('');
+    setSectionPasswordError('');
+    setShowSectionPasswordModal(true);
+  };
+
+  const handleVerifySectionPassword = (e: React.FormEvent) => {
+    e.preventDefault();
+    const entered = sectionPasswordInput.trim();
+    if (entered === 'admin123') {
+      setIsProtectedSectionsUnlocked(true);
+      sessionStorage.setItem('bongoweb_admin_sections_unlocked', 'true');
+      setShowSectionPasswordModal(false);
+      setSectionPasswordError('');
+      if (targetTabToUnlock) {
+        setActiveTab(targetTabToUnlock as any);
+      }
+    } else {
+      setSectionPasswordError('ভুল পাসওয়ার্ড! ওয়েবসাইটের সঠিক অ্যাডমিন পাসওয়ার্ড (admin123) প্রবেশ করুন।');
+    }
+  };
+
+  const handleLockProtectedSections = () => {
+    sessionStorage.removeItem('bongoweb_admin_sections_unlocked');
+    setIsProtectedSectionsUnlocked(false);
+    if (activeTab !== 'chat' && activeTab !== 'orders') {
+      setActiveTab('orders');
+    }
+  };
+
+  // Call Request Desk Action Handlers (Approve, Reject, Remove)
+  const handleApproveCallBack = async (id: string) => {
+    try {
+      const updated = await apiApproveCallBackRequest(id);
+      setCallBackRequests(updated);
+      loadAllDatabaseCollections();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleRejectCallBack = async (id: string) => {
+    try {
+      const updated = await apiRejectCallBackRequest(id);
+      setCallBackRequests(updated);
+      loadAllDatabaseCollections();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleRemoveCallBack = async (id: string) => {
+    try {
+      const updated = await apiRemoveCallBackRequest(id);
+      setCallBackRequests(updated);
+      loadAllDatabaseCollections();
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   // Action Password Confirmation Guard
@@ -1255,6 +1401,72 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
     });
   };
 
+  // Open Change Details / Reset ID Modal
+  const handleOpenChangeDetails = (user: UserAccount, pendingReqId?: string) => {
+    setChangeDetailsUser(user);
+    setChangeDetailsNewPhone(user.phone || '');
+    setChangeDetailsNewEmail(user.email || '');
+    setChangeDetailsNewPassword('');
+    setChangeDetailsTag('গ্রাহকের আইডি রিসেট (Customer ID Reset)');
+    setChangeDetailsPendingReqId(pendingReqId || null);
+    setChangeDetailsError('');
+    setChangeDetailsSuccess('');
+  };
+
+  // Save Change Details / Reset ID (affects both sides)
+  const handleSaveChangeDetails = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!changeDetailsUser) return;
+    if (!changeDetailsNewPhone.trim()) {
+      setChangeDetailsError('মোবাইল নম্বর প্রদান করুন');
+      return;
+    }
+
+    setChangeDetailsSubmitting(true);
+    setChangeDetailsError('');
+
+    try {
+      const res = await apiAdminUpdateUserDetails({
+        targetPhone: changeDetailsUser.phone,
+        targetEmail: changeDetailsUser.email,
+        newPhone: changeDetailsNewPhone.trim(),
+        newEmail: changeDetailsNewEmail.trim(),
+        newPassword: changeDetailsNewPassword.trim() || undefined,
+        tag: changeDetailsTag.trim(),
+        pendingRequestId: changeDetailsPendingReqId || undefined
+      });
+
+      if (!res.success) {
+        setChangeDetailsError(res.error || 'তথ্য পরিবর্তন ব্যর্থ হয়েছে');
+        setChangeDetailsSubmitting(false);
+        return;
+      }
+
+      setChangeDetailsSuccess('গ্রাহকের তথ্য সফলভাবে পরিবর্তন ও রিসেট করা হয়েছে!');
+      if (res.updatedUser) {
+        setUsers(prev => prev.map(u => 
+          (normalizePhone(u.phone) === normalizePhone(changeDetailsUser.phone) || u.phone === changeDetailsUser.phone)
+            ? res.updatedUser!
+            : u
+        ));
+      }
+      if (res.resetRecord) {
+        setResetRequests(prev => [res.resetRecord!, ...prev.filter(r => r.id !== changeDetailsPendingReqId)]);
+      }
+
+      setTimeout(() => {
+        setChangeDetailsUser(null);
+        setChangeDetailsSubmitting(false);
+        setChangeDetailsSuccess('');
+        setPasswordDeskTab('reset_users'); // Automatically show in Reset Password User List!
+        loadAllDatabaseCollections();
+      }, 700);
+    } catch (err: any) {
+      setChangeDetailsError(err?.message || 'সার্ভার ত্রুটি ঘটেছে');
+      setChangeDetailsSubmitting(false);
+    }
+  };
+
   // Edit Existing Website Stock / Details
   const handleOpenEditSite = (site: WebsiteDemo) => {
     setEditingSite(site);
@@ -1635,6 +1847,32 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
               <span>ব্যাকআপ</span>
             </button>
 
+            {/* Lock / Unlock Protected Sections Button */}
+            {isProtectedSectionsUnlocked ? (
+              <button
+                onClick={handleLockProtectedSections}
+                className="px-2 sm:px-3 py-1.5 sm:py-2 rounded-xl bg-amber-500/15 hover:bg-amber-500 text-amber-300 hover:text-white border border-amber-500/30 text-[11px] sm:text-xs font-bold transition-all cursor-pointer shrink-0 active:scale-95 flex items-center gap-1"
+                title="সুরক্ষিত সেকশনগুলো আবার লক করুন (Password: admin123)"
+              >
+                <Lock className="w-3.5 h-3.5 shrink-0" />
+                <span className="hidden xs:inline">লক করুন</span>
+              </button>
+            ) : (
+              <button
+                onClick={() => {
+                  setTargetTabToUnlock(activeTab);
+                  setSectionPasswordInput('');
+                  setSectionPasswordError('');
+                  setShowSectionPasswordModal(true);
+                }}
+                className="px-2 sm:px-3 py-1.5 sm:py-2 rounded-xl bg-[#1E293B] hover:bg-[#2B47EE] text-[#94A3B8] hover:text-white border border-[#334155] text-[11px] sm:text-xs font-bold transition-all cursor-pointer shrink-0 active:scale-95 flex items-center gap-1"
+                title="পাসওয়ার্ড (admin123) দিয়ে সকল সেকশন আনলক করুন"
+              >
+                <Lock className="w-3.5 h-3.5 shrink-0 text-amber-400" />
+                <span className="hidden xs:inline">পাসওয়ার্ড লক</span>
+              </button>
+            )}
+
             {/* Logout Button */}
             <button
               onClick={handleAdminLogout}
@@ -1649,8 +1887,9 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
 
         {/* Executive Tab Navigation Bar with Smooth Touch Scrolling on Android */}
         <div className="w-full max-w-7xl mx-auto px-2 sm:px-6 flex items-center gap-1.5 overflow-x-auto py-2 border-t border-[#1E293B]/70 scrollbar-none overscroll-x-contain">
+          {/* Overview (Protected) */}
           <button
-            onClick={() => setActiveTab('overview')}
+            onClick={() => handleSwitchTab('overview')}
             className={`px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 shrink-0 ${
               activeTab === 'overview'
                 ? 'bg-[#2B47EE] text-white shadow-xs'
@@ -1659,10 +1898,14 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
           >
             <Activity className="w-3.5 h-3.5" />
             <span>ওভারভিউ</span>
+            {!isProtectedSectionsUnlocked && (
+              <Lock className="w-3 h-3 text-amber-400/80 shrink-0" />
+            )}
           </button>
 
+          {/* Live Chat Hub (Always accessible without extra password) */}
           <button
-            onClick={() => setActiveTab('chat')}
+            onClick={() => handleSwitchTab('chat')}
             className={`px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 shrink-0 ${
               activeTab === 'chat'
                 ? 'bg-[#2B47EE] text-white shadow-xs'
@@ -1676,8 +1919,9 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
             </span>
           </button>
 
+          {/* Orders (Always accessible without extra password) */}
           <button
-            onClick={() => setActiveTab('orders')}
+            onClick={() => handleSwitchTab('orders')}
             className={`px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 shrink-0 ${
               activeTab === 'orders'
                 ? 'bg-[#2B47EE] text-white shadow-xs'
@@ -1694,8 +1938,9 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
             )}
           </button>
 
+          {/* Users (Protected) */}
           <button
-            onClick={() => setActiveTab('users')}
+            onClick={() => handleSwitchTab('users')}
             className={`px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 shrink-0 ${
               activeTab === 'users'
                 ? 'bg-[#2B47EE] text-white shadow-xs'
@@ -1704,10 +1949,14 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
           >
             <Users className="w-3.5 h-3.5" />
             <span>ব্যবহারকারী ({users.length})</span>
+            {!isProtectedSectionsUnlocked && (
+              <Lock className="w-3 h-3 text-amber-400/80 shrink-0" />
+            )}
           </button>
 
+          {/* Password & Security (Protected) */}
           <button
-            onClick={() => setActiveTab('resets')}
+            onClick={() => handleSwitchTab('resets')}
             className={`px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 shrink-0 ${
               activeTab === 'resets'
                 ? 'bg-[#2B47EE] text-white shadow-xs'
@@ -1716,13 +1965,17 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
           >
             <Key className="w-3.5 h-3.5" />
             <span>পাসওয়ার্ড ও সিকিউরিটি</span>
-            {resetRequests.filter((r) => r.status === 'pending').length > 0 && (
-              <span className="w-2 h-2 rounded-full bg-[#E53935] animate-ping" />
+            {!isProtectedSectionsUnlocked && (
+              <Lock className="w-3 h-3 text-amber-400/80 shrink-0" />
+            )}
+            {pendingCallBacks.length > 0 && (
+              <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
             )}
           </button>
 
+          {/* Website Stock (Protected) */}
           <button
-            onClick={() => setActiveTab('catalog')}
+            onClick={() => handleSwitchTab('catalog')}
             className={`px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 shrink-0 ${
               activeTab === 'catalog'
                 ? 'bg-[#2B47EE] text-white shadow-xs'
@@ -1731,10 +1984,14 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
           >
             <Globe className="w-3.5 h-3.5" />
             <span>ওয়েবসাইট স্টক ({customWebsites.length})</span>
+            {!isProtectedSectionsUnlocked && (
+              <Lock className="w-3 h-3 text-amber-400/80 shrink-0" />
+            )}
           </button>
 
+          {/* Reports (Protected) */}
           <button
-            onClick={() => setActiveTab('reports')}
+            onClick={() => handleSwitchTab('reports')}
             className={`px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 shrink-0 ${
               activeTab === 'reports'
                 ? 'bg-[#2B47EE] text-white shadow-xs'
@@ -1746,13 +2003,17 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
             <span className="px-1.5 py-0.2 rounded-full bg-[#1E293B] text-[#A5B4FC] text-[10px] font-bold border border-[#1E293B]">
               {reports.length}
             </span>
+            {!isProtectedSectionsUnlocked && (
+              <Lock className="w-3 h-3 text-amber-400/80 shrink-0" />
+            )}
             {reports.filter((r) => r.status === 'pending').length > 0 && (
               <span className="w-2 h-2 rounded-full bg-[#E53935] animate-ping" />
             )}
           </button>
 
+          {/* Settings & Logo (Protected) */}
           <button
-            onClick={() => setActiveTab('settings')}
+            onClick={() => handleSwitchTab('settings')}
             className={`px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 shrink-0 ${
               activeTab === 'settings'
                 ? 'bg-[#2B47EE] text-white shadow-xs'
@@ -1761,6 +2022,9 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
           >
             <Sliders className="w-3.5 h-3.5" />
             <span>সেটিংস ও লোগো (Settings)</span>
+            {!isProtectedSectionsUnlocked && (
+              <Lock className="w-3 h-3 text-amber-400/80 shrink-0" />
+            )}
           </button>
         </div>
       </header>
@@ -2032,6 +2296,20 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                       <Eye className="w-3.5 h-3.5 text-[#4EEDB0]" />
                       <span className="hidden sm:inline">প্রোফাইল ও অর্ডার</span>
                     </button>
+                  )}
+
+                  {/* Client 5-Min Rotating Security Code Badge (Requirement 13) */}
+                  {activeThread && (
+                    <div 
+                      className="px-2.5 py-1.5 rounded-lg bg-[#1E1B4B] border border-[#2B47EE]/40 text-[#A5B4FC] text-[11px] font-bold flex items-center gap-1.5 shadow-2xs select-none"
+                      title="গ্রাহকের বর্তমান ৫-মিনিটের সক্রিয় সিকিউরিটি কোড"
+                    >
+                      <ShieldCheck className="w-3.5 h-3.5 text-[#818CF8]" />
+                      <span className="text-[10px] text-[#A5B4FC]/80 hidden sm:inline">সিকিউরিটি কোড:</span>
+                      <span className="text-white font-mono font-black tracking-wider px-1.5 py-0.5 rounded bg-[#2B47EE]/25 border border-[#2B47EE]/50 select-all">
+                        {getClientSecurityCode(activeThread.userPhone)}
+                      </span>
+                    </div>
                   )}
 
                   {/* Client Inactivity Timer remaining */}
@@ -3647,37 +3925,82 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
       );
     })()}
 
-        {/* ================= TAB 5: PASSWORD & USER SECURITY DESK (Requirement 3) ================= */}
+        {/* ================= TAB 5: PASSWORD & USER SECURITY DESK ================= */}
         {activeTab === 'resets' && (() => {
-          // 1. Gather all users who have had their password reset
+          // 1. Gather all completed reset/change requests
           const resetCompletedRequests = resetRequests.filter(r => r.status === 'reset');
+          
+          // Users who have reset flag or match reset request
           const resetUsersList = users.filter((u: any) => {
             const hasResetFlag = !!(u.isPasswordReset || u.passwordResetAt);
             const matchesResetRequest = resetCompletedRequests.some(r => 
               (r.phone && r.phone.replace(/\D/g, '') === u.phone.replace(/\D/g, '')) ||
+              (r.newPhone && r.newPhone.replace(/\D/g, '') === u.phone.replace(/\D/g, '')) ||
+              (r.oldPhone && r.oldPhone.replace(/\D/g, '') === u.phone.replace(/\D/g, '')) ||
               (r.newPasswordAssigned && r.newPasswordAssigned === u.password)
             );
             return hasResetFlag || matchesResetRequest;
           });
 
-          // Also include any standalone completed reset requests that might not be in users array yet
-          const standaloneResets = resetCompletedRequests.filter(r => 
-            !resetUsersList.some(u => u.phone.replace(/\D/g, '') === r.phone.replace(/\D/g, ''))
-          );
+          // Combined full list of reset records to show every audit history item
+          const allResetAuditRecords = [
+            ...resetCompletedRequests,
+            ...resetUsersList
+              .filter(u => !resetCompletedRequests.some(r => (r.phone && r.phone === u.phone) || (r.newPhone && r.newPhone === u.phone)))
+              .map(u => ({
+                id: `u-reset-${u.phone}`,
+                phone: u.phone,
+                userName: u.name,
+                oldPhone: u.phone,
+                newPhone: u.phone,
+                oldEmail: u.email || '',
+                newEmail: u.email || '',
+                changeType: 'password' as const,
+                changeSummary: 'পাসওয়ার্ড রিসেট',
+                tag: 'Password Reset',
+                status: 'reset' as const,
+                requestedAt: (u as any).passwordResetAt || u.registeredAt,
+                resolvedAt: (u as any).passwordResetAt || u.registeredAt,
+                newPasswordAssigned: u.password
+              }))
+          ];
 
           // 2. Filtered by search term
           const q = passwordDeskSearch.trim().toLowerCase();
           const filteredAllUsers = users.filter(u => {
             if (!q) return true;
-            return u.phone.toLowerCase().includes(q) || u.name.toLowerCase().includes(q) || (u.email && u.email.toLowerCase().includes(q));
+            return (
+              u.phone.toLowerCase().includes(q) || 
+              u.name.toLowerCase().includes(q) || 
+              (u.email && u.email.toLowerCase().includes(q))
+            );
           });
 
-          const filteredResetUsers = resetUsersList.filter(u => {
+          const filteredResetAuditRecords = allResetAuditRecords.filter(item => {
             if (!q) return true;
-            return u.phone.toLowerCase().includes(q) || u.name.toLowerCase().includes(q) || (u.email && u.email.toLowerCase().includes(q));
+            return (
+              (item.phone && item.phone.toLowerCase().includes(q)) ||
+              (item.userName && item.userName.toLowerCase().includes(q)) ||
+              (item.newPhone && item.newPhone.toLowerCase().includes(q)) ||
+              (item.oldPhone && item.oldPhone.toLowerCase().includes(q)) ||
+              (item.newEmail && item.newEmail.toLowerCase().includes(q)) ||
+              (item.oldEmail && item.oldEmail.toLowerCase().includes(q)) ||
+              (item.tag && item.tag.toLowerCase().includes(q)) ||
+              (item.changeSummary && item.changeSummary.toLowerCase().includes(q))
+            );
           });
 
-          const pendingRequests = resetRequests.filter(r => r.status === 'pending');
+          const filteredApprovedCallBacks = approvedCallBacks.filter(c => {
+            const qCall = (callDeskSearch || '').trim().toLowerCase();
+            if (!qCall) return true;
+            return (
+              (c.name && c.name.toLowerCase().includes(qCall)) ||
+              (c.phone && c.phone.toLowerCase().includes(qCall)) ||
+              (c.reason && c.reason.toLowerCase().includes(qCall)) ||
+              (c.requestedAt && c.requestedAt.toLowerCase().includes(qCall)) ||
+              (c.approvedAt && c.approvedAt.toLowerCase().includes(qCall))
+            );
+          });
 
           return (
             <div className="space-y-5 animate-fadeIn">
@@ -3686,34 +4009,34 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                 <div>
                   <h2 className="text-xl font-black text-white flex items-center gap-2">
                     <Key className="w-5 h-5 text-[#2B47EE]" />
-                    <span>পাসওয়ার্ড ও ইউজার সিকিউরিটি ম্যানেজমেন্ট</span>
+                    <span>Password & Security (পাসওয়ার্ড ও সিকিউরিটি)</span>
                   </h2>
                   <p className="text-xs text-[#8BB99F] mt-0.5">
-                    নিবন্ধিত সকল গ্রাহকের তথ্য এবং অ্যাডমিন কর্তৃক পাসওয়ার্ড রিসেটকৃত ইউজারদের তালিকা পরিচালনা করুন।
+                    গ্রাহকের মোবাইল নম্বর ও ইমেইল আইডি সরাসরি Change Details দিয়ে পরিবর্তন করুন। উভয় পাশের ডাটাবেস স্বয়ংক্রিয়ভাবে আপডেট হবে।
                   </p>
                 </div>
-                {pendingRequests.length > 0 && (
+                {pendingCallBacks.length > 0 && (
                   <span className="px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 text-xs font-bold border border-amber-500/30 flex items-center gap-1.5 shrink-0 animate-pulse">
                     <PhoneCall className="w-3.5 h-3.5" />
-                    <span>{pendingRequests.length} টি কল রিকোয়েস্ট অপেক্ষমান</span>
+                    <span>{pendingCallBacks.length} টি কল রিকোয়েস্ট অপেক্ষমান</span>
                   </span>
                 )}
               </div>
 
-              {/* Requirement 3: Two Clear Options Tabs (All Users List vs Reset Password Users List) */}
+              {/* Three Subsections: 1. All User List, 2. Reset Password / Reseted Password User List, 3. Call Request Desk */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 p-1.5 rounded-2xl bg-[#091A11] border border-[#173826]">
-                {/* 1. All Users List */}
+                {/* Subsection 1: All User List */}
                 <button
                   type="button"
                   onClick={() => setPasswordDeskTab('all_users')}
                   className={`py-3 px-4 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs ${
                     passwordDeskTab === 'all_users'
-                      ? 'bg-[#2B47EE] text-white shadow-[0_4px_16px_rgba(83,58,253,0.35)]'
+                      ? 'bg-[#2B47EE] text-white shadow-[0_4px_16px_rgba(43,71,238,0.35)]'
                       : 'text-[#8BB99F] hover:text-white hover:bg-[#143321]'
                   }`}
                 >
                   <Users className="w-4 h-4 shrink-0" />
-                  <span>১. All Users List (সকল ইউজার)</span>
+                  <span>১. All User List</span>
                   <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                     passwordDeskTab === 'all_users' ? 'bg-white/20 text-white' : 'bg-[#173826] text-[#4EEDB0]'
                   }`}>
@@ -3721,7 +4044,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                   </span>
                 </button>
 
-                {/* 2. Reset Password Users List */}
+                {/* Subsection 2: Reset Password / Reseted Password User List */}
                 <button
                   type="button"
                   onClick={() => setPasswordDeskTab('reset_users')}
@@ -3731,16 +4054,16 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                       : 'text-[#8BB99F] hover:text-white hover:bg-[#143321]'
                   }`}
                 >
-                  <Key className="w-4 h-4 shrink-0" />
-                  <span>২. Reset Password Users List</span>
+                  <Tag className="w-4 h-4 shrink-0" />
+                  <span>২. Reset Password / Reseted Password User List</span>
                   <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                     passwordDeskTab === 'reset_users' ? 'bg-white/20 text-white' : 'bg-[#173826] text-[#4EEDB0]'
                   }`}>
-                    {resetUsersList.length + standaloneResets.length}
+                    {allResetAuditRecords.length}
                   </span>
                 </button>
 
-                {/* 3. Pending Call Requests Desk */}
+                {/* Subsection 3: Call Request Desk */}
                 <button
                   type="button"
                   onClick={() => setPasswordDeskTab('pending_requests')}
@@ -3751,14 +4074,14 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                   }`}
                 >
                   <PhoneCall className="w-4 h-4 shrink-0" />
-                  <span>কল রিকোয়েস্ট ডেস্ক</span>
-                  {pendingRequests.length > 0 && (
+                  <span>৩. Call Request Desk</span>
+                  {pendingCallBacks.length > 0 && (
                     <span className="w-2 h-2 rounded-full bg-red-400 animate-ping shrink-0" />
                   )}
                   <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                     passwordDeskTab === 'pending_requests' ? 'bg-white/20 text-white' : 'bg-[#173826] text-amber-300'
                   }`}>
-                    {pendingRequests.length}
+                    {pendingCallBacks.length}
                   </span>
                 </button>
               </div>
@@ -3772,7 +4095,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                     placeholder={
                       passwordDeskTab === 'all_users'
                         ? 'সকল ইউজারদের নাম, মোবাইল নম্বর অথবা ইমেইল দিয়ে সার্চ করুন...'
-                        : 'রিসেটকৃত গ্রাহকের নাম, মোবাইল নম্বর অথবা ইমেইল দিয়ে সার্চ করুন...'
+                        : 'রিসেটকৃত নাম, আগের/নতুন মোবাইল নম্বর, ইমেইল বা ট্যাগ দিয়ে সার্চ করুন...'
                     }
                     value={passwordDeskSearch}
                     onChange={(e) => setPasswordDeskSearch(e.target.value)}
@@ -3782,7 +4105,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                     <button
                       type="button"
                       onClick={() => setPasswordDeskSearch('')}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#8BB99F] hover:text-white"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#8BB99F] hover:text-white cursor-pointer"
                     >
                       <X className="w-4 h-4" />
                     </button>
@@ -3790,12 +4113,12 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                 </div>
               )}
 
-              {/* ---------------- OPTION 1: ALL USERS LIST ---------------- */}
+              {/* ---------------- SUBSECTION 1: ALL USER LIST ---------------- */}
               {passwordDeskTab === 'all_users' && (
                 <div className="space-y-3">
                   <div className="flex items-center justify-between text-xs text-[#8BB99F] px-1">
                     <span>সকল নিবন্ধিত অ্যাকাউন্ট ({filteredAllUsers.length} জন)</span>
-                    <span className="text-[11px] text-[#4EEDB0]">যেকোনো ইউজারের পাসওয়ার্ড সরাসরি রিসেট করতে পারবেন</span>
+                    <span className="text-[11px] text-[#4EEDB0]">গ্রাহকের মোবাইল নম্বর বা ইমেইল হারালে "Change Details" দিয়ে রিসেট করুন</span>
                   </div>
 
                   {filteredAllUsers.length === 0 ? (
@@ -3806,7 +4129,11 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
                       {filteredAllUsers.map((usr, uIdx) => {
                         const secCode = getClientSecurityCode(usr.phone);
-                        const isReset = !!((usr as any).isPasswordReset || (usr as any).passwordResetAt || resetCompletedRequests.some(r => r.phone === usr.phone));
+                        const isReset = !!(
+                          (usr as any).isPasswordReset || 
+                          (usr as any).passwordResetAt || 
+                          resetCompletedRequests.some(r => r.phone === usr.phone || r.newPhone === usr.phone)
+                        );
 
                         return (
                           <div
@@ -3828,7 +4155,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                                     <span className="truncate">{usr.name}</span>
                                     {isReset && (
                                       <span className="px-1.5 py-0.5 rounded-md bg-[#008A4B]/25 text-[#4EEDB0] border border-[#008A4B]/40 text-[9px] font-black shrink-0">
-                                        ✓ পাসওয়ার্ড রিসেটকৃত
+                                        ✓ রিসেটকৃত আইডি
                                       </span>
                                     )}
                                   </h4>
@@ -3846,7 +4173,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                             {/* Details Row */}
                             <div className="p-3 rounded-xl bg-[#05110A] border border-[#173826]/70 text-xs space-y-1.5">
                               <div className="flex justify-between items-center text-[#8BB99F]">
-                                <span>ইমেইল:</span>
+                                <span>ইমেইল আইডি:</span>
                                 <span className="font-mono text-white truncate max-w-[200px]">{usr.email || '—'}</span>
                               </div>
                               <div className="flex justify-between items-center text-[#8BB99F]">
@@ -3861,23 +4188,16 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                               </div>
                             </div>
 
-                            {/* Actions */}
+                            {/* Actions: Change Details instead of Change Password */}
                             <div className="flex items-center gap-2 pt-1">
                               <button
                                 type="button"
-                                onClick={() => {
-                                  setActiveResetRequest({
-                                    id: `DIRECT-${Date.now()}`,
-                                    phone: usr.phone,
-                                    requestedAt: new Date().toLocaleString('bn-BD'),
-                                    status: 'pending'
-                                  });
-                                  setManualNewPassword('');
-                                }}
-                                className="flex-1 py-2 px-3 rounded-xl bg-[#008A4B] hover:bg-[#009E56] text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+                                onClick={() => handleOpenChangeDetails(usr)}
+                                className="flex-1 py-2 px-3 rounded-xl bg-[#2B47EE] hover:bg-[#2039cf] text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+                                title="গ্রাহকের ইমেইল ও মোবাইল নম্বর পরিবর্তন / আইডি রিসেট"
                               >
-                                <Key className="w-3.5 h-3.5" />
-                                <span>পাসওয়ার্ড পরিবর্তন করুন</span>
+                                <Tag className="w-3.5 h-3.5" />
+                                <span>Change Details</span>
                               </button>
 
                               <button
@@ -3900,198 +4220,504 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                 </div>
               )}
 
-              {/* ---------------- OPTION 2: RESET PASSWORD USERS LIST ---------------- */}
+              {/* ---------------- SUBSECTION 2: RESET PASSWORD / RESETED PASSWORD USER LIST ---------------- */}
               {passwordDeskTab === 'reset_users' && (
                 <div className="space-y-3">
                   <div className="flex items-center justify-between text-xs text-[#8BB99F] px-1">
-                    <span>অ্যাডমিন কর্তৃক রিসেটকৃত ইউজারদের তালিকা ({filteredResetUsers.length + standaloneResets.length} জন)</span>
-                    <span className="text-[11px] text-[#4EEDB0]">শুধুমাত্র যাদের পাসওয়ার্ড অ্যাডমিন রিসেট করেছেন</span>
+                    <span>রিসেটকৃত গ্রাহকদের তালিকা ({filteredResetAuditRecords.length} জন)</span>
+                    <span className="text-[11px] text-[#4EEDB0]">কার আইডি, কী ধরনের পরিবর্তন, কী থেকে কী পরিবর্তন ও তারিখ প্রদর্শিত</span>
                   </div>
 
-                  {filteredResetUsers.length === 0 && standaloneResets.length === 0 ? (
+                  {filteredResetAuditRecords.length === 0 ? (
                     <div className="p-10 rounded-2xl bg-[#091A11] border border-[#173826] text-center text-xs text-[#8BB99F] space-y-2">
-                      <Key className="w-8 h-8 text-[#8BB99F] mx-auto opacity-50" />
-                      <p className="font-bold text-white">এখনও কোনো ইউজারের পাসওয়ার্ড অ্যাডমিন রিসেট করেননি।</p>
-                      <p className="text-[11px]">"All Users List" ট্যাবে গিয়ে যেকোনো ইউজারের "পাসওয়ার্ড পরিবর্তন করুন" বাটনে ক্লিক করে পাসওয়ার্ড রিসেট করতে পারবেন।</p>
+                      <Tag className="w-8 h-8 text-[#8BB99F] mx-auto opacity-50" />
+                      <p className="font-bold text-white">এখনও কোনো গ্রাহকের আইডি বিস্তারিত তথ্য রিসেট করা হয়নি।</p>
+                      <p className="text-[11px]">"All User List" ট্যাবে গিয়ে যেকোনো ইউজারের "Change Details" বাটনে ক্লিক করে ইমেইল ও নম্বর পরিবর্তন করতে পারবেন।</p>
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-                      {filteredResetUsers.map((usr, uIdx) => {
-                        const matchingReq = resetCompletedRequests.find(r => r.phone === usr.phone);
-                        const assignedPass = matchingReq?.newPasswordAssigned || usr.password || '—';
-                        const resetTime = matchingReq?.resolvedAt || (usr as any).passwordResetAt || matchingReq?.requestedAt || 'অ্যাডমিন কর্তৃক রিসেট';
+                      {filteredResetAuditRecords.map((item, idx) => {
+                        const targetPhone = item.newPhone || item.phone;
+                        const matchingUser = users.find(u => 
+                          (targetPhone && (normalizePhone(u.phone) === normalizePhone(targetPhone) || u.phone === targetPhone)) ||
+                          (item.oldPhone && (normalizePhone(u.phone) === normalizePhone(item.oldPhone) || u.phone === item.oldPhone))
+                        );
+                        const userForEdit: UserAccount = matchingUser || {
+                          name: item.userName || 'গ্রাহক',
+                          phone: targetPhone,
+                          email: item.newEmail || '',
+                          password: item.newPasswordAssigned || '',
+                          registeredAt: item.requestedAt || ''
+                        };
+
+                        const hasPhoneDifference = item.oldPhone && item.newPhone && item.oldPhone !== item.newPhone;
+                        const hasEmailDifference = item.oldEmail && item.newEmail && item.oldEmail !== item.newEmail;
 
                         return (
                           <div
-                            key={`reset-u-${usr.phone}-${uIdx}`}
+                            key={item.id ? `audit-${item.id}` : `audit-idx-${idx}`}
                             className="p-5 rounded-2xl bg-[#091A11] border-2 border-[#008A4B]/60 space-y-3.5 shadow-sm relative overflow-hidden"
                           >
-                            <div className="absolute top-0 right-0 px-3 py-1 bg-[#008A4B] text-white text-[10px] font-black rounded-bl-xl shadow-xs">
-                              ✓ পাসওয়ার্ড রিসেট সম্পন্ন
-                            </div>
-
-                            <div>
-                              <h4 className="text-base font-black text-white">{usr.name}</h4>
-                              <p className="text-xs text-[#4EEDB0] font-mono mt-0.5">{usr.phone}</p>
-                              {usr.email && <p className="text-[11px] text-[#8BB99F] font-mono">{usr.email}</p>}
-                            </div>
-
-                            <div className="p-3 rounded-xl bg-[#05110A] border border-[#173826] space-y-2 text-xs">
-                              <div className="flex justify-between items-center">
-                                <span className="text-[#8BB99F]">নতুন নির্ধারিত পাসওয়ার্ড:</span>
-                                <span className="font-mono font-black text-sm text-[#4EEDB0] bg-[#0E2417] px-2.5 py-0.5 rounded-lg border border-[#00B261]/40">
-                                  {assignedPass}
+                            {/* Top Status & Tag Header */}
+                            <div className="flex items-start justify-between gap-2">
+                              <div>
+                                <span className="text-[10px] font-bold text-[#8BB99F] uppercase tracking-wider block">
+                                  ১. গ্রাহকের আইডি (Whose ID)
                                 </span>
+                                <h4 className="text-base font-black text-white flex items-center gap-2">
+                                  <span>{item.userName || matchingUser?.name || 'গ্রাহক'}</span>
+                                  {matchingUser?.clientId && (
+                                    <span className="px-1.5 py-0.2 rounded bg-[#173826] text-[#4EEDB0] text-[10px] font-mono">
+                                      {matchingUser.clientId}
+                                    </span>
+                                  )}
+                                </h4>
                               </div>
-                              <div className="flex justify-between items-center text-[#8BB99F]">
-                                <span>রিসেটের সময়:</span>
-                                <span className="text-white font-mono text-[11px]">{resetTime}</span>
-                              </div>
-                              <div className="flex justify-between items-center text-[#8BB99F]">
-                                <span>স্ট্যাটাস:</span>
-                                <span className="font-bold text-[#4EEDB0]">সক্রিয় ও কার্যকর</span>
+
+                              <div className="flex flex-col items-end gap-1">
+                                <span className="px-2.5 py-0.5 bg-[#008A4B] text-white text-[10px] font-black rounded-lg shadow-xs">
+                                  ✓ রিসেট সম্পন্ন
+                                </span>
+                                {item.tag && (
+                                  <span className="px-2 py-0.5 rounded-lg bg-[#2B47EE]/20 text-[#818CF8] border border-[#2B47EE]/40 text-[9px] font-bold flex items-center gap-1">
+                                    <Tag className="w-2.5 h-2.5" />
+                                    <span>{item.tag}</span>
+                                  </span>
+                                )}
                               </div>
                             </div>
 
-                            <div className="flex gap-2">
+                            {/* ২. কী ধরনের পরিবর্তন (What Type of Changes) */}
+                            <div className="p-2.5 rounded-xl bg-[#05110A] border border-[#173826] space-y-1">
+                              <span className="text-[10px] font-bold text-[#8BB99F] uppercase tracking-wider block">
+                                ২. পরিবর্তনের ধরন (Type of Changes)
+                              </span>
+                              <div className="flex items-center gap-2 flex-wrap">
+                                {item.changeType === 'both' && (
+                                  <span className="px-2 py-0.5 rounded-md bg-purple-500/20 text-purple-300 border border-purple-500/40 text-[10px] font-black flex items-center gap-1">
+                                    <span>🔄</span> মোবাইল ও ইমেইল উভয়ই পরিবর্তন
+                                  </span>
+                                )}
+                                {item.changeType === 'phone' && (
+                                  <span className="px-2 py-0.5 rounded-md bg-blue-500/20 text-blue-300 border border-blue-500/40 text-[10px] font-black flex items-center gap-1">
+                                    <span>📱</span> মোবাইল নম্বর পরিবর্তন
+                                  </span>
+                                )}
+                                {item.changeType === 'email' && (
+                                  <span className="px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-black flex items-center gap-1">
+                                    <span>✉️</span> ইমেইল আইডি পরিবর্তন
+                                  </span>
+                                )}
+                                {item.changeType === 'password' && (
+                                  <span className="px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] font-black flex items-center gap-1">
+                                    <span>🔑</span> পাসওয়ার্ড রিসেট
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* ৩. কী থেকে কী পরিবর্তন করা হয়েছে (From What to What) */}
+                            <div className="p-3 rounded-xl bg-[#05110A] border border-[#173826] space-y-2 text-xs">
+                              <span className="text-[10px] font-bold text-[#8BB99F] uppercase tracking-wider block">
+                                ৩. কী থেকে কী পরিবর্তন হয়েছে (From What to What)
+                              </span>
+
+                              {/* Phone Comparison */}
+                              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 py-1 border-b border-[#173826]/60">
+                                <span className="text-[#8BB99F] text-[11px]">মোবাইল নম্বর:</span>
+                                <div className="flex items-center gap-2 font-mono text-xs">
+                                  {hasPhoneDifference ? (
+                                    <>
+                                      <span className="text-rose-400 line-through">{item.oldPhone}</span>
+                                      <span className="text-[#8BB99F]">➔</span>
+                                      <span className="text-[#4EEDB0] font-black">{item.newPhone}</span>
+                                    </>
+                                  ) : (
+                                    <span className="text-[#4EEDB0] font-bold">{item.newPhone || item.phone}</span>
+                                  )}
+                                </div>
+                              </div>
+
+                              {/* Email Comparison */}
+                              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 py-1 border-b border-[#173826]/60">
+                                <span className="text-[#8BB99F] text-[11px]">ইমেইল আইডি:</span>
+                                <div className="flex items-center gap-2 font-mono text-xs">
+                                  {hasEmailDifference ? (
+                                    <>
+                                      <span className="text-rose-400 line-through">{item.oldEmail || 'ছিল না'}</span>
+                                      <span className="text-[#8BB99F]">➔</span>
+                                      <span className="text-[#4EEDB0] font-black">{item.newEmail}</span>
+                                    </>
+                                  ) : (
+                                    <span className="text-[#4EEDB0] font-bold">{item.newEmail || item.oldEmail || '—'}</span>
+                                  )}
+                                </div>
+                              </div>
+
+                              {/* Password (if assigned) */}
+                              {item.newPasswordAssigned && (
+                                <div className="flex items-center justify-between py-1 border-b border-[#173826]/60">
+                                  <span className="text-[#8BB99F] text-[11px]">নির্ধারিত পাসওয়ার্ড:</span>
+                                  <span className="font-mono text-xs text-[#4EEDB0] font-bold bg-[#0E2417] px-2 py-0.5 rounded border border-[#173826]">
+                                    {item.newPasswordAssigned}
+                                  </span>
+                                </div>
+                              )}
+
+                              {/* Change Summary Line */}
+                              {item.changeSummary && (
+                                <div className="pt-1 text-[11px] text-[#A5B4FC] font-medium bg-[#030B07] p-2 rounded-lg border border-[#173826]/70">
+                                  📝 {item.changeSummary}
+                                </div>
+                              )}
+                            </div>
+
+                            {/* ৪. কোন তারিখে পরিবর্তন করা হয়েছে (On Which Date) */}
+                            <div className="flex items-center justify-between text-[11px] text-[#8BB99F] px-1">
+                              <span className="flex items-center gap-1.5">
+                                <Clock className="w-3.5 h-3.5 text-[#818CF8]" />
+                                <span>৪. পরিবর্তনের তারিখ ও সময়:</span>
+                              </span>
+                              <span className="font-mono text-white font-bold">
+                                {item.resolvedAt || item.requestedAt}
+                              </span>
+                            </div>
+
+                            {/* Action Buttons: Change Details */}
+                            <div className="flex gap-2 pt-1">
                               <button
                                 type="button"
-                                onClick={() => {
-                                  setActiveResetRequest({
-                                    id: `DIRECT-${Date.now()}`,
-                                    phone: usr.phone,
-                                    requestedAt: new Date().toLocaleString('bn-BD'),
-                                    status: 'pending'
-                                  });
-                                  setManualNewPassword('');
-                                }}
-                                className="flex-1 py-2 px-3 rounded-xl bg-[#143321] hover:bg-[#1c472e] text-[#4EEDB0] border border-[#173826] text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                                onClick={() => handleOpenChangeDetails(userForEdit)}
+                                className="flex-1 py-2 px-3 rounded-xl bg-[#2B47EE] hover:bg-[#2039cf] text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+                                title="এই ব্যবহারকারীর তথ্য পুনরায় পরিবর্তন করুন"
                               >
-                                <Key className="w-3.5 h-3.5" />
-                                <span>পুনরায় পাসওয়ার্ড পরিবর্তন</span>
+                                <Tag className="w-3.5 h-3.5" />
+                                <span>Change Details</span>
                               </button>
 
-                              <button
-                                type="button"
-                                onClick={() => handleSendSecurityCodeToClient(usr)}
-                                className="py-2 px-3 rounded-xl bg-[#2B47EE] hover:bg-[#1E3A8A] text-white text-xs font-bold transition-all cursor-pointer shadow-xs"
-                                title="গ্রাহকের কাছে সিকিউরিটি কোড এসএমএস পাঠান"
-                              >
-                                কোড পাঠান
-                              </button>
+                              {matchingUser && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleSendSecurityCodeToClient(matchingUser)}
+                                  className="py-2 px-3 rounded-xl bg-[#143321] hover:bg-[#1c472e] text-[#4EEDB0] border border-[#173826] text-xs font-bold transition-all cursor-pointer shadow-xs"
+                                  title="গ্রাহকের কাছে সিকিউরিটি কোড এসএমএস পাঠান"
+                                >
+                                  কোড পাঠান
+                                </button>
+                              )}
                             </div>
                           </div>
                         );
                       })}
-
-                      {/* Standalone Reset Requests */}
-                      {standaloneResets.map((req, rIdx) => (
-                        <div
-                          key={`standalone-reset-${req.id || rIdx}`}
-                          className="p-5 rounded-2xl bg-[#091A11] border-2 border-[#008A4B]/60 space-y-3.5 shadow-sm relative overflow-hidden"
-                        >
-                          <div className="absolute top-0 right-0 px-3 py-1 bg-[#008A4B] text-white text-[10px] font-black rounded-bl-xl shadow-xs">
-                            ✓ পাসওয়ার্ড রিসেট সম্পন্ন
-                          </div>
-
-                          <div>
-                            <h4 className="text-base font-black text-white font-mono">{req.phone}</h4>
-                            <p className="text-xs text-[#8BB99F] mt-0.5">কল রিকোয়েস্ট থেকে সরাসরি রিসেটকৃত</p>
-                          </div>
-
-                          <div className="p-3 rounded-xl bg-[#05110A] border border-[#173826] space-y-2 text-xs">
-                            <div className="flex justify-between items-center">
-                              <span className="text-[#8BB99F]">নতুন পাসওয়ার্ড:</span>
-                              <span className="font-mono font-black text-sm text-[#4EEDB0] bg-[#0E2417] px-2.5 py-0.5 rounded-lg border border-[#00B261]/40">
-                                {req.newPasswordAssigned || '—'}
-                              </span>
-                            </div>
-                            <div className="flex justify-between items-center text-[#8BB99F]">
-                              <span>রিসেটের সময়:</span>
-                              <span className="text-white font-mono text-[11px]">{req.resolvedAt || req.requestedAt}</span>
-                            </div>
-                          </div>
-
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setActiveResetRequest(req);
-                              setManualNewPassword('');
-                            }}
-                            className="w-full py-2 px-3 rounded-xl bg-[#143321] hover:bg-[#1c472e] text-[#4EEDB0] border border-[#173826] text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-                          >
-                            <Key className="w-3.5 h-3.5" />
-                            <span>পুনরায় পাসওয়ার্ড পরিবর্তন</span>
-                          </button>
-                        </div>
-                      ))}
                     </div>
                   )}
                 </div>
               )}
 
-              {/* ---------------- OPTION 3: PENDING CALL REQUESTS DESK ---------------- */}
+              {/* ---------------- SUBSECTION 3: CALL REQUEST DESK ---------------- */}
               {passwordDeskTab === 'pending_requests' && (
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between text-xs text-[#8BB99F] px-1">
-                    <span>গ্রাহকদের পাসওয়ার্ড রিসেট কল অনুরোধ ({pendingRequests.length} টি অপেক্ষমান)</span>
+                <div className="space-y-4">
+                  {/* Call Desk Header & Sub-Tabs */}
+                  <div className="p-4 rounded-2xl bg-[#091A11] border border-[#173826] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                      <h3 className="text-base font-bold text-white flex items-center gap-2">
+                        <PhoneCall className="w-5 h-5 text-amber-400" />
+                        <span>Call Request Desk (কল ব্যাক ডেস্ক)</span>
+                      </h3>
+                      <p className="text-xs text-[#8BB99F] mt-0.5">
+                        ওয়েবসাইট মেনুর "Call Back" অপশন থেকে গ্রাহকদের পাঠানো কল ব্যাক অনুরোধসমূহ।
+                      </p>
+                    </div>
+
+                    {/* Sub-tabs: Pending vs Approved */}
+                    <div className="flex items-center gap-1.5 p-1 rounded-xl bg-[#05110A] border border-[#173826]">
+                      <button
+                        type="button"
+                        onClick={() => setCallDeskSubTab('pending')}
+                        className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                          callDeskSubTab === 'pending'
+                            ? 'bg-amber-600 text-white shadow-xs'
+                            : 'text-[#8BB99F] hover:text-white'
+                        }`}
+                      >
+                        <Clock className="w-3.5 h-3.5 shrink-0" />
+                        <span>পেন্ডিং কল ({pendingCallBacks.length})</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setCallDeskSubTab('approved')}
+                        className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                          callDeskSubTab === 'approved'
+                            ? 'bg-[#008A4B] text-white shadow-xs'
+                            : 'text-[#8BB99F] hover:text-white'
+                        }`}
+                      >
+                        <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                        <span>অনুমোদিত হিস্টোরি ({approvedCallBacks.length})</span>
+                      </button>
+                    </div>
                   </div>
 
-                  {pendingRequests.length === 0 ? (
-                    <div className="p-10 rounded-2xl bg-[#091A11] border border-[#173826] text-center text-xs text-[#8BB99F] space-y-2">
-                      <CheckCircle2 className="w-8 h-8 text-[#4EEDB0] mx-auto" />
-                      <p className="font-bold text-white">কোনো পেন্ডিং পাসওয়ার্ড রিসেট কল অনুরোধ নেই!</p>
-                      <p className="text-[11px]">সকল কল অনুরোধ সমাধান করা হয়েছে।</p>
-                    </div>
-                  ) : (
+                  {/* 1. Pending Call Requests Section */}
+                  {callDeskSubTab === 'pending' && (
                     <div className="space-y-3">
-                      {pendingRequests.map((req, rIdx) => (
-                        <div
-                          key={req.id ? `${req.id}-${rIdx}` : `req-${rIdx}`}
-                          className="p-5 rounded-2xl bg-[#091A11] border border-amber-500/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-                        >
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <PhoneCall className="w-4 h-4 text-amber-400" />
-                              <h4 className="text-sm font-bold text-white font-mono">{req.phone}</h4>
-                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                                অপেক্ষমান কল
-                              </span>
-                            </div>
-                            <p className="text-xs text-[#8BB99F] mt-1">অনুরোধের সময়: {req.requestedAt}</p>
-                          </div>
+                      <div className="flex items-center justify-between text-xs text-[#8BB99F] px-1">
+                        <span>অপেক্ষমান কল ব্যাক অনুরোধ ({pendingCallBacks.length} টি)</span>
+                        <span className="text-[11px] text-amber-300">
+                          কল করার পর Approve করুন, না চাইলে Reject অথবা Remove করুন
+                        </span>
+                      </div>
 
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <button
-                              onClick={() => {
-                                setActiveResetRequest(req);
-                                setManualNewPassword('');
-                              }}
-                              className="px-3.5 py-1.5 rounded-xl bg-[#008A4B] text-white text-xs font-bold hover:bg-[#009E56] cursor-pointer shadow-xs"
-                            >
-                              পাসওয়ার্ড রিসেট করুন
-                            </button>
-                            <button
-                              onClick={() => {
-                                setActiveResetRequest(req);
-                                handleResolvePasswordReset('call_not_received');
-                              }}
-                              className="px-3 py-1.5 rounded-xl bg-[#FFD552]/20 text-[#FFD552] text-xs font-bold hover:bg-[#FFD552]/30 cursor-pointer"
-                            >
-                              কল রিসিভ হয়নি
-                            </button>
-                            <button
-                              onClick={() => {
-                                setActiveResetRequest(req);
-                                handleResolvePasswordReset('rejected');
-                              }}
-                              className="px-3 py-1.5 rounded-xl bg-[#E53935]/20 text-[#FF8A80] text-xs font-bold hover:bg-[#E53935]/30 cursor-pointer"
-                            >
-                              বাতিল
-                            </button>
-                          </div>
+                      {pendingCallBacks.length === 0 ? (
+                        <div className="p-10 rounded-2xl bg-[#091A11] border border-[#173826] text-center text-xs text-[#8BB99F] space-y-2">
+                          <CheckCircle2 className="w-8 h-8 text-[#4EEDB0] mx-auto" />
+                          <p className="font-bold text-white">কোনো পেন্ডিং কল রিকোয়েস্ট নেই!</p>
+                          <p className="text-[11px]">সকল কল ব্যাক অনুরোধ সম্পন্ন ও সমাধান করা হয়েছে।</p>
                         </div>
-                      ))}
+                      ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                          {pendingCallBacks.map((req, rIdx) => {
+                            const matchingUser = users.find(u => 
+                              (req.phone && (normalizePhone(u.phone) === normalizePhone(req.phone) || u.phone === req.phone))
+                            );
+
+                            return (
+                              <div
+                                key={req.id ? `call-${req.id}` : `call-idx-${rIdx}`}
+                                className="p-5 rounded-2xl bg-[#091A11] border-2 border-amber-500/50 space-y-3 relative shadow-sm"
+                              >
+                                {/* Header */}
+                                <div className="flex items-start justify-between gap-2">
+                                  <div className="flex items-center gap-2.5 min-w-0">
+                                    <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/40 flex items-center justify-center font-bold text-sm shrink-0">
+                                      <PhoneCall className="w-5 h-5" />
+                                    </div>
+                                    <div className="min-w-0">
+                                      <h4 className="text-sm font-bold text-white flex items-center gap-2 truncate">
+                                        <span>{req.name || matchingUser?.name || 'গ্রাহক'}</span>
+                                      </h4>
+                                      <a 
+                                        href={`tel:${req.phone}`} 
+                                        className="text-xs text-[#4EEDB0] hover:underline font-mono font-bold block"
+                                        title="সরাসরি ফোন করুন"
+                                      >
+                                        📞 {req.phone}
+                                      </a>
+                                    </div>
+                                  </div>
+
+                                  <div className="flex flex-col items-end gap-1">
+                                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1">
+                                      <Clock className="w-3 h-3 animate-pulse" />
+                                      <span>অপেক্ষমান কল</span>
+                                    </span>
+                                    <span className="text-[10px] text-[#8BB99F] font-mono">
+                                      {req.requestedAt}
+                                    </span>
+                                  </div>
+                                </div>
+
+                                {/* Call Reason Box */}
+                                <div className="p-3 rounded-xl bg-[#05110A] border border-[#173826] space-y-1">
+                                  <span className="text-[10px] font-bold text-amber-300 uppercase tracking-wider block">
+                                    কল করার কারণ (Reason for Call):
+                                  </span>
+                                  <p className="text-xs text-white leading-relaxed font-medium">
+                                    {req.reason || 'কোনো কারণ উল্লেখ করা হয়নি'}
+                                  </p>
+                                </div>
+
+                                {/* Action Suite: Remove, Approve, Reject, Change Details */}
+                                <div className="pt-1 flex flex-wrap items-center gap-2">
+                                  {/* 1. Approve Button */}
+                                  <button
+                                    type="button"
+                                    onClick={() => handleApproveCallBack(req.id)}
+                                    className="flex-1 py-2 px-3 rounded-xl bg-[#008A4B] hover:bg-[#00703C] text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+                                    title="কল করার পর অনুমোদন দিন - গ্রাহক দেখতে পাবে কল সম্পন্ন হয়েছে"
+                                  >
+                                    <Check className="w-3.5 h-3.5" />
+                                    <span>Approve (অনুমোদন)</span>
+                                  </button>
+
+                                  {/* 2. Reject Button */}
+                                  <button
+                                    type="button"
+                                    onClick={() => handleRejectCallBack(req.id)}
+                                    className="py-2 px-3 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs font-bold transition-all cursor-pointer"
+                                    title="কল রিসিভ না হলে বাতিল করুন"
+                                  >
+                                    <X className="w-3.5 h-3.5" />
+                                    <span>Reject (বাতিল)</span>
+                                  </button>
+
+                                  {/* 3. Remove Button */}
+                                  <button
+                                    type="button"
+                                    onClick={() => handleRemoveCallBack(req.id)}
+                                    className="py-2 px-3 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 text-xs font-bold transition-all cursor-pointer"
+                                    title="কল রিকোয়েস্ট মুছে ফেলুন - গ্রাহকের মেনু থেকেও কল ব্যাক অপশন মুছে যাবে"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                    <span>Remove (মুছে ফেলুন)</span>
+                                  </button>
+
+                                  {/* Change Details */}
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      handleOpenChangeDetails(matchingUser || {
+                                        name: req.name || 'গ্রাহক',
+                                        phone: req.phone,
+                                        email: '',
+                                        registeredAt: req.requestedAt
+                                      }, req.id);
+                                    }}
+                                    className="py-2 px-3 rounded-xl bg-[#2B47EE] hover:bg-[#2039cf] text-white text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
+                                    title="গ্রাহকের বিস্তারিত তথ্য বা আইডি রিসেট করুন"
+                                  >
+                                    <Tag className="w-3.5 h-3.5" />
+                                    <span>Change Details</span>
+                                  </button>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* 2. Approved Call Requests Section with Dedicated Search Bar */}
+                  {callDeskSubTab === 'approved' && (
+                    <div className="space-y-3">
+                      {/* Search Bar for Approved Calls */}
+                      <div className="relative w-full">
+                        <Search className="w-4 h-4 text-[#8BB99F] absolute left-3.5 top-1/2 -translate-y-1/2" />
+                        <input
+                          type="text"
+                          placeholder="অনুমোদিত কল রিকোয়েস্ট নাম, ফোন নম্বর, কারণ বা তারিখ দিয়ে খুঁজুন..."
+                          value={callDeskSearch}
+                          onChange={(e) => setCallDeskSearch(e.target.value)}
+                          className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-[#091A11] border border-[#173826] text-white text-xs placeholder-[#69977E] focus:outline-none focus:border-[#00B261] transition-all"
+                        />
+                        {callDeskSearch && (
+                          <button
+                            type="button"
+                            onClick={() => setCallDeskSearch('')}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#8BB99F] hover:text-white cursor-pointer"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
+
+                      <div className="flex items-center justify-between text-xs text-[#8BB99F] px-1">
+                        <span>অনুমোদিত ও সম্পন্ন কল হিস্টোরি ({filteredApprovedCallBacks.length} টি)</span>
+                        <span className="text-[11px] text-[#4EEDB0]">
+                          ভবিষ্যতে দেখার জন্য সকল অনুমোদিত কলের পূর্ণ রেকর্ড
+                        </span>
+                      </div>
+
+                      {filteredApprovedCallBacks.length === 0 ? (
+                        <div className="p-10 rounded-2xl bg-[#091A11] border border-[#173826] text-center text-xs text-[#8BB99F] space-y-2">
+                          <CheckCircle2 className="w-8 h-8 text-[#8BB99F] mx-auto opacity-50" />
+                          <p className="font-bold text-white">
+                            {callDeskSearch ? 'এই সার্চে কোনো অনুমোদিত কল পাওয়া যায়নি।' : 'এখনও কোনো অনুমোদিত কল রিকোয়েস্ট নেই।'}
+                          </p>
+                          <p className="text-[11px]">পেন্ডিং কল রিকোয়েস্টে কথা বলে Approve বাটনে ক্লিক করলে তা এখানে যুক্ত হবে।</p>
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                          {filteredApprovedCallBacks.map((req, rIdx) => {
+                            const matchingUser = users.find(u => 
+                              (req.phone && (normalizePhone(u.phone) === normalizePhone(req.phone) || u.phone === req.phone))
+                            );
+
+                            return (
+                              <div
+                                key={req.id ? `app-call-${req.id}` : `app-call-${rIdx}`}
+                                className="p-5 rounded-2xl bg-[#091A11] border-2 border-[#008A4B]/60 space-y-3 relative shadow-sm"
+                              >
+                                {/* Header */}
+                                <div className="flex items-start justify-between gap-2">
+                                  <div className="flex items-center gap-2.5 min-w-0">
+                                    <div className="w-10 h-10 rounded-xl bg-[#008A4B]/20 text-[#4EEDB0] border border-[#008A4B]/40 flex items-center justify-center font-bold text-sm shrink-0">
+                                      <CheckCircle2 className="w-5 h-5" />
+                                    </div>
+                                    <div className="min-w-0">
+                                      <h4 className="text-sm font-bold text-white flex items-center gap-2 truncate">
+                                        <span>{req.name || matchingUser?.name || 'গ্রাহক'}</span>
+                                      </h4>
+                                      <span className="text-xs text-[#4EEDB0] font-mono font-bold block">
+                                        📞 {req.phone}
+                                      </span>
+                                    </div>
+                                  </div>
+
+                                  <div className="flex flex-col items-end gap-1">
+                                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-[#008A4B] text-white shadow-xs">
+                                      ✓ অনুমোদিত ও কল সম্পন্ন
+                                    </span>
+                                  </div>
+                                </div>
+
+                                {/* Call Reason Box */}
+                                <div className="p-3 rounded-xl bg-[#05110A] border border-[#173826] space-y-1">
+                                  <span className="text-[10px] font-bold text-[#8BB99F] uppercase tracking-wider block">
+                                    কল করার কারণ (Reason for Call):
+                                  </span>
+                                  <p className="text-xs text-white leading-relaxed font-medium">
+                                    {req.reason || 'কোনো কারণ উল্লেখ করা হয়নি'}
+                                  </p>
+                                </div>
+
+                                {/* Timestamps */}
+                                <div className="p-2.5 rounded-xl bg-[#05110A] border border-[#173826]/70 text-[11px] space-y-1">
+                                  <div className="flex justify-between items-center text-[#8BB99F]">
+                                    <span>অনুরোধের তারিখ ও সময়:</span>
+                                    <span className="text-white font-mono">{req.requestedAt}</span>
+                                  </div>
+                                  <div className="flex justify-between items-center text-[#8BB99F]">
+                                    <span className="text-[#4EEDB0]">কল সম্পন্ন ও অনুমোদনের সময়:</span>
+                                    <span className="text-[#4EEDB0] font-mono font-bold">{req.approvedAt || 'সম্পন্ন'}</span>
+                                  </div>
+                                </div>
+
+                                {/* Actions */}
+                                <div className="pt-1 flex items-center justify-between gap-2">
+                                  <button
+                                    type="button"
+                                    onClick={() => handleRemoveCallBack(req.id)}
+                                    className="py-1.5 px-3 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/30 text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
+                                    title="হিস্টোরি থেকে মুছে ফেলুন"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                    <span>মুছে ফেলুন</span>
+                                  </button>
+
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      handleOpenChangeDetails(matchingUser || {
+                                        name: req.name || 'গ্রাহক',
+                                        phone: req.phone,
+                                        email: '',
+                                        registeredAt: req.requestedAt
+                                      }, req.id);
+                                    }}
+                                    className="py-1.5 px-3 rounded-xl bg-[#2B47EE] hover:bg-[#2039cf] text-white text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
+                                  >
+                                    <Tag className="w-3.5 h-3.5" />
+                                    <span>Change Details</span>
+                                  </button>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -5253,6 +5879,242 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
         );
       })()}
 
+      {/* Change Details / Reset ID Modal (Dual-Sided Impact) */}
+      {changeDetailsUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
+          <div className="w-full max-w-lg bg-[#091A11] border-2 border-[#2B47EE] rounded-3xl p-6 shadow-2xl space-y-5 max-h-[92vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="flex items-start justify-between gap-3 border-b border-[#173826] pb-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <div className="p-2 rounded-xl bg-[#2B47EE]/20 border border-[#2B47EE]/40 text-[#818CF8]">
+                    <Tag className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-black text-white flex items-center gap-2">
+                      <span>Change Details (গ্রাহকের তথ্য পরিবর্তন)</span>
+                      <span className="px-2 py-0.5 rounded-full bg-[#2B47EE]/25 text-[#A5B4FC] text-[10px] font-bold border border-[#2B47EE]/40">
+                        Tag & Reset
+                      </span>
+                    </h3>
+                    <p className="text-[11px] text-[#8BB99F] mt-0.5">
+                      গ্রাহকের ইমেইল আইডি এবং মোবাইল নম্বর সরাসরি পরিবর্তন ও রিসেট করুন।
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setChangeDetailsUser(null)}
+                className="p-1.5 rounded-xl bg-[#05110A] text-[#8BB99F] hover:text-white border border-[#173826] cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Target User Overview Card */}
+            <div className="p-3.5 rounded-2xl bg-[#05110A] border border-[#173826] space-y-2 text-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-[#8BB99F]">গ্রাহকের নাম:</span>
+                <span className="font-bold text-white flex items-center gap-1.5">
+                  <User className="w-3.5 h-3.5 text-[#818CF8]" />
+                  <span>{changeDetailsUser.name}</span>
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-[#8BB99F]">বর্তমান মোবাইল নম্বর:</span>
+                <span className="font-mono text-rose-300 font-bold bg-rose-500/10 px-2 py-0.5 rounded border border-rose-500/20">
+                  {changeDetailsUser.phone}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-[#8BB99F]">বর্তমান ইমেইল আইডি:</span>
+                <span className="font-mono text-rose-300 font-bold bg-rose-500/10 px-2 py-0.5 rounded border border-rose-500/20">
+                  {changeDetailsUser.email || 'কোনো ইমেইল নেই'}
+                </span>
+              </div>
+              {changeDetailsUser.password && (
+                <div className="flex items-center justify-between">
+                  <span className="text-[#8BB99F]">বর্তমান পাসওয়ার্ড:</span>
+                  <span className="font-mono text-[#4EEDB0] bg-[#0E2417] px-2 py-0.5 rounded border border-[#173826]">
+                    {changeDetailsUser.password}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Change Form */}
+            <form onSubmit={handleSaveChangeDetails} className="space-y-4">
+              {/* Field 1: New Mobile Number */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-white flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <Phone className="w-3.5 h-3.5 text-[#4EEDB0]" />
+                    <span>নতুন মোবাইল নম্বর (New Phone Number)</span>
+                  </span>
+                  <span className="text-[10px] text-[#4EEDB0] font-normal">হারানো সিমের ক্ষেত্রে নতুন নম্বর</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={changeDetailsNewPhone}
+                  onChange={(e) => setChangeDetailsNewPhone(e.target.value)}
+                  placeholder="যেমন: 018XXXXXXXX"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#05110A] border border-[#173826] text-white text-xs font-mono focus:outline-none focus:border-[#2B47EE] transition-all"
+                />
+              </div>
+
+              {/* Field 2: New Email ID */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-white flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <Mail className="w-3.5 h-3.5 text-[#818CF8]" />
+                    <span>নতুন ইমেইল আইডি (New Email ID)</span>
+                  </span>
+                  <span className="text-[10px] text-[#818CF8] font-normal">ইমেইল হারিয়ে গেলে নতুন ইমেইল</span>
+                </label>
+                <input
+                  type="email"
+                  value={changeDetailsNewEmail}
+                  onChange={(e) => setChangeDetailsNewEmail(e.target.value)}
+                  placeholder="যেমন: customer@example.com"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#05110A] border border-[#173826] text-white text-xs font-mono focus:outline-none focus:border-[#2B47EE] transition-all"
+                />
+              </div>
+
+              {/* Field 3: Optional New Password */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-white flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <Lock className="w-3.5 h-3.5 text-amber-400" />
+                    <span>নতুন পাসওয়ার্ড (New Password - ঐচ্ছিক)</span>
+                  </span>
+                  <span className="text-[10px] text-[#8BB99F] font-normal">না বদলালে খালি রাখুন</span>
+                </label>
+                <input
+                  type="text"
+                  value={changeDetailsNewPassword}
+                  onChange={(e) => setChangeDetailsNewPassword(e.target.value)}
+                  placeholder="পরিবর্তন না করতে চাইলে খালি রাখুন"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#05110A] border border-[#173826] text-white text-xs font-mono focus:outline-none focus:border-[#2B47EE] transition-all"
+                />
+              </div>
+
+              {/* Field 4: Tag & Reason */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-white flex items-center gap-1.5">
+                  <Tag className="w-3.5 h-3.5 text-[#2B47EE]" />
+                  <span>ট্যাগ ও পরিবর্তনের কারণ (Tag / Reason)</span>
+                </label>
+                <div className="flex flex-wrap gap-1.5">
+                  {[
+                    'হারানো মোবাইল নম্বর',
+                    'হারানো ইমেইল আইডি',
+                    'নম্বর ও ইমেইল পরিবর্তন',
+                    'গ্রাহকের অনুরোধে আইডি রিসেট',
+                    'ভুল তথ্য সংশোধন'
+                  ].map((presetTag) => (
+                    <button
+                      key={presetTag}
+                      type="button"
+                      onClick={() => setChangeDetailsTag(presetTag)}
+                      className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all cursor-pointer border ${
+                        changeDetailsTag === presetTag
+                          ? 'bg-[#2B47EE] text-white border-[#2B47EE]'
+                          : 'bg-[#05110A] text-[#8BB99F] hover:text-white border-[#173826]'
+                      }`}
+                    >
+                      {presetTag}
+                    </button>
+                  ))}
+                </div>
+                <input
+                  type="text"
+                  value={changeDetailsTag}
+                  onChange={(e) => setChangeDetailsTag(e.target.value)}
+                  placeholder="ট্যাগ বা বিবরণ লিখুন..."
+                  className="w-full px-3.5 py-2 rounded-xl bg-[#05110A] border border-[#173826] text-white text-xs focus:outline-none focus:border-[#2B47EE]"
+                />
+              </div>
+
+              {/* Live Preview Box: From What to What */}
+              <div className="p-3.5 rounded-2xl bg-[#030B07] border border-[#173826] space-y-1.5 text-xs">
+                <div className="text-[11px] font-bold text-[#4EEDB0] flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>কী থেকে কী পরিবর্তন হচ্ছে (Live Preview):</span>
+                </div>
+                <div className="font-mono text-[11px] text-[#8BB99F] space-y-1">
+                  <div className="flex items-center gap-1.5">
+                    <span>নম্বর:</span>
+                    <span className="text-rose-400 line-through">{changeDetailsUser.phone}</span>
+                    <span>➔</span>
+                    <span className="text-[#4EEDB0] font-bold">{changeDetailsNewPhone || '...'}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span>ইমেইল:</span>
+                    <span className="text-rose-400 line-through">{changeDetailsUser.email || 'ছিল না'}</span>
+                    <span>➔</span>
+                    <span className="text-[#4EEDB0] font-bold">{changeDetailsNewEmail || 'অপরিবর্তিত'}</span>
+                  </div>
+                  {changeDetailsNewPassword && (
+                    <div className="flex items-center gap-1.5">
+                      <span>পাসওয়ার্ড:</span>
+                      <span>➔</span>
+                      <span className="text-amber-300 font-bold">{changeDetailsNewPassword}</span>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-1.5 text-[10px] text-[#A5B4FC]">
+                    <span>ট্যাগ:</span>
+                    <span className="font-bold">{changeDetailsTag || 'ID Reset'}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Both Sides Rule Note */}
+              <div className="p-3 rounded-xl bg-[#2B47EE]/10 border border-[#2B47EE]/30 text-[11px] text-[#A5B4FC] flex items-start gap-2">
+                <CheckCircle2 className="w-4 h-4 text-[#818CF8] shrink-0 mt-0.5" />
+                <span>
+                  <strong>উভমুখী নিয়ম (Both Sides Affected):</strong> পরিবর্তন করার সাথে সাথে এটি "Reset Password User List"-এ পূর্ণাঙ্গ বিবরণসহ যুক্ত হবে এবং অ্যাডমিন ডাটাবেস ও গ্রাহক অ্যাকাউন্ট উভয়েই তাৎক্ষণিকভাবে আপডেট হবে।
+                </span>
+              </div>
+
+              {/* Error / Success Messages */}
+              {changeDetailsError && (
+                <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 shrink-0" />
+                  <span>{changeDetailsError}</span>
+                </div>
+              )}
+              {changeDetailsSuccess && (
+                <div className="p-3 rounded-xl bg-[#008A4B]/20 border border-[#008A4B]/40 text-[#4EEDB0] text-xs flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 shrink-0" />
+                  <span>{changeDetailsSuccess}</span>
+                </div>
+              )}
+
+              {/* Modal Buttons */}
+              <div className="flex gap-2.5 pt-2">
+                <button
+                  type="submit"
+                  disabled={changeDetailsSubmitting}
+                  className="flex-1 py-3 px-4 rounded-xl bg-[#2B47EE] hover:bg-[#2039cf] text-white text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md disabled:opacity-50"
+                >
+                  <Tag className="w-4 h-4" />
+                  <span>{changeDetailsSubmitting ? 'সংরক্ষণ হচ্ছে...' : 'সংরক্ষণ ও রিসেট করুন (Save & Reset)'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setChangeDetailsUser(null)}
+                  className="px-4 py-3 rounded-xl bg-[#05110A] border border-[#173826] text-xs text-[#8BB99F] hover:text-white cursor-pointer"
+                >
+                  বাতিল
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* Password Reset Modal */}
       {activeResetRequest && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
@@ -5282,6 +6144,100 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                 বাতিল
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Protected Section Password Modal (Password: admin123) */}
+      {showSectionPasswordModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fadeIn">
+          <div className="w-full max-w-md bg-[#0F172A] border border-[#1E293B] rounded-3xl p-6 sm:p-7 shadow-2xl space-y-4 animate-scaleUp">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-amber-500/15 text-amber-400 flex items-center justify-center border border-amber-500/30 shadow-xs">
+                  <Lock className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-black text-white">
+                    সুরক্ষিত সেকশন • পাসওয়ার্ড প্রয়োজন
+                  </h3>
+                  <p className="text-xs text-[#94A3B8]">
+                    প্রবেশ করতে ওয়েবসাইটের অ্যাডমিন পাসওয়ার্ড প্রদান করুন
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowSectionPasswordModal(false);
+                  setSectionPasswordInput('');
+                  setSectionPasswordError('');
+                }}
+                className="p-1.5 rounded-xl text-[#64748D] hover:text-white hover:bg-[#1E293B] cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-3.5 rounded-2xl bg-[#1E293B]/60 border border-[#334155] text-xs text-[#CBD5E1] space-y-1">
+              <p>লাইভ চ্যাট ও অর্ডার বাদে অন্য সকল অপশনে (Overview, Users, Password & Security, Website Stock, Reports, Settings) প্রবেশের জন্য এই সুরক্ষা নিশ্চিত করা হয়েছে।</p>
+            </div>
+
+            <form onSubmit={handleVerifySectionPassword} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-[#CBD5E1] mb-1.5">
+                  অ্যাডমিন পাসওয়ার্ড (Password)
+                </label>
+                <div className="relative">
+                  <input
+                    type={showSectionPasswordText ? "text" : "password"}
+                    autoFocus
+                    required
+                    placeholder="পাসওয়ার্ড লিখুন..."
+                    value={sectionPasswordInput}
+                    onChange={(e) => {
+                      setSectionPasswordInput(e.target.value);
+                      if (sectionPasswordError) setSectionPasswordError('');
+                    }}
+                    className="w-full px-4 py-3 rounded-xl bg-[#090D16] border border-[#334155] text-white text-sm focus:outline-none focus:border-[#2B47EE] transition-all font-mono"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowSectionPasswordText(!showSectionPasswordText)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#64748D] hover:text-white cursor-pointer"
+                  >
+                    {showSectionPasswordText ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+                {sectionPasswordError && (
+                  <p className="text-xs text-rose-400 mt-1.5 font-medium flex items-center gap-1">
+                    <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                    <span>{sectionPasswordError}</span>
+                  </p>
+                )}
+              </div>
+
+              <div className="flex gap-2.5 pt-1">
+                <button
+                  type="submit"
+                  className="flex-1 py-3 px-4 rounded-xl bg-[#2B47EE] hover:bg-[#2039cf] text-white text-xs sm:text-sm font-bold transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <Lock className="w-4 h-4" />
+                  <span>আনলক ও প্রবেশ করুন</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowSectionPasswordModal(false);
+                    setSectionPasswordInput('');
+                    setSectionPasswordError('');
+                  }}
+                  className="py-3 px-4 rounded-xl bg-[#1E293B] hover:bg-[#334155] text-[#94A3B8] hover:text-white text-xs font-bold transition-all cursor-pointer"
+                >
+                  বাতিল
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

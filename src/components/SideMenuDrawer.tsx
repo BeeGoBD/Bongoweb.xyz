@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   X, ClipboardCheck, MessageCircle, 
-  CheckCircle2, Send, Ticket, Star, Quote, Key, Sparkles
+  CheckCircle2, Send, Ticket, Star, Quote, Key, Sparkles,
+  PhoneCall, AlertCircle, Clock, Lock
 } from 'lucide-react';
 import BongoWebLogo from './BongoWebLogo';
 import { BottomTabType } from './FixedBottomNav';
 import { TESTIMONIALS } from '../data/mockData';
+import { UserAccount, CallBackRequest } from '../types';
+import { apiSubmitCallBackRequest } from '../utils/api';
 
 interface SideMenuDrawerProps {
   isOpen: boolean;
@@ -25,6 +28,62 @@ export default function SideMenuDrawer({
   onOpenOrderDetails,
   onOpenWebsiteCredentials
 }: SideMenuDrawerProps) {
+  const [currentUser, setCurrentUser] = useState<UserAccount | null>(() => {
+    try {
+      const raw = localStorage.getItem('bongoweb_user');
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  const [myCallBackRequest, setMyCallBackRequest] = useState<CallBackRequest | null>(() => {
+    try {
+      const raw = localStorage.getItem('bongoweb_my_active_callback_request');
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  // Keep user and callback request in sync
+  useEffect(() => {
+    const handleSync = () => {
+      try {
+        const u = localStorage.getItem('bongoweb_user');
+        setCurrentUser(u ? JSON.parse(u) : null);
+      } catch {
+        setCurrentUser(null);
+      }
+
+      try {
+        const cb = localStorage.getItem('bongoweb_my_active_callback_request');
+        setMyCallBackRequest(cb ? JSON.parse(cb) : null);
+      } catch {
+        setMyCallBackRequest(null);
+      }
+    };
+
+    window.addEventListener('storage', handleSync);
+    window.addEventListener('bongoweb_user_updated', handleSync);
+    window.addEventListener('bongoweb_callback_requests_updated', handleSync);
+
+    return () => {
+      window.removeEventListener('storage', handleSync);
+      window.removeEventListener('bongoweb_user_updated', handleSync);
+      window.removeEventListener('bongoweb_callback_requests_updated', handleSync);
+    };
+  }, []);
+
+  // Call Back Modal State
+  const [callBackModalOpen, setCallBackModalOpen] = useState(false);
+  const [callBackName, setCallBackName] = useState('');
+  const [callBackPhone, setCallBackPhone] = useState('');
+  const [callBackReason, setCallBackReason] = useState('');
+  const [callBackSubmitting, setCallBackSubmitting] = useState(false);
+  const [callBackSuccess, setCallBackSuccess] = useState(false);
+  const [showLoginPromptModal, setShowLoginPromptModal] = useState(false);
+
   const [ticketModalOpen, setTicketModalOpen] = useState(false);
   const [ticketReason, setTicketReason] = useState('');
   const [ticketName, setTicketName] = useState('');
@@ -37,6 +96,38 @@ export default function SideMenuDrawer({
   const [testimonialsModalOpen, setTestimonialsModalOpen] = useState(false);
 
   if (!isOpen) return null;
+
+  const handleOpenCallBack = () => {
+    if (!currentUser) {
+      setShowLoginPromptModal(true);
+      return;
+    }
+    setCallBackName(currentUser.name || '');
+    setCallBackPhone(currentUser.phone || '');
+    setCallBackReason('');
+    setCallBackSuccess(false);
+    setCallBackModalOpen(true);
+  };
+
+  const handleSubmitCallBack = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!callBackName.trim() || !callBackPhone.trim() || !callBackReason.trim()) return;
+
+    setCallBackSubmitting(true);
+    try {
+      const res = await apiSubmitCallBackRequest({
+        name: callBackName.trim(),
+        phone: callBackPhone.trim(),
+        reason: callBackReason.trim()
+      });
+      setMyCallBackRequest(res);
+      setCallBackSuccess(true);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setCallBackSubmitting(false);
+    }
+  };
 
   const handleOpenTicket = () => {
     setTicketSubmitted(false);
@@ -189,6 +280,40 @@ export default function SideMenuDrawer({
                 </span>
                 <span className="text-[11px] text-[#64748D] font-normal block truncate">
                   গ্রাহকদের মতামত ও ৫-স্টার রেটিং দেখুন
+                </span>
+              </div>
+            </button>
+
+            {/* 6. Call Back Button (Menu Option for all users) */}
+            <button
+              onClick={handleOpenCallBack}
+              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl bg-gradient-to-r from-[#F0FDF4] to-[#F8FAFD] hover:from-[#DCFCE7] hover:to-[#EEF2FF] text-[#0D253D] hover:text-[#008A4B] transition-all text-xs font-bold text-left cursor-pointer group border border-[#008A4B]/30 hover:border-[#008A4B] shadow-2xs relative"
+            >
+              <div className="w-9 h-9 rounded-xl bg-[#008A4B] text-white flex items-center justify-center border border-[#008A4B] shadow-xs shrink-0">
+                <PhoneCall className="w-5 h-5" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="block text-sm font-black text-[#0D253D] group-hover:text-[#008A4B]">
+                    ৬. Call Back (কল ব্যাক রিকোয়েস্ট)
+                  </span>
+                  {myCallBackRequest?.status === 'pending' && (
+                    <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-700 text-[10px] font-bold border border-amber-500/30 shrink-0 animate-pulse">
+                      পেন্ডিং
+                    </span>
+                  )}
+                  {myCallBackRequest?.status === 'approved' && (
+                    <span className="px-2 py-0.5 rounded-full bg-[#008A4B]/20 text-[#008A4B] text-[10px] font-bold border border-[#008A4B]/30 shrink-0">
+                      ✓ অনুমোদিত
+                    </span>
+                  )}
+                </div>
+                <span className="text-[11px] text-[#64748D] font-normal block truncate">
+                  {myCallBackRequest?.status === 'pending'
+                    ? 'আপনার কল ব্যাক রিকোয়েস্ট অপেক্ষমান রয়েছে'
+                    : myCallBackRequest?.status === 'approved'
+                    ? '✓ কল সম্পন্ন ও অনুমোদিত হয়েছে'
+                    : 'নাম ও নম্বর দিয়ে কল ব্যাক রিকোয়েস্ট পাঠান'}
                 </span>
               </div>
             </button>
@@ -381,6 +506,295 @@ export default function SideMenuDrawer({
                 বন্ধ করুন
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Login Prompt Modal for Non-Logged-in Users */}
+      {showLoginPromptModal && (
+        <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-[#0D253D]/70 backdrop-blur-xs animate-fadeIn">
+          <div className="w-full max-w-md bg-[#FFFFFF] rounded-3xl border border-[#E5EDF5] shadow-2xl p-6 sm:p-7 animate-slideUpModal relative">
+            <button
+              onClick={() => setShowLoginPromptModal(false)}
+              className="absolute top-4 right-4 p-2 rounded-xl text-[#64748D] hover:text-[#0D253D] hover:bg-[#F8FAFD] cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="text-center space-y-3">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#008A4B] to-[#00572F] text-white flex items-center justify-center mx-auto shadow-md">
+                <PhoneCall className="w-7 h-7" />
+              </div>
+
+              <div>
+                <h3 className="text-lg font-black text-[#0D253D]">
+                  কল ব্যাক সেবা (Call Back Request)
+                </h3>
+                <p className="text-xs text-[#64748D] mt-1.5 leading-relaxed">
+                  কল ব্যাক রিকোয়েস্ট জমা দিতে এবং আমাদের সাপোর্ট টিমের সরাসরি কল পেতে অনুগ্রহ করে আপনার অ্যাকাউন্টে লগইন করুন বা একটি নতুন অ্যাকাউন্ট খুলুন।
+                </p>
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-[#F0FDF4] border border-[#008A4B]/20 text-xs text-[#166534] flex items-center gap-2 text-left">
+                <Lock className="w-4 h-4 shrink-0 text-[#008A4B]" />
+                <span>লগইন করার পর আপনার নাম ও নম্বর স্বয়ংক্রিয়ভাবে সংযুক্ত হবে।</span>
+              </div>
+
+              <div className="pt-2 flex flex-col sm:flex-row gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowLoginPromptModal(false);
+                    onClose();
+                    onSelectTab('account');
+                  }}
+                  className="flex-1 py-3 px-4 rounded-xl bg-[#2B47EE] hover:bg-[#203CD4] text-white text-xs sm:text-sm font-bold transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <span>লগইন / সাইন আপ করুন</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowLoginPromptModal(false)}
+                  className="py-3 px-4 rounded-xl bg-[#F8FAFD] hover:bg-[#E5EDF5] text-[#64748D] text-xs font-bold transition-all cursor-pointer"
+                >
+                  পরে করব
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Call Back Request Modal for Logged-In Users */}
+      {callBackModalOpen && (
+        <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-[#0D253D]/70 backdrop-blur-xs animate-fadeIn">
+          <div className="w-full max-w-lg bg-[#FFFFFF] rounded-3xl border border-[#E5EDF5] shadow-2xl p-6 sm:p-8 animate-slideUpModal relative">
+            <button
+              onClick={() => {
+                setCallBackModalOpen(false);
+                setCallBackSuccess(false);
+              }}
+              className="absolute top-4 right-4 p-2 rounded-xl text-[#64748D] hover:text-[#0D253D] hover:bg-[#F8FAFD] cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {/* If has existing pending request and not in success view */}
+            {myCallBackRequest?.status === 'pending' && !callBackSuccess ? (
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center border border-amber-500/20 shrink-0">
+                    <Clock className="w-6 h-6 animate-pulse" />
+                  </div>
+                  <div>
+                    <h3 className="text-base sm:text-lg font-black text-[#0D253D]">
+                      কল ব্যাক রিকোয়েস্ট অপেক্ষমান
+                    </h3>
+                    <p className="text-xs text-[#64748D]">
+                      আপনার অনুরোধটি গৃহীত হয়েছে, শীঘ্রই কল পাবেন।
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-[#FFFBEB] border border-amber-500/30 space-y-2 text-xs">
+                  <div className="flex justify-between items-center text-[#92400E]">
+                    <span className="font-semibold">অনুরোধকারী:</span>
+                    <span className="font-bold text-[#0D253D]">{myCallBackRequest.name}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-[#92400E]">
+                    <span className="font-semibold">মোবাইল নম্বর:</span>
+                    <span className="font-mono font-bold text-[#0D253D]">{myCallBackRequest.phone}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-[#92400E]">
+                    <span className="font-semibold">অনুরোধের সময়:</span>
+                    <span className="text-[#0D253D]">{myCallBackRequest.requestedAt}</span>
+                  </div>
+                  <div className="pt-2 border-t border-amber-500/20">
+                    <span className="font-semibold text-[#92400E] block mb-1">কল করার কারণ:</span>
+                    <p className="p-2.5 rounded-xl bg-white border border-amber-500/20 text-[#0D253D] font-medium leading-relaxed">
+                      {myCallBackRequest.reason}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMyCallBackRequest(null);
+                      setCallBackSuccess(false);
+                    }}
+                    className="flex-1 py-2.5 px-4 rounded-xl bg-[#F8FAFD] hover:bg-[#E5EDF5] text-[#0D253D] text-xs font-bold border border-[#E5EDF5] transition-all cursor-pointer"
+                  >
+                    আরেকটি নতুন রিকোয়েস্ট পাঠান
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCallBackModalOpen(false)}
+                    className="py-2.5 px-5 rounded-xl bg-[#2B47EE] text-white text-xs font-bold hover:bg-[#203CD4] cursor-pointer"
+                  >
+                    ঠিক আছে
+                  </button>
+                </div>
+              </div>
+            ) : myCallBackRequest?.status === 'approved' && !callBackSuccess ? (
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-2xl bg-[#008A4B]/15 text-[#008A4B] flex items-center justify-center border border-[#008A4B]/30 shrink-0">
+                    <CheckCircle2 className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-base sm:text-lg font-black text-[#0D253D]">
+                      কল ব্যাক সম্পন্ন ও অনুমোদিত!
+                    </h3>
+                    <p className="text-xs text-[#008A4B] font-semibold">
+                      আমাদের টিম আপনার সাথে কথা বলেছে ও অনুমোদন দিয়েছে।
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-[#F0FDF4] border border-[#008A4B]/20 space-y-2 text-xs text-[#166534]">
+                  <p>আমাদের এক্সিকিউটিভ আপনার অনুরোধের প্রেক্ষিতে কল করেছিলেন। আপনার যেকোনো প্রয়োজনে আমরা সদা প্রস্তুত।</p>
+                  {myCallBackRequest.approvedAt && (
+                    <p className="text-[11px] text-[#15803D]">
+                      অনুমোদনের তারিখ: <span className="font-mono font-bold">{myCallBackRequest.approvedAt}</span>
+                    </p>
+                  )}
+                </div>
+
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMyCallBackRequest(null);
+                      setCallBackSuccess(false);
+                    }}
+                    className="flex-1 py-2.5 px-4 rounded-xl bg-[#008A4B] hover:bg-[#00703C] text-white text-xs font-bold transition-all shadow-md cursor-pointer"
+                  >
+                    নতুন কল ব্যাক রিকোয়েস্ট পাঠান
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCallBackModalOpen(false)}
+                    className="py-2.5 px-5 rounded-xl bg-[#F8FAFD] text-[#64748D] text-xs font-bold hover:bg-[#E5EDF5] cursor-pointer"
+                  >
+                    বন্ধ করুন
+                  </button>
+                </div>
+              </div>
+            ) : callBackSuccess ? (
+              <div className="text-center py-6 space-y-4">
+                <div className="w-16 h-16 rounded-3xl bg-[#008A4B]/10 text-[#008A4B] flex items-center justify-center mx-auto border border-[#008A4B]/20">
+                  <CheckCircle2 className="w-8 h-8" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-black text-[#0D253D]">
+                    কল ব্যাক রিকোয়েস্ট সফলভাবে জমা হয়েছে!
+                  </h3>
+                  <p className="text-xs text-[#64748D] mt-1 max-w-sm mx-auto">
+                    আমাদের সাপোর্ট টিম আপনার দেওয়া নম্বরে ({callBackPhone}) দ্রুত কল করবে।
+                  </p>
+                </div>
+
+                <div className="p-3.5 rounded-2xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs text-left space-y-1">
+                  <div className="text-[#64748D]">
+                    কারণ: <span className="text-[#0D253D] font-bold">{callBackReason}</span>
+                  </div>
+                  <div className="text-[#64748D]">
+                    স্ট্যাটাস: <span className="text-amber-600 font-bold">অপেক্ষমান (পেন্ডিং)</span>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCallBackModalOpen(false);
+                    setCallBackSuccess(false);
+                  }}
+                  className="w-full py-3 px-4 rounded-xl bg-[#2B47EE] hover:bg-[#203CD4] text-white text-xs sm:text-sm font-bold transition-all shadow-md cursor-pointer"
+                >
+                  ঠিক আছে
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#008A4B] to-[#00572F] text-white flex items-center justify-center shadow-md shrink-0">
+                    <PhoneCall className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-base sm:text-lg font-black text-[#0D253D]">
+                      ফ্রি কল ব্যাক রিকোয়েস্ট (Call Back)
+                    </h3>
+                    <p className="text-xs text-[#64748D]">
+                      আপনার নাম ও নম্বর দিন এবং কল করার কারণ লিখুন।
+                    </p>
+                  </div>
+                </div>
+
+                <form onSubmit={handleSubmitCallBack} className="space-y-3.5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-bold text-[#0D253D] mb-1">
+                        আপনার নাম <span className="text-[#EF4444]">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="আপনার পূর্ণ নাম"
+                        value={callBackName}
+                        onChange={(e) => setCallBackName(e.target.value)}
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs text-[#0D253D] placeholder-[#7D8BA4] focus:outline-none focus:bg-[#FFFFFF] focus:border-[#2B47EE] focus:ring-1 focus:ring-[#2B47EE] transition-all font-medium"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-[#0D253D] mb-1">
+                        মোবাইল নম্বর <span className="text-[#EF4444]">*</span>
+                      </label>
+                      <input
+                        type="tel"
+                        required
+                        placeholder="017xxxxxxxx"
+                        value={callBackPhone}
+                        onChange={(e) => setCallBackPhone(e.target.value)}
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs text-[#0D253D] placeholder-[#7D8BA4] focus:outline-none focus:bg-[#FFFFFF] focus:border-[#2B47EE] focus:ring-1 focus:ring-[#2B47EE] transition-all font-mono font-bold"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-[#0D253D] mb-1">
+                      কল করার কারণ (Reason for Call) <span className="text-[#EF4444]">*</span>
+                    </label>
+                    <textarea
+                      required
+                      rows={3}
+                      placeholder="আপনি কেন কল ব্যাক চান? আপনার সমস্যা বা প্রয়োজনীয় তথ্য বিস্তারিত লিখুন..."
+                      value={callBackReason}
+                      onChange={(e) => setCallBackReason(e.target.value)}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs text-[#0D253D] placeholder-[#7D8BA4] focus:outline-none focus:bg-[#FFFFFF] focus:border-[#2B47EE] focus:ring-1 focus:ring-[#2B47EE] transition-all resize-none"
+                    />
+                  </div>
+
+                  <div className="p-3 rounded-xl bg-[#F8FAFD] border border-[#E5EDF5] text-[11px] text-[#64748D] flex items-center gap-2">
+                    <Clock className="w-3.5 h-3.5 text-[#008A4B] shrink-0" />
+                    <span>আমাদের টিম অফিস চলাকালীন সর্বোচ্চ ১৫-৩০ মিনিটের মধ্যে কল করে থাকে।</span>
+                  </div>
+
+                  <div className="pt-2">
+                    <button
+                      type="submit"
+                      disabled={callBackSubmitting}
+                      className="w-full py-3 px-4 rounded-xl bg-[#008A4B] hover:bg-[#00703C] active:bg-[#00572F] text-[#FFFFFF] text-xs sm:text-sm font-bold transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                    >
+                      <PhoneCall className="w-4 h-4" />
+                      <span>{callBackSubmitting ? 'জমা হচ্ছে...' : 'কল ব্যাক রিকোয়েস্ট পাঠান (Submit Call Back)'}</span>
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
           </div>
         </div>
       )}

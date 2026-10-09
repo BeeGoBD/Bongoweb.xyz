@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { 
   Send, Headphones, CheckCircle2, User, Sparkles, 
   CheckCheck, LogOut, Clock, Plus, AlertCircle, ArrowRight, X,
-  ShieldCheck, RefreshCw, MessageSquare, Ticket, RotateCcw
+  ShieldCheck, RefreshCw, MessageSquare, Ticket, RotateCcw, KeyRound
 } from 'lucide-react';
 import { SupportChatMessage, UserAccount } from '../types';
 import { 
@@ -10,6 +10,7 @@ import {
   normalizePhone, apiGetLiveChatEnabled, apiRequestPasswordReset
 } from '../utils/api';
 import { realtimeManager } from '../utils/realtime';
+import ClientSecurityCodeModal from './ClientSecurityCodeModal';
 
 // Helper to guarantee 100% zero message duplication
 const deduplicateChatMessages = (msgs: SupportChatMessage[]): SupportChatMessage[] => {
@@ -57,6 +58,7 @@ export default function LiveChatView() {
   const [timeLeft, setTimeLeft] = useState(300); // in seconds
   const [isExpired, setIsExpired] = useState(false);
   const [showExitConfirm, setShowExitConfirm] = useState(false);
+  const [showSecurityCodeModal, setShowSecurityCodeModal] = useState(false);
   const [expiresTimestamp, setExpiresTimestamp] = useState<number>(Date.now() + 300000);
 
   // Check existing session & live chat status on mount
@@ -619,16 +621,30 @@ export default function LiveChatView() {
           </div>
         </div>
 
-        {/* Exit / Close Button */}
-        <button
-          type="button"
-          onClick={() => setShowExitConfirm(true)}
-          className="px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-rose-50 text-slate-600 hover:text-rose-600 border border-slate-200 hover:border-rose-200 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs active:scale-95"
-          title="চ্যাট থেকে বের হয়ে যান"
-        >
-          <X className="w-4 h-4" />
-          <span>Exit</span>
-        </button>
+        <div className="flex items-center gap-2">
+          {/* Security Code Button (Requirement 13) */}
+          <button
+            type="button"
+            onClick={() => setShowSecurityCodeModal(true)}
+            className="px-2.5 sm:px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100/80 text-[#2B47EE] border border-indigo-200 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs active:scale-95"
+            title="৫-মিনিটের সিকিউরিটি কোড দেখুন (Security Code)"
+          >
+            <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#2B47EE]" />
+            <span className="hidden sm:inline">Security Code</span>
+            <span className="sm:hidden">কোড</span>
+          </button>
+
+          {/* Exit / Close Button */}
+          <button
+            type="button"
+            onClick={() => setShowExitConfirm(true)}
+            className="px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-rose-50 text-slate-600 hover:text-rose-600 border border-slate-200 hover:border-rose-200 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs active:scale-95"
+            title="চ্যাট থেকে বের হয়ে যান"
+          >
+            <X className="w-4 h-4" />
+            <span>Exit</span>
+          </button>
+        </div>
       </div>
 
       {/* 2. Messages Scroll Area (With generous bottom padding to guarantee zero overlap) */}
@@ -749,6 +765,16 @@ export default function LiveChatView() {
           </div>
         </div>
       )}
+
+      {/* 5-Minute Rotating Security Code Modal (Requirement 13) */}
+      <ClientSecurityCodeModal
+        isOpen={showSecurityCodeModal}
+        onClose={() => setShowSecurityCodeModal(false)}
+        onGoToLogin={() => {
+          setShowSecurityCodeModal(false);
+          window.location.href = '/account';
+        }}
+      />
     </div>
   );
 }
