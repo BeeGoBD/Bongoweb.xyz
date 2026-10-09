@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   ArrowLeft, ArrowRight, CheckCircle2, ShieldCheck, 
   Copy, Check, Upload, HelpCircle, Lock, 
-  FileText, Download, Printer, AlertCircle, Sparkles
+  FileText, Download, Printer, AlertCircle, Sparkles,
+  Mail, Phone, RefreshCw, KeyRound, User
 } from 'lucide-react';
 import { WebsiteDemo, ClientOrder, UserAccount } from '../types';
-import { apiCreateOrder, apiRegisterUser, apiGetUsers } from '../utils/api';
+import { apiCreateOrder, apiRegisterUser, apiGetUsers, apiSendEmailOtp, apiVerifyEmailOtp } from '../utils/api';
 
 interface OrderPageViewProps {
   demo: WebsiteDemo | string | null;
@@ -13,6 +14,8 @@ interface OrderPageViewProps {
   onBackToWebsite?: (code: string) => void;
   onOrderCompleted?: (order: ClientOrder) => void;
 }
+
+export type OrderStep = 1 | 'otp' | 2 | 3;
 
 export default function OrderPageView({
   demo,
@@ -55,33 +58,43 @@ export default function OrderPageView({
   };
 
   // Check URL query for step e.g. /order/2085?step=2
-  const getInitialStep = (): 1 | 2 | 3 => {
+  const getInitialStep = (): OrderStep => {
     try {
       const params = new URLSearchParams(window.location.search);
-      const urlStep = Number(params.get('step'));
-      if (urlStep === 2) return 2;
-      if (urlStep === 3) {
+      const urlStep = params.get('step');
+      if (urlStep === '2') return 2;
+      if (urlStep === '3') {
         if (saved?.createdOrder || localStorage.getItem('bongoweb_latest_order')) return 3;
         return 2;
       }
+      if (urlStep === 'otp') return 'otp';
     } catch (_) {}
     if (saved?.currentStep === 3 && (saved?.createdOrder || localStorage.getItem('bongoweb_latest_order'))) return 3;
     if (saved?.currentStep === 2) return 2;
+    if (saved?.currentStep === 'otp') return 'otp';
     if (loggedIn) return 2; // If already logged in, skip account creation directly to step 2!
     return 1;
   };
 
-  // Step 1: Account Creation; Step 2: Domain, Company & Payment; Step 3: Receipt
-  const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(getInitialStep());
+  // Step 1: User Info; Step 'otp': OTP verification; Step 2: Domain & Payment; Step 3: Receipt
+  const [currentStep, setCurrentStep] = useState<OrderStep>(getInitialStep());
 
-  // Step 1 Inputs (Account Creation)
+  // Step 1 Inputs (Client Information - No Passwords)
   const [name, setName] = useState(saved?.name || loggedIn?.name || '');
   const [phone, setPhone] = useState(saved?.phone || loggedIn?.phone || '');
   const [email, setEmail] = useState(saved?.email || loggedIn?.email || '');
-  const [password, setPassword] = useState(saved?.password || '');
-  const [confirmPassword, setConfirmPassword] = useState(saved?.confirmPassword || '');
   const [step1Error, setStep1Error] = useState('');
-  const [emailNotification, setEmailNotification] = useState(false);
+  const [step1Loading, setStep1Loading] = useState(false);
+
+  // OTP Verification State
+  const [otpCode, setOtpCode] = useState('');
+  const [otpError, setOtpError] = useState('');
+  const [otpVerifying, setOtpVerifying] = useState(false);
+  const [otpSending, setOtpSending] = useState(false);
+  const [otpCountdown, setOtpCountdown] = useState(60);
+  const [isOldUserDetected, setIsOldUserDetected] = useState(false);
+  const [registeredOldNumber, setRegisteredOldNumber] = useState('');
+  const lastVerifiedOtpRef = useRef<string>('');
 
   // Step 2 Inputs (Company, Domain & Payment)
   const [companyName, setCompanyName] = useState(saved?.companyName || '');
@@ -92,11 +105,23 @@ export default function OrderPageView({
   const [screenshotName, setScreenshotName] = useState(saved?.screenshotName || '');
   const [step2Error, setStep2Error] = useState('');
   const [copiedNumber, setCopiedNumber] = useState(false);
+  const [emailNotification, setEmailNotification] = useState(false);
 
   // Final Order Receipt
   const [createdOrder, setCreatedOrder] = useState<ClientOrder | null>(getLatestSavedOrder());
 
-  // Synchronize state to both sessionStorage and localStorage on every change to prevent any refresh errors
+  // OTP Countdown timer
+  useEffect(() => {
+    let timer: any;
+    if (currentStep === 'otp' && otpCountdown > 0) {
+      timer = setInterval(() => {
+        setOtpCountdown((prev) => (prev > 0 ? prev - 1 : 0));
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [currentStep, otpCountdown]);
+
+  // Synchronize state to both sessionStorage and localStorage
   useEffect(() => {
     try {
       const stateToSave = {
@@ -104,8 +129,6 @@ export default function OrderPageView({
         name,
         phone,
         email,
-        password,
-        confirmPassword,
         companyName,
         domainOption,
         customDomainName,
@@ -121,14 +144,14 @@ export default function OrderPageView({
       }
       // Keep URL query in sync
       const currentUrl = new URL(window.location.href);
-      if (currentStep > 1) {
+      if (currentStep === 2 || currentStep === 3 || currentStep === 'otp') {
         currentUrl.searchParams.set('step', String(currentStep));
       } else {
         currentUrl.searchParams.delete('step');
       }
       window.history.replaceState({}, '', currentUrl.pathname + currentUrl.search);
     } catch (_) {}
-  }, [currentStep, name, phone, email, password, confirmPassword, companyName, domainOption, customDomainName, paymentMethod, transactionId, screenshotName, createdOrder, storageKey]);
+  }, [currentStep, name, phone, email, companyName, domainOption, customDomainName, paymentMethod, transactionId, screenshotName, createdOrder, storageKey]);
 
   // Payment Numbers
   const paymentNumbers: Record<'bkash' | 'nagad' | 'rocket' | 'upay', { number: string; type: string }> = {
@@ -144,53 +167,147 @@ export default function OrderPageView({
     setTimeout(() => setCopiedNumber(false), 2200);
   };
 
-  // Step 1 Submission: Account Creation
-  const handleStep1Submit = (e: React.FormEvent) => {
+  // Step 1: User Enters Info -> Send OTP
+  const handleStep1Submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStep1Error('');
 
-    if (!name.trim()) {
+    const cleanName = name.trim();
+    const cleanPhone = phone.trim();
+    const cleanEmail = email.trim().toLowerCase();
+
+    if (!cleanName) {
       setStep1Error('অনুগ্রহ করে আপনার পুরো নাম লিখুন।');
       return;
     }
-    if (!phone.trim() || phone.length < 10) {
-      setStep1Error('অনুগ্রহ করে সঠিক মোবাইল নম্বর প্রদান করুন।');
+    if (!cleanPhone || cleanPhone.length < 10) {
+      setStep1Error('অনুগ্রহ করে সঠিক মোবাইল নম্বর প্রদান করুন (কমপক্ষে ১০ ডিজিট)।');
       return;
     }
-    if (!email.trim() || !email.includes('@')) {
+    if (!cleanEmail || !cleanEmail.includes('@') || !cleanEmail.includes('.')) {
       setStep1Error('অনুগ্রহ করে সঠিক ইমেইল এড্রেস লিখুন।');
       return;
     }
-    if (!password || password.length < 4) {
-      setStep1Error('পাসওয়ার্ড কমপক্ষে ৪ অক্ষরের হতে হবে।');
-      return;
+
+    setStep1Loading(true);
+    try {
+      const res = await apiSendEmailOtp(cleanEmail, 'signup', cleanPhone);
+      if (res.success) {
+        setOtpCode('');
+        setOtpError('');
+        setOtpCountdown(60);
+        setCurrentStep('otp');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        setStep1Error(res.error || 'ওটিপি পাঠাতে সমস্যা হয়েছে। আবার চেষ্টা করুন।');
+      }
+    } catch (err: any) {
+      setStep1Error(err?.message || 'ইমেইলে ওটিপি পাঠানো সম্ভব হয়নি।');
+    } finally {
+      setStep1Loading(false);
     }
-    if (password !== confirmPassword) {
-      setStep1Error('পাসওয়ার্ড ও কনফার্ম পাসওয়ার্ড মিলছে না!');
-      return;
+  };
+
+  // Resend OTP
+  const handleResendOtp = async () => {
+    if (otpSending || otpCountdown > 0) return;
+    setOtpSending(true);
+    setOtpError('');
+    try {
+      const res = await apiSendEmailOtp(email.trim().toLowerCase(), 'signup', phone.trim());
+      if (res.success) {
+        setOtpCountdown(60);
+      } else {
+        setOtpError(res.error || 'পুনরায় কোড পাঠানো যায়নি।');
+      }
+    } catch (_) {
+      setOtpError('পুনরায় কোড পাঠানো যায়নি।');
+    } finally {
+      setOtpSending(false);
     }
+  };
 
-    // Automatically create and persist user account to backend and local storage
-    const userAccount: UserAccount = {
-      name: name.trim(),
-      phone: phone.trim(),
-      email: email.trim(),
-      password: password.trim(),
-      registeredAt: new Date().toLocaleDateString('en-US')
-    };
+  // Verify OTP and auto-recognize old vs new user
+  const handleVerifyOtp = async (codeToVerify?: string) => {
+    const code = (codeToVerify || otpCode).trim();
+    if (code.length < 6 || otpVerifying) return;
+    if (lastVerifiedOtpRef.current === code) return;
 
-    apiRegisterUser(userAccount).catch(() => {});
+    setOtpVerifying(true);
+    setOtpError('');
 
-    localStorage.setItem('bongoweb_user', JSON.stringify(userAccount));
-    sessionStorage.setItem('bongoweb_user', JSON.stringify(userAccount));
+    try {
+      const cleanEmail = email.trim().toLowerCase();
+      const verifyRes = await apiVerifyEmailOtp(cleanEmail, code);
 
-    // Show confirmation notification
-    setEmailNotification(true);
-    setTimeout(() => setEmailNotification(false), 4500);
+      if (verifyRes.success) {
+        lastVerifiedOtpRef.current = code;
 
-    // Proceed to Step 2
-    setCurrentStep(2);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+        // Auto-check if old user or new user
+        const allUsers = await apiGetUsers().catch(() => []);
+        const existing = allUsers.find(
+          (u) => (u.email || '').trim().toLowerCase() === cleanEmail
+        );
+
+        if (existing) {
+          // OLD USER:
+          // User requirement: If he is an old user, use the old number that he used to create the account before.
+          // He cannot change the number by ordering something.
+          const oldPhone = existing.phone || phone.trim();
+          setPhone(oldPhone);
+          setIsOldUserDetected(true);
+          setRegisteredOldNumber(oldPhone);
+          if (existing.name && !name) {
+            setName(existing.name);
+          }
+
+          const updatedUser: UserAccount = {
+            ...existing,
+            phone: oldPhone,
+            numberVerified: true
+          };
+          localStorage.setItem('bongoweb_user', JSON.stringify(updatedUser));
+          sessionStorage.setItem('bongoweb_user', JSON.stringify(updatedUser));
+        } else {
+          // NEW USER:
+          // User requirement: Automatically create an account for him.
+          setIsOldUserDetected(false);
+          const newUser: UserAccount = {
+            name: name.trim(),
+            phone: phone.trim(),
+            email: cleanEmail,
+            registeredAt: new Date().toLocaleDateString('en-US'),
+            numberVerified: true
+          };
+          await apiRegisterUser(newUser).catch(() => {});
+          localStorage.setItem('bongoweb_user', JSON.stringify(newUser));
+          sessionStorage.setItem('bongoweb_user', JSON.stringify(newUser));
+        }
+
+        // Show confirmation banner & shift to Step 2 (Domain & Payment)
+        setEmailNotification(true);
+        setTimeout(() => setEmailNotification(false), 4500);
+
+        setCurrentStep(2);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        setOtpError(verifyRes.error || 'ভুল বা মেয়াদোত্তীর্ণ ওটিপি কোড! আবার চেষ্টা করুন।');
+      }
+    } catch (err: any) {
+      setOtpError(err?.message || 'ওটিপি যাচাইয়ে সমস্যা হয়েছে।');
+    } finally {
+      setOtpVerifying(false);
+    }
+  };
+
+  // Auto-verify when 6 digits are typed in OTP input
+  const handleOtpChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value.replace(/\D/g, '').slice(0, 6);
+    setOtpCode(val);
+    setOtpError('');
+    if (val.length === 6) {
+      handleVerifyOtp(val);
+    }
   };
 
   // Step 2 Submission: Main Order & Payment
@@ -260,7 +377,9 @@ export default function OrderPageView({
           <div className="flex items-center gap-2.5 sm:gap-3">
             <button
               onClick={() => {
-                if (currentStep === 2) {
+                if (currentStep === 'otp') {
+                  setCurrentStep(1);
+                } else if (currentStep === 2) {
                   setCurrentStep(1);
                 } else if (onBackToWebsite && demoCode) {
                   onBackToWebsite(cleanCode);
@@ -289,15 +408,17 @@ export default function OrderPageView({
         </div>
       </header>
 
-      {/* Floating Email Sent Notification (Step 1 -> Step 2 transition) */}
+      {/* Floating Notification */}
       {emailNotification && (
         <div className="sticky top-16 z-50 max-w-xl mx-auto px-4 py-2 animate-slideDown">
           <div className="p-3 sm:p-4 rounded-2xl bg-[#2B47EE] text-white text-xs sm:text-sm font-bold shadow-xl flex items-center gap-2.5">
             <Sparkles className="w-5 h-5 text-[#FFD552] shrink-0" />
             <div className="flex-1">
-              <span>কনফার্মেশন লিংক আপনার ইমেইল এড্রেসে ({email}) পাঠানো হয়েছে।</span>
+              <span>ইমেইল সফলভাবে ভেরিফাইড হয়েছে!</span>
               <p className="text-[11px] text-white/80 font-normal mt-0.5">
-                অ্যাকাউন্ট স্বয়ংক্রিয়ভাবে সক্রিয় হয়েছে। নিচের ধাপে পেমেন্ট সম্পন্ন করুন।
+                {isOldUserDetected 
+                  ? `স্বাগতম! আপনার নিবন্ধিত নম্বর (${phone}) ভেরিফাইড রয়েছে। নিচের ধাপে পেমেন্ট সম্পন্ন করুন।`
+                  : `আপনার অ্যাকাউন্ট প্রস্তুত হয়েছে। নিচের ধাপে পেমেন্ট সম্পন্ন করুন।`}
               </p>
             </div>
           </div>
@@ -310,12 +431,12 @@ export default function OrderPageView({
         {currentStep !== 3 && (
           <div className="flex items-center justify-center gap-2 sm:gap-4 mb-8">
             <div className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-black transition-all ${
-              currentStep === 1 
+              currentStep === 1 || currentStep === 'otp'
                 ? 'bg-[#2B47EE] text-white shadow-xs' 
                 : 'bg-[#00B261]/15 text-[#00B261]'
             }`}>
               <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-[10px]">১</span>
-              <span>অ্যাকাউন্ট তৈরি</span>
+              <span>তথ্য ও ওটিপি যাচাই</span>
             </div>
 
             <span className="text-[#64748D] font-bold">→</span>
@@ -331,23 +452,23 @@ export default function OrderPageView({
           </div>
         )}
 
-        {/* ----------------- STEP 1: Account Creation Page ----------------- */}
+        {/* ----------------- STEP 1: Client Information (No Password) ----------------- */}
         {currentStep === 1 && (
           <div className="bg-[#FFFFFF] border border-[#E5EDF5] rounded-3xl p-6 sm:p-10 shadow-sm max-w-2xl mx-auto animate-fadeIn">
             <div className="text-center mb-6">
               <span className="px-3 py-1 rounded-full bg-[#EEF2FF] text-[#2B47EE] text-xs font-bold inline-block mb-2">
-                ধাপ ১ • একাউন্ট তৈরি
+                ধাপ ১ • গ্রাহকের তথ্য
               </span>
               <h1 className="text-xl sm:text-2xl font-black text-[#0D253D]">
                 আপনার তথ্য দিয়ে সরাসরি চেকআউট শুরু করুন
               </h1>
               <p className="text-xs text-[#64748D] mt-1">
-                আলাদা করে অ্যাকাউন্ট খোলার প্রয়োজন নেই। এই তথ্যের মাধ্যমে আপনার পোর্টাল তৈরি হয়ে যাবে।
+                পাসওয়ার্ডের কোনো ঝামেলা নেই। তথ্য দেওয়ার পর ওটিপি কোড দিয়ে তাৎক্ষণিক ভেরিফাই হবে।
               </p>
             </div>
 
             {step1Error && (
-              <div className="mb-4 p-3 rounded-xl bg-[#D8351E]/10 border border-[#D8351E]/20 text-[#D8351E] text-xs font-bold flex items-center gap-2">
+              <div className="mb-4 p-3 rounded-xl bg-[#D8351E]/10 border border-[#D8351E]/20 text-[#D8351E] text-xs font-bold flex items-center gap-2 animate-shake">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>{step1Error}</span>
               </div>
@@ -358,70 +479,49 @@ export default function OrderPageView({
                 <label className="block text-xs font-bold text-[#0D253D] mb-1">
                   আপনার পুরো নাম <span className="text-[#D8351E]">*</span>
                 </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="যেমন: মোঃ সাকিব হাসান"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs sm:text-sm text-[#0D253D] placeholder-[#7D8BA4] focus:outline-none focus:bg-[#FFFFFF] focus:border-[#2B47EE] focus:ring-1 focus:ring-[#2B47EE] transition-all"
-                />
+                <div className="relative">
+                  <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <input
+                    type="text"
+                    required
+                    placeholder="যেমন: মোঃ সাকিব হাসান"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs sm:text-sm text-[#0D253D] placeholder-[#7D8BA4] focus:outline-none focus:bg-[#FFFFFF] focus:border-[#2B47EE] focus:ring-1 focus:ring-[#2B47EE] transition-all"
+                  />
+                </div>
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-[#0D253D] mb-1">
                   মোবাইল নম্বর <span className="text-[#D8351E]">*</span>
                 </label>
-                <input
-                  type="tel"
-                  required
-                  placeholder="017xxxxxxxx"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs sm:text-sm text-[#0D253D] placeholder-[#7D8BA4] focus:outline-none focus:bg-[#FFFFFF] focus:border-[#2B47EE] focus:ring-1 focus:ring-[#2B47EE] transition-all font-mono"
-                />
+                <div className="relative">
+                  <Phone className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <input
+                    type="tel"
+                    required
+                    placeholder="017xxxxxxxx"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs sm:text-sm text-[#0D253D] placeholder-[#7D8BA4] focus:outline-none focus:bg-[#FFFFFF] focus:border-[#2B47EE] focus:ring-1 focus:ring-[#2B47EE] transition-all font-mono"
+                  />
+                </div>
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-[#0D253D] mb-1">
                   ইমেইল এড্রেস <span className="text-[#D8351E]">*</span>
                 </label>
-                <input
-                  type="email"
-                  required
-                  placeholder="name@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs sm:text-sm text-[#0D253D] placeholder-[#7D8BA4] focus:outline-none focus:bg-[#FFFFFF] focus:border-[#2B47EE] focus:ring-1 focus:ring-[#2B47EE] transition-all font-mono"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                <div>
-                  <label className="block text-xs font-bold text-[#0D253D] mb-1">
-                    পাসওয়ার্ড <span className="text-[#D8351E]">*</span>
-                  </label>
+                <div className="relative">
+                  <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <input
-                    type="password"
+                    type="email"
                     required
-                    placeholder="পাসওয়ার্ড দিন"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs sm:text-sm text-[#0D253D] placeholder-[#7D8BA4] focus:outline-none focus:bg-[#FFFFFF] focus:border-[#2B47EE] focus:ring-1 focus:ring-[#2B47EE] transition-all"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-[#0D253D] mb-1">
-                    পাসওয়ার্ড নিশ্চিত করুন <span className="text-[#D8351E]">*</span>
-                  </label>
-                  <input
-                    type="password"
-                    required
-                    placeholder="পাসওয়ার্ড পুনরায় লিখুন"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs sm:text-sm text-[#0D253D] placeholder-[#7D8BA4] focus:outline-none focus:bg-[#FFFFFF] focus:border-[#2B47EE] focus:ring-1 focus:ring-[#2B47EE] transition-all"
+                    placeholder="name@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs sm:text-sm text-[#0D253D] placeholder-[#7D8BA4] focus:outline-none focus:bg-[#FFFFFF] focus:border-[#2B47EE] focus:ring-1 focus:ring-[#2B47EE] transition-all font-mono"
                   />
                 </div>
               </div>
@@ -435,13 +535,134 @@ export default function OrderPageView({
               <div className="pt-3">
                 <button
                   type="submit"
-                  className="w-full py-3 px-4 rounded-xl bg-[#2B47EE] hover:bg-[#203CD4] active:bg-[#1E3A8A] text-white text-xs sm:text-sm font-bold shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.01]"
+                  disabled={step1Loading}
+                  className="w-full py-3 px-4 rounded-xl bg-[#2B47EE] hover:bg-[#203CD4] active:bg-[#1E3A8A] text-white text-xs sm:text-sm font-bold shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.01] disabled:opacity-60"
                 >
-                  <span>পরবর্তী ধাপ (ডোমেইন ও পেমেন্ট)</span>
-                  <ArrowRight className="w-4 h-4" />
+                  {step1Loading ? (
+                    <span className="flex items-center gap-2">
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                      <span>ওটিপি কোড পাঠানো হচ্ছে...</span>
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-2">
+                      <span>পরবর্তী ধাপ (ওটিপি যাচাই)</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </span>
+                  )}
                 </button>
               </div>
             </form>
+          </div>
+        )}
+
+        {/* ----------------- STEP 'otp': OTP Verification Page ----------------- */}
+        {currentStep === 'otp' && (
+          <div className="bg-[#FFFFFF] border border-[#E5EDF5] rounded-3xl p-6 sm:p-10 shadow-sm max-w-xl mx-auto animate-fadeIn space-y-6">
+            <div className="text-center">
+              <div className="w-14 h-14 rounded-2xl bg-[#EEF2FF] border border-[#2B47EE]/20 text-[#2B47EE] flex items-center justify-center mx-auto mb-3 shadow-xs">
+                <Mail className="w-7 h-7" />
+              </div>
+              <span className="px-3 py-1 rounded-full bg-[#EEF2FF] text-[#2B47EE] text-xs font-bold inline-block mb-2">
+                ইমেইল ওটিপি যাচাই
+              </span>
+              <h2 className="text-xl sm:text-2xl font-black text-[#0D253D] tracking-tight">
+                ৬-সংখ্যার কোডটি প্রবেশ করান
+              </h2>
+              <p className="text-xs text-[#64748D] mt-1.5 leading-relaxed max-w-sm mx-auto">
+                <strong className="text-slate-900 font-bold">{email}</strong> ঠিকানায় একটি ৬-সংখ্যার ভেরিফিকেশন কোড পাঠানো হয়েছে।
+              </p>
+              <button
+                type="button"
+                onClick={() => setCurrentStep(1)}
+                className="mt-1 text-xs text-[#2B47EE] hover:underline font-semibold cursor-pointer"
+              >
+                ইমেইল বা ফোন পরিবর্তন করুন
+              </button>
+            </div>
+
+            {otpError && (
+              <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs font-bold flex items-center gap-2 animate-shake">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{otpError}</span>
+              </div>
+            )}
+
+            {/* OTP Input Card */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-[#F8FAFD] border border-[#E5EDF5] space-y-3">
+              <div className="flex items-center justify-between text-xs font-bold text-slate-800">
+                <span>৬-ডিজিটের কোড</span>
+                <span className="text-[11px] text-emerald-600 font-semibold flex items-center gap-1">
+                  <Sparkles className="w-3 h-3" />
+                  টাইপ করলেই স্বয়ংক্রিয় ভেরিফাই হবে
+                </span>
+              </div>
+
+              <div className="relative">
+                <input
+                  type="text"
+                  maxLength={6}
+                  autoFocus
+                  placeholder="● ● ● ● ● ●"
+                  value={otpCode}
+                  onChange={handleOtpChange}
+                  className="w-full px-4 py-3 rounded-xl bg-white border border-[#E5EDF5] text-center font-mono font-black tracking-[0.4em] text-xl text-[#0D253D] focus:outline-none focus:border-[#2B47EE] focus:ring-2 focus:ring-[#2B47EE]/20 transition-all shadow-2xs"
+                />
+                {otpVerifying && (
+                  <div className="absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5 text-xs text-[#2B47EE] font-bold bg-white/95 px-2.5 py-1 rounded-lg shadow-2xs">
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    <span>যাচাই হচ্ছে...</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Resend button */}
+              <div className="flex items-center justify-between text-xs pt-1">
+                <span className="text-[#64748D]">কোড পাননি?</span>
+                {otpCountdown > 0 ? (
+                  <span className="text-slate-400 font-mono text-[11px]">
+                    পুনরায় পাঠাতে অপেক্ষা করুন: {otpCountdown}s
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleResendOtp}
+                    disabled={otpSending}
+                    className="text-[#2B47EE] hover:underline font-bold cursor-pointer"
+                  >
+                    {otpSending ? 'পাঠানো হচ্ছে...' : 'পুনরায় কোড পাঠান'}
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div className="space-y-2 pt-1">
+              <button
+                type="button"
+                onClick={() => handleVerifyOtp()}
+                disabled={otpCode.length < 6 || otpVerifying}
+                className="w-full py-3 px-4 rounded-xl bg-[#2B47EE] hover:bg-[#203CD4] active:bg-[#1E3A8A] text-white text-xs sm:text-sm font-bold shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+              >
+                {otpVerifying ? (
+                  <span className="flex items-center gap-2">
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    <span>যাচাই হচ্ছে...</span>
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-2">
+                    <span>যাচাই করুন ও ডোমেইন ধাপে যান</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </span>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setCurrentStep(1)}
+                className="w-full py-2.5 text-xs text-slate-500 hover:text-slate-800 font-medium cursor-pointer"
+              >
+                ← তথ্য সংশোধন করুন
+              </button>
+            </div>
           </div>
         )}
 
@@ -455,6 +676,26 @@ export default function OrderPageView({
               <h1 className="text-xl sm:text-2xl font-black text-[#0D253D]">
                 ব্যবসার বিবরণ ও ম্যানুয়াল পেমেন্ট সম্পন্ন করুন
               </h1>
+            </div>
+
+            {/* Verified Client Info Capsule */}
+            <div className="p-3.5 sm:p-4 rounded-2xl bg-blue-50/70 border border-blue-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold">
+                  <CheckCircle2 className="w-4.5 h-4.5" />
+                </div>
+                <div>
+                  <span className="font-bold text-slate-900 block">
+                    {name} {isOldUserDetected ? '(নিবন্ধিত গ্রাহক)' : '(ভেরিফাইড অ্যাকাউন্ট)'}
+                  </span>
+                  <span className="text-slate-500 font-mono text-[11px]">
+                    {phone} • {email}
+                  </span>
+                </div>
+              </div>
+              <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px] self-start sm:self-auto border border-emerald-200">
+                ইমেইল ও নম্বর ভেরিফাইড ✓
+              </span>
             </div>
 
             {step2Error && (

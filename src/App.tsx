@@ -197,11 +197,20 @@ export default function App() {
       window.scrollTo({ top: 0, behavior: 'instant' });
     };
 
+    const handleWebsitesUpdated = (e: any) => {
+      if (e.detail && Array.isArray(e.detail)) {
+        localStorage.setItem('bongoweb_custom_websites', JSON.stringify(e.detail));
+        parseCurrentUrl();
+      }
+    };
+
     window.addEventListener('popstate', handleNavigation);
     window.addEventListener('hashchange', handleNavigation);
+    window.addEventListener('bongoweb_websites_updated', handleWebsitesUpdated);
     return () => {
       window.removeEventListener('popstate', handleNavigation);
       window.removeEventListener('hashchange', handleNavigation);
+      window.removeEventListener('bongoweb_websites_updated', handleWebsitesUpdated);
     };
   }, [parseCurrentUrl]);
 

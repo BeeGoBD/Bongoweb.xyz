@@ -1511,13 +1511,28 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
     const effectiveDesc = (newProductDesc || newSiteDesc).trim() || 'উচ্চগতির আধুনিক ওয়েবসাইট ডেমো।';
     const effectiveThumbnail = newSiteThumbnail.trim() || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80';
 
+    let effectiveCategory = newSiteCategory as any;
+    if (effectiveCategory === 'newspaper' || effectiveCategory === 'news' || effectiveCategory === 'blog') {
+      effectiveCategory = 'blogging';
+    }
+
+    const friendlyLabel = 
+      effectiveCategory === 'ecommerce' ? '🛍️ E-Commerce' :
+      effectiveCategory === 'restaurant' ? '🍽️ Restaurant & Cafe' :
+      effectiveCategory === 'blogging' ? '📰 Blog & Media' :
+      effectiveCategory === 'grocery' ? '🌿 Grocery & Organic' :
+      effectiveCategory === 'corporate' ? '💼 Corporate' :
+      effectiveCategory === 'fashion' ? '👗 Fashion' :
+      effectiveCategory === 'portfolio' ? '🎨 Portfolio' :
+      String(newSiteCategory).toUpperCase();
+
     const newDemo: WebsiteDemo = {
       id: `custom-${Date.now()}`,
       fourDigitCode: randomCode,
       title: `${randomCode} ${title}`,
       banglaTitle: `${randomCode} ${title}`,
-      category: newSiteCategory,
-      categoryLabel: newSiteCategory.toUpperCase(),
+      category: effectiveCategory,
+      categoryLabel: friendlyLabel,
       description: effectiveDesc,
       priceTag: effectivePrice,
       demoUrl: effectiveLink,
@@ -4882,37 +4897,61 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
 
             {/* Modal: Upload New Product / Website (Requirement 15) */}
             {showAddWebsiteModal && (
-              <div className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-md p-4 sm:p-6 flex min-h-full items-center justify-center animate-fadeIn">
-                <div className="w-full max-w-lg bg-[#111827] border-2 border-[#AB55F7]/70 rounded-3xl p-6 sm:p-8 shadow-2xl relative space-y-4 max-h-[calc(100vh-3rem)] overflow-y-auto my-auto">
-                  <button
-                    onClick={() => setShowAddWebsiteModal(false)}
-                    className="absolute top-5 right-5 text-[#94A3B8] hover:text-white cursor-pointer"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
+              <div className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 animate-fadeIn overflow-hidden">
+                <div className="w-full h-full sm:h-auto sm:max-h-[90vh] sm:max-w-lg bg-[#111827] border-0 sm:border-2 sm:border-[#AB55F7]/70 rounded-none sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden relative">
+                  {/* Top Bar / Header */}
+                  <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-b border-[#1E293B] flex items-center justify-between shrink-0 bg-[#111827]">
+                    <h3 className="text-sm sm:text-base font-black text-white flex items-center gap-2">
+                      <Plus className="w-5 h-5 text-[#AB55F7]" />
+                      <span>নতুন প্রোডাক্ট / ওয়েবসাইট আপলোড</span>
+                    </h3>
+                    <button
+                      type="button"
+                      onClick={() => setShowAddWebsiteModal(false)}
+                      className="text-[#94A3B8] hover:text-white cursor-pointer p-1.5 rounded-lg hover:bg-white/10 transition-colors"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
 
-                  <h3 className="text-base font-black text-white flex items-center gap-2">
-                    <Plus className="w-5 h-5 text-[#AB55F7]" />
-                    <span>নতুন প্রোডাক্ট / ওয়েবসাইট আপলোড</span>
-                  </h3>
+                  <form onSubmit={handleCreateNewWebsite} className="flex-1 flex flex-col min-h-0 overflow-hidden">
+                    <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 space-y-3.5 overscroll-contain">
+                      {/* 1. Product Title */}
+                      <div>
+                        <label className="block text-xs font-bold text-[#CBD5E1] mb-1">
+                          Product Title (প্রোডাক্ট টাইটেল) <span className="text-[#E53935]">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="যেমন: Luxe Watch - Smart Luxury Store"
+                          value={newProductTitle}
+                          onChange={(e) => setNewProductTitle(e.target.value)}
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-white text-xs focus:outline-none focus:border-[#AB55F7]"
+                        />
+                      </div>
 
-                  <form onSubmit={handleCreateNewWebsite} className="space-y-3.5">
-                    {/* 1. Product Title */}
-                    <div>
-                      <label className="block text-xs font-bold text-[#CBD5E1] mb-1">
-                        Product Title (প্রোডাক্ট টাইটেল) <span className="text-[#E53935]">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        placeholder="যেমন: Luxe Watch - Smart Luxury Store"
-                        value={newProductTitle}
-                        onChange={(e) => setNewProductTitle(e.target.value)}
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-white text-xs focus:outline-none focus:border-[#AB55F7]"
-                      />
-                    </div>
+                      {/* 2. Category Selection */}
+                      <div>
+                        <label className="block text-xs font-bold text-[#CBD5E1] mb-1">
+                          Category (ক্যাটাগরি) <span className="text-[#E53935]">*</span>
+                        </label>
+                        <select
+                          value={newSiteCategory}
+                          onChange={(e) => setNewSiteCategory(e.target.value as any)}
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-white text-xs focus:outline-none focus:border-[#AB55F7]"
+                        >
+                          <option value="ecommerce">🛍️ E-Commerce (ই-কমার্স শপ)</option>
+                          <option value="restaurant">🍽️ Restaurant & Cafe (রেস্তোরাঁ ও ক্যাফে)</option>
+                          <option value="blogging">📰 Newspaper & Blog (নিউজপেপার ও ব্লগ)</option>
+                          <option value="grocery">🌿 Grocery & Organic (মুদি ও অর্গানিক)</option>
+                          <option value="corporate">💼 Corporate & Business (কর্পোরেট)</option>
+                          <option value="fashion">👗 Fashion & Boutique (ফ্যাশন)</option>
+                          <option value="portfolio">🎨 Personal Portfolio (পোর্টফোলিও)</option>
+                        </select>
+                      </div>
 
-                    {/* 2. Description */}
+                    {/* 3. Description */}
                     <div>
                       <label className="block text-xs font-bold text-[#CBD5E1] mb-1">
                         Description (বিবরণ)
@@ -4926,7 +4965,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                       />
                     </div>
 
-                    {/* 3. Product Pricing (Packages: ৳999, ৳1499, ৳2499) */}
+                    {/* 4. Product Pricing (Packages: ৳999, ৳1499, ৳2499) */}
                     <div>
                       <label className="block text-xs font-bold text-[#CBD5E1] mb-1">
                         Product Pricing (প্যাকেজ মূল্য)
@@ -4956,7 +4995,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                       />
                     </div>
 
-                    {/* 4. Discount Price */}
+                    {/* 5. Discount Price */}
                     <div>
                       <label className="block text-xs font-bold text-[#CBD5E1] mb-1">
                         Discount Price (ডিসকাউন্ট মূল্য)
@@ -4970,7 +5009,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                       />
                     </div>
 
-                    {/* 5. Product Link */}
+                    {/* 6. Product Link */}
                     <div>
                       <label className="block text-xs font-bold text-[#CBD5E1] mb-1">
                         Product Link (প্রোডাক্ট / ডেমো লিংক)
@@ -4984,10 +5023,27 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                       />
                     </div>
 
-                    <div className="pt-2 flex gap-2">
+                    {/* 7. Thumbnail Image URL */}
+                    <div>
+                      <label className="block text-xs font-bold text-[#CBD5E1] mb-1">
+                        Thumbnail Image (ছবি বা স্ক্রিনশট লিংক)
+                      </label>
+                      <input
+                        type="url"
+                        placeholder="https://images.unsplash.com/... (বা ফাঁকা রাখুন ডিফল্টের জন্য)"
+                        value={newSiteThumbnail}
+                        onChange={(e) => setNewSiteThumbnail(e.target.value)}
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-white text-xs focus:outline-none focus:border-[#AB55F7]"
+                      />
+                    </div>
+
+                    </div>
+
+                    {/* Bottom Sticky Action Bar */}
+                    <div className="px-4 sm:px-6 py-3 border-t border-[#1E293B] bg-[#0E1524] flex gap-2 shrink-0">
                       <button
                         type="submit"
-                        className="flex-1 py-3 rounded-xl bg-gradient-to-r from-[#AB55F7] via-[#9333EA] to-[#7C3AED] hover:from-[#9333EA] hover:to-[#6D28D9] text-white text-xs font-bold cursor-pointer shadow-md transition-all"
+                        className="flex-1 py-3 rounded-xl bg-gradient-to-r from-[#AB55F7] via-[#9333EA] to-[#7C3AED] hover:from-[#9333EA] hover:to-[#6D28D9] text-white text-xs font-bold cursor-pointer shadow-md transition-all active:scale-95"
                       >
                         প্রোডাক্ট যুক্ত ও পাবলিশ করুন
                       </button>

@@ -1266,6 +1266,7 @@ export async function apiGetWebsites(): Promise<WebsiteDemo[]> {
       const sites = snap.docs.map(d => d.data() as WebsiteDemo);
       localCache.customWebsites = sites;
       localStorage.setItem('bongoweb_custom_catalog', JSON.stringify(sites));
+      localStorage.setItem('bongoweb_custom_websites', JSON.stringify(sites));
       return sites;
     }
   } catch (_) {}
@@ -1277,6 +1278,7 @@ export async function apiGetWebsites(): Promise<WebsiteDemo[]> {
       if (Array.isArray(sites) && sites.length > 0) {
         localCache.customWebsites = sites;
         localStorage.setItem('bongoweb_custom_catalog', JSON.stringify(sites));
+        localStorage.setItem('bongoweb_custom_websites', JSON.stringify(sites));
         return sites;
       }
     }
@@ -1285,6 +1287,18 @@ export async function apiGetWebsites(): Promise<WebsiteDemo[]> {
   if (localCache.customWebsites && localCache.customWebsites.length > 0) {
     return localCache.customWebsites;
   }
+
+  // Fallback to locally stored websites if any
+  try {
+    const stored = localStorage.getItem('bongoweb_custom_websites') || localStorage.getItem('bongoweb_custom_catalog');
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        localCache.customWebsites = parsed;
+        return parsed;
+      }
+    }
+  } catch (_) {}
 
   // Exactly 1 mock website as requested by user
   return [WEBSITE_DEMOS[0]];
@@ -1301,6 +1315,10 @@ export async function apiAddWebsite(website: WebsiteDemo): Promise<WebsiteDemo[]
 
   localCache.customWebsites.unshift(website);
   localStorage.setItem('bongoweb_custom_catalog', JSON.stringify(localCache.customWebsites));
+  localStorage.setItem('bongoweb_custom_websites', JSON.stringify(localCache.customWebsites));
+  try {
+    window.dispatchEvent(new CustomEvent('bongoweb_websites_updated', { detail: localCache.customWebsites }));
+  } catch (_) {}
 
   try {
     fetch('/api/websites', {
@@ -1326,6 +1344,10 @@ export async function apiUpdateWebsite(code: string, updateData: Partial<Website
     (s.fourDigitCode === code || s.id === code) ? { ...s, ...updateData } : s
   );
   localStorage.setItem('bongoweb_custom_catalog', JSON.stringify(localCache.customWebsites));
+  localStorage.setItem('bongoweb_custom_websites', JSON.stringify(localCache.customWebsites));
+  try {
+    window.dispatchEvent(new CustomEvent('bongoweb_websites_updated', { detail: localCache.customWebsites }));
+  } catch (_) {}
 
   try {
     fetch(`/api/websites/${encodeURIComponent(code)}`, {
@@ -1351,6 +1373,10 @@ export async function apiDeleteWebsite(code: string): Promise<WebsiteDemo[]> {
     s => s.fourDigitCode !== code && s.id !== code
   );
   localStorage.setItem('bongoweb_custom_catalog', JSON.stringify(localCache.customWebsites));
+  localStorage.setItem('bongoweb_custom_websites', JSON.stringify(localCache.customWebsites));
+  try {
+    window.dispatchEvent(new CustomEvent('bongoweb_websites_updated', { detail: localCache.customWebsites }));
+  } catch (_) {}
 
   try {
     fetch(`/api/websites/${encodeURIComponent(code)}`, {

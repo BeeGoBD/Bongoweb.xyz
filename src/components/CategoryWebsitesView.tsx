@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   ArrowLeft, Search, Star, ArrowRight, Eye, CheckCircle2, 
   Sparkles, ExternalLink, ShieldCheck, ShoppingBag, 
@@ -7,6 +7,7 @@ import {
 import { WebsiteCategory, WebsiteDemo } from '../types';
 import { WEBSITE_DEMOS } from '../data/mockData';
 import { useLanguage } from '../utils/LanguageContext';
+import { apiGetWebsites } from '../utils/api';
 
 interface CategoryWebsitesViewProps {
   category: WebsiteCategory;
@@ -40,32 +41,32 @@ export default function CategoryWebsitesView({
     ecommerce: {
       nameEn: 'E-Commerce Stores',
       nameBn: 'ই-কমার্স শপসমূহ',
-      badgeEn: 'Popular Choice',
-      badgeBn: 'জনপ্রিয় চয়েস',
+      badgeEn: '🔥 Most Demanding',
+      badgeBn: '🔥 সর্বোচ্চ চাহিদা',
       descriptionEn: 'Browse all live high-converting ecommerce online store templates ready with payment & courier integration.',
       descriptionBn: 'অটো বিকাশ/নগদ পেমেন্ট ও রিয়েল-টাইম কুরিয়ার সংযুক্ত সকল রেডিমেড ই-কমার্স ওয়েবসাইট এক্সপ্লোর করুন।',
       icon: ShoppingBag,
       accentColor: '#2563EB',
       gradientBg: 'from-blue-600 via-indigo-600 to-blue-700',
-      chipBg: 'bg-blue-50 text-blue-700 border-blue-200'
+      chipBg: 'bg-rose-50 text-rose-700 border-rose-200'
     },
     restaurant: {
       nameEn: 'Restaurant & Cafe',
       nameBn: 'রেস্তোরাঁ ও ক্যাফে',
-      badgeEn: 'Trending',
-      badgeBn: 'ট্রেন্ডিং',
+      badgeEn: '⚡ High Demand',
+      badgeBn: '⚡ ব্যাপক চাহিদা',
       descriptionEn: 'Browse delicious restaurant, cafe, and dine-in food ordering templates with digital menus and table booking.',
       descriptionBn: 'ডিজিটাল ফুড মেনু, টেবিল বুকিং ও অনলাইন পার্সেল ডেলিভারি সুবিধাসম্পন্ন রেস্তোরাঁ ওয়েবসাইটসমূহ।',
       icon: UtensilsCrossed,
       accentColor: '#EA580C',
       gradientBg: 'from-orange-600 via-amber-600 to-orange-700',
-      chipBg: 'bg-orange-50 text-orange-700 border-orange-200'
+      chipBg: 'bg-amber-50 text-amber-800 border-amber-200'
     },
     blogging: {
       nameEn: 'Blog & Media Portals',
       nameBn: 'ব্লগ ও অনলাইন মিডিয়া',
-      badgeEn: 'High Traffic',
-      badgeBn: 'হাই ট্রাফিক',
+      badgeEn: '📈 Growing Demand',
+      badgeBn: '📈 ক্রমবর্ধমান চাহিদা',
       descriptionEn: 'Modern news portals, magazine publishers, and article showcase platforms optimized for fast Google indexing.',
       descriptionBn: 'দ্রুত গুগল ইনডেক্সিং ও অটো এডসেন্স অনুমোদিত আধুনিক নিউজ ও ম্যাগাজিন পোর্টালসমূহ।',
       icon: Newspaper,
@@ -76,8 +77,8 @@ export default function CategoryWebsitesView({
     grocery: {
       nameEn: 'Grocery & Supermarket',
       nameBn: 'মুদি ও সুপারশপ',
-      badgeEn: 'Fresh Daily',
-      badgeBn: 'ফ্রেশ ডেইলি',
+      badgeEn: '📦 Basic & Essential',
+      badgeBn: '📦 বেসিক ও নিত্যপ্রয়োজনীয়',
       descriptionEn: 'Daily essentials, organic foods, and weight-based grocery ordering templates with instant checkout.',
       descriptionBn: 'ওজন অনুযায়ী পণ্যের হিসাব ও দ্রুত হোম ডেলিভারি সমৃদ্ধ কাঁচাবাজার ও সুপারশপ ওয়েবসাইটসমূহ।',
       icon: Store,
@@ -138,14 +139,40 @@ export default function CategoryWebsitesView({
   const meta = categoryMeta[category] || categoryMeta.ecommerce;
   const IconComponent = meta.icon;
 
-  // Retrieve custom uploaded websites as well
-  let customWebsites: WebsiteDemo[] = [];
-  try {
-    const raw = localStorage.getItem('bongoweb_custom_websites');
-    if (raw) {
-      customWebsites = JSON.parse(raw);
-    }
-  } catch (_) {}
+  // Retrieve custom uploaded websites dynamically from database and local sync
+  const [customWebsites, setCustomWebsites] = useState<WebsiteDemo[]>(() => {
+    try {
+      const raw = localStorage.getItem('bongoweb_custom_websites') || localStorage.getItem('bongoweb_custom_catalog');
+      if (raw) return JSON.parse(raw);
+    } catch (_) {}
+    return [];
+  });
+
+  useEffect(() => {
+    apiGetWebsites()
+      .then(sites => {
+        if (Array.isArray(sites)) setCustomWebsites(sites);
+      })
+      .catch(() => {});
+
+    const handleUpdate = (e: any) => {
+      if (e.detail && Array.isArray(e.detail)) {
+        setCustomWebsites(e.detail);
+      } else {
+        try {
+          const raw = localStorage.getItem('bongoweb_custom_websites') || localStorage.getItem('bongoweb_custom_catalog');
+          if (raw) setCustomWebsites(JSON.parse(raw));
+        } catch (_) {}
+      }
+    };
+
+    window.addEventListener('bongoweb_websites_updated', handleUpdate);
+    window.addEventListener('storage', handleUpdate);
+    return () => {
+      window.removeEventListener('bongoweb_websites_updated', handleUpdate);
+      window.removeEventListener('storage', handleUpdate);
+    };
+  }, []);
 
   const allAvailableWebsites = [...WEBSITE_DEMOS, ...customWebsites];
 
