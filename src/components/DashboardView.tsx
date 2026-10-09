@@ -300,28 +300,21 @@ export default function DashboardView({
                     <IconComponent className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.2]" />
                   </div>
 
-                  {/* Centered Structured Content: Guaranteed Identical Vertical Placement */}
+                  {/* Centered Structured Content: Guaranteed Identical Vertical Placement & Full Title Visibility */}
                   <div className="min-w-0 flex-1 flex flex-col justify-center">
-                    {/* Row 1: Category Name + Demand Pill (Strictly Inline, Never Wraps) */}
-                    <div className="flex items-center gap-2 min-w-0">
-                      <h2 className="text-[14.5px] sm:text-[15.5px] font-bold text-slate-900 group-hover:text-blue-600 transition-colors truncate tracking-tight">
-                        {language === 'en' ? cat.nameEn : cat.nameBn}
-                      </h2>
-                      <span className={`inline-flex items-center gap-1 text-[10px] sm:text-[10.5px] font-bold px-2 py-0.5 rounded-full border shrink-0 leading-none ${cat.demandBadgeBg}`}>
+                    {/* Row 1: Category Name - 100% Fully Visible, No Truncation, Generous Line-Height */}
+                    <h2 className="text-[14.5px] sm:text-[16px] font-bold text-slate-900 group-hover:text-blue-600 transition-colors leading-snug tracking-tight">
+                      {language === 'en' ? cat.nameEn : cat.nameBn}
+                    </h2>
+
+                    {/* Row 2: Highlighting Section for Category Demand & Purpose */}
+                    <div className="flex items-center gap-1.5 sm:gap-2 mt-1 min-w-0">
+                      <span className={`inline-flex items-center gap-1 text-[9.5px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full border shrink-0 leading-none ${cat.demandBadgeBg}`}>
                         <span>{language === 'en' ? cat.demandBadgeEn : cat.demandBadgeBn}</span>
                       </span>
-                    </div>
-
-                    {/* Row 2: Highlighting Text Section for Category Demand & Purpose */}
-                    <div className="flex items-center gap-2 mt-1 min-w-0">
-                      <p className="text-[11px] sm:text-[12px] font-medium text-slate-500 truncate min-w-0 leading-tight">
+                      <p className="text-[10.5px] sm:text-[11.5px] font-medium text-slate-500 truncate min-w-0 leading-tight">
                         {language === 'en' ? cat.demandHighlightEn : cat.demandHighlightBn}
                       </p>
-                      <span className="hidden sm:inline-block w-1 h-1 rounded-full bg-slate-300 shrink-0" />
-                      <span className="hidden sm:inline-flex items-center gap-1 text-[10.5px] font-semibold text-slate-400 shrink-0">
-                        <span>{demoCount}</span>
-                        <span>{language === 'en' ? 'Templates' : 'টেমপ্লেট'}</span>
-                      </span>
                     </div>
                   </div>
                 </div>
