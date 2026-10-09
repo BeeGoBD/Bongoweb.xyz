@@ -386,6 +386,47 @@ async function startServer() {
   // Alap AI WebSocket Proxy Server (authorizes requests to api.alapai.app with configured domain)
   const alapaiProxyWss = new WebSocketServer({ noServer: true });
 
+  // Safe WebSocket close helper that guarantees valid RFC 6455 status codes and prevents TypeError
+  function safeWsClose(targetWs: WebSocket, code?: number, reason?: string | Buffer) {
+    try {
+      if (
+        !targetWs ||
+        targetWs.readyState === WebSocket.CLOSING ||
+        targetWs.readyState === WebSocket.CLOSED
+      ) {
+        return;
+      }
+
+      // RFC 6455 status code whitelist (1004, 1005, 1006 are reserved and forbidden in close frames)
+      const isValidCode =
+        typeof code === 'number' &&
+        ((code >= 1000 &&
+          code <= 1014 &&
+          code !== 1004 &&
+          code !== 1005 &&
+          code !== 1006) ||
+          (code >= 3000 && code <= 4999));
+
+      if (isValidCode) {
+        const safeReason =
+          typeof reason === 'string'
+            ? reason.slice(0, 100)
+            : Buffer.isBuffer(reason)
+            ? reason.subarray(0, 100)
+            : undefined;
+        targetWs.close(code, safeReason as any);
+      } else {
+        targetWs.close();
+      }
+    } catch (_) {
+      try {
+        targetWs.terminate();
+      } catch (__) {
+        // no-op
+      }
+    }
+  }
+
   // Handle HTTP -> WebSocket Upgrade on /ws and /api/alapai-ws
   server.on('upgrade', (request, socket, head) => {
     try {
@@ -411,50 +452,56 @@ async function startServer() {
           const queue: Array<{ data: any; isBinary: boolean }> = [];
 
           clientWs.on('message', (data, isBinary) => {
-            if (upstreamWs.readyState === WebSocket.OPEN) {
-              upstreamWs.send(data, { binary: isBinary });
-            } else if (upstreamWs.readyState === WebSocket.CONNECTING) {
-              queue.push({ data, isBinary });
+            try {
+              if (upstreamWs.readyState === WebSocket.OPEN) {
+                upstreamWs.send(data, { binary: isBinary });
+              } else if (upstreamWs.readyState === WebSocket.CONNECTING) {
+                queue.push({ data, isBinary });
+              }
+            } catch (err) {
+              console.error('[Alapai Proxy Client Msg Error]:', err);
             }
           });
 
           upstreamWs.on('open', () => {
-            while (queue.length > 0) {
-              const item = queue.shift();
-              if (item) {
-                upstreamWs.send(item.data, { binary: item.isBinary });
+            try {
+              while (queue.length > 0) {
+                const item = queue.shift();
+                if (item && upstreamWs.readyState === WebSocket.OPEN) {
+                  upstreamWs.send(item.data, { binary: item.isBinary });
+                }
               }
+            } catch (err) {
+              console.error('[Alapai Proxy Queue Flush Error]:', err);
             }
           });
 
           upstreamWs.on('message', (data, isBinary) => {
-            if (clientWs.readyState === WebSocket.OPEN) {
-              clientWs.send(data, { binary: isBinary });
+            try {
+              if (clientWs.readyState === WebSocket.OPEN) {
+                clientWs.send(data, { binary: isBinary });
+              }
+            } catch (err) {
+              console.error('[Alapai Proxy Upstream Msg Error]:', err);
             }
           });
 
           upstreamWs.on('close', (code, reason) => {
-            if (clientWs.readyState === WebSocket.OPEN) {
-              clientWs.close(code, reason);
-            }
+            safeWsClose(clientWs, code, reason);
           });
 
           upstreamWs.on('error', (err) => {
             console.error('[Alapai Proxy Upstream Error]:', err.message);
-            if (clientWs.readyState === WebSocket.OPEN) {
-              clientWs.close(1011, 'Alap AI upstream error');
-            }
+            safeWsClose(clientWs, 1011, 'Alap AI upstream error');
           });
 
           clientWs.on('close', (code, reason) => {
-            if (upstreamWs.readyState === WebSocket.OPEN || upstreamWs.readyState === WebSocket.CONNECTING) {
-              upstreamWs.close(code, reason);
-            }
+            safeWsClose(upstreamWs, code, reason);
           });
 
           clientWs.on('error', (err) => {
             console.error('[Alapai Proxy Client Error]:', err.message);
-            upstreamWs.close();
+            safeWsClose(upstreamWs);
           });
         });
       }
