@@ -7,7 +7,7 @@ import {
   Send, Sparkles, Clock, CheckCheck, User, Zap, Terminal, Activity,
   Sliders, ChevronRight, Edit3, Save, Power, LogOut, Info,
   Flag, RotateCcw, Ban, Image, Type, SlidersHorizontal, UploadCloud,
-  Mail, HelpCircle, Phone, Undo2, Tag
+  Mail, HelpCircle, Phone, Undo2, Tag, Menu
 } from 'lucide-react';
 import { 
   UserAccount, ClientOrder, WebsiteDeliveryCredentials, 
@@ -67,6 +67,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
 
   // Active Admin Tab (8 Total Executive Sections)
   const [activeTab, setActiveTab] = useState<'overview' | 'chat' | 'orders' | 'users' | 'reports' | 'resets' | 'catalog' | 'settings'>('overview');
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   // Website Settings & Logo Configuration State
   const [logoConfig, setLogoConfig] = useState<BrandLogoConfig>(() => {
@@ -582,6 +583,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
 
   // Tab Switching Guard: Live Chat & Orders are directly accessible; all other tabs require password admin123
   const handleSwitchTab = (tab: any) => {
+    setMobileSidebarOpen(false);
     if (tab === 'chat' || tab === 'orders') {
       setActiveTab(tab);
       return;
@@ -1684,8 +1686,8 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
   // ==========================================
   if (!isAdminLoggedIn) {
     return (
-      <div className="min-h-screen w-full bg-[#05110A] text-[#FFFFFF] flex flex-col items-center justify-center p-4 font-sans select-none relative overflow-hidden">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#008A4B]/15 rounded-full blur-[120px] pointer-events-none" />
+      <div className="min-h-screen w-full bg-[#090D16] text-[#FFFFFF] flex flex-col items-center justify-center p-4 font-sans select-none relative overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#2B47EE]/12 rounded-full blur-[140px] pointer-events-none" />
 
         <div className="w-full max-w-md bg-[#111827]/90 backdrop-blur-xl border border-[#1E293B] rounded-3xl p-6 sm:p-9 shadow-[0_20px_60px_rgba(0,0,0,0.6)] relative z-10">
           <div className="text-center mb-7">
@@ -1777,7 +1779,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
   // VIEW: EXECUTIVE ADMIN SUITE (Primary Indigo Brand)
   // ==========================================
   return (
-    <div className="min-h-screen w-full bg-[#0B0F19] text-[#FFFFFF] font-sans flex flex-col selection:bg-[#2B47EE]/30 selection:text-[#818CF8]">
+    <div className="min-h-screen w-full bg-[#090D16] text-[#FFFFFF] font-sans flex flex-col md:flex-row selection:bg-[#2B47EE]/30 selection:text-[#818CF8]">
       {/* Floating Real-Time Event Notification Toast */}
       {realtimeToast && (
         <div 
@@ -1815,302 +1817,408 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
         </div>
       )}
 
-      {/* 1. Header: Completely Redesigned for Perfect Android & Mobile Responsiveness */}
-      <header className="sticky top-0 z-40 w-full bg-[#111827]/98 backdrop-blur-md border-b border-[#1E293B] shadow-sm select-none">
-        <div className="max-w-7xl mx-auto px-2.5 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between gap-2">
-          {/* Brand Left */}
-          <div className="flex items-center gap-2 min-w-0">
-            <button
-              onClick={onBackToApp}
-              className="p-1.5 sm:p-2 rounded-xl bg-[#0B0F19] hover:bg-[#1E293B] text-[#818CF8] border border-[#1E293B] hover:border-[#2B47EE]/40 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs shrink-0"
-              title="ওয়েবসাইটে ফিরে যান"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span className="hidden md:inline">ওয়েবসাইট</span>
-            </button>
+      {/* Mobile Drawer Backdrop */}
+      {mobileSidebarOpen && (
+        <div
+          onClick={() => setMobileSidebarOpen(false)}
+          className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 md:hidden animate-fadeIn"
+        />
+      )}
 
-            <div className="flex items-center gap-2 min-w-0">
-              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-gradient-to-br from-[#2B47EE] to-[#3B28CC] text-white flex items-center justify-center font-black text-xs shadow-xs shrink-0">
+      {/* LEFT SIDEBAR: All options in screen left from up to down */}
+      <aside className={`
+        fixed inset-y-0 left-0 z-50 w-72 bg-[#0B0F19] border-r border-[#1E293B] flex flex-col justify-between transition-transform duration-300 ease-in-out shadow-2xl
+        md:translate-x-0 md:static md:h-screen md:sticky md:top-0 md:shadow-none md:z-30 select-none
+        ${mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+      `}>
+        {/* Brand & Website Return (Top of Left Screen) */}
+        <div className="p-4 border-b border-[#1E293B] space-y-3 shrink-0">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#2B47EE] to-[#3B28CC] text-white flex items-center justify-center font-black text-xs shadow-md shrink-0">
                 BW
               </div>
               <div className="flex flex-col min-w-0">
                 <div className="flex items-center gap-1.5 leading-none">
-                  <span className="text-xs sm:text-base font-black tracking-tight text-white truncate">
+                  <span className="text-sm font-black tracking-tight text-white truncate">
                     BongoWeb
                   </span>
                   <span className="px-1.5 py-0.5 rounded-full bg-[#1E1B4B] text-[#818CF8] text-[9px] font-mono font-bold border border-[#2B47EE]/30 shrink-0">
                     CORE
                   </span>
                 </div>
-                <span className="text-[10px] text-[#64748D] font-medium hidden sm:inline truncate mt-0.5">
+                <span className="text-[10px] text-[#64748D] font-medium truncate mt-0.5">
                   অ্যাডমিন প্যানেল • লাইভ সিঙ্ক
                 </span>
               </div>
             </div>
-          </div>
 
-          {/* Right Action Suite (Always inside viewport, never overflows or shifts) */}
-          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-            {/* Website Backup Vault Button */}
+            {/* Mobile Close Button */}
             <button
-              onClick={() => setShowBackupVaultModal(true)}
-              className="px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-[#2B47EE] hover:bg-[#1E3A8A] text-white border border-[#2B47EE]/40 text-[11px] sm:text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs shrink-0 active:scale-95"
-              title="সম্পূর্ণ ওয়েবসাইট ব্যাকআপ ভল্ট"
+              onClick={() => setMobileSidebarOpen(false)}
+              className="md:hidden p-1.5 rounded-xl text-[#94A3B8] hover:text-white hover:bg-[#1E293B] cursor-pointer"
             >
-              <Database className="w-3.5 h-3.5 shrink-0" />
-              <span className="hidden sm:inline">সম্পূর্ণ ওয়েবসাইট</span>
-              <span>ব্যাকআপ</span>
-            </button>
-
-            {/* Lock / Unlock Protected Sections Button */}
-            {isProtectedSectionsUnlocked ? (
-              <button
-                onClick={handleLockProtectedSections}
-                className="px-2 sm:px-3 py-1.5 sm:py-2 rounded-xl bg-amber-500/15 hover:bg-amber-500 text-amber-300 hover:text-white border border-amber-500/30 text-[11px] sm:text-xs font-bold transition-all cursor-pointer shrink-0 active:scale-95 flex items-center gap-1"
-                title="সুরক্ষিত সেকশনগুলো আবার লক করুন (Password: admin123)"
-              >
-                <Lock className="w-3.5 h-3.5 shrink-0" />
-                <span className="hidden xs:inline">লক করুন</span>
-              </button>
-            ) : (
-              <button
-                onClick={() => {
-                  setTargetTabToUnlock(activeTab);
-                  setSectionPasswordInput('');
-                  setSectionPasswordError('');
-                  setShowSectionPasswordModal(true);
-                }}
-                className="px-2 sm:px-3 py-1.5 sm:py-2 rounded-xl bg-[#1E293B] hover:bg-[#2B47EE] text-[#94A3B8] hover:text-white border border-[#334155] text-[11px] sm:text-xs font-bold transition-all cursor-pointer shrink-0 active:scale-95 flex items-center gap-1"
-                title="পাসওয়ার্ড (admin123) দিয়ে সকল সেকশন আনলক করুন"
-              >
-                <Lock className="w-3.5 h-3.5 shrink-0 text-amber-400" />
-                <span className="hidden xs:inline">পাসওয়ার্ড লক</span>
-              </button>
-            )}
-
-            {/* Logout Button */}
-            <button
-              onClick={handleAdminLogout}
-              className="px-2 sm:px-3 py-1.5 sm:py-2 rounded-xl bg-[#E53935]/15 hover:bg-[#E53935] text-[#FF8A80] hover:text-white border border-[#E53935]/30 text-[11px] sm:text-xs font-bold transition-all cursor-pointer shrink-0 active:scale-95 flex items-center gap-1"
-              title="অ্যাডমিন প্যানেল থেকে লগআউট"
-            >
-              <LogOut className="w-3.5 h-3.5 shrink-0" />
-              <span className="hidden xs:inline">লগআউট</span>
+              <X className="w-5 h-5" />
             </button>
           </div>
+
+          {/* Return to Website Button */}
+          <button
+            onClick={onBackToApp}
+            className="w-full py-2 px-3 rounded-xl bg-[#111827] hover:bg-[#1E293B] text-[#818CF8] hover:text-white border border-[#1E293B] hover:border-[#2B47EE]/40 text-xs font-bold transition-all flex items-center justify-between cursor-pointer shadow-2xs"
+            title="ওয়েবসাইটে ফিরে যান"
+          >
+            <div className="flex items-center gap-2">
+              <ArrowLeft className="w-4 h-4" />
+              <span>ওয়েবসাইটে ফিরুন</span>
+            </div>
+            <ChevronRight className="w-3.5 h-3.5 text-[#64748D]" />
+          </button>
         </div>
 
-        {/* Executive Tab Navigation Bar with Smooth Touch Scrolling on Android */}
-        <div className="w-full max-w-7xl mx-auto px-2 sm:px-6 flex items-center gap-1.5 overflow-x-auto py-2 border-t border-[#1E293B]/70 scrollbar-none overscroll-x-contain">
-          {/* Overview (Protected) */}
+        {/* All Options In Screen Left From Up To Down */}
+        <div className="flex-1 p-3 overflow-y-auto space-y-1.5 scrollbar-thin">
+          {/* 1. Overview (Protected) */}
           <button
             onClick={() => handleSwitchTab('overview')}
-            className={`px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 shrink-0 ${
+            className={`w-full px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-between ${
               activeTab === 'overview'
-                ? 'bg-[#2B47EE] text-white shadow-xs'
-                : 'text-[#94A3B8] hover:bg-[#1E293B] hover:text-white'
+                ? 'bg-[#2B47EE] text-white shadow-md'
+                : 'text-[#94A3B8] hover:bg-[#161F30] hover:text-white'
             }`}
           >
-            <Activity className="w-3.5 h-3.5" />
-            <span>ওভারভিউ</span>
+            <div className="flex items-center gap-2.5 min-w-0">
+              <Activity className="w-4 h-4 shrink-0" />
+              <span className="truncate">ওভারভিউ</span>
+            </div>
             {!isProtectedSectionsUnlocked && (
-              <Lock className="w-3 h-3 text-amber-400/80 shrink-0" />
+              <Lock className="w-3.5 h-3.5 text-amber-400/80 shrink-0" />
             )}
           </button>
 
-          {/* Live Chat Hub (Always accessible without extra password) */}
+          {/* 2. Live Chat Hub (Always accessible) */}
           <button
             onClick={() => handleSwitchTab('chat')}
-            className={`px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 shrink-0 ${
+            className={`w-full px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-between ${
               activeTab === 'chat'
-                ? 'bg-[#2B47EE] text-white shadow-xs'
-                : 'text-[#94A3B8] hover:bg-[#1E293B] hover:text-white'
+                ? 'bg-[#2B47EE] text-white shadow-md'
+                : 'text-[#94A3B8] hover:bg-[#161F30] hover:text-white'
             }`}
           >
-            <MessageSquare className="w-3.5 h-3.5" />
-            <span>লাইভ চ্যাট হাব</span>
-            <span className="px-1.5 py-0.2 rounded-full bg-[#1E1B4B] text-[#A5B4FC] text-[10px] font-black border border-[#2B47EE]/30">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <MessageSquare className="w-4 h-4 shrink-0" />
+              <span className="truncate">লাইভ চ্যাট হাব</span>
+            </div>
+            <span className="px-2 py-0.5 rounded-full bg-[#1E1B4B] text-[#A5B4FC] text-[10px] font-black border border-[#2B47EE]/30 shrink-0 font-mono">
               {chatThreads.length}
             </span>
           </button>
 
-          {/* Orders (Always accessible without extra password) */}
+          {/* 3. Orders (Always accessible) */}
           <button
             onClick={() => handleSwitchTab('orders')}
-            className={`px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 shrink-0 ${
+            className={`w-full px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-between ${
               activeTab === 'orders'
-                ? 'bg-[#2B47EE] text-white shadow-xs'
-                : 'text-[#94A3B8] hover:bg-[#1E293B] hover:text-white'
+                ? 'bg-[#2B47EE] text-white shadow-md'
+                : 'text-[#94A3B8] hover:bg-[#161F30] hover:text-white'
             }`}
           >
-            <ShoppingBag className="w-3.5 h-3.5" />
-            <span>অর্ডারসমূহ</span>
-            <span className="px-1.5 py-0.2 rounded-full bg-[#1E293B] text-[#818CF8] text-[10px] font-bold border border-[#1E293B]">
-              {orders.length}
-            </span>
-            {orders.filter((o) => o.status === 'pending').length > 0 && (
-              <span className="w-2 h-2 rounded-full bg-[#FFD552] animate-ping" />
-            )}
+            <div className="flex items-center gap-2.5 min-w-0">
+              <ShoppingBag className="w-4 h-4 shrink-0" />
+              <span className="truncate">অর্ডারসমূহ</span>
+            </div>
+            <div className="flex items-center gap-1.5 shrink-0">
+              {orders.filter((o) => o.status === 'pending').length > 0 && (
+                <span className="w-2 h-2 rounded-full bg-[#FFD552] animate-ping" />
+              )}
+              <span className="px-2 py-0.5 rounded-full bg-[#1E293B] text-[#818CF8] text-[10px] font-bold border border-[#1E293B] font-mono">
+                {orders.length}
+              </span>
+            </div>
           </button>
 
-          {/* Users (Protected) */}
+          {/* 4. Users (Protected) */}
           <button
             onClick={() => handleSwitchTab('users')}
-            className={`px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 shrink-0 ${
+            className={`w-full px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-between ${
               activeTab === 'users'
-                ? 'bg-[#2B47EE] text-white shadow-xs'
-                : 'text-[#94A3B8] hover:bg-[#1E293B] hover:text-white'
+                ? 'bg-[#2B47EE] text-white shadow-md'
+                : 'text-[#94A3B8] hover:bg-[#161F30] hover:text-white'
             }`}
           >
-            <Users className="w-3.5 h-3.5" />
-            <span>ব্যবহারকারী ({users.length})</span>
+            <div className="flex items-center gap-2.5 min-w-0">
+              <Users className="w-4 h-4 shrink-0" />
+              <span className="truncate">ব্যবহারকারী ({users.length})</span>
+            </div>
             {!isProtectedSectionsUnlocked && (
-              <Lock className="w-3 h-3 text-amber-400/80 shrink-0" />
+              <Lock className="w-3.5 h-3.5 text-amber-400/80 shrink-0" />
             )}
           </button>
 
-          {/* Password & Security (Protected) */}
+          {/* 5. Password & Security (Protected) */}
           <button
             onClick={() => handleSwitchTab('resets')}
-            className={`px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 shrink-0 ${
+            className={`w-full px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-between ${
               activeTab === 'resets'
-                ? 'bg-[#2B47EE] text-white shadow-xs'
-                : 'text-[#94A3B8] hover:bg-[#1E293B] hover:text-white'
+                ? 'bg-[#2B47EE] text-white shadow-md'
+                : 'text-[#94A3B8] hover:bg-[#161F30] hover:text-white'
             }`}
           >
-            <Key className="w-3.5 h-3.5" />
-            <span>পাসওয়ার্ড ও সিকিউরিটি</span>
-            {!isProtectedSectionsUnlocked && (
-              <Lock className="w-3 h-3 text-amber-400/80 shrink-0" />
-            )}
-            {pendingCallBacks.length > 0 && (
-              <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
-            )}
+            <div className="flex items-center gap-2.5 min-w-0">
+              <Key className="w-4 h-4 shrink-0" />
+              <span className="truncate">পাসওয়ার্ড ও সিকিউরিটি</span>
+            </div>
+            <div className="flex items-center gap-1.5 shrink-0">
+              {pendingCallBacks.length > 0 && (
+                <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
+              )}
+              {!isProtectedSectionsUnlocked && (
+                <Lock className="w-3.5 h-3.5 text-amber-400/80 shrink-0" />
+              )}
+            </div>
           </button>
 
-          {/* Website Stock (Protected) */}
+          {/* 6. Website Stock (Protected) */}
           <button
             onClick={() => handleSwitchTab('catalog')}
-            className={`px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 shrink-0 ${
+            className={`w-full px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-between ${
               activeTab === 'catalog'
-                ? 'bg-[#2B47EE] text-white shadow-xs'
-                : 'text-[#94A3B8] hover:bg-[#1E293B] hover:text-white'
+                ? 'bg-[#2B47EE] text-white shadow-md'
+                : 'text-[#94A3B8] hover:bg-[#161F30] hover:text-white'
             }`}
           >
-            <Globe className="w-3.5 h-3.5" />
-            <span>ওয়েবসাইট স্টক ({customWebsites.length})</span>
+            <div className="flex items-center gap-2.5 min-w-0">
+              <Globe className="w-4 h-4 shrink-0" />
+              <span className="truncate">ওয়েবসাইট স্টক ({customWebsites.length})</span>
+            </div>
             {!isProtectedSectionsUnlocked && (
-              <Lock className="w-3 h-3 text-amber-400/80 shrink-0" />
+              <Lock className="w-3.5 h-3.5 text-amber-400/80 shrink-0" />
             )}
           </button>
 
-          {/* Reports (Protected) */}
+          {/* 7. Reports (Protected) */}
           <button
             onClick={() => handleSwitchTab('reports')}
-            className={`px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 shrink-0 ${
+            className={`w-full px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-between ${
               activeTab === 'reports'
-                ? 'bg-[#2B47EE] text-white shadow-xs'
-                : 'text-[#94A3B8] hover:bg-[#1E293B] hover:text-white'
+                ? 'bg-[#2B47EE] text-white shadow-md'
+                : 'text-[#94A3B8] hover:bg-[#161F30] hover:text-white'
             }`}
           >
-            <Flag className="w-3.5 h-3.5" />
-            <span>রিপোর্টসমূহ</span>
-            <span className="px-1.5 py-0.2 rounded-full bg-[#1E293B] text-[#A5B4FC] text-[10px] font-bold border border-[#1E293B]">
-              {reports.length}
-            </span>
-            {!isProtectedSectionsUnlocked && (
-              <Lock className="w-3 h-3 text-amber-400/80 shrink-0" />
-            )}
-            {reports.filter((r) => r.status === 'pending').length > 0 && (
-              <span className="w-2 h-2 rounded-full bg-[#E53935] animate-ping" />
-            )}
+            <div className="flex items-center gap-2.5 min-w-0">
+              <Flag className="w-4 h-4 shrink-0" />
+              <span className="truncate">রিপোর্টসমূহ</span>
+            </div>
+            <div className="flex items-center gap-1.5 shrink-0">
+              {reports.filter((r) => r.status === 'pending').length > 0 && (
+                <span className="w-2 h-2 rounded-full bg-[#E53935] animate-ping" />
+              )}
+              <span className="px-2 py-0.5 rounded-full bg-[#1E293B] text-[#A5B4FC] text-[10px] font-bold border border-[#1E293B] font-mono">
+                {reports.length}
+              </span>
+              {!isProtectedSectionsUnlocked && (
+                <Lock className="w-3.5 h-3.5 text-amber-400/80 shrink-0" />
+              )}
+            </div>
           </button>
 
-          {/* Settings & Logo (Protected) */}
+          {/* 8. Settings & Logo (Protected) */}
           <button
             onClick={() => handleSwitchTab('settings')}
-            className={`px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5 shrink-0 ${
+            className={`w-full px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-between ${
               activeTab === 'settings'
-                ? 'bg-[#2B47EE] text-white shadow-xs'
-                : 'text-[#94A3B8] hover:bg-[#1E293B] hover:text-white'
+                ? 'bg-[#2B47EE] text-white shadow-md'
+                : 'text-[#94A3B8] hover:bg-[#161F30] hover:text-white'
             }`}
           >
-            <Sliders className="w-3.5 h-3.5" />
-            <span>সেটিংস ও লোগো (Settings)</span>
+            <div className="flex items-center gap-2.5 min-w-0">
+              <Sliders className="w-4 h-4 shrink-0" />
+              <span className="truncate">সেটিংস ও লোগো (Settings)</span>
+            </div>
             {!isProtectedSectionsUnlocked && (
-              <Lock className="w-3 h-3 text-amber-400/80 shrink-0" />
+              <Lock className="w-3.5 h-3.5 text-amber-400/80 shrink-0" />
             )}
           </button>
         </div>
-      </header>
 
-      {/* Main Content Area */}
-      <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6">
+        {/* Bottom Actions Section of Left Sidebar */}
+        <div className="p-3 border-t border-[#1E293B] space-y-1.5 bg-[#090D16] shrink-0">
+          {/* Website Backup Vault Button */}
+          <button
+            onClick={() => setShowBackupVaultModal(true)}
+            className="w-full px-3 py-2 rounded-xl bg-[#111827] hover:bg-[#1E293B] text-[#94A3B8] hover:text-white border border-[#1E293B] text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shadow-xs active:scale-95"
+            title="সম্পূর্ণ ওয়েবসাইট ব্যাকআপ ভল্ট"
+          >
+            <Database className="w-4 h-4 text-[#818CF8] shrink-0" />
+            <span className="truncate">সম্পূর্ণ ওয়েবসাইট ব্যাকআপ</span>
+          </button>
+
+          {/* Lock / Unlock Protected Sections Button */}
+          {isProtectedSectionsUnlocked ? (
+            <button
+              onClick={handleLockProtectedSections}
+              className="w-full px-3 py-2 rounded-xl bg-amber-500/15 hover:bg-amber-500 text-amber-300 hover:text-white border border-amber-500/30 text-xs font-bold transition-all cursor-pointer active:scale-95 flex items-center gap-2"
+              title="সুরক্ষিত সেকশনগুলো আবার লক করুন (Password: admin123)"
+            >
+              <Lock className="w-4 h-4 text-amber-400 shrink-0" />
+              <span className="truncate">লক করুন</span>
+            </button>
+          ) : (
+            <button
+              onClick={() => {
+                setTargetTabToUnlock(activeTab);
+                setSectionPasswordInput('');
+                setSectionPasswordError('');
+                setShowSectionPasswordModal(true);
+              }}
+              className="w-full px-3 py-2 rounded-xl bg-[#111827] hover:bg-[#1E293B] text-[#94A3B8] hover:text-white border border-[#1E293B] text-xs font-bold transition-all cursor-pointer active:scale-95 flex items-center gap-2"
+              title="পাসওয়ার্ড (admin123) দিয়ে সকল সেকশন আনলক করুন"
+            >
+              <Lock className="w-4 h-4 text-amber-400 shrink-0" />
+              <span className="truncate">পাসওয়ার্ড লক</span>
+            </button>
+          )}
+
+          {/* Logout Button */}
+          <button
+            onClick={handleAdminLogout}
+            className="w-full px-3 py-2 rounded-xl bg-[#E53935]/15 hover:bg-[#E53935] text-[#FF8A80] hover:text-white border border-[#E53935]/30 text-xs font-bold transition-all cursor-pointer active:scale-95 flex items-center gap-2"
+            title="অ্যাডমিন প্যানেল থেকে লগআউট"
+          >
+            <LogOut className="w-4 h-4 shrink-0" />
+            <span className="truncate">লগআউট</span>
+          </button>
+        </div>
+      </aside>
+
+      {/* RIGHT CANVAS: Header & Active Workspace Content */}
+      <div className="flex-1 min-w-0 flex flex-col min-h-screen bg-[#090D16]">
+        {/* Workspace Top Bar (Breadcrumb & Shortcuts) */}
+        <header className="sticky top-0 z-40 w-full bg-[#0B0F19]/95 backdrop-blur-md border-b border-[#1E293B] shadow-xs select-none">
+          <div className="px-3.5 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between gap-3">
+            {/* Mobile Menu Toggle & Breadcrumbs */}
+            <div className="flex items-center gap-2.5 min-w-0">
+              <button
+                onClick={() => setMobileSidebarOpen(true)}
+                className="md:hidden p-2 rounded-xl bg-[#111827] hover:bg-[#1E293B] text-white border border-[#1E293B] cursor-pointer"
+                title="মেনু খুলুন"
+              >
+                <Menu className="w-4 h-4" />
+              </button>
+
+              <div className="flex items-center gap-2 text-xs font-bold min-w-0">
+                <span className="text-[#64748D] hidden sm:inline">BongoWeb CORE</span>
+                <span className="text-[#334155] hidden sm:inline">/</span>
+                <span className="text-white truncate">
+                  {activeTab === 'overview' && 'ওভারভিউ'}
+                  {activeTab === 'chat' && 'লাইভ চ্যাট হাব'}
+                  {activeTab === 'orders' && 'অর্ডারসমূহ'}
+                  {activeTab === 'users' && `ব্যবহারকারী (${users.length})`}
+                  {activeTab === 'resets' && 'পাসওয়ার্ড ও সিকিউরিটি'}
+                  {activeTab === 'catalog' && `ওয়েবসাইট স্টক (${customWebsites.length})`}
+                  {activeTab === 'reports' && 'রিপোর্টসমূহ'}
+                  {activeTab === 'settings' && 'সেটিংস ও লোগো (Settings)'}
+                </span>
+              </div>
+            </div>
+
+            {/* Right Status & Shortcuts */}
+            <div className="flex items-center gap-2 shrink-0">
+              <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#111827] border border-[#1E293B] text-[#818CF8] text-[10px] font-mono font-bold">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span>লাইভ সিঙ্ক সক্রিয়</span>
+              </div>
+
+              {/* Quick Backup Shortcut */}
+              <button
+                onClick={() => setShowBackupVaultModal(true)}
+                className="hidden sm:flex px-2.5 py-1.5 rounded-xl bg-[#111827] hover:bg-[#2B47EE] text-[#94A3B8] hover:text-white border border-[#1E293B] text-xs font-bold transition-all items-center gap-1.5 cursor-pointer shadow-xs"
+                title="সম্পূর্ণ ওয়েবসাইট ব্যাকআপ"
+              >
+                <Database className="w-3.5 h-3.5 text-[#818CF8]" />
+                <span>ব্যাকআপ</span>
+              </button>
+
+              {/* Logout Button */}
+              <button
+                onClick={handleAdminLogout}
+                className="px-2.5 py-1.5 rounded-xl bg-[#E53935]/15 hover:bg-[#E53935] text-[#FF8A80] hover:text-white border border-[#E53935]/30 text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
+                title="লগআউট"
+              >
+                <LogOut className="w-3.5 h-3.5 shrink-0" />
+                <span className="hidden xs:inline">লগআউট</span>
+              </button>
+            </div>
+          </div>
+        </header>
+
+        {/* Main Workspace Content Area */}
+        <main className="flex-1 w-full px-3.5 sm:px-6 md:px-8 py-5 sm:py-6 space-y-6 max-w-7xl">
 
         {/* ================= TAB 1: OVERVIEW ================= */}
         {activeTab === 'overview' && (
           <div className="space-y-6 animate-fadeIn">
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              <div className="p-5 rounded-2xl bg-[#091A11] border border-[#173826] shadow-sm">
-                <div className="flex items-center justify-between text-[#8BB99F]">
+              <div className="p-5 rounded-2xl bg-[#0F172A] border border-[#1E293B] hover:border-[#334155] transition-all shadow-sm">
+                <div className="flex items-center justify-between text-[#94A3B8]">
                   <span className="text-[11px] font-bold uppercase tracking-wider">মোট ক্লায়েন্ট</span>
-                  <Users className="w-4 h-4 text-[#4EEDB0]" />
+                  <Users className="w-4 h-4 text-[#60A5FA]" />
                 </div>
-                <div className="text-3xl font-black text-white mt-2 font-mono">{users.length}</div>
-                <span className="text-[11px] text-[#4EEDB0] mt-1 block">নিবন্ধিত ও সক্রিয়</span>
+                <div className="text-3xl font-black text-white mt-2 font-mono tabular-nums">{users.length}</div>
+                <span className="text-[11px] text-[#60A5FA] mt-1 block font-medium">নিবন্ধিত ও সক্রিয়</span>
               </div>
 
-              <div className="p-5 rounded-2xl bg-[#091A11] border border-[#173826] shadow-sm">
-                <div className="flex items-center justify-between text-[#8BB99F]">
+              <div className="p-5 rounded-2xl bg-[#0F172A] border border-[#1E293B] hover:border-[#334155] transition-all shadow-sm">
+                <div className="flex items-center justify-between text-[#94A3B8]">
                   <span className="text-[11px] font-bold uppercase tracking-wider">পেন্ডিং অর্ডারসমূহ</span>
-                  <Clock className="w-4 h-4 text-[#FFD552]" />
+                  <Clock className="w-4 h-4 text-[#FBBF24]" />
                 </div>
-                <div className="text-3xl font-black text-[#FFD552] mt-2 font-mono">
+                <div className="text-3xl font-black text-[#FBBF24] mt-2 font-mono tabular-nums">
                   {orders.filter((o) => o.status === 'pending').length}
                 </div>
-                <span className="text-[11px] text-[#8BB99F] mt-1 block">যাচাইয়ের অপেক্ষায়</span>
+                <span className="text-[11px] text-[#FCD34D] mt-1 block font-medium">যাচাইয়ের অপেক্ষায়</span>
               </div>
 
-              <div className="p-5 rounded-2xl bg-[#091A11] border border-[#173826] shadow-sm">
-                <div className="flex items-center justify-between text-[#8BB99F]">
+              <div className="p-5 rounded-2xl bg-[#0F172A] border border-[#1E293B] hover:border-[#334155] transition-all shadow-sm">
+                <div className="flex items-center justify-between text-[#94A3B8]">
                   <span className="text-[11px] font-bold uppercase tracking-wider">মোট অর্ডার</span>
-                  <ShoppingBag className="w-4 h-4 text-[#00B261]" />
+                  <ShoppingBag className="w-4 h-4 text-[#34D399]" />
                 </div>
-                <div className="text-3xl font-black text-white mt-2 font-mono">
+                <div className="text-3xl font-black text-white mt-2 font-mono tabular-nums">
                   {orders.length}
                 </div>
-                <span className="text-[11px] text-[#4EEDB0] mt-1 block">১,৯৯০ ৳ প্যাকেজ রেট</span>
+                <span className="text-[11px] text-[#34D399] mt-1 block font-medium">১,৯৯০ ৳ প্যাকেজ রেট</span>
               </div>
 
-              <div className="p-5 rounded-2xl bg-[#091A11] border border-[#173826] shadow-sm">
-                <div className="flex items-center justify-between text-[#8BB99F]">
+              <div className="p-5 rounded-2xl bg-[#0F172A] border border-[#1E293B] hover:border-[#334155] transition-all shadow-sm">
+                <div className="flex items-center justify-between text-[#94A3B8]">
                   <span className="text-[11px] font-bold uppercase tracking-wider">সক্রিয় চ্যাট থ্রেড</span>
-                  <MessageSquare className="w-4 h-4 text-[#4EEDB0]" />
+                  <MessageSquare className="w-4 h-4 text-[#818CF8]" />
                 </div>
-                <div className="text-3xl font-black text-[#4EEDB0] mt-2 font-mono">
+                <div className="text-3xl font-black text-[#818CF8] mt-2 font-mono tabular-nums">
                   {chatThreads.length}
                 </div>
-                <span className="text-[11px] text-[#8BB99F] mt-1 block">রিয়েল-টাইম সিঙ্ক</span>
+                <span className="text-[11px] text-[#A5B4FC] mt-1 block font-medium">রিয়েল-টাইম সিঙ্ক</span>
               </div>
             </div>
 
-            <div className="p-6 rounded-3xl bg-[#091A11] border border-[#173826] shadow-sm flex flex-col md:flex-row items-center justify-between gap-5">
+            <div className="p-6 rounded-3xl bg-gradient-to-r from-[#0F172A] via-[#111827] to-[#1E1B4B] border border-[#2B47EE]/30 shadow-md flex flex-col md:flex-row items-center justify-between gap-5">
               <div className="space-y-1 text-center md:text-left">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0F2A1B] text-[#4EEDB0] text-xs font-bold">
-                  <span className="w-2 h-2 rounded-full bg-[#00B261] animate-ping" />
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#1E1B4B] text-[#818CF8] text-xs font-bold border border-[#2B47EE]/30">
+                  <span className="w-2 h-2 rounded-full bg-[#2B47EE] animate-ping" />
                   <span>রিয়েল-টাইম কাস্টমার লাইভ চ্যাট কনসোল</span>
                 </div>
                 <h3 className="text-xl font-black text-white">
                   গ্রাহকদের সাথে সরাসরি লাইভ চ্যাটে যুক্ত হন
                 </h3>
-                <p className="text-xs text-[#8BB99F] max-w-xl">
+                <p className="text-xs text-[#94A3B8] max-w-xl">
                   যে গ্রাহকই মেসেজ পাঠাবে, তৎক্ষণাৎ তার নাম ও ফোন নম্বর সহ আলাদা থ্রেড তৈরি হয়ে যাবে।
                 </p>
               </div>
 
               <button
                 onClick={() => setActiveTab('chat')}
-                className="px-5 py-3 rounded-2xl bg-[#008A4B] hover:bg-[#009E56] text-white text-xs sm:text-sm font-bold shadow-md transition-all flex items-center gap-2 cursor-pointer shrink-0"
+                className="px-5 py-3 rounded-2xl bg-[#2B47EE] hover:bg-[#1E3A8A] text-white text-xs sm:text-sm font-bold shadow-md transition-all flex items-center gap-2 cursor-pointer shrink-0"
               >
                 <MessageSquare className="w-4 h-4" />
                 <span>লাইভ চ্যাট কনসোলে যান</span>
@@ -2122,13 +2230,13 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
 
         {/* ================= TAB 2: LIVE CHAT HUB ================= */}
         {activeTab === 'chat' && (
-          <div className="bg-[#091A11] border border-[#173826] rounded-3xl overflow-hidden shadow-2xl animate-fadeIn flex flex-col md:flex-row h-[calc(100vh-140px)] min-h-[580px] max-h-[850px]">
+          <div className="bg-[#0F172A] border border-[#1E293B] rounded-3xl overflow-hidden shadow-2xl animate-fadeIn flex flex-col md:flex-row h-[calc(100vh-140px)] min-h-[580px] max-h-[850px]">
             {/* Left Column: Conversations List (Full screen on mobile when list is active) */}
-            <div className={`w-full md:w-80 lg:w-88 border-r border-[#173826] flex flex-col bg-[#07160D] ${
+            <div className={`w-full md:w-80 lg:w-88 border-r border-[#1E293B] flex flex-col bg-[#0B0F19] ${
               mobileChatView === 'chat' ? 'hidden md:flex' : 'flex flex-1 md:flex-none'
             }`}>
               {/* Top Bar with Live Chat ON / OFF Toggle */}
-              <div className="p-3.5 bg-[#05110A] border-b border-[#173826] flex items-center justify-between">
+              <div className="p-3.5 bg-[#0B0F19] border-b border-[#1E293B] flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Power className={`w-4 h-4 ${isLiveChatOnline ? 'text-[#00B261]' : 'text-[#E53935]'}`} />
                   <span className="text-xs font-bold text-white">লাইভ চ্যাট:</span>
@@ -2138,7 +2246,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                   onClick={handleToggleLiveChatStatus}
                   className={`px-3 py-1 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer shadow-xs ${
                     isLiveChatOnline
-                      ? 'bg-[#00B261] text-black hover:bg-[#009E56]'
+                      ? 'bg-emerald-500 text-white hover:bg-emerald-600'
                       : 'bg-[#E53935] text-white hover:bg-[#D32F2F]'
                   }`}
                   title="লাইভ চ্যাট অন অথবা অফ করুন"
@@ -2149,14 +2257,14 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
               </div>
 
               {/* Active vs Archive Chat Tabs */}
-              <div className="p-2.5 bg-[#05110A] border-b border-[#173826] flex items-center gap-1.5">
+              <div className="p-2.5 bg-[#0B0F19] border-b border-[#1E293B] flex items-center gap-1.5">
                 <button
                   type="button"
                   onClick={() => setChatTab('active')}
                   className={`flex-1 py-1.5 rounded-xl text-xs font-bold transition-all text-center cursor-pointer flex items-center justify-center gap-1.5 ${
                     chatTab === 'active'
-                      ? 'bg-[#008A4B] text-white shadow-xs'
-                      : 'text-[#8BB99F] hover:bg-[#0E2417] hover:text-white'
+                      ? 'bg-[#2B47EE] text-white shadow-xs'
+                      : 'text-[#94A3B8] hover:bg-[#1E293B] hover:text-white'
                   }`}
                 >
                   <MessageSquare className="w-3.5 h-3.5" />
@@ -2169,7 +2277,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                   className={`flex-1 py-1.5 rounded-xl text-xs font-bold transition-all text-center cursor-pointer flex items-center justify-center gap-1.5 ${
                     chatTab === 'archived'
                       ? 'bg-[#2B47EE] text-white shadow-xs'
-                      : 'text-[#8BB99F] hover:bg-[#0E2417] hover:text-white'
+                      : 'text-[#94A3B8] hover:bg-[#1E293B] hover:text-white'
                   }`}
                 >
                   <Clock className="w-3.5 h-3.5" />
@@ -2177,35 +2285,35 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                 </button>
               </div>
 
-              <div className="p-4 border-b border-[#173826]">
+              <div className="p-4 border-b border-[#1E293B]">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
-                    <MessageSquare className="w-4 h-4 text-[#4EEDB0]" />
+                    <MessageSquare className="w-4 h-4 text-[#818CF8]" />
                     <h3 className="text-sm font-black text-white">
                       {chatTab === 'active' ? 'সক্রিয় গ্রাহক চ্যাট' : 'আর্কাইভকৃত চ্যাট রেকর্ড'}
                     </h3>
                   </div>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#0F2A1B] text-[#4EEDB0]">
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#1E1B4B] text-[#818CF8]">
                     {currentTabThreads.length} টি
                   </span>
                 </div>
 
                 <div className="relative">
-                  <Search className="w-3.5 h-3.5 absolute left-3 top-3 text-[#69977E]" />
+                  <Search className="w-3.5 h-3.5 absolute left-3 top-3 text-[#64748D]" />
                   <input
                     type="text"
                     placeholder="নাম বা মোবাইল নম্বর..."
                     value={chatSearch}
                     onChange={(e) => setChatSearch(e.target.value)}
-                    className="w-full pl-8 pr-3 py-2 rounded-xl bg-[#05110A] border border-[#173826] text-xs text-white placeholder-[#69977E] focus:outline-none focus:border-[#00B261]"
+                    className="w-full pl-8 pr-3 py-2 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-xs text-white placeholder-[#64748D] focus:outline-none focus:border-[#2B47EE]"
                   />
                 </div>
               </div>
 
               {/* Thread list */}
-              <div className="flex-1 overflow-y-auto divide-y divide-[#173826]/50">
+              <div className="flex-1 overflow-y-auto divide-y divide-[#1E293B]/50">
                 {filteredThreads.length === 0 ? (
-                  <div className="p-8 text-center text-xs text-[#69977E]">
+                  <div className="p-8 text-center text-xs text-[#64748D]">
                     কোনো সক্রিয় কথোপকথন নেই
                   </div>
                 ) : (
@@ -2220,15 +2328,15 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                         }}
                         className={`p-3.5 sm:p-4 transition-all cursor-pointer flex items-start gap-3 ${
                           isSelected
-                            ? 'bg-[#0E2417] border-l-4 border-l-[#00B261]'
-                            : 'hover:bg-[#0B1E13] active:bg-[#0E2417]'
+                            ? 'bg-[#1E293B] border-l-4 border-l-[#2B47EE]'
+                            : 'hover:bg-[#161F30] active:bg-[#1E293B]'
                         }`}
                       >
                         <div className="relative shrink-0">
-                          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#122A1E] to-[#1E4D34] text-[#4EEDB0] flex items-center justify-center font-bold text-sm border border-[#173826] shadow-2xs">
+                          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1E293B] to-[#334155] text-[#818CF8] flex items-center justify-center font-bold text-sm border border-[#1E293B] shadow-2xs">
                             {thread.userName.charAt(0)}
                           </div>
-                          <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-[#00B261] border-2 border-[#07160D]" />
+                          <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-[#00B261] border-2 border-[#0B0F19]" />
                         </div>
 
                         <div className="flex-1 min-w-0">
@@ -2236,11 +2344,11 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                             <h4 className="text-xs sm:text-sm font-bold text-white truncate">
                               {thread.userName}
                             </h4>
-                            <span className="text-[10px] text-[#69977E] font-mono shrink-0 ml-1">
+                            <span className="text-[10px] text-[#64748D] font-mono shrink-0 ml-1">
                               {thread.lastUpdated}
                             </span>
                           </div>
-                          <p className="text-[11px] text-[#4EEDB0] font-mono mt-0.5 truncate">
+                          <p className="text-[11px] text-[#818CF8] font-mono mt-0.5 truncate">
                             {thread.userPhone}
                           </p>
                           <p className="text-[11px] text-[#94A3B8] mt-1 truncate">
@@ -2249,7 +2357,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                         </div>
 
                         {thread.unreadAdminCount > 0 && (
-                          <span className="w-5 h-5 rounded-full bg-[#00B261] text-black text-[10px] font-black flex items-center justify-center shrink-0 shadow-xs">
+                          <span className="w-5 h-5 rounded-full bg-emerald-500 text-white text-[10px] font-black flex items-center justify-center shrink-0 shadow-xs">
                             {thread.unreadAdminCount}
                           </span>
                         )}
@@ -2261,30 +2369,30 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
             </div>
 
             {/* Center Column: Active Chat Stream (Full screen on mobile when chat is active) */}
-            <div className={`flex-1 flex flex-col bg-[#091A11] ${
+            <div className={`flex-1 flex flex-col bg-[#0F172A] ${
               mobileChatView === 'list' ? 'hidden md:flex' : 'flex'
             }`}>
-              <div className="p-3.5 sm:p-4 border-b border-[#173826] flex items-center justify-between bg-[#07160D] shrink-0">
+              <div className="p-3.5 sm:p-4 border-b border-[#1E293B] flex items-center justify-between bg-[#0B0F19] shrink-0">
                 <div className="flex items-center gap-2.5 sm:gap-3">
                   {/* Mobile Back Button to list */}
                   <button
                     type="button"
                     onClick={() => setMobileChatView('list')}
-                    className="md:hidden px-2.5 py-1.5 rounded-xl bg-[#122A1E] hover:bg-[#173826] text-[#4EEDB0] border border-[#173826] text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-xs shrink-0"
+                    className="md:hidden px-2.5 py-1.5 rounded-xl bg-[#1E293B] hover:bg-[#1E293B] text-[#818CF8] border border-[#1E293B] text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-xs shrink-0"
                     title="কথোপকথন তালিকায় ফিরে যান"
                   >
                     <ArrowLeft className="w-4 h-4" />
                     <span>সব চ্যাট</span>
                   </button>
 
-                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-[#008A4B] to-[#006034] text-white flex items-center justify-center font-bold text-xs sm:text-sm shrink-0 border border-[#00B261]/30">
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-[#2B47EE] to-[#1E3A8A] text-white flex items-center justify-center font-bold text-xs sm:text-sm shrink-0 border border-[#2B47EE]/30">
                     {activeThread?.userName.charAt(0) || 'U'}
                   </div>
                   <div className="min-w-0">
                     <h3 className="text-xs sm:text-sm font-black text-white truncate">
                       {activeThread?.userName || 'গ্রাহক নির্বাচন করুন'}
                     </h3>
-                    <p className="text-[10px] sm:text-[11px] text-[#4EEDB0] font-mono flex items-center gap-1">
+                    <p className="text-[10px] sm:text-[11px] text-[#818CF8] font-mono flex items-center gap-1">
                       <span className="w-1.5 h-1.5 rounded-full bg-[#00B261] animate-pulse" />
                       <span className="truncate">{activeThread?.userPhone || 'সরাসরি রিয়েল-টাইম'}</span>
                     </p>
@@ -2305,10 +2413,10 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                         };
                         setViewingClientDetailsUser(clientUser);
                       }}
-                      className="px-2.5 py-1.5 rounded-lg bg-[#0E2417] hover:bg-[#173826] text-[#4EEDB0] border border-[#173826] text-[11px] font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-xs"
+                      className="px-2.5 py-1.5 rounded-lg bg-[#1E293B] hover:bg-[#1E293B] text-[#818CF8] border border-[#1E293B] text-[11px] font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-xs"
                       title="এই ক্লায়েন্টের সম্পূর্ণ প্রোফাইল ও অর্ডারের তথ্য দেখুন"
                     >
-                      <Eye className="w-3.5 h-3.5 text-[#4EEDB0]" />
+                      <Eye className="w-3.5 h-3.5 text-[#818CF8]" />
                       <span className="hidden sm:inline">প্রোফাইল ও অর্ডার</span>
                     </button>
                   )}
@@ -2330,7 +2438,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                   {/* Client Inactivity Timer remaining */}
                   {activeThread?.expiresAt && (
                     <div 
-                      className="px-2 py-1 rounded-lg bg-[#0F2A1B] border border-[#00B261]/30 text-[#4EEDB0] text-[10px] sm:text-[11px] font-mono font-bold flex items-center gap-1" 
+                      className="px-2 py-1 rounded-lg bg-[#1E1B4B] border border-[#2B47EE]/30 text-[#818CF8] text-[10px] sm:text-[11px] font-mono font-bold flex items-center gap-1" 
                       title="ক্লায়েন্ট ইনঅ্যাক্টিভিটি টাইমার"
                     >
                       <Clock className="w-3 h-3 text-[#00B261]" />
@@ -2344,7 +2452,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                   {activeThread && (
                     <button
                       onClick={() => handleExtendChatTime(5)}
-                      className="px-2.5 py-1.5 rounded-lg bg-[#008A4B] hover:bg-[#009E56] text-white text-[11px] font-bold flex items-center gap-1 transition-all cursor-pointer shadow-xs"
+                      className="px-2.5 py-1.5 rounded-lg bg-[#2B47EE] hover:bg-[#1E3A8A] text-white text-[11px] font-bold flex items-center gap-1 transition-all cursor-pointer shadow-xs"
                       title="চ্যাটের মেয়াদ আরও ৫ মিনিট বাড়ান"
                     >
                       <Plus className="w-3 h-3" />
@@ -2413,10 +2521,10 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
 
                   if (cleanMsgs.length === 0) {
                     return (
-                      <div className="h-full flex flex-col items-center justify-center p-8 text-center text-[#69977E]">
+                      <div className="h-full flex flex-col items-center justify-center p-8 text-center text-[#64748D]">
                         <MessageSquare className="w-10 h-10 mb-2 opacity-50 text-[#00B261]" />
                         <p className="text-sm font-bold text-white">কোনো বার্তা পাওয়া যায়নি</p>
-                        <p className="text-xs text-[#69977E] mt-1">নিচের ইনপুট বক্সে মেসেজ লিখে গ্রাহকের সাথে চ্যাট শুরু করুন।</p>
+                        <p className="text-xs text-[#64748D] mt-1">নিচের ইনপুট বক্সে মেসেজ লিখে গ্রাহকের সাথে চ্যাট শুরু করুন।</p>
                       </div>
                     );
                   }
@@ -2430,7 +2538,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                       >
                         {/* Clear Sender Badge Header - No Hover Needed, Visible on all Devices */}
                         <div className={`flex items-center gap-1.5 mb-1 px-1 text-[11px] font-bold ${
-                          isAdmin ? 'text-[#A5B4FC]' : 'text-[#4EEDB0]'
+                          isAdmin ? 'text-[#A5B4FC]' : 'text-[#818CF8]'
                         }`}>
                           {isAdmin ? (
                             <>
@@ -2439,9 +2547,9 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                             </>
                           ) : (
                             <>
-                              <span className="w-4 h-4 rounded-full bg-[#122A1E] text-[#4EEDB0] border border-[#00B261]/40 inline-flex items-center justify-center text-[9px]">👤</span>
+                              <span className="w-4 h-4 rounded-full bg-[#1E293B] text-[#818CF8] border border-[#2B47EE]/40 inline-flex items-center justify-center text-[9px]">👤</span>
                               <span>গ্রাহক: {activeThread?.userName || 'Customer'}</span>
-                              <span className="text-[10px] text-[#69977E] font-mono">({activeThread?.userPhone})</span>
+                              <span className="text-[10px] text-[#64748D] font-mono">({activeThread?.userPhone})</span>
                             </>
                           )}
                         </div>
@@ -2451,7 +2559,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                           className={`max-w-[92%] sm:max-w-[80%] md:max-w-[75%] p-3.5 sm:p-4 rounded-2xl text-xs sm:text-sm leading-relaxed ${
                             isAdmin
                               ? 'bg-[#2B47EE] text-white rounded-tr-xs shadow-md'
-                              : 'bg-[#102C1E] border border-[#1E4D34] text-[#E8FAF0] rounded-tl-xs shadow-md'
+                              : 'bg-[#102C1E] border border-[#334155] text-[#E8FAF0] rounded-tl-xs shadow-md'
                           }`}
                         >
                           <p className="whitespace-pre-wrap select-text font-sans">{msg.text}</p>
@@ -2459,10 +2567,10 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
 
                         {/* Explicit Inline Timestamp - No Hover Needed */}
                         <span className={`text-[10px] font-mono mt-1 px-1 flex items-center gap-1 ${
-                          isAdmin ? 'text-[#A5B4FC]' : 'text-[#69977E]'
+                          isAdmin ? 'text-[#A5B4FC]' : 'text-[#64748D]'
                         }`}>
                           <span>{msg.timestamp}</span>
-                          {isAdmin && <CheckCheck className="w-3.5 h-3.5 text-[#4EEDB0]" />}
+                          {isAdmin && <CheckCheck className="w-3.5 h-3.5 text-[#818CF8]" />}
                         </span>
                       </div>
                     );
@@ -2472,13 +2580,13 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
               </div>
 
               {/* Canned Responses Pills */}
-              <div className="px-3 sm:px-4 py-2 border-t border-[#173826] bg-[#07160D] flex items-center gap-1.5 overflow-x-auto scrollbar-none shrink-0">
-                <span className="text-[10px] text-[#69977E] font-bold shrink-0">দ্রুত রিপ্লাই:</span>
+              <div className="px-3 sm:px-4 py-2 border-t border-[#1E293B] bg-[#0B0F19] flex items-center gap-1.5 overflow-x-auto scrollbar-none shrink-0">
+                <span className="text-[10px] text-[#64748D] font-bold shrink-0">দ্রুত রিপ্লাই:</span>
                 {cannedReplies.map((reply, rIdx) => (
                   <button
                     key={rIdx}
                     onClick={() => handleSendAdminReply(reply)}
-                    className="px-2.5 py-1 rounded-lg bg-[#0F2A1B] hover:bg-[#008A4B] text-[#8BB99F] hover:text-white text-[10px] font-bold transition-all shrink-0 cursor-pointer border border-[#173826]"
+                    className="px-2.5 py-1 rounded-lg bg-[#1E1B4B] hover:bg-[#2B47EE] text-[#94A3B8] hover:text-white text-[10px] font-bold transition-all shrink-0 cursor-pointer border border-[#1E293B]"
                   >
                     {reply}
                   </button>
@@ -2486,7 +2594,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
               </div>
 
               {/* Chat Input Box */}
-              <div className="p-3 sm:p-4 border-t border-[#173826] bg-[#07160D] shrink-0">
+              <div className="p-3 sm:p-4 border-t border-[#1E293B] bg-[#0B0F19] shrink-0">
                 <form
                   onSubmit={(e) => {
                     e.preventDefault();
@@ -2499,11 +2607,11 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                     placeholder="আপনার মেসেজ লিখুন (Enter চাপুন)..."
                     value={adminReplyText}
                     onChange={(e) => setAdminReplyText(e.target.value)}
-                    className="flex-1 px-4 py-2.5 sm:py-3 rounded-xl bg-[#05110A] border border-[#173826] text-xs sm:text-sm text-white placeholder-[#69977E] focus:outline-none focus:border-[#00B261]"
+                    className="flex-1 px-4 py-2.5 sm:py-3 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-xs sm:text-sm text-white placeholder-[#64748D] focus:outline-none focus:border-[#2B47EE]"
                   />
                   <button
                     type="submit"
-                    className="px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl bg-[#008A4B] hover:bg-[#009E56] active:bg-[#00743E] text-white text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs shrink-0"
+                    className="px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl bg-[#2B47EE] hover:bg-[#1E3A8A] active:bg-[#1E3A8A] text-white text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs shrink-0"
                   >
                     <Send className="w-4 h-4" />
                     <span className="hidden sm:inline">পাঠান</span>
@@ -2513,29 +2621,29 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
             </div>
 
             {/* Right Column: Customer Details */}
-            <div className="hidden lg:flex w-72 border-l border-[#173826] bg-[#07160D] flex-col p-4 space-y-4">
-              <div className="text-center pb-4 border-b border-[#173826]">
-                <div className="w-14 h-14 rounded-2xl bg-[#0F2A1B] text-[#4EEDB0] flex items-center justify-center font-black text-xl mx-auto mb-2 border border-[#00B261]/30">
+            <div className="hidden lg:flex w-72 border-l border-[#1E293B] bg-[#0B0F19] flex-col p-4 space-y-4">
+              <div className="text-center pb-4 border-b border-[#1E293B]">
+                <div className="w-14 h-14 rounded-2xl bg-[#1E1B4B] text-[#818CF8] flex items-center justify-center font-black text-xl mx-auto mb-2 border border-[#2B47EE]/30">
                   {activeThread?.userName.charAt(0) || 'U'}
                 </div>
                 <h4 className="text-xs font-black text-white">{activeThread?.userName}</h4>
-                <p className="text-[11px] font-mono text-[#69977E]">{activeThread?.userPhone}</p>
+                <p className="text-[11px] font-mono text-[#64748D]">{activeThread?.userPhone}</p>
               </div>
 
               <div className="space-y-2">
-                <span className="text-[10px] text-[#69977E] uppercase font-bold tracking-wider block">
+                <span className="text-[10px] text-[#64748D] uppercase font-bold tracking-wider block">
                   গ্রাহকের অর্ডারসমূহ
                 </span>
                 {activeThreadOrders.length === 0 ? (
-                  <div className="p-3 rounded-xl bg-[#05110A] text-[11px] text-[#69977E] border border-[#173826]">
+                  <div className="p-3 rounded-xl bg-[#0B0F19] text-[11px] text-[#64748D] border border-[#1E293B]">
                     কোনো অর্ডার পাওয়া যায়নি
                   </div>
                 ) : (
                   <div className="space-y-1.5">
                     {activeThreadOrders.map((o, oIdx) => (
-                      <div key={o.orderId ? `${o.orderId}-${oIdx}` : `ato-${oIdx}`} className="p-2.5 rounded-xl bg-[#05110A] border border-[#173826] text-xs">
+                      <div key={o.orderId ? `${o.orderId}-${oIdx}` : `ato-${oIdx}`} className="p-2.5 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-xs">
                         <div className="flex justify-between items-center text-[10px]">
-                          <strong className="font-mono text-[#4EEDB0]">{o.orderId}</strong>
+                          <strong className="font-mono text-[#818CF8]">{o.orderId}</strong>
                           <span className={`px-1.5 py-0.2 rounded font-bold ${
                             o.status === 'verified' ? 'text-[#00B261]' : 'text-[#FFD552]'
                           }`}>
@@ -2543,7 +2651,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                           </span>
                         </div>
                         <p className="text-[11px] text-white mt-0.5 truncate">{o.companyName}</p>
-                        <p className="text-[10px] text-[#69977E] font-mono">TrxID: {o.transactionId}</p>
+                        <p className="text-[10px] text-[#64748D] font-mono">TrxID: {o.transactionId}</p>
                       </div>
                     ))}
                   </div>
@@ -2559,7 +2667,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                       setDeliveryAdminPass('');
                       setDeliveryNotes('');
                     }}
-                    className="w-full py-2 px-3 rounded-xl bg-[#008A4B] hover:bg-[#009E56] text-white text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                    className="w-full py-2 px-3 rounded-xl bg-[#2B47EE] hover:bg-[#1E3A8A] text-white text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5"
                   >
                     <Key className="w-3.5 h-3.5" />
                     <span>ওয়েবসাইট আইডি-পাস পাঠান</span>
@@ -2589,7 +2697,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
                   <h2 className="text-xl font-black text-white flex items-center gap-2">
-                    <ShoppingBag className="w-5 h-5 text-[#4EEDB0]" />
+                    <ShoppingBag className="w-5 h-5 text-[#818CF8]" />
                     <span>অর্ডার ও ওয়েবসাইট ডেলিভারি ম্যানেজমেন্ট</span>
                   </h2>
                   <p className="text-xs text-[#94A3B8] mt-0.5">
@@ -2599,20 +2707,20 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
               </div>
 
               {/* 4 Interactive Workflow Sub-Tabs: Pending, Approved, Completed, Bin (NO All option) */}
-              <div className="flex items-center gap-2 p-1.5 bg-[#07160D] border border-[#173826] rounded-2xl overflow-x-auto">
+              <div className="flex items-center gap-2 p-1.5 bg-[#0B0F19] border border-[#1E293B] rounded-2xl overflow-x-auto">
                 <button
                   type="button"
                   onClick={() => setOrderFilterTab('pending')}
                   className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shrink-0 ${
                     orderFilterTab === 'pending'
                       ? 'bg-[#E53935] text-white shadow-xs'
-                      : 'text-[#8BB99F] hover:text-white hover:bg-[#0E2417]'
+                      : 'text-[#94A3B8] hover:text-white hover:bg-[#1E293B]'
                   }`}
                 >
                   <Clock className="w-3.5 h-3.5" />
                   <span>পেন্ডিং অর্ডার</span>
                   <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono ${
-                    orderFilterTab === 'pending' ? 'bg-white/20 text-white' : 'bg-[#173826] text-[#4EEDB0]'
+                    orderFilterTab === 'pending' ? 'bg-white/20 text-white' : 'bg-[#1E293B] text-[#818CF8]'
                   }`}>
                     {pendingOrders.length}
                   </span>
@@ -2624,13 +2732,13 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                   className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shrink-0 ${
                     orderFilterTab === 'approved'
                       ? 'bg-[#2B47EE] text-white shadow-xs'
-                      : 'text-[#8BB99F] hover:text-white hover:bg-[#0E2417]'
+                      : 'text-[#94A3B8] hover:text-white hover:bg-[#1E293B]'
                   }`}
                 >
                   <Zap className="w-3.5 h-3.5" />
                   <span>অনুমোদিত ও প্রসেসিং</span>
                   <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono ${
-                    orderFilterTab === 'approved' ? 'bg-white/20 text-white' : 'bg-[#173826] text-[#4EEDB0]'
+                    orderFilterTab === 'approved' ? 'bg-white/20 text-white' : 'bg-[#1E293B] text-[#818CF8]'
                   }`}>
                     {approvedOrders.length}
                   </span>
@@ -2641,14 +2749,14 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                   onClick={() => setOrderFilterTab('completed')}
                   className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shrink-0 ${
                     orderFilterTab === 'completed'
-                      ? 'bg-[#008A4B] text-white shadow-xs'
-                      : 'text-[#8BB99F] hover:text-white hover:bg-[#0E2417]'
+                      ? 'bg-[#2B47EE] text-white shadow-xs'
+                      : 'text-[#94A3B8] hover:text-white hover:bg-[#1E293B]'
                   }`}
                 >
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   <span>সম্পূর্ণ ওয়েবসাইট ও অর্ডার</span>
                   <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono ${
-                    orderFilterTab === 'completed' ? 'bg-white/20 text-white' : 'bg-[#173826] text-[#4EEDB0]'
+                    orderFilterTab === 'completed' ? 'bg-white/20 text-white' : 'bg-[#1E293B] text-[#818CF8]'
                   }`}>
                     {completedOrders.length}
                   </span>
@@ -2660,13 +2768,13 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                   className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shrink-0 ${
                     orderFilterTab === 'bin'
                       ? 'bg-[#E53935] text-white shadow-xs'
-                      : 'text-[#8BB99F] hover:text-white hover:bg-[#0E2417]'
+                      : 'text-[#94A3B8] hover:text-white hover:bg-[#1E293B]'
                   }`}
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                   <span>রিসাইকেল বিন / ট্র্যাশ</span>
                   <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono ${
-                    orderFilterTab === 'bin' ? 'bg-white/20 text-white' : 'bg-[#173826] text-[#FF8A80]'
+                    orderFilterTab === 'bin' ? 'bg-white/20 text-white' : 'bg-[#1E293B] text-[#FF8A80]'
                   }`}>
                     {binOrders.length}
                   </span>
@@ -2675,10 +2783,10 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
 
               {/* Batch Action Toolbar for Completed Orders */}
               {orderFilterTab === 'completed' && completedOrders.length > 0 && (
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-2xl bg-[#091A11] border border-[#00B261]/30">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-2xl bg-[#0F172A] border border-[#2B47EE]/30">
                   <div className="flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-[#00E575]" />
-                    <span className="text-xs text-[#8BB99F] font-bold">
+                    <span className="text-xs text-[#94A3B8] font-bold">
                       মোট ডেলিভারিকৃত সম্পূর্ণ ওয়েবসাইট: {completedOrders.length} টি
                     </span>
                   </div>
@@ -2716,8 +2824,8 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
 
               {/* Order Cards List */}
               {displayedOrders.length === 0 ? (
-                <div className="p-12 rounded-3xl bg-[#091A11] border border-[#173826] text-center space-y-2">
-                  <div className="w-12 h-12 rounded-2xl bg-[#0E2417] text-[#4EEDB0] flex items-center justify-center mx-auto mb-2">
+                <div className="p-12 rounded-3xl bg-[#0F172A] border border-[#1E293B] text-center space-y-2">
+                  <div className="w-12 h-12 rounded-2xl bg-[#1E293B] text-[#818CF8] flex items-center justify-center mx-auto mb-2">
                     <CheckCircle2 className="w-6 h-6" />
                   </div>
                   <h3 className="text-sm font-bold text-white">
@@ -2729,7 +2837,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                       ? 'এখনো কোনো অর্ডার সম্পূর্ণ হিসেবে মার্ক করা হয়নি'
                       : 'রিসাইকেল বিন সম্পূর্ণ খালি (Bin is Empty)'}
                   </h3>
-                  <p className="text-xs text-[#69977E]">
+                  <p className="text-xs text-[#64748D]">
                     {orderFilterTab === 'bin'
                       ? 'ভুল অর্ডার রিমুভ করলে সেগুলো এখানে জমা হবে এবং যে কোনো সময় রিস্টোর করা যাবে।'
                       : 'নতুন অর্ডার আসলে অথবা স্ট্যাটাস পরিবর্তন করলে এখানে প্রদর্শিত হবে।'}
@@ -2750,23 +2858,23 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                         key={ord.orderId ? `${ord.orderId}-${oIdx}` : `ord-${oIdx}`}
                         className={`p-5 rounded-2xl sm:rounded-3xl border transition-all space-y-3 shadow-md ${
                           isPending
-                            ? 'bg-[#0E1F14] border-[#E53935]/40 hover:border-[#E53935]'
+                            ? 'bg-[#111827] border-[#E53935]/40 hover:border-[#E53935]'
                             : isProcessing
-                            ? 'bg-[#0E1B24] border-[#2B47EE]/40 hover:border-[#2B47EE]'
+                            ? 'bg-[#161F30] border-[#2B47EE]/40 hover:border-[#2B47EE]'
                             : isCompleted
-                            ? 'bg-[#091A11] border-[#00B261]/40 hover:border-[#00B261]'
+                            ? 'bg-[#0F172A] border-[#00B261]/40 hover:border-[#00B261]'
                             : isBin
                             ? 'bg-[#181116] border-[#E53935]/30'
                             : 'bg-[#111827] border-[#1E293B]'
                         }`}
                       >
                         {/* Top Row: Order ID, Website Code, Company Name & Status Badge */}
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#173826]/70 pb-3">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#1E293B]/70 pb-3">
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className="px-2.5 py-1 rounded-xl bg-[#2B47EE] text-white font-mono font-black text-xs">
                               {ord.orderId}
                             </span>
-                            <span className="px-2.5 py-1 rounded-xl bg-[#05110A] text-[#4EEDB0] font-mono font-bold text-xs border border-[#173826]">
+                            <span className="px-2.5 py-1 rounded-xl bg-[#0B0F19] text-[#818CF8] font-mono font-bold text-xs border border-[#1E293B]">
                               {ord.demoCode}
                             </span>
                             <h4 className="text-sm font-bold text-white">
@@ -2777,7 +2885,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                           <div className="flex items-center gap-2">
                             <span className={`px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 ${
                               isCompleted
-                                ? 'bg-[#00B261]/20 text-[#00E575] border border-[#00B261]'
+                                ? 'bg-emerald-500/15 text-emerald-400 border border-[#2B47EE]/30'
                                 : isProcessing
                                 ? 'bg-[#2B47EE]/20 text-[#A5B4FC] border border-[#2B47EE]'
                                 : isCancelled
@@ -2814,7 +2922,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                         </div>
 
                         {/* Order Details Grid */}
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs text-[#8BB99F]">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs text-[#94A3B8]">
                           <div>
                             <span>গ্রাহকের নাম: </span>
                             <strong className="text-white">{ord.clientName}</strong>
@@ -2829,7 +2937,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                           </div>
                           <div>
                             <span>পেমেন্ট: </span>
-                            <strong className="text-white uppercase">{ord.paymentMethod}</strong> (TrxID: <span className="font-mono text-[#4EEDB0]">{ord.transactionId}</span>)
+                            <strong className="text-white uppercase">{ord.paymentMethod}</strong> (TrxID: <span className="font-mono text-[#818CF8]">{ord.transactionId}</span>)
                           </div>
                           <div>
                             <span>ডোমেইন চয়েস: </span>
@@ -2845,13 +2953,13 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                           </div>
                           <div>
                             <span>ডাটাবেস স্ট্যাটাস: </span>
-                            <span className="text-[#4EEDB0] font-mono uppercase">{ord.status}</span>
+                            <span className="text-[#818CF8] font-mono uppercase">{ord.status}</span>
                           </div>
                         </div>
 
                         {/* Interactive Workflow Actions for Each Stage */}
-                        <div className="pt-3 border-t border-[#173826]/70 space-y-2.5 w-full">
-                          <div className="text-[11px] text-[#69977E] leading-relaxed">
+                        <div className="pt-3 border-t border-[#1E293B]/70 space-y-2.5 w-full">
+                          <div className="text-[11px] text-[#64748D] leading-relaxed">
                             {isPending && 'অর্ডারটি পেন্ডিং রয়েছে। ট্রানজেকশন যাচাই করে অনুমোদন করুন।'}
                             {isProcessing && 'অর্ডারটি অনুমোদিত হয়েছে এবং প্রসেসিং চলছে। আইডি-পাসওয়ার্ড সাবমিট করার পর "পাঠানো / সম্পূর্ণ করুন" অপশনটি সক্রিয় হবে।'}
                             {isCompleted && 'ওয়েবসাইট সম্পূর্ণ তৈরি ও ক্লায়েন্টের কাছে ডেলিভারি সম্পন্ন হয়েছে।'}
@@ -2864,7 +2972,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                               <button
                                 type="button"
                                 onClick={() => handleApproveOrder(activeOrdId)}
-                                className="w-full py-2.5 px-4 rounded-xl bg-[#008A4B] hover:bg-[#009E56] text-white text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs order-1 sm:order-2"
+                                className="w-full py-2.5 px-4 rounded-xl bg-[#2B47EE] hover:bg-[#1E3A8A] text-white text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs order-1 sm:order-2"
                               >
                                 <Check className="w-4 h-4" />
                                 <span>অনুমোদন করুন (Approve Order)</span>
@@ -2893,7 +3001,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                                 {/* Clear Step Progress Banner */}
                                 <div className={`p-2.5 rounded-xl border text-xs flex items-center justify-between gap-2 ${
                                   hasCredentialsSent 
-                                    ? 'bg-[#008A4B]/15 border-[#008A4B]/40 text-[#4EEDB0]'
+                                    ? 'bg-[#2B47EE]/15 border-[#2B47EE]/40 text-[#818CF8]'
                                     : 'bg-amber-500/10 border-amber-500/30 text-amber-300'
                                 }`}>
                                   <div className="flex items-center gap-2">
@@ -2937,7 +3045,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                                     }}
                                     className={`w-full min-h-[44px] py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs active:scale-[0.98] ${
                                       hasCredentialsSent
-                                        ? 'bg-[#0E2417] hover:bg-[#143321] text-[#4EEDB0] border border-[#173826]'
+                                        ? 'bg-[#1E293B] hover:bg-[#143321] text-[#818CF8] border border-[#1E293B]'
                                         : 'bg-[#2B47EE] hover:bg-[#4329d9] text-white shadow-[0_2px_12px_rgba(83,58,253,0.3)]'
                                     }`}
                                     title="গ্রাহকের ওয়েবসাইটের অ্যাডমিন আইডি ও পাসওয়ার্ড প্রদান বা পরিবর্তন করুন"
@@ -2952,7 +3060,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                                   <button
                                     type="button"
                                     onClick={() => handleMarkOrderCompleted(activeOrdId)}
-                                    className="w-full min-h-[44px] py-2.5 px-3 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs active:scale-[0.98] bg-[#008A4B] hover:bg-[#009E56] text-white shadow-[0_4px_16px_rgba(0,178,97,0.4)]"
+                                    className="w-full min-h-[44px] py-2.5 px-3 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs active:scale-[0.98] bg-[#2B47EE] hover:bg-[#1E3A8A] text-white shadow-[0_4px_16px_rgba(0,178,97,0.4)]"
                                     title="সম্পূর্ণ অর্ডার সম্পন্ন করুন ও ডেলিভারি তালিকায় যুক্ত করুন"
                                   >
                                     <CheckCircle2 className="w-4 h-4 shrink-0 text-white" />
@@ -2996,7 +3104,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                                     setDeliveryAdminId(ord.deliveredAdminId || existingCred?.websiteAdminId || `admin_${safeDigits}`);
                                     setDeliveryAdminPass(ord.deliveredAdminPass || existingCred?.websiteAdminPass || `pass${Math.floor(1000 + Math.random() * 9000)}`);
                                   }}
-                                  className="py-2.5 px-3.5 rounded-xl bg-[#0E2417] hover:bg-[#173826] text-[#4EEDB0] border border-[#173826] text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
+                                  className="py-2.5 px-3.5 rounded-xl bg-[#1E293B] hover:bg-[#1E293B] text-[#818CF8] border border-[#1E293B] text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
                                   title="গ্রাহকের ওয়েবসাইটের আইডি ও পাসওয়ার্ড পরিবর্তন করুন"
                                 >
                                   <Key className="w-3.5 h-3.5" />
@@ -3021,7 +3129,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                                 <button
                                   type="button"
                                   onClick={() => handleRestoreOrderFromBin(activeOrdId)}
-                                  className="px-3.5 py-1.5 rounded-xl bg-[#008A4B] hover:bg-[#009E56] text-white text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
+                                  className="px-3.5 py-1.5 rounded-xl bg-[#2B47EE] hover:bg-[#1E3A8A] text-white text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
                                   title="অর্ডারটি পুনরায় আগের প্রসেসিং তালিকায় ফিরিয়ে নিন"
                                 >
                                   <RotateCcw className="w-3.5 h-3.5" />
@@ -3521,14 +3629,14 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                   onClick={() => setReportFilter('resolved')}
                   className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shrink-0 ${
                     reportFilter === 'resolved'
-                      ? 'bg-[#008A4B] text-white shadow-xs'
+                      ? 'bg-[#2B47EE] text-white shadow-xs'
                       : 'text-[#94A3B8] hover:text-white hover:bg-[#1E293B]'
                   }`}
                 >
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   <span>সমাধানকৃত / সম্পন্ন</span>
                   <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono ${
-                    reportFilter === 'resolved' ? 'bg-white/20 text-white' : 'bg-[#1E293B] text-[#4EEDB0]'
+                    reportFilter === 'resolved' ? 'bg-white/20 text-white' : 'bg-[#1E293B] text-[#818CF8]'
                   }`}>
                     {resolvedReports.length}
                   </span>
@@ -3578,7 +3686,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                             <h4 className="text-sm font-bold text-white">
                               {rep.clientName || 'ক্লায়েন্ট'}
                             </h4>
-                            <span className="text-xs text-[#4EEDB0] font-mono">
+                            <span className="text-xs text-[#818CF8] font-mono">
                               ({rep.clientPhone})
                             </span>
                             {rep.clientEmail && (
@@ -3594,7 +3702,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                                 ? 'bg-[#E53935]/20 text-[#FF8A80] border border-[#E53935]/40'
                                 : isInProgress
                                 ? 'bg-[#AB55F7]/20 text-[#D8B4FE] border border-[#AB55F7]/40'
-                                : 'bg-[#00B261]/20 text-[#4EEDB0] border border-[#00B261]/40'
+                                : 'bg-indigo-500/15 text-indigo-300 border border-[#2B47EE]/40'
                             }`}>
                               <span className={`w-2 h-2 rounded-full ${
                                 isPending ? 'bg-[#E53935] animate-ping' : isInProgress ? 'bg-[#AB55F7] animate-pulse' : 'bg-[#00B261]'
@@ -3681,7 +3789,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                             <button
                               type="button"
                               onClick={() => handleResolveReport(rep.id)}
-                              className="px-4 py-2 rounded-xl bg-[#008A4B] hover:bg-[#009E56] text-white text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
+                              className="px-4 py-2 rounded-xl bg-[#2B47EE] hover:bg-[#1E3A8A] text-white text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
                               title="পাসওয়ার্ড ছাড়াই সরাসরি সম্পূর্ণ মার্ক করুন"
                             >
                               <CheckCircle2 className="w-4 h-4" />
@@ -3730,14 +3838,14 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                   onClick={() => setEmailRecoveryFilter('completed')}
                   className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shrink-0 ${
                     emailRecoveryFilter === 'completed'
-                      ? 'bg-[#008A4B] text-white shadow-xs'
+                      ? 'bg-[#2B47EE] text-white shadow-xs'
                       : 'text-[#94A3B8] hover:text-white hover:bg-[#1E293B]'
                   }`}
                 >
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   <span>অল কমপ্লিট (All Complete)</span>
                   <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono ${
-                    emailRecoveryFilter === 'completed' ? 'bg-white/20 text-white font-bold' : 'bg-[#1E293B] text-[#4EEDB0]'
+                    emailRecoveryFilter === 'completed' ? 'bg-white/20 text-white font-bold' : 'bg-[#1E293B] text-[#818CF8]'
                   }`}>
                     {completedEmailRecs.length}
                   </span>
@@ -3796,7 +3904,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                             <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
                               isPending
                                 ? 'bg-[#E53935]/20 text-[#FF8A80] border border-[#E53935]/40 animate-pulse'
-                                : 'bg-[#008A4B]/20 text-[#4EEDB0] border border-[#008A4B]/40'
+                                : 'bg-[#2B47EE]/20 text-[#818CF8] border border-[#2B47EE]/40'
                             }`}>
                               {isPending ? 'পেন্ডিং কল (Pending Call)' : 'অনুমোদিত ও সম্পন্ন (Completed)'}
                             </span>
@@ -3893,7 +4001,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                                 type="button"
                                 disabled={emailRecoveryActionId === rec.id}
                                 onClick={() => handleApproveEmailRecovery(rec.id)}
-                                className="px-4 py-2 rounded-xl bg-[#008A4B] hover:bg-[#009E56] disabled:opacity-50 text-white text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
+                                className="px-4 py-2 rounded-xl bg-[#2B47EE] hover:bg-[#1E3A8A] disabled:opacity-50 text-white text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
                               >
                                 <CheckCircle2 className="w-4 h-4" />
                                 <span>{emailRecoveryActionId === rec.id ? 'অনুমোদন হচ্ছে...' : '✓ অনুমোদন করুন (Approve)'}</span>
@@ -4026,7 +4134,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                     <Key className="w-5 h-5 text-[#2B47EE]" />
                     <span>Password & Security (পাসওয়ার্ড ও সিকিউরিটি)</span>
                   </h2>
-                  <p className="text-xs text-[#8BB99F] mt-0.5">
+                  <p className="text-xs text-[#94A3B8] mt-0.5">
                     গ্রাহকের মোবাইল নম্বর ও ইমেইল আইডি সরাসরি Change Details দিয়ে পরিবর্তন করুন। উভয় পাশের ডাটাবেস স্বয়ংক্রিয়ভাবে আপডেট হবে।
                   </p>
                 </div>
@@ -4039,7 +4147,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
               </div>
 
               {/* Three Subsections: 1. All User List, 2. Reset Password / Reseted Password User List, 3. Call Request Desk */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 p-1.5 rounded-2xl bg-[#091A11] border border-[#173826]">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 p-1.5 rounded-2xl bg-[#0F172A] border border-[#1E293B]">
                 {/* Subsection 1: All User List */}
                 <button
                   type="button"
@@ -4047,13 +4155,13 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                   className={`py-3 px-4 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs ${
                     passwordDeskTab === 'all_users'
                       ? 'bg-[#2B47EE] text-white shadow-[0_4px_16px_rgba(43,71,238,0.35)]'
-                      : 'text-[#8BB99F] hover:text-white hover:bg-[#143321]'
+                      : 'text-[#94A3B8] hover:text-white hover:bg-[#143321]'
                   }`}
                 >
                   <Users className="w-4 h-4 shrink-0" />
                   <span>১. All User List</span>
                   <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                    passwordDeskTab === 'all_users' ? 'bg-white/20 text-white' : 'bg-[#173826] text-[#4EEDB0]'
+                    passwordDeskTab === 'all_users' ? 'bg-white/20 text-white' : 'bg-[#1E293B] text-[#818CF8]'
                   }`}>
                     {users.length}
                   </span>
@@ -4065,14 +4173,14 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                   onClick={() => setPasswordDeskTab('reset_users')}
                   className={`py-3 px-4 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs ${
                     passwordDeskTab === 'reset_users'
-                      ? 'bg-[#008A4B] text-white shadow-[0_4px_16px_rgba(0,138,75,0.35)]'
-                      : 'text-[#8BB99F] hover:text-white hover:bg-[#143321]'
+                      ? 'bg-[#2B47EE] text-white shadow-[0_4px_16px_rgba(0,138,75,0.35)]'
+                      : 'text-[#94A3B8] hover:text-white hover:bg-[#143321]'
                   }`}
                 >
                   <Tag className="w-4 h-4 shrink-0" />
                   <span>২. Reset Password / Reseted Password User List</span>
                   <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                    passwordDeskTab === 'reset_users' ? 'bg-white/20 text-white' : 'bg-[#173826] text-[#4EEDB0]'
+                    passwordDeskTab === 'reset_users' ? 'bg-white/20 text-white' : 'bg-[#1E293B] text-[#818CF8]'
                   }`}>
                     {allResetAuditRecords.length}
                   </span>
@@ -4085,7 +4193,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                   className={`py-3 px-4 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs ${
                     passwordDeskTab === 'pending_requests'
                       ? 'bg-amber-600 text-white shadow-[0_4px_16px_rgba(217,119,6,0.35)]'
-                      : 'text-[#8BB99F] hover:text-white hover:bg-[#143321]'
+                      : 'text-[#94A3B8] hover:text-white hover:bg-[#143321]'
                   }`}
                 >
                   <PhoneCall className="w-4 h-4 shrink-0" />
@@ -4094,7 +4202,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                     <span className="w-2 h-2 rounded-full bg-red-400 animate-ping shrink-0" />
                   )}
                   <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                    passwordDeskTab === 'pending_requests' ? 'bg-white/20 text-white' : 'bg-[#173826] text-amber-300'
+                    passwordDeskTab === 'pending_requests' ? 'bg-white/20 text-white' : 'bg-[#1E293B] text-amber-300'
                   }`}>
                     {pendingCallBacks.length}
                   </span>
@@ -4104,7 +4212,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
               {/* Clean Search Bar */}
               {passwordDeskTab !== 'pending_requests' && (
                 <div className="relative w-full">
-                  <Search className="w-4 h-4 text-[#8BB99F] absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <Search className="w-4 h-4 text-[#94A3B8] absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
                     placeholder={
@@ -4114,13 +4222,13 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                     }
                     value={passwordDeskSearch}
                     onChange={(e) => setPasswordDeskSearch(e.target.value)}
-                    className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-[#091A11] border border-[#173826] text-white text-xs placeholder-[#69977E] focus:outline-none focus:border-[#00B261] transition-all"
+                    className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-[#0F172A] border border-[#1E293B] text-white text-xs placeholder-[#64748D] focus:outline-none focus:border-[#2B47EE] transition-all"
                   />
                   {passwordDeskSearch && (
                     <button
                       type="button"
                       onClick={() => setPasswordDeskSearch('')}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#8BB99F] hover:text-white cursor-pointer"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#94A3B8] hover:text-white cursor-pointer"
                     >
                       <X className="w-4 h-4" />
                     </button>
@@ -4131,13 +4239,13 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
               {/* ---------------- SUBSECTION 1: ALL USER LIST ---------------- */}
               {passwordDeskTab === 'all_users' && (
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between text-xs text-[#8BB99F] px-1">
+                  <div className="flex items-center justify-between text-xs text-[#94A3B8] px-1">
                     <span>সকল নিবন্ধিত অ্যাকাউন্ট ({filteredAllUsers.length} জন)</span>
-                    <span className="text-[11px] text-[#4EEDB0]">গ্রাহকের মোবাইল নম্বর বা ইমেইল হারালে "Change Details" দিয়ে রিসেট করুন</span>
+                    <span className="text-[11px] text-[#818CF8]">গ্রাহকের মোবাইল নম্বর বা ইমেইল হারালে "Change Details" দিয়ে রিসেট করুন</span>
                   </div>
 
                   {filteredAllUsers.length === 0 ? (
-                    <div className="p-10 rounded-2xl bg-[#091A11] border border-[#173826] text-center text-xs text-[#8BB99F]">
+                    <div className="p-10 rounded-2xl bg-[#0F172A] border border-[#1E293B] text-center text-xs text-[#94A3B8]">
                       {passwordDeskSearch ? 'এই সার্চে কোনো ব্যবহারকারী পাওয়া যায়নি।' : 'কোনো নিবন্ধিত ব্যবহারকারী নেই।'}
                     </div>
                   ) : (
@@ -4156,7 +4264,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                             className={`p-4 sm:p-5 rounded-2xl border space-y-3 transition-all ${
                               usr.isRestricted
                                 ? 'bg-[#181116] border-rose-500/40'
-                                : 'bg-[#091A11] border-[#173826]'
+                                : 'bg-[#0F172A] border-[#1E293B]'
                             }`}
                           >
                             {/* User Header */}
@@ -4169,12 +4277,12 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                                   <h4 className="text-sm font-bold text-white flex items-center gap-2 truncate">
                                     <span className="truncate">{usr.name}</span>
                                     {isReset && (
-                                      <span className="px-1.5 py-0.5 rounded-md bg-[#008A4B]/25 text-[#4EEDB0] border border-[#008A4B]/40 text-[9px] font-black shrink-0">
+                                      <span className="px-1.5 py-0.5 rounded-md bg-[#2B47EE]/25 text-[#818CF8] border border-[#2B47EE]/40 text-[9px] font-black shrink-0">
                                         ✓ রিসেটকৃত আইডি
                                       </span>
                                     )}
                                   </h4>
-                                  <span className="text-[11px] text-[#8BB99F] font-mono block">{usr.phone}</span>
+                                  <span className="text-[11px] text-[#94A3B8] font-mono block">{usr.phone}</span>
                                 </div>
                               </div>
 
@@ -4186,18 +4294,18 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                             </div>
 
                             {/* Details Row */}
-                            <div className="p-3 rounded-xl bg-[#05110A] border border-[#173826]/70 text-xs space-y-1.5">
-                              <div className="flex justify-between items-center text-[#8BB99F]">
+                            <div className="p-3 rounded-xl bg-[#0B0F19] border border-[#1E293B]/70 text-xs space-y-1.5">
+                              <div className="flex justify-between items-center text-[#94A3B8]">
                                 <span>ইমেইল আইডি:</span>
                                 <span className="font-mono text-white truncate max-w-[200px]">{usr.email || '—'}</span>
                               </div>
-                              <div className="flex justify-between items-center text-[#8BB99F]">
+                              <div className="flex justify-between items-center text-[#94A3B8]">
                                 <span>বর্তমান পাসওয়ার্ড:</span>
-                                <span className="font-mono font-bold text-[#4EEDB0] bg-[#0E2417] px-2 py-0.5 rounded border border-[#173826]">
+                                <span className="font-mono font-bold text-[#818CF8] bg-[#1E293B] px-2 py-0.5 rounded border border-[#1E293B]">
                                   {usr.password || 'প্রযোজ্য নয়'}
                                 </span>
                               </div>
-                              <div className="flex justify-between items-center text-[#8BB99F]">
+                              <div className="flex justify-between items-center text-[#94A3B8]">
                                 <span>নিবন্ধনের তারিখ:</span>
                                 <span className="text-white">{usr.registeredAt}</span>
                               </div>
@@ -4221,7 +4329,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                                 className={`px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                                   usr.isRestricted
                                     ? 'bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 border border-rose-500/40'
-                                    : 'bg-[#143321] text-[#8BB99F] hover:text-white border border-[#173826]'
+                                    : 'bg-[#143321] text-[#94A3B8] hover:text-white border border-[#1E293B]'
                                 }`}
                               >
                                 {usr.isRestricted ? 'আন-রেস্ট্রিক্ট' : 'রেস্ট্রিক্ট'}
@@ -4238,14 +4346,14 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
               {/* ---------------- SUBSECTION 2: RESET PASSWORD / RESETED PASSWORD USER LIST ---------------- */}
               {passwordDeskTab === 'reset_users' && (
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between text-xs text-[#8BB99F] px-1">
+                  <div className="flex items-center justify-between text-xs text-[#94A3B8] px-1">
                     <span>রিসেটকৃত গ্রাহকদের তালিকা ({filteredResetAuditRecords.length} জন)</span>
-                    <span className="text-[11px] text-[#4EEDB0]">কার আইডি, কী ধরনের পরিবর্তন, কী থেকে কী পরিবর্তন ও তারিখ প্রদর্শিত</span>
+                    <span className="text-[11px] text-[#818CF8]">কার আইডি, কী ধরনের পরিবর্তন, কী থেকে কী পরিবর্তন ও তারিখ প্রদর্শিত</span>
                   </div>
 
                   {filteredResetAuditRecords.length === 0 ? (
-                    <div className="p-10 rounded-2xl bg-[#091A11] border border-[#173826] text-center text-xs text-[#8BB99F] space-y-2">
-                      <Tag className="w-8 h-8 text-[#8BB99F] mx-auto opacity-50" />
+                    <div className="p-10 rounded-2xl bg-[#0F172A] border border-[#1E293B] text-center text-xs text-[#94A3B8] space-y-2">
+                      <Tag className="w-8 h-8 text-[#94A3B8] mx-auto opacity-50" />
                       <p className="font-bold text-white">এখনও কোনো গ্রাহকের আইডি বিস্তারিত তথ্য রিসেট করা হয়নি।</p>
                       <p className="text-[11px]">"All User List" ট্যাবে গিয়ে যেকোনো ইউজারের "Change Details" বাটনে ক্লিক করে ইমেইল ও নম্বর পরিবর্তন করতে পারবেন।</p>
                     </div>
@@ -4271,18 +4379,18 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                         return (
                           <div
                             key={item.id ? `audit-${item.id}` : `audit-idx-${idx}`}
-                            className="p-5 rounded-2xl bg-[#091A11] border-2 border-[#008A4B]/60 space-y-3.5 shadow-sm relative overflow-hidden"
+                            className="p-5 rounded-2xl bg-[#0F172A] border-2 border-[#2B47EE]/60 space-y-3.5 shadow-sm relative overflow-hidden"
                           >
                             {/* Top Status & Tag Header */}
                             <div className="flex items-start justify-between gap-2">
                               <div>
-                                <span className="text-[10px] font-bold text-[#8BB99F] uppercase tracking-wider block">
+                                <span className="text-[10px] font-bold text-[#94A3B8] uppercase tracking-wider block">
                                   ১. গ্রাহকের আইডি (Whose ID)
                                 </span>
                                 <h4 className="text-base font-black text-white flex items-center gap-2">
                                   <span>{item.userName || matchingUser?.name || 'গ্রাহক'}</span>
                                   {matchingUser?.clientId && (
-                                    <span className="px-1.5 py-0.2 rounded bg-[#173826] text-[#4EEDB0] text-[10px] font-mono">
+                                    <span className="px-1.5 py-0.2 rounded bg-[#1E293B] text-[#818CF8] text-[10px] font-mono">
                                       {matchingUser.clientId}
                                     </span>
                                   )}
@@ -4290,7 +4398,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                               </div>
 
                               <div className="flex flex-col items-end gap-1">
-                                <span className="px-2.5 py-0.5 bg-[#008A4B] text-white text-[10px] font-black rounded-lg shadow-xs">
+                                <span className="px-2.5 py-0.5 bg-[#2B47EE] text-white text-[10px] font-black rounded-lg shadow-xs">
                                   ✓ রিসেট সম্পন্ন
                                 </span>
                                 {item.tag && (
@@ -4303,8 +4411,8 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                             </div>
 
                             {/* ২. কী ধরনের পরিবর্তন (What Type of Changes) */}
-                            <div className="p-2.5 rounded-xl bg-[#05110A] border border-[#173826] space-y-1">
-                              <span className="text-[10px] font-bold text-[#8BB99F] uppercase tracking-wider block">
+                            <div className="p-2.5 rounded-xl bg-[#0B0F19] border border-[#1E293B] space-y-1">
+                              <span className="text-[10px] font-bold text-[#94A3B8] uppercase tracking-wider block">
                                 ২. পরিবর্তনের ধরন (Type of Changes)
                               </span>
                               <div className="flex items-center gap-2 flex-wrap">
@@ -4332,48 +4440,48 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                             </div>
 
                             {/* ৩. কী থেকে কী পরিবর্তন করা হয়েছে (From What to What) */}
-                            <div className="p-3 rounded-xl bg-[#05110A] border border-[#173826] space-y-2 text-xs">
-                              <span className="text-[10px] font-bold text-[#8BB99F] uppercase tracking-wider block">
+                            <div className="p-3 rounded-xl bg-[#0B0F19] border border-[#1E293B] space-y-2 text-xs">
+                              <span className="text-[10px] font-bold text-[#94A3B8] uppercase tracking-wider block">
                                 ৩. কী থেকে কী পরিবর্তন হয়েছে (From What to What)
                               </span>
 
                               {/* Phone Comparison */}
-                              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 py-1 border-b border-[#173826]/60">
-                                <span className="text-[#8BB99F] text-[11px]">মোবাইল নম্বর:</span>
+                              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 py-1 border-b border-[#1E293B]/60">
+                                <span className="text-[#94A3B8] text-[11px]">মোবাইল নম্বর:</span>
                                 <div className="flex items-center gap-2 font-mono text-xs">
                                   {hasPhoneDifference ? (
                                     <>
                                       <span className="text-rose-400 line-through">{item.oldPhone}</span>
-                                      <span className="text-[#8BB99F]">➔</span>
-                                      <span className="text-[#4EEDB0] font-black">{item.newPhone}</span>
+                                      <span className="text-[#94A3B8]">➔</span>
+                                      <span className="text-[#818CF8] font-black">{item.newPhone}</span>
                                     </>
                                   ) : (
-                                    <span className="text-[#4EEDB0] font-bold">{item.newPhone || item.phone}</span>
+                                    <span className="text-[#818CF8] font-bold">{item.newPhone || item.phone}</span>
                                   )}
                                 </div>
                               </div>
 
                               {/* Email Comparison */}
-                              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 py-1 border-b border-[#173826]/60">
-                                <span className="text-[#8BB99F] text-[11px]">ইমেইল আইডি:</span>
+                              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 py-1 border-b border-[#1E293B]/60">
+                                <span className="text-[#94A3B8] text-[11px]">ইমেইল আইডি:</span>
                                 <div className="flex items-center gap-2 font-mono text-xs">
                                   {hasEmailDifference ? (
                                     <>
                                       <span className="text-rose-400 line-through">{item.oldEmail || 'ছিল না'}</span>
-                                      <span className="text-[#8BB99F]">➔</span>
-                                      <span className="text-[#4EEDB0] font-black">{item.newEmail}</span>
+                                      <span className="text-[#94A3B8]">➔</span>
+                                      <span className="text-[#818CF8] font-black">{item.newEmail}</span>
                                     </>
                                   ) : (
-                                    <span className="text-[#4EEDB0] font-bold">{item.newEmail || item.oldEmail || '—'}</span>
+                                    <span className="text-[#818CF8] font-bold">{item.newEmail || item.oldEmail || '—'}</span>
                                   )}
                                 </div>
                               </div>
 
                               {/* Password (if assigned) */}
                               {item.newPasswordAssigned && (
-                                <div className="flex items-center justify-between py-1 border-b border-[#173826]/60">
-                                  <span className="text-[#8BB99F] text-[11px]">নির্ধারিত পাসওয়ার্ড:</span>
-                                  <span className="font-mono text-xs text-[#4EEDB0] font-bold bg-[#0E2417] px-2 py-0.5 rounded border border-[#173826]">
+                                <div className="flex items-center justify-between py-1 border-b border-[#1E293B]/60">
+                                  <span className="text-[#94A3B8] text-[11px]">নির্ধারিত পাসওয়ার্ড:</span>
+                                  <span className="font-mono text-xs text-[#818CF8] font-bold bg-[#1E293B] px-2 py-0.5 rounded border border-[#1E293B]">
                                     {item.newPasswordAssigned}
                                   </span>
                                 </div>
@@ -4381,14 +4489,14 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
 
                               {/* Change Summary Line */}
                               {item.changeSummary && (
-                                <div className="pt-1 text-[11px] text-[#A5B4FC] font-medium bg-[#030B07] p-2 rounded-lg border border-[#173826]/70">
+                                <div className="pt-1 text-[11px] text-[#A5B4FC] font-medium bg-[#030B07] p-2 rounded-lg border border-[#1E293B]/70">
                                   📝 {item.changeSummary}
                                 </div>
                               )}
                             </div>
 
                             {/* ৪. কোন তারিখে পরিবর্তন করা হয়েছে (On Which Date) */}
-                            <div className="flex items-center justify-between text-[11px] text-[#8BB99F] px-1">
+                            <div className="flex items-center justify-between text-[11px] text-[#94A3B8] px-1">
                               <span className="flex items-center gap-1.5">
                                 <Clock className="w-3.5 h-3.5 text-[#818CF8]" />
                                 <span>৪. পরিবর্তনের তারিখ ও সময়:</span>
@@ -4414,7 +4522,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                                 <button
                                   type="button"
                                   onClick={() => handleSendSecurityCodeToClient(matchingUser)}
-                                  className="py-2 px-3 rounded-xl bg-[#143321] hover:bg-[#1c472e] text-[#4EEDB0] border border-[#173826] text-xs font-bold transition-all cursor-pointer shadow-xs"
+                                  className="py-2 px-3 rounded-xl bg-[#143321] hover:bg-[#1c472e] text-[#818CF8] border border-[#1E293B] text-xs font-bold transition-all cursor-pointer shadow-xs"
                                   title="গ্রাহকের কাছে সিকিউরিটি কোড এসএমএস পাঠান"
                                 >
                                   কোড পাঠান
@@ -4433,26 +4541,26 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
               {passwordDeskTab === 'pending_requests' && (
                 <div className="space-y-4">
                   {/* Call Desk Header & Sub-Tabs */}
-                  <div className="p-4 rounded-2xl bg-[#091A11] border border-[#173826] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="p-4 rounded-2xl bg-[#0F172A] border border-[#1E293B] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div>
                       <h3 className="text-base font-bold text-white flex items-center gap-2">
                         <PhoneCall className="w-5 h-5 text-amber-400" />
                         <span>Call Request Desk (কল ব্যাক ডেস্ক)</span>
                       </h3>
-                      <p className="text-xs text-[#8BB99F] mt-0.5">
+                      <p className="text-xs text-[#94A3B8] mt-0.5">
                         ওয়েবসাইট মেনুর "Call Back" অপশন থেকে গ্রাহকদের পাঠানো কল ব্যাক অনুরোধসমূহ।
                       </p>
                     </div>
 
                     {/* Sub-tabs: Pending vs Approved */}
-                    <div className="flex items-center gap-1.5 p-1 rounded-xl bg-[#05110A] border border-[#173826]">
+                    <div className="flex items-center gap-1.5 p-1 rounded-xl bg-[#0B0F19] border border-[#1E293B]">
                       <button
                         type="button"
                         onClick={() => setCallDeskSubTab('pending')}
                         className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                           callDeskSubTab === 'pending'
                             ? 'bg-amber-600 text-white shadow-xs'
-                            : 'text-[#8BB99F] hover:text-white'
+                            : 'text-[#94A3B8] hover:text-white'
                         }`}
                       >
                         <Clock className="w-3.5 h-3.5 shrink-0" />
@@ -4464,8 +4572,8 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                         onClick={() => setCallDeskSubTab('approved')}
                         className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                           callDeskSubTab === 'approved'
-                            ? 'bg-[#008A4B] text-white shadow-xs'
-                            : 'text-[#8BB99F] hover:text-white'
+                            ? 'bg-[#2B47EE] text-white shadow-xs'
+                            : 'text-[#94A3B8] hover:text-white'
                         }`}
                       >
                         <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
@@ -4477,7 +4585,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                   {/* 1. Pending Call Requests Section */}
                   {callDeskSubTab === 'pending' && (
                     <div className="space-y-3">
-                      <div className="flex items-center justify-between text-xs text-[#8BB99F] px-1">
+                      <div className="flex items-center justify-between text-xs text-[#94A3B8] px-1">
                         <span>অপেক্ষমান কল ব্যাক অনুরোধ ({pendingCallBacks.length} টি)</span>
                         <span className="text-[11px] text-amber-300">
                           কল করার পর Approve করুন, না চাইলে Reject অথবা Remove করুন
@@ -4485,8 +4593,8 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                       </div>
 
                       {pendingCallBacks.length === 0 ? (
-                        <div className="p-10 rounded-2xl bg-[#091A11] border border-[#173826] text-center text-xs text-[#8BB99F] space-y-2">
-                          <CheckCircle2 className="w-8 h-8 text-[#4EEDB0] mx-auto" />
+                        <div className="p-10 rounded-2xl bg-[#0F172A] border border-[#1E293B] text-center text-xs text-[#94A3B8] space-y-2">
+                          <CheckCircle2 className="w-8 h-8 text-[#818CF8] mx-auto" />
                           <p className="font-bold text-white">কোনো পেন্ডিং কল রিকোয়েস্ট নেই!</p>
                           <p className="text-[11px]">সকল কল ব্যাক অনুরোধ সম্পন্ন ও সমাধান করা হয়েছে।</p>
                         </div>
@@ -4500,7 +4608,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                             return (
                               <div
                                 key={req.id ? `call-${req.id}` : `call-idx-${rIdx}`}
-                                className="p-5 rounded-2xl bg-[#091A11] border-2 border-amber-500/50 space-y-3 relative shadow-sm"
+                                className="p-5 rounded-2xl bg-[#0F172A] border-2 border-amber-500/50 space-y-3 relative shadow-sm"
                               >
                                 {/* Header */}
                                 <div className="flex items-start justify-between gap-2">
@@ -4514,7 +4622,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                                       </h4>
                                       <a 
                                         href={`tel:${req.phone}`} 
-                                        className="text-xs text-[#4EEDB0] hover:underline font-mono font-bold block"
+                                        className="text-xs text-[#818CF8] hover:underline font-mono font-bold block"
                                         title="সরাসরি ফোন করুন"
                                       >
                                         📞 {req.phone}
@@ -4527,14 +4635,14 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                                       <Clock className="w-3 h-3 animate-pulse" />
                                       <span>অপেক্ষমান কল</span>
                                     </span>
-                                    <span className="text-[10px] text-[#8BB99F] font-mono">
+                                    <span className="text-[10px] text-[#94A3B8] font-mono">
                                       {req.requestedAt}
                                     </span>
                                   </div>
                                 </div>
 
                                 {/* Call Reason Box */}
-                                <div className="p-3 rounded-xl bg-[#05110A] border border-[#173826] space-y-1">
+                                <div className="p-3 rounded-xl bg-[#0B0F19] border border-[#1E293B] space-y-1">
                                   <span className="text-[10px] font-bold text-amber-300 uppercase tracking-wider block">
                                     কল করার কারণ (Reason for Call):
                                   </span>
@@ -4549,7 +4657,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                                   <button
                                     type="button"
                                     onClick={() => handleApproveCallBack(req.id)}
-                                    className="flex-1 py-2 px-3 rounded-xl bg-[#008A4B] hover:bg-[#00703C] text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+                                    className="flex-1 py-2 px-3 rounded-xl bg-[#2B47EE] hover:bg-[#00703C] text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
                                     title="কল করার পর অনুমোদন দিন - গ্রাহক দেখতে পাবে কল সম্পন্ন হয়েছে"
                                   >
                                     <Check className="w-3.5 h-3.5" />
@@ -4609,35 +4717,35 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                     <div className="space-y-3">
                       {/* Search Bar for Approved Calls */}
                       <div className="relative w-full">
-                        <Search className="w-4 h-4 text-[#8BB99F] absolute left-3.5 top-1/2 -translate-y-1/2" />
+                        <Search className="w-4 h-4 text-[#94A3B8] absolute left-3.5 top-1/2 -translate-y-1/2" />
                         <input
                           type="text"
                           placeholder="অনুমোদিত কল রিকোয়েস্ট নাম, ফোন নম্বর, কারণ বা তারিখ দিয়ে খুঁজুন..."
                           value={callDeskSearch}
                           onChange={(e) => setCallDeskSearch(e.target.value)}
-                          className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-[#091A11] border border-[#173826] text-white text-xs placeholder-[#69977E] focus:outline-none focus:border-[#00B261] transition-all"
+                          className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-[#0F172A] border border-[#1E293B] text-white text-xs placeholder-[#64748D] focus:outline-none focus:border-[#2B47EE] transition-all"
                         />
                         {callDeskSearch && (
                           <button
                             type="button"
                             onClick={() => setCallDeskSearch('')}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#8BB99F] hover:text-white cursor-pointer"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#94A3B8] hover:text-white cursor-pointer"
                           >
                             <X className="w-4 h-4" />
                           </button>
                         )}
                       </div>
 
-                      <div className="flex items-center justify-between text-xs text-[#8BB99F] px-1">
+                      <div className="flex items-center justify-between text-xs text-[#94A3B8] px-1">
                         <span>অনুমোদিত ও সম্পন্ন কল হিস্টোরি ({filteredApprovedCallBacks.length} টি)</span>
-                        <span className="text-[11px] text-[#4EEDB0]">
+                        <span className="text-[11px] text-[#818CF8]">
                           ভবিষ্যতে দেখার জন্য সকল অনুমোদিত কলের পূর্ণ রেকর্ড
                         </span>
                       </div>
 
                       {filteredApprovedCallBacks.length === 0 ? (
-                        <div className="p-10 rounded-2xl bg-[#091A11] border border-[#173826] text-center text-xs text-[#8BB99F] space-y-2">
-                          <CheckCircle2 className="w-8 h-8 text-[#8BB99F] mx-auto opacity-50" />
+                        <div className="p-10 rounded-2xl bg-[#0F172A] border border-[#1E293B] text-center text-xs text-[#94A3B8] space-y-2">
+                          <CheckCircle2 className="w-8 h-8 text-[#94A3B8] mx-auto opacity-50" />
                           <p className="font-bold text-white">
                             {callDeskSearch ? 'এই সার্চে কোনো অনুমোদিত কল পাওয়া যায়নি।' : 'এখনও কোনো অনুমোদিত কল রিকোয়েস্ট নেই।'}
                           </p>
@@ -4653,34 +4761,34 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                             return (
                               <div
                                 key={req.id ? `app-call-${req.id}` : `app-call-${rIdx}`}
-                                className="p-5 rounded-2xl bg-[#091A11] border-2 border-[#008A4B]/60 space-y-3 relative shadow-sm"
+                                className="p-5 rounded-2xl bg-[#0F172A] border-2 border-[#2B47EE]/60 space-y-3 relative shadow-sm"
                               >
                                 {/* Header */}
                                 <div className="flex items-start justify-between gap-2">
                                   <div className="flex items-center gap-2.5 min-w-0">
-                                    <div className="w-10 h-10 rounded-xl bg-[#008A4B]/20 text-[#4EEDB0] border border-[#008A4B]/40 flex items-center justify-center font-bold text-sm shrink-0">
+                                    <div className="w-10 h-10 rounded-xl bg-[#2B47EE]/20 text-[#818CF8] border border-[#2B47EE]/40 flex items-center justify-center font-bold text-sm shrink-0">
                                       <CheckCircle2 className="w-5 h-5" />
                                     </div>
                                     <div className="min-w-0">
                                       <h4 className="text-sm font-bold text-white flex items-center gap-2 truncate">
                                         <span>{req.name || matchingUser?.name || 'গ্রাহক'}</span>
                                       </h4>
-                                      <span className="text-xs text-[#4EEDB0] font-mono font-bold block">
+                                      <span className="text-xs text-[#818CF8] font-mono font-bold block">
                                         📞 {req.phone}
                                       </span>
                                     </div>
                                   </div>
 
                                   <div className="flex flex-col items-end gap-1">
-                                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-[#008A4B] text-white shadow-xs">
+                                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-[#2B47EE] text-white shadow-xs">
                                       ✓ অনুমোদিত ও কল সম্পন্ন
                                     </span>
                                   </div>
                                 </div>
 
                                 {/* Call Reason Box */}
-                                <div className="p-3 rounded-xl bg-[#05110A] border border-[#173826] space-y-1">
-                                  <span className="text-[10px] font-bold text-[#8BB99F] uppercase tracking-wider block">
+                                <div className="p-3 rounded-xl bg-[#0B0F19] border border-[#1E293B] space-y-1">
+                                  <span className="text-[10px] font-bold text-[#94A3B8] uppercase tracking-wider block">
                                     কল করার কারণ (Reason for Call):
                                   </span>
                                   <p className="text-xs text-white leading-relaxed font-medium">
@@ -4689,14 +4797,14 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                                 </div>
 
                                 {/* Timestamps */}
-                                <div className="p-2.5 rounded-xl bg-[#05110A] border border-[#173826]/70 text-[11px] space-y-1">
-                                  <div className="flex justify-between items-center text-[#8BB99F]">
+                                <div className="p-2.5 rounded-xl bg-[#0B0F19] border border-[#1E293B]/70 text-[11px] space-y-1">
+                                  <div className="flex justify-between items-center text-[#94A3B8]">
                                     <span>অনুরোধের তারিখ ও সময়:</span>
                                     <span className="text-white font-mono">{req.requestedAt}</span>
                                   </div>
-                                  <div className="flex justify-between items-center text-[#8BB99F]">
-                                    <span className="text-[#4EEDB0]">কল সম্পন্ন ও অনুমোদনের সময়:</span>
-                                    <span className="text-[#4EEDB0] font-mono font-bold">{req.approvedAt || 'সম্পন্ন'}</span>
+                                  <div className="flex justify-between items-center text-[#94A3B8]">
+                                    <span className="text-[#818CF8]">কল সম্পন্ন ও অনুমোদনের সময়:</span>
+                                    <span className="text-[#818CF8] font-mono font-bold">{req.approvedAt || 'সম্পন্ন'}</span>
                                   </div>
                                 </div>
 
@@ -4747,12 +4855,12 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-lg font-black text-white">ওয়েবসাইট স্টক ও এডিট ({customWebsites.length})</h2>
-                <p className="text-xs text-[#8BB99F]">বিদ্যমান যেকোনো ওয়েবসাইটের তথ্য, ডেসক্রিপশন ও থাম্বনেইল সরাসরি এডিট করুন।</p>
+                <p className="text-xs text-[#94A3B8]">বিদ্যমান যেকোনো ওয়েবসাইটের তথ্য, ডেসক্রিপশন ও থাম্বনেইল সরাসরি এডিট করুন।</p>
               </div>
 
               <button
                 onClick={() => setShowAddWebsiteModal(true)}
-                className="px-4 py-2 rounded-xl bg-[#008A4B] hover:bg-[#009E56] text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
+                className="px-4 py-2 rounded-xl bg-[#2B47EE] hover:bg-[#1E3A8A] text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
               >
                 <Plus className="w-4 h-4" />
                 <span>নতুন ওয়েবসাইট আপলোড</span>
@@ -4764,33 +4872,33 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
               {customWebsites.map((site, sIdx) => (
                 <div
                   key={site.id ? `${site.id}-${sIdx}` : `site-${sIdx}`}
-                  className="p-4 rounded-2xl bg-[#091A11] border border-[#173826] flex flex-col justify-between space-y-3"
+                  className="p-4 rounded-2xl bg-[#0F172A] border border-[#1E293B] flex flex-col justify-between space-y-3"
                 >
                   <div>
                     <img
                       src={site.previewImage}
                       alt={site.title}
-                      className="w-full h-36 rounded-xl object-cover border border-[#173826] mb-3"
+                      className="w-full h-36 rounded-xl object-cover border border-[#1E293B] mb-3"
                     />
                     <div className="flex items-center justify-between">
-                      <span className="px-2 py-0.5 rounded-md bg-[#008A4B] text-white text-[10px] font-mono font-bold">
+                      <span className="px-2 py-0.5 rounded-md bg-[#2B47EE] text-white text-[10px] font-mono font-bold">
                         {site.fourDigitCode}
                       </span>
-                      <span className="text-[10px] text-[#4EEDB0] font-bold uppercase">
+                      <span className="text-[10px] text-[#818CF8] font-bold uppercase">
                         {site.categoryLabel}
                       </span>
                     </div>
                     <h4 className="text-xs font-bold text-white mt-1.5 line-clamp-1">{site.title}</h4>
-                    <p className="text-[11px] text-[#8BB99F] line-clamp-2 mt-1">{site.description}</p>
+                    <p className="text-[11px] text-[#94A3B8] line-clamp-2 mt-1">{site.description}</p>
                   </div>
 
-                  <div className="pt-2 border-t border-[#173826] flex items-center justify-between gap-2">
+                  <div className="pt-2 border-t border-[#1E293B] flex items-center justify-between gap-2">
                     <span className="font-mono text-white text-xs font-bold">{site.priceTag}</span>
                     
                     {/* Clear Edit Button */}
                     <button
                       onClick={() => handleOpenEditSite(site)}
-                      className="px-3 py-1.5 rounded-xl bg-[#122A1E] hover:bg-[#008A4B] text-[#4EEDB0] hover:text-white border border-[#00B261]/30 text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
+                      className="px-3 py-1.5 rounded-xl bg-[#1E293B] hover:bg-[#2B47EE] text-[#818CF8] hover:text-white border border-[#2B47EE]/30 text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
                     >
                       <Edit3 className="w-3.5 h-3.5" />
                       <span>এডিট করুন</span>
@@ -4803,16 +4911,16 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
             {/* Modal: Edit Existing Website */}
             {editingSite && (
               <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
-                <div className="w-full max-w-lg bg-[#091A11] border-2 border-[#00B261] rounded-3xl p-6 sm:p-8 shadow-2xl relative space-y-4">
+                <div className="w-full max-w-lg bg-[#0F172A] border border-[#2B47EE]/40 rounded-3xl p-6 sm:p-8 shadow-2xl relative space-y-4">
                   <button
                     onClick={() => setEditingSite(null)}
-                    className="absolute top-5 right-5 text-[#8BB99F] hover:text-white"
+                    className="absolute top-5 right-5 text-[#94A3B8] hover:text-white"
                   >
                     <X className="w-5 h-5" />
                   </button>
 
                   <div className="flex items-center gap-2">
-                    <Edit3 className="w-5 h-5 text-[#4EEDB0]" />
+                    <Edit3 className="w-5 h-5 text-[#818CF8]" />
                     <h3 className="text-base font-black text-white">
                       ওয়েবসাইট এডিট করুন ({editingSite.fourDigitCode})
                     </h3>
@@ -4826,7 +4934,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                         required
                         value={editTitle}
                         onChange={(e) => setEditTitle(e.target.value)}
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#05110A] border border-[#173826] text-white text-xs focus:outline-none focus:border-[#00B261]"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-white text-xs focus:outline-none focus:border-[#2B47EE]"
                       />
                     </div>
 
@@ -4835,7 +4943,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                       <select
                         value={editCategory}
                         onChange={(e) => setEditCategory(e.target.value as any)}
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#05110A] border border-[#173826] text-white text-xs focus:outline-none focus:border-[#00B261]"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-white text-xs focus:outline-none focus:border-[#2B47EE]"
                       >
                         <option value="ecommerce">E-Commerce</option>
                         <option value="restaurant">Restaurant</option>
@@ -4851,7 +4959,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                         required
                         value={editThumbnail}
                         onChange={(e) => setEditThumbnail(e.target.value)}
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#05110A] border border-[#173826] text-white text-xs focus:outline-none focus:border-[#00B261]"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-white text-xs focus:outline-none focus:border-[#2B47EE]"
                       />
                     </div>
 
@@ -4861,7 +4969,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                         type="text"
                         value={editPriceTag}
                         onChange={(e) => setEditPriceTag(e.target.value)}
-                        className="w-full px-3.5 py-2 rounded-xl bg-[#05110A] border border-[#173826] text-white text-xs focus:outline-none focus:border-[#00B261]"
+                        className="w-full px-3.5 py-2 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-white text-xs focus:outline-none focus:border-[#2B47EE]"
                       />
                     </div>
 
@@ -4871,21 +4979,21 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                         rows={2}
                         value={editDesc}
                         onChange={(e) => setEditDesc(e.target.value)}
-                        className="w-full px-3.5 py-2 rounded-xl bg-[#05110A] border border-[#173826] text-xs text-white resize-none focus:outline-none focus:border-[#00B261]"
+                        className="w-full px-3.5 py-2 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-xs text-white resize-none focus:outline-none focus:border-[#2B47EE]"
                       />
                     </div>
 
                     <div className="flex gap-2 pt-2">
                       <button
                         type="submit"
-                        className="flex-1 py-2.5 rounded-xl bg-[#008A4B] text-white text-xs font-bold hover:bg-[#009E56] cursor-pointer"
+                        className="flex-1 py-2.5 rounded-xl bg-[#2B47EE] text-white text-xs font-bold hover:bg-[#1E3A8A] cursor-pointer"
                       >
                         পরিবর্তন সংরক্ষণ করুন
                       </button>
                       <button
                         type="button"
                         onClick={() => setEditingSite(null)}
-                        className="px-4 py-2.5 rounded-xl bg-[#05110A] text-xs text-[#8BB99F]"
+                        className="px-4 py-2.5 rounded-xl bg-[#0B0F19] text-xs text-[#94A3B8]"
                       >
                         বাতিল
                       </button>
@@ -5063,25 +5171,26 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
         )}
 
       </main>
+      </div>
 
       {/* SINGLE COMPLETE SYSTEM BACKUP VAULT MODAL (Triggered only from header next to logout) */}
       {showBackupVaultModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
-          <div className="w-full max-w-lg bg-[#091A11] border-2 border-[#00B261] rounded-3xl p-6 sm:p-8 shadow-2xl relative space-y-4">
+          <div className="w-full max-w-lg bg-[#0F172A] border border-[#2B47EE]/40 rounded-3xl p-6 sm:p-8 shadow-2xl relative space-y-4">
             <button
               onClick={() => setShowBackupVaultModal(false)}
-              className="absolute top-5 right-5 text-[#8BB99F] hover:text-white"
+              className="absolute top-5 right-5 text-[#94A3B8] hover:text-white"
             >
               <X className="w-5 h-5" />
             </button>
 
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-[#0F2A1B] text-[#4EEDB0] flex items-center justify-center">
+              <div className="w-12 h-12 rounded-2xl bg-[#1E1B4B] text-[#818CF8] flex items-center justify-center">
                 <Database className="w-6 h-6" />
               </div>
               <div>
                 <h3 className="text-lg font-black text-white">সম্পূর্ণ ওয়েবসাইট ব্যাকআপ ভল্ট</h3>
-                <p className="text-xs text-[#8BB99F]">
+                <p className="text-xs text-[#94A3B8]">
                   ১০০% ডেটা গ্যারান্টি: সমস্ত ক্লায়েন্ট অ্যাকাউন্ট, অর্ডার, চ্যাট ও ক্যাটালগ সুরক্ষিত।
                 </p>
               </div>
@@ -5089,42 +5198,42 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
 
             {/* Live Database Metrics Grid */}
             <div className="grid grid-cols-3 gap-2 py-2">
-              <div className="p-2.5 rounded-xl bg-[#05110A] border border-[#173826] text-center">
-                <span className="text-[10px] text-[#69977E] block">মোট ইউজার</span>
-                <span className="text-sm font-black text-[#4EEDB0] font-mono">{users.length}</span>
+              <div className="p-2.5 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-center">
+                <span className="text-[10px] text-[#64748D] block">মোট ইউজার</span>
+                <span className="text-sm font-black text-[#818CF8] font-mono">{users.length}</span>
               </div>
-              <div className="p-2.5 rounded-xl bg-[#05110A] border border-[#173826] text-center">
-                <span className="text-[10px] text-[#69977E] block">মোট অর্ডার</span>
-                <span className="text-sm font-black text-[#4EEDB0] font-mono">{orders.length}</span>
+              <div className="p-2.5 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-center">
+                <span className="text-[10px] text-[#64748D] block">মোট অর্ডার</span>
+                <span className="text-sm font-black text-[#818CF8] font-mono">{orders.length}</span>
               </div>
-              <div className="p-2.5 rounded-xl bg-[#05110A] border border-[#173826] text-center">
-                <span className="text-[10px] text-[#69977E] block">ওয়েবসাইট স্টক</span>
-                <span className="text-sm font-black text-[#4EEDB0] font-mono">{customWebsites.length}</span>
+              <div className="p-2.5 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-center">
+                <span className="text-[10px] text-[#64748D] block">ওয়েবসাইট স্টক</span>
+                <span className="text-sm font-black text-[#818CF8] font-mono">{customWebsites.length}</span>
               </div>
-              <div className="p-2.5 rounded-xl bg-[#05110A] border border-[#173826] text-center">
-                <span className="text-[10px] text-[#69977E] block">সাপোর্ট চ্যাট</span>
-                <span className="text-sm font-black text-[#4EEDB0] font-mono">{chatThreads.length}</span>
+              <div className="p-2.5 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-center">
+                <span className="text-[10px] text-[#64748D] block">সাপোর্ট চ্যাট</span>
+                <span className="text-sm font-black text-[#818CF8] font-mono">{chatThreads.length}</span>
               </div>
-              <div className="p-2.5 rounded-xl bg-[#05110A] border border-[#173826] text-center">
-                <span className="text-[10px] text-[#69977E] block">হস্তান্তরিত সাইট</span>
-                <span className="text-sm font-black text-[#4EEDB0] font-mono">{deliveredCreds.length}</span>
+              <div className="p-2.5 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-center">
+                <span className="text-[10px] text-[#64748D] block">হস্তান্তরিত সাইট</span>
+                <span className="text-sm font-black text-[#818CF8] font-mono">{deliveredCreds.length}</span>
               </div>
-              <div className="p-2.5 rounded-xl bg-[#05110A] border border-[#173826] text-center">
-                <span className="text-[10px] text-[#69977E] block">রিসেট রিকোয়েস্ট</span>
-                <span className="text-sm font-black text-[#4EEDB0] font-mono">{resetRequests.length}</span>
+              <div className="p-2.5 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-center">
+                <span className="text-[10px] text-[#64748D] block">রিসেট রিকোয়েস্ট</span>
+                <span className="text-sm font-black text-[#818CF8] font-mono">{resetRequests.length}</span>
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
               <button
                 onClick={handleDownloadFullSystemBackup}
-                className="p-4 rounded-2xl bg-[#008A4B] hover:bg-[#009E56] text-white text-xs font-bold flex flex-col items-center justify-center gap-2 cursor-pointer shadow-md text-center"
+                className="p-4 rounded-2xl bg-[#2B47EE] hover:bg-[#1E3A8A] text-white text-xs font-bold flex flex-col items-center justify-center gap-2 cursor-pointer shadow-md text-center"
               >
                 <Download className="w-5 h-5" />
                 <span>সম্পূর্ণ ব্যাকআপ ডাউনলোড (JSON)</span>
               </button>
 
-              <label className="p-4 rounded-2xl bg-[#05110A] hover:bg-[#122A1E] text-[#4EEDB0] border border-[#173826] text-xs font-bold flex flex-col items-center justify-center gap-2 cursor-pointer text-center">
+              <label className="p-4 rounded-2xl bg-[#0B0F19] hover:bg-[#1E293B] text-[#818CF8] border border-[#1E293B] text-xs font-bold flex flex-col items-center justify-center gap-2 cursor-pointer text-center">
                 <Upload className="w-5 h-5" />
                 <span>অন্য ডিভাইসে ব্যাকআপ রিস্টোর</span>
                 <input
@@ -5178,7 +5287,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
 
           {/* Success Notification Banner */}
           {logoSaveSuccess && (
-            <div className="p-3.5 rounded-2xl bg-[#00B261]/20 border border-[#00B261] text-[#4EEDB0] text-xs font-bold flex items-center gap-2 animate-fadeIn">
+            <div className="p-3.5 rounded-2xl bg-[#00B261]/20 border border-[#2B47EE]/30 text-[#818CF8] text-xs font-bold flex items-center gap-2 animate-fadeIn">
               <CheckCircle2 className="w-4 h-4 text-[#00E575]" />
               <span>✓ ব্র্যান্ড লোগো সফলভাবে আপডেট ও সম্পূর্ণ ওয়েবসাইটে লাইভ করা হয়েছে!</span>
             </div>
@@ -5265,7 +5374,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                     }`}
                   >
                     {logoConfig.logoType === 'image' ? (
-                      <Image className="w-3.5 h-3.5 text-[#008A4B]" />
+                      <Image className="w-3.5 h-3.5 text-[#2B47EE]" />
                     ) : (
                       <Type className="w-3.5 h-3.5 text-slate-700" />
                     )}
@@ -5599,7 +5708,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                 type="button"
                 onClick={handleSaveLogoSettings}
                 disabled={logoSaving}
-                className="w-full sm:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-[#008A4B] to-[#00B261] hover:from-[#00733E] hover:to-[#009E56] text-white text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md disabled:opacity-50"
+                className="w-full sm:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-[#2B47EE] to-[#00B261] hover:from-[#1E3A8A] hover:to-[#1E3A8A] text-white text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md disabled:opacity-50"
               >
                 <Save className="w-4 h-4" />
                 <span>{logoSaving ? 'সংরক্ষণ হচ্ছে...' : 'সেভ ও লাইভ করুন (Save & Apply Live)'}</span>
@@ -5664,39 +5773,39 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
 
         return (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
-            <div className="w-full max-w-xl bg-[#091A11] border border-[#00B261] rounded-3xl p-6 sm:p-8 shadow-2xl relative space-y-4 max-h-[90vh] overflow-y-auto">
+            <div className="w-full max-w-xl bg-[#0F172A] border border-[#2B47EE]/30 rounded-3xl p-6 sm:p-8 shadow-2xl relative space-y-4 max-h-[90vh] overflow-y-auto">
               <button
                 onClick={() => setViewingClientDetailsUser(null)}
-                className="absolute top-5 right-5 text-[#8BB99F] hover:text-white cursor-pointer"
+                className="absolute top-5 right-5 text-[#94A3B8] hover:text-white cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
 
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-[#008A4B] text-white flex items-center justify-center font-black text-lg shadow-xs">
+                <div className="w-12 h-12 rounded-2xl bg-[#2B47EE] text-white flex items-center justify-center font-black text-lg shadow-xs">
                   {viewingClientDetailsUser.name.charAt(0).toUpperCase()}
                 </div>
                 <div>
-                  <span className="px-2.5 py-0.5 rounded-full bg-[#0E2417] text-[#4EEDB0] text-[10px] font-bold border border-[#173826]">
+                  <span className="px-2.5 py-0.5 rounded-full bg-[#1E293B] text-[#818CF8] text-[10px] font-bold border border-[#1E293B]">
                     ক্লায়েন্ট ওভারভিউ
                   </span>
                   <h3 className="text-lg font-black text-white mt-0.5">
                     {viewingClientDetailsUser.name}
                   </h3>
-                  <p className="text-xs text-[#8BB99F] font-mono">
+                  <p className="text-xs text-[#94A3B8] font-mono">
                     রেজিস্ট্রেশন: {viewingClientDetailsUser.registeredAt}
                   </p>
                 </div>
               </div>
 
               {/* Contact Information */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 p-3.5 rounded-2xl bg-[#05110A] border border-[#173826] text-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 p-3.5 rounded-2xl bg-[#0B0F19] border border-[#1E293B] text-xs">
                 <div>
-                  <span className="text-[#8BB99F] block text-[10px] uppercase font-bold">মোবাইল নম্বর:</span>
+                  <span className="text-[#94A3B8] block text-[10px] uppercase font-bold">মোবাইল নম্বর:</span>
                   <span className="text-white font-mono font-bold select-all">{viewingClientDetailsUser.phone}</span>
                 </div>
                 <div>
-                  <span className="text-[#8BB99F] block text-[10px] uppercase font-bold">ইমেইল এড্রেস:</span>
+                  <span className="text-[#94A3B8] block text-[10px] uppercase font-bold">ইমেইল এড্রেস:</span>
                   <span className="text-white font-mono select-all truncate block">{viewingClientDetailsUser.email}</span>
                 </div>
               </div>
@@ -5710,7 +5819,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                 </div>
 
                 {clientOrders.length === 0 ? (
-                  <div className="p-4 rounded-xl bg-[#05110A] border border-[#173826] text-center text-xs text-[#8BB99F]">
+                  <div className="p-4 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-center text-xs text-[#94A3B8]">
                     এই ক্লায়েন্টের কোনো অর্ডার পাওয়া যায়নি।
                   </div>
                 ) : (
@@ -5718,23 +5827,23 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                     {clientOrders.map((ord, idx) => (
                       <div
                         key={ord.orderId ? `${ord.orderId}-${idx}` : `co-${idx}`}
-                        className="p-3.5 rounded-xl bg-[#05110A] border border-[#173826] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
+                        className="p-3.5 rounded-xl bg-[#0B0F19] border border-[#1E293B] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
                       >
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
-                            <span className="px-2 py-0.5 rounded-md bg-[#008A4B] text-white font-mono font-bold text-[11px]">
+                            <span className="px-2 py-0.5 rounded-md bg-[#2B47EE] text-white font-mono font-bold text-[11px]">
                               {ord.orderId}
                             </span>
                             <span className="font-bold text-white">
                               {ord.companyName || ord.demoTitle}
                             </span>
                           </div>
-                          <p className="text-[11px] text-[#8BB99F]">
+                          <p className="text-[11px] text-[#94A3B8]">
                             ডেমো কোড: {ord.demoCode} • ক্যাটাগরি: {ord.category}
                           </p>
-                          <div className="text-[10px] text-[#69977E] font-mono flex items-center gap-2">
+                          <div className="text-[10px] text-[#64748D] font-mono flex items-center gap-2">
                             <span>পেমেন্ট: {String(ord.paymentMethod || 'bKash').toUpperCase()}</span>
-                            <span>TrxID: <strong className="text-[#4EEDB0]">{ord.transactionId || 'N/A'}</strong></span>
+                            <span>TrxID: <strong className="text-[#818CF8]">{ord.transactionId || 'N/A'}</strong></span>
                             <span>চার্জ: ১,৯৯০ ৳</span>
                           </div>
                         </div>
@@ -5742,7 +5851,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                         <div className="flex items-center gap-2 shrink-0">
                           <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
                             ord.status === 'completed'
-                              ? 'bg-[#00B261]/20 text-[#00E575] border border-[#00B261]/30'
+                              ? 'bg-emerald-500/15 text-emerald-400 border border-[#2B47EE]/30'
                               : ord.status === 'processing' || ord.status === 'verified'
                               ? 'bg-[#2B47EE]/20 text-[#A5B4FC] border border-[#2B47EE]/30'
                               : ord.status === 'cancelled'
@@ -5766,16 +5875,16 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
 
               {/* Already Delivered Credentials if any */}
               {clientCreds.length > 0 && (
-                <div className="space-y-2 pt-2 border-t border-[#173826]">
+                <div className="space-y-2 pt-2 border-t border-[#1E293B]">
                   <h4 className="text-xs font-bold text-white uppercase tracking-wider">
                     হস্তান্তরিত ওয়েবসাইট ডিটেইলস ({clientCreds.length} টি)
                   </h4>
                   <div className="space-y-2">
                     {clientCreds.map((cred, cIdx) => (
-                      <div key={cred.id ? `${cred.id}-${cIdx}` : `cred-${cIdx}`} className="p-3 rounded-xl bg-[#05110A] border border-[#00B261]/30 text-xs space-y-1">
-                        <div className="flex items-center justify-between text-[#4EEDB0] font-bold">
+                      <div key={cred.id ? `${cred.id}-${cIdx}` : `cred-${cIdx}`} className="p-3 rounded-xl bg-[#0B0F19] border border-[#2B47EE]/30 text-xs space-y-1">
+                        <div className="flex items-center justify-between text-[#818CF8] font-bold">
                           <span>{cred.websiteTitle}</span>
-                          <span className="text-[10px] text-[#8BB99F]">{cred.deliveredAt}</span>
+                          <span className="text-[10px] text-[#94A3B8]">{cred.deliveredAt}</span>
                         </div>
                         <div className="grid grid-cols-2 gap-2 text-[11px] text-[#A8D7BD]">
                           <div>ID: <strong className="text-white font-mono">{cred.websiteAdminId}</strong></div>
@@ -5799,7 +5908,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                     setDeliveryNotes('');
                     setViewingClientDetailsUser(null);
                   }}
-                  className="flex-1 py-2.5 rounded-xl bg-[#008A4B] hover:bg-[#009E56] text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+                  className="flex-1 py-2.5 rounded-xl bg-[#2B47EE] hover:bg-[#1E3A8A] text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
                 >
                   <Key className="w-3.5 h-3.5" />
                   <span>Client কে Details পাঠান</span>
@@ -5807,7 +5916,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                 <button
                   type="button"
                   onClick={() => setViewingClientDetailsUser(null)}
-                  className="px-5 py-2.5 rounded-xl bg-[#05110A] hover:bg-[#173826] text-[#8BB99F] hover:text-white border border-[#173826] text-xs font-bold cursor-pointer"
+                  className="px-5 py-2.5 rounded-xl bg-[#0B0F19] hover:bg-[#1E293B] text-[#94A3B8] hover:text-white border border-[#1E293B] text-xs font-bold cursor-pointer"
                 >
                   বন্ধ করুন
                 </button>
@@ -5823,22 +5932,22 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
 
         return (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
-            <div className="w-full max-w-md bg-[#091A11] border border-[#00B261] rounded-3xl p-6 sm:p-8 shadow-2xl relative space-y-4">
+            <div className="w-full max-w-md bg-[#0F172A] border border-[#2B47EE]/30 rounded-3xl p-6 sm:p-8 shadow-2xl relative space-y-4">
               <button
                 onClick={() => setSelectedUserForDelivery(null)}
-                className="absolute top-5 right-5 text-[#8BB99F] hover:text-white cursor-pointer"
+                className="absolute top-5 right-5 text-[#94A3B8] hover:text-white cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
 
               <div>
-                <span className="px-2.5 py-0.5 rounded-full bg-[#008A4B] text-white text-xs font-bold">
+                <span className="px-2.5 py-0.5 rounded-full bg-[#2B47EE] text-white text-xs font-bold">
                   ধাপ ১: আইডি ও পাসওয়ার্ড দিন
                 </span>
                 <h3 className="text-lg font-black text-white mt-1">
                   {selectedUserForDelivery.name}
                 </h3>
-                <p className="text-xs text-[#8BB99F] font-mono">
+                <p className="text-xs text-[#94A3B8] font-mono">
                   মোবাইল নম্বর: {selectedUserForDelivery.phone}
                 </p>
                 <p className="text-[11px] text-[#94A3B8] mt-1">
@@ -5847,7 +5956,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
               </div>
 
               {deliverySuccess && (
-                <div className="p-3 rounded-xl bg-[#00B261]/20 border border-[#00B261] text-[#4EEDB0] text-xs font-bold">
+                <div className="p-3 rounded-xl bg-[#00B261]/20 border border-[#2B47EE]/30 text-[#818CF8] text-xs font-bold">
                   ✓ সফলভাবে আইডি ও পাসওয়ার্ড সংরক্ষণ করা হয়েছে! এবার ধাপ ২: "সম্পূর্ণ করুন" এ ক্লিক করুন।
                 </div>
               )}
@@ -5862,7 +5971,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                     <select
                       value={selectedDeliveryOrder}
                       onChange={(e) => setSelectedDeliveryOrder(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#05110A] border border-[#173826] text-white text-xs focus:outline-none focus:border-[#00B261]"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-white text-xs focus:outline-none focus:border-[#2B47EE]"
                     >
                       {userOrders.map((ord, oIdx) => (
                         <option key={ord.orderId ? `${ord.orderId}-${oIdx}` : `opt-${oIdx}`} value={ord.orderId || ''}>
@@ -5883,7 +5992,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                     placeholder="যেমন: admin বা client@bongoweb.com"
                     value={deliveryAdminId}
                     onChange={(e) => setDeliveryAdminId(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#05110A] border border-[#173826] text-white text-xs font-mono focus:outline-none focus:border-[#00B261]"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-white text-xs font-mono focus:outline-none focus:border-[#2B47EE]"
                   />
                 </div>
 
@@ -5897,7 +6006,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                     placeholder="যেমন: adminPass2026#"
                     value={deliveryAdminPass}
                     onChange={(e) => setDeliveryAdminPass(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#05110A] border border-[#173826] text-white text-xs font-mono focus:outline-none focus:border-[#00B261]"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-white text-xs font-mono focus:outline-none focus:border-[#2B47EE]"
                   />
                 </div>
 
@@ -5910,21 +6019,21 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                     placeholder="ওয়েবসাইটের অ্যাডমিন প্যানেল লিংক বা বিশেষ নির্দেশনা..."
                     value={deliveryNotes}
                     onChange={(e) => setDeliveryNotes(e.target.value)}
-                    className="w-full px-3.5 py-2 rounded-xl bg-[#05110A] border border-[#173826] text-xs text-white resize-none focus:outline-none focus:border-[#00B261]"
+                    className="w-full px-3.5 py-2 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-xs text-white resize-none focus:outline-none focus:border-[#2B47EE]"
                   />
                 </div>
 
                 <div className="pt-1 flex gap-2">
                   <button
                     type="submit"
-                    className="flex-1 py-2.5 rounded-xl bg-[#008A4B] text-white text-xs font-bold hover:bg-[#009E56] transition-all cursor-pointer shadow-xs"
+                    className="flex-1 py-2.5 rounded-xl bg-[#2B47EE] text-white text-xs font-bold hover:bg-[#1E3A8A] transition-all cursor-pointer shadow-xs"
                   >
                     ১. আইডি ও পাসওয়ার্ড সংরক্ষণ করুন (Save ID & Pass)
                   </button>
                   <button
                     type="button"
                     onClick={() => setSelectedUserForDelivery(null)}
-                    className="px-4 py-2.5 rounded-xl bg-[#05110A] border border-[#173826] text-xs text-[#8BB99F] hover:text-white"
+                    className="px-4 py-2.5 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-xs text-[#94A3B8] hover:text-white"
                   >
                     বাতিল
                   </button>
@@ -5938,9 +6047,9 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
       {/* Change Details / Reset ID Modal (Dual-Sided Impact) */}
       {changeDetailsUser && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
-          <div className="w-full max-w-lg bg-[#091A11] border-2 border-[#2B47EE] rounded-3xl p-6 shadow-2xl space-y-5 max-h-[92vh] overflow-y-auto">
+          <div className="w-full max-w-lg bg-[#0F172A] border-2 border-[#2B47EE] rounded-3xl p-6 shadow-2xl space-y-5 max-h-[92vh] overflow-y-auto">
             {/* Modal Header */}
-            <div className="flex items-start justify-between gap-3 border-b border-[#173826] pb-4">
+            <div className="flex items-start justify-between gap-3 border-b border-[#1E293B] pb-4">
               <div>
                 <div className="flex items-center gap-2">
                   <div className="p-2 rounded-xl bg-[#2B47EE]/20 border border-[#2B47EE]/40 text-[#818CF8]">
@@ -5953,7 +6062,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                         Tag & Reset
                       </span>
                     </h3>
-                    <p className="text-[11px] text-[#8BB99F] mt-0.5">
+                    <p className="text-[11px] text-[#94A3B8] mt-0.5">
                       গ্রাহকের ইমেইল আইডি এবং মোবাইল নম্বর সরাসরি পরিবর্তন ও রিসেট করুন।
                     </p>
                   </div>
@@ -5962,37 +6071,37 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
               <button
                 type="button"
                 onClick={() => setChangeDetailsUser(null)}
-                className="p-1.5 rounded-xl bg-[#05110A] text-[#8BB99F] hover:text-white border border-[#173826] cursor-pointer"
+                className="p-1.5 rounded-xl bg-[#0B0F19] text-[#94A3B8] hover:text-white border border-[#1E293B] cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             {/* Target User Overview Card */}
-            <div className="p-3.5 rounded-2xl bg-[#05110A] border border-[#173826] space-y-2 text-xs">
+            <div className="p-3.5 rounded-2xl bg-[#0B0F19] border border-[#1E293B] space-y-2 text-xs">
               <div className="flex items-center justify-between">
-                <span className="text-[#8BB99F]">গ্রাহকের নাম:</span>
+                <span className="text-[#94A3B8]">গ্রাহকের নাম:</span>
                 <span className="font-bold text-white flex items-center gap-1.5">
                   <User className="w-3.5 h-3.5 text-[#818CF8]" />
                   <span>{changeDetailsUser.name}</span>
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-[#8BB99F]">বর্তমান মোবাইল নম্বর:</span>
+                <span className="text-[#94A3B8]">বর্তমান মোবাইল নম্বর:</span>
                 <span className="font-mono text-rose-300 font-bold bg-rose-500/10 px-2 py-0.5 rounded border border-rose-500/20">
                   {changeDetailsUser.phone}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-[#8BB99F]">বর্তমান ইমেইল আইডি:</span>
+                <span className="text-[#94A3B8]">বর্তমান ইমেইল আইডি:</span>
                 <span className="font-mono text-rose-300 font-bold bg-rose-500/10 px-2 py-0.5 rounded border border-rose-500/20">
                   {changeDetailsUser.email || 'কোনো ইমেইল নেই'}
                 </span>
               </div>
               {changeDetailsUser.password && (
                 <div className="flex items-center justify-between">
-                  <span className="text-[#8BB99F]">বর্তমান পাসওয়ার্ড:</span>
-                  <span className="font-mono text-[#4EEDB0] bg-[#0E2417] px-2 py-0.5 rounded border border-[#173826]">
+                  <span className="text-[#94A3B8]">বর্তমান পাসওয়ার্ড:</span>
+                  <span className="font-mono text-[#818CF8] bg-[#1E293B] px-2 py-0.5 rounded border border-[#1E293B]">
                     {changeDetailsUser.password}
                   </span>
                 </div>
@@ -6005,10 +6114,10 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-white flex items-center justify-between">
                   <span className="flex items-center gap-1.5">
-                    <Phone className="w-3.5 h-3.5 text-[#4EEDB0]" />
+                    <Phone className="w-3.5 h-3.5 text-[#818CF8]" />
                     <span>নতুন মোবাইল নম্বর (New Phone Number)</span>
                   </span>
-                  <span className="text-[10px] text-[#4EEDB0] font-normal">হারানো সিমের ক্ষেত্রে নতুন নম্বর</span>
+                  <span className="text-[10px] text-[#818CF8] font-normal">হারানো সিমের ক্ষেত্রে নতুন নম্বর</span>
                 </label>
                 <input
                   type="text"
@@ -6016,7 +6125,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                   value={changeDetailsNewPhone}
                   onChange={(e) => setChangeDetailsNewPhone(e.target.value)}
                   placeholder="যেমন: 018XXXXXXXX"
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#05110A] border border-[#173826] text-white text-xs font-mono focus:outline-none focus:border-[#2B47EE] transition-all"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-white text-xs font-mono focus:outline-none focus:border-[#2B47EE] transition-all"
                 />
               </div>
 
@@ -6034,7 +6143,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                   value={changeDetailsNewEmail}
                   onChange={(e) => setChangeDetailsNewEmail(e.target.value)}
                   placeholder="যেমন: customer@example.com"
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#05110A] border border-[#173826] text-white text-xs font-mono focus:outline-none focus:border-[#2B47EE] transition-all"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-white text-xs font-mono focus:outline-none focus:border-[#2B47EE] transition-all"
                 />
               </div>
 
@@ -6045,14 +6154,14 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                     <Lock className="w-3.5 h-3.5 text-amber-400" />
                     <span>নতুন পাসওয়ার্ড (New Password - ঐচ্ছিক)</span>
                   </span>
-                  <span className="text-[10px] text-[#8BB99F] font-normal">না বদলালে খালি রাখুন</span>
+                  <span className="text-[10px] text-[#94A3B8] font-normal">না বদলালে খালি রাখুন</span>
                 </label>
                 <input
                   type="text"
                   value={changeDetailsNewPassword}
                   onChange={(e) => setChangeDetailsNewPassword(e.target.value)}
                   placeholder="পরিবর্তন না করতে চাইলে খালি রাখুন"
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#05110A] border border-[#173826] text-white text-xs font-mono focus:outline-none focus:border-[#2B47EE] transition-all"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-white text-xs font-mono focus:outline-none focus:border-[#2B47EE] transition-all"
                 />
               </div>
 
@@ -6077,7 +6186,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                       className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all cursor-pointer border ${
                         changeDetailsTag === presetTag
                           ? 'bg-[#2B47EE] text-white border-[#2B47EE]'
-                          : 'bg-[#05110A] text-[#8BB99F] hover:text-white border-[#173826]'
+                          : 'bg-[#0B0F19] text-[#94A3B8] hover:text-white border-[#1E293B]'
                       }`}
                     >
                       {presetTag}
@@ -6089,28 +6198,28 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                   value={changeDetailsTag}
                   onChange={(e) => setChangeDetailsTag(e.target.value)}
                   placeholder="ট্যাগ বা বিবরণ লিখুন..."
-                  className="w-full px-3.5 py-2 rounded-xl bg-[#05110A] border border-[#173826] text-white text-xs focus:outline-none focus:border-[#2B47EE]"
+                  className="w-full px-3.5 py-2 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-white text-xs focus:outline-none focus:border-[#2B47EE]"
                 />
               </div>
 
               {/* Live Preview Box: From What to What */}
-              <div className="p-3.5 rounded-2xl bg-[#030B07] border border-[#173826] space-y-1.5 text-xs">
-                <div className="text-[11px] font-bold text-[#4EEDB0] flex items-center gap-1.5">
+              <div className="p-3.5 rounded-2xl bg-[#030B07] border border-[#1E293B] space-y-1.5 text-xs">
+                <div className="text-[11px] font-bold text-[#818CF8] flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5" />
                   <span>কী থেকে কী পরিবর্তন হচ্ছে (Live Preview):</span>
                 </div>
-                <div className="font-mono text-[11px] text-[#8BB99F] space-y-1">
+                <div className="font-mono text-[11px] text-[#94A3B8] space-y-1">
                   <div className="flex items-center gap-1.5">
                     <span>নম্বর:</span>
                     <span className="text-rose-400 line-through">{changeDetailsUser.phone}</span>
                     <span>➔</span>
-                    <span className="text-[#4EEDB0] font-bold">{changeDetailsNewPhone || '...'}</span>
+                    <span className="text-[#818CF8] font-bold">{changeDetailsNewPhone || '...'}</span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <span>ইমেইল:</span>
                     <span className="text-rose-400 line-through">{changeDetailsUser.email || 'ছিল না'}</span>
                     <span>➔</span>
-                    <span className="text-[#4EEDB0] font-bold">{changeDetailsNewEmail || 'অপরিবর্তিত'}</span>
+                    <span className="text-[#818CF8] font-bold">{changeDetailsNewEmail || 'অপরিবর্তিত'}</span>
                   </div>
                   {changeDetailsNewPassword && (
                     <div className="flex items-center gap-1.5">
@@ -6142,7 +6251,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                 </div>
               )}
               {changeDetailsSuccess && (
-                <div className="p-3 rounded-xl bg-[#008A4B]/20 border border-[#008A4B]/40 text-[#4EEDB0] text-xs flex items-center gap-2">
+                <div className="p-3 rounded-xl bg-[#2B47EE]/20 border border-[#2B47EE]/40 text-[#818CF8] text-xs flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 shrink-0" />
                   <span>{changeDetailsSuccess}</span>
                 </div>
@@ -6161,7 +6270,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                 <button
                   type="button"
                   onClick={() => setChangeDetailsUser(null)}
-                  className="px-4 py-3 rounded-xl bg-[#05110A] border border-[#173826] text-xs text-[#8BB99F] hover:text-white cursor-pointer"
+                  className="px-4 py-3 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-xs text-[#94A3B8] hover:text-white cursor-pointer"
                 >
                   বাতিল
                 </button>
@@ -6174,7 +6283,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
       {/* Password Reset Modal */}
       {activeResetRequest && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
-          <div className="w-full max-w-sm bg-[#091A11] border border-[#00B261] rounded-3xl p-6 shadow-2xl space-y-4">
+          <div className="w-full max-w-sm bg-[#0F172A] border border-[#2B47EE]/30 rounded-3xl p-6 shadow-2xl space-y-4">
             <h3 className="text-base font-black text-white">
               {activeResetRequest.phone} এর নতুন পাসওয়ার্ড নির্ধারণ
             </h3>
@@ -6184,18 +6293,18 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
               placeholder="যেমন: newpass2026"
               value={manualNewPassword}
               onChange={(e) => setManualNewPassword(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl bg-[#05110A] border border-[#173826] text-white text-xs font-mono focus:outline-none focus:border-[#00B261]"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-white text-xs font-mono focus:outline-none focus:border-[#2B47EE]"
             />
             <div className="flex gap-2">
               <button
                 onClick={() => handleResolvePasswordReset('reset')}
-                className="flex-1 py-2 rounded-xl bg-[#008A4B] text-white text-xs font-bold"
+                className="flex-1 py-2 rounded-xl bg-[#2B47EE] text-white text-xs font-bold"
               >
                 নিশ্চিত করুন
               </button>
               <button
                 onClick={() => setActiveResetRequest(null)}
-                className="px-4 py-2 rounded-xl bg-[#05110A] text-xs text-[#8BB99F]"
+                className="px-4 py-2 rounded-xl bg-[#0B0F19] text-xs text-[#94A3B8]"
               >
                 বাতিল
               </button>
