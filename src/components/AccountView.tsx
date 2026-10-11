@@ -918,10 +918,10 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
               
               {/* Header Icon */}
               <div className="text-center pt-1">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#2B47EE]/10 to-[#7C3AED]/15 border border-[#2B47EE]/20 text-[#2B47EE] flex items-center justify-center mx-auto mb-3 shadow-xs">
-                  <Mail className="w-7 h-7 text-[#2B47EE]" />
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#6B46C1]/15 to-[#7C3AED]/20 border border-[#DDD6FE] text-[#6B46C1] flex items-center justify-center mx-auto mb-3 shadow-xs">
+                  <Mail className="w-7 h-7 text-[#6B46C1]" />
                 </div>
-                <h2 className="text-xl sm:text-2xl font-black text-[#0D253D] tracking-tight">
+                <h2 className="text-xl sm:text-2xl font-black text-[#0F172A] tracking-tight">
                   Enter Verification Code
                 </h2>
                 <p className="text-xs text-slate-500 mt-1.5 leading-relaxed max-w-xs mx-auto">
@@ -935,7 +935,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                     setAuthError('');
                     setEmailOtpCode('');
                   }}
-                  className="mt-1 text-[11px] text-[#2B47EE] hover:underline font-semibold cursor-pointer"
+                  className="mt-1 text-[11px] text-[#6B46C1] hover:underline font-semibold cursor-pointer"
                 >
                   Edit email address
                 </button>
@@ -949,7 +949,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
               )}
 
               {/* 6-Digit Code Input Box with Auto-Verify */}
-              <div className="p-4 rounded-2xl bg-indigo-50/70 border border-indigo-200/90 space-y-2.5">
+              <div className="p-4 rounded-2xl bg-[#FAF5FF] border border-[#DDD6FE] space-y-2.5">
                 <div className="flex items-center justify-between">
                   <label className="block text-xs font-bold text-slate-800">
                     6-Digit Verification Code
@@ -968,10 +968,10 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                     value={emailOtpCode}
                     onChange={handleOtpInputChange}
                     onPaste={handleOtpPaste}
-                    className="w-full px-4 py-3 rounded-xl bg-white border border-slate-200 text-center font-mono font-bold tracking-[0.35em] text-lg text-[#0D253D] focus:outline-none focus:border-[#2B47EE] focus:ring-2 focus:ring-[#2B47EE]/20 transition-all shadow-2xs"
+                    className="w-full px-4 py-3 rounded-xl bg-white border border-slate-200 text-center font-mono font-bold tracking-[0.35em] text-lg text-[#0F172A] focus:outline-none focus:border-[#7C3AED] focus:ring-2 focus:ring-[#7C3AED]/20 transition-all shadow-2xs"
                   />
                   {otpConfirming && (
-                    <div className="absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5 text-xs text-[#2B47EE] font-bold bg-white/95 px-2.5 py-1 rounded-lg shadow-2xs">
+                    <div className="absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5 text-xs text-[#6B46C1] font-bold bg-white/95 px-2.5 py-1 rounded-lg shadow-2xs">
                       <RefreshCw className="w-3.5 h-3.5 animate-spin" />
                       <span>Verifying...</span>
                     </div>
@@ -995,7 +995,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                       type="button"
                       onClick={() => handleEmailSubmit({ preventDefault: () => {} } as any)}
                       disabled={otpSending}
-                      className="text-[#2B47EE] hover:underline font-bold cursor-pointer"
+                      className="text-[#6B46C1] hover:underline font-bold cursor-pointer"
                     >
                       {otpSending ? 'Sending...' : 'Resend Code'}
                     </button>
@@ -1074,7 +1074,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                     <button
                       type="button"
                       onClick={handleStepIntoOldAccount}
-                      className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#2B47EE] to-[#7C3AED] hover:from-[#203CD4] hover:to-[#6D28D9] active:scale-[0.99] text-white font-black text-sm sm:text-base shadow-[0_6px_22px_-4px_rgba(43,71,238,0.4)] transition-all flex items-center justify-center gap-2 cursor-pointer"
+                      className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] hover:from-[#5B21B6] hover:to-[#6D28D9] active:scale-[0.99] text-white font-black text-sm sm:text-base shadow-[0_6px_22px_-4px_rgba(107,70,193,0.4)] transition-all flex items-center justify-center gap-2 cursor-pointer"
                     >
                       <span>Step into Account</span>
                       <ArrowRight className="w-4 h-4" />
@@ -1085,10 +1085,10 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                 /* ================= NEW USER FLOW ================= */
                 <form onSubmit={handleCreateNewUserAccount} className="space-y-4">
                   <div className="text-center pt-1">
-                    <div className="w-14 h-14 rounded-2xl bg-indigo-50 border border-indigo-200 text-[#2B47EE] flex items-center justify-center mx-auto mb-3 shadow-xs">
-                      <UserPlus className="w-7 h-7 text-[#2B47EE]" />
+                    <div className="w-14 h-14 rounded-2xl bg-[#FAF5FF] border border-[#DDD6FE] text-[#6B46C1] flex items-center justify-center mx-auto mb-3 shadow-xs">
+                      <UserPlus className="w-7 h-7 text-[#6B46C1]" />
                     </div>
-                    <h2 className="text-xl sm:text-2xl font-black text-[#0D253D] tracking-tight">
+                    <h2 className="text-xl sm:text-2xl font-black text-[#0F172A] tracking-tight">
                       Complete Your Account
                     </h2>
                     <p className="text-xs text-slate-500 mt-1 max-w-xs mx-auto">
@@ -1115,7 +1115,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                         placeholder="Enter your full name"
                         value={manualName}
                         onChange={(e) => setManualName(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50/70 border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#2B47EE] focus:ring-2 focus:ring-[#2B47EE]/20 transition-all shadow-2xs"
+                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#7C3AED] focus:ring-2 focus:ring-[#7C3AED]/20 transition-all shadow-2xs"
                       />
                     </div>
                   </div>
@@ -1133,7 +1133,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                         placeholder="e.g. 017XXXXXXXX"
                         value={manualPhone}
                         onChange={(e) => setManualPhone(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50/70 border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#2B47EE] focus:ring-2 focus:ring-[#2B47EE]/20 transition-all shadow-2xs font-mono font-medium"
+                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#7C3AED] focus:ring-2 focus:ring-[#7C3AED]/20 transition-all shadow-2xs font-mono font-medium"
                       />
                     </div>
                   </div>
@@ -1143,7 +1143,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                     <button
                       type="submit"
                       disabled={submittingNumber}
-                      className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#2B47EE] to-[#7C3AED] hover:from-[#203CD4] hover:to-[#6D28D9] active:scale-[0.99] text-white font-black text-sm sm:text-base shadow-[0_6px_22px_-4px_rgba(43,71,238,0.4)] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+                      className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] hover:from-[#5B21B6] hover:to-[#6D28D9] active:scale-[0.99] text-white font-black text-sm sm:text-base shadow-[0_6px_22px_-4px_rgba(107,70,193,0.4)] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
                     >
                       {submittingNumber ? (
                         <span>Creating account...</span>
@@ -1168,47 +1168,47 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
   // ==========================================
   if (subView === 'total-orders') {
     return (
-      <div className="w-full flex flex-col font-sans pb-28 pt-3 sm:pt-6 animate-fadeIn">
-        <section className="max-w-4xl mx-auto px-4 sm:px-6 w-full space-y-5">
+      <div className="w-full flex flex-col font-sans pb-28 lg:pb-12 pt-3 sm:pt-6 lg:pt-8 animate-fadeIn">
+        <section className="max-w-4xl lg:max-w-5xl mx-auto px-4 sm:px-6 w-full space-y-5">
           {/* Back Header */}
           <div className="flex items-center justify-between">
             <button
               onClick={() => navigateSubView('overview')}
-              className="px-3.5 py-2 rounded-xl bg-[#F8FAFD] hover:bg-[#EEF2FF] text-[#2B47EE] border border-[#E5EDF5] text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
+              className="px-3.5 py-2 rounded-xl bg-slate-50 hover:bg-[#FAF5FF] text-[#6B46C1] border border-slate-200 hover:border-[#DDD6FE] text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>← অ্যাকাউন্টে ফিরে যান</span>
             </button>
 
-            <span className="px-3 py-1 rounded-full bg-[#EEF2FF] text-[#2B47EE] text-xs font-bold font-mono">
+            <span className="px-3 py-1 rounded-full bg-[#FAF5FF] text-[#6B46C1] border border-[#DDD6FE] text-xs font-bold font-mono">
               মোট অর্ডার: {userOrders.length} টি
             </span>
           </div>
 
           <div>
-            <h1 className="text-xl sm:text-2xl font-black text-[#0D253D]">
+            <h1 className="text-xl sm:text-2xl font-black text-[#0F172A]">
               মোট Order (Total Orders)
             </h1>
-            <p className="text-xs text-[#64748D] mt-1">
+            <p className="text-xs text-slate-500 mt-1">
               আপনার নিবন্ধিত মোবাইল নম্বর ({currentUser.phone}) দিয়ে করা সমস্ত অর্ডারের সম্পূর্ণ তালিকা ও রসিদ:
             </p>
           </div>
 
           {userOrders.length === 0 ? (
-            <div className="p-8 sm:p-12 rounded-3xl bg-[#FFFFFF] border border-[#E5EDF5] text-center space-y-3 shadow-xs">
-              <div className="w-14 h-14 rounded-2xl bg-[#EEF2FF] text-[#2B47EE] flex items-center justify-center mx-auto">
+            <div className="p-8 sm:p-12 rounded-3xl bg-[#FFFFFF] border border-slate-200 text-center space-y-3 shadow-xs">
+              <div className="w-14 h-14 rounded-2xl bg-[#FAF5FF] text-[#6B46C1] border border-[#DDD6FE] flex items-center justify-center mx-auto">
                 <ShoppingBag className="w-7 h-7" />
               </div>
-              <h3 className="text-base font-bold text-[#0D253D]">
+              <h3 className="text-base font-bold text-[#0F172A]">
                 আপনি এখনো কোনো ওয়েবসাইট অর্ডার করেননি
               </h3>
-              <p className="text-xs text-[#64748D] max-w-sm mx-auto">
+              <p className="text-xs text-slate-500 max-w-sm mx-auto">
                 ড্যাশবোর্ডে গিয়ে আপনার পছন্দের ক্যাটাগরি থেকে মাত্র ১,৯৯০ টাকায় ওয়েবসাইট অর্ডার করতে পারেন।
               </p>
               {onGoToDashboard && (
                 <button
                   onClick={onGoToDashboard}
-                  className="mt-2 px-6 py-2.5 rounded-xl bg-[#2B47EE] text-white text-xs font-bold hover:bg-[#203CD4] cursor-pointer shadow-xs inline-flex items-center gap-1.5"
+                  className="mt-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] text-white text-xs font-bold hover:from-[#5B21B6] hover:to-[#6D28D9] cursor-pointer shadow-md inline-flex items-center gap-1.5 transition-all"
                 >
                   <span>ওয়েবসাইট তালিকা দেখুন</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -1220,17 +1220,17 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
               {userOrders.map((ord, idx) => (
                 <div
                   key={idx}
-                  className="p-5 rounded-2xl bg-[#FFFFFF] border border-[#E5EDF5] hover:border-[#2B47EE]/40 transition-all shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+                  className="p-5 rounded-2xl bg-[#FFFFFF] border border-slate-200 hover:border-[#7C3AED]/40 transition-all shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
                 >
                   <div className="space-y-1.5 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="px-2.5 py-0.5 rounded-lg bg-[#2B47EE] text-white font-mono font-black text-xs">
+                      <span className="px-2.5 py-0.5 rounded-lg bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] text-white font-mono font-black text-xs">
                         {ord.orderId}
                       </span>
-                      <span className="px-2 py-0.5 rounded-md bg-[#EEF2FF] text-[#2B47EE] text-[11px] font-bold">
+                      <span className="px-2 py-0.5 rounded-md bg-[#FAF5FF] text-[#6B46C1] text-[11px] font-bold border border-[#DDD6FE]">
                         {ord.demoCode}
                       </span>
-                      <span className="text-sm font-bold text-[#0D253D] truncate">
+                      <span className="text-sm font-bold text-[#0F172A] truncate">
                         {ord.companyName || ord.clientName}
                       </span>
                     </div>
@@ -1239,19 +1239,19 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                       {ord.demoTitle}
                     </p>
 
-                    <div className="flex items-center gap-3 text-xs text-[#273951] pt-1">
+                    <div className="flex items-center gap-3 text-xs text-slate-600 pt-1">
                       <span>তারিখ: <strong>{ord.createdAt}</strong></span>
-                      <span>মেকিং: <strong className="text-[#2B47EE]">১,৯৯০ ৳</strong></span>
+                      <span>মেকিং: <strong className="text-[#6B46C1]">১,৯৯০ ৳</strong></span>
                       <span>TrxID: <strong className="font-mono text-[#00B261]">{ord.transactionId}</strong></span>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2.5 w-full sm:w-auto justify-between sm:justify-end shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-[#E5EDF5]">
+                  <div className="flex items-center gap-2.5 w-full sm:w-auto justify-between sm:justify-end shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-200">
                     <span className={`px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 ${
                       ord.status === 'completed'
                         ? 'bg-[#00B261]/15 text-[#008A4B] border border-[#00B261]/30'
                         : ord.status === 'processing' || ord.status === 'verified'
-                        ? 'bg-[#2B47EE]/15 text-[#2B47EE] border border-[#2B47EE]/30'
+                        ? 'bg-[#FAF5FF] text-[#6B46C1] border border-[#DDD6FE]'
                         : ord.status === 'cancelled'
                         ? 'bg-[#E53935]/15 text-[#E53935] border border-[#E53935]/30'
                         : 'bg-[#FFD552]/20 text-[#8A6D00] border border-[#FFD552]'
@@ -1263,7 +1263,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                         </>
                       ) : ord.status === 'processing' || ord.status === 'verified' ? (
                         <>
-                          <span className="w-2 h-2 rounded-full bg-[#2B47EE] animate-pulse" />
+                          <span className="w-2 h-2 rounded-full bg-[#7C3AED] animate-pulse" />
                           <span>অনুমোদিত (প্রসেসিং)</span>
                         </>
                       ) : ord.status === 'cancelled' ? (
@@ -1278,7 +1278,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
 
                     <button
                       onClick={() => setSelectedReceiptOrder(ord)}
-                      className="px-3.5 py-1.5 rounded-xl bg-[#F8FAFD] hover:bg-[#EEF2FF] text-[#2B47EE] border border-[#E5EDF5] text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
+                      className="px-3.5 py-1.5 rounded-xl bg-slate-50 hover:bg-[#FAF5FF] text-[#6B46C1] border border-slate-200 hover:border-[#DDD6FE] text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
                     >
                       <Eye className="w-3.5 h-3.5" />
                       <span>রসিদ দেখুন</span>
@@ -1301,50 +1301,50 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
   // ==========================================
   if (subView === 'pending-orders') {
     return (
-      <div className="w-full flex flex-col font-sans pb-28 pt-3 sm:pt-6 animate-fadeIn">
-        <section className="max-w-4xl mx-auto px-4 sm:px-6 w-full space-y-5">
+      <div className="w-full flex flex-col font-sans pb-28 lg:pb-12 pt-3 sm:pt-6 lg:pt-8 animate-fadeIn">
+        <section className="max-w-4xl lg:max-w-5xl mx-auto px-4 sm:px-6 w-full space-y-5">
           {/* Back Header */}
           <div className="flex items-center justify-between">
             <button
               onClick={() => navigateSubView('overview')}
-              className="px-3.5 py-2 rounded-xl bg-[#F8FAFD] hover:bg-[#EEF2FF] text-[#2B47EE] border border-[#E5EDF5] text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
+              className="px-3.5 py-2 rounded-xl bg-slate-50 hover:bg-[#FAF5FF] text-[#6B46C1] border border-slate-200 hover:border-[#DDD6FE] text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>← অ্যাকাউন্টে ফিরে যান</span>
             </button>
 
             <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-              pendingOrders.length > 0 ? 'bg-[#FFD552]/20 text-[#8A6D00] border border-[#FFD552]' : 'bg-[#00B261]/15 text-[#008A4B]'
+              pendingOrders.length > 0 ? 'bg-amber-100 text-amber-800 border border-amber-300' : 'bg-emerald-100 text-emerald-800'
             }`}>
               {pendingOrders.length > 0 ? `${pendingOrders.length} টি পেন্ডিং যাচাই` : '০ টি পেন্ডিং'}
             </span>
           </div>
 
           <div>
-            <h1 className="text-xl sm:text-2xl font-black text-[#0D253D]">
+            <h1 className="text-xl sm:text-2xl font-black text-[#0F172A]">
               Pending যাচাই (Pending Verification)
             </h1>
-            <p className="text-xs text-[#64748D] mt-1">
+            <p className="text-xs text-slate-500 mt-1">
               ম্যানুয়াল পেমেন্ট প্রেরণের পর অ্যাডমিন টিম কর্তৃক যাচাইকরণের তালিকা:
             </p>
           </div>
 
           {/* If there are NO pending orders -> Show "কোনো Pending নেই" / "No Pending" exactly as required */}
           {pendingOrders.length === 0 ? (
-            <div className="p-8 sm:p-12 rounded-3xl bg-[#FFFFFF] border-2 border-[#00B261]/30 text-center space-y-3 shadow-xs">
-              <div className="w-16 h-16 rounded-full bg-[#00B261]/10 text-[#00B261] flex items-center justify-center mx-auto mb-2">
+            <div className="p-8 sm:p-12 rounded-3xl bg-[#FFFFFF] border-2 border-emerald-500/30 text-center space-y-3 shadow-xs">
+              <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-2 border border-emerald-200">
                 <CheckCircle2 className="w-9 h-9 stroke-[2.5]" />
               </div>
-              <h3 className="text-lg sm:text-xl font-black text-[#0D253D]">
+              <h3 className="text-lg sm:text-xl font-black text-[#0F172A]">
                 কোনো Pending নেই / No Pending
               </h3>
-              <p className="text-xs sm:text-sm text-[#273951] max-w-md mx-auto leading-relaxed">
+              <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
                 আপনার কোনো অর্ডার বর্তমানে পেন্ডিং অবস্থায় নেই। সকল পেমেন্ট ও অর্ডার সফলভাবে যাচাই এবং কনফার্ম করা হয়েছে।
               </p>
               <div className="pt-2">
                 <button
                   onClick={() => navigateSubView('overview')}
-                  className="px-6 py-2.5 rounded-xl bg-[#2B47EE] text-white text-xs font-bold hover:bg-[#203CD4] cursor-pointer shadow-xs inline-flex items-center gap-1.5"
+                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] text-white text-xs font-bold hover:from-[#5B21B6] hover:to-[#6D28D9] cursor-pointer shadow-md inline-flex items-center gap-1.5 transition-all"
                 >
                   <span>অ্যাকাউন্ট ওভারভিউতে ফিরুন</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -1353,8 +1353,8 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
             </div>
           ) : (
             <div className="space-y-3">
-              <div className="p-4 rounded-2xl bg-[#FFD552]/20 border border-[#FFD552] text-xs sm:text-sm font-bold text-[#8A6D00] flex items-center gap-2.5 shadow-xs">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#E53935] animate-ping shrink-0" />
+              <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-xs sm:text-sm font-bold text-amber-800 flex items-center gap-2.5 shadow-xs">
+                <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping shrink-0" />
                 <span>
                   আপনার নিম্নের অর্ডারসমূহের পেমেন্ট যাচাই প্রক্রিয়াধীন রয়েছে। অনুগ্রহ করে ১ মিনিট থেকে ১ ঘণ্টা অপেক্ষা করুন।
                 </span>
@@ -1363,41 +1363,41 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
               {pendingOrders.map((ord, idx) => (
                 <div
                   key={idx}
-                  className="p-5 rounded-2xl bg-[#FFFFFF] border-2 border-[#FFD552] transition-all shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+                  className="p-5 rounded-2xl bg-[#FFFFFF] border-2 border-amber-200 transition-all shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
                 >
                   <div className="space-y-1.5 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="px-2.5 py-0.5 rounded-lg bg-[#2B47EE] text-white font-mono font-black text-xs">
+                      <span className="px-2.5 py-0.5 rounded-lg bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] text-white font-mono font-black text-xs">
                         {ord.orderId}
                       </span>
-                      <span className="px-2 py-0.5 rounded-md bg-[#EEF2FF] text-[#2B47EE] text-[11px] font-bold">
+                      <span className="px-2 py-0.5 rounded-md bg-[#FAF5FF] text-[#6B46C1] text-[11px] font-bold border border-[#DDD6FE]">
                         {ord.demoCode}
                       </span>
-                      <span className="text-sm font-bold text-[#0D253D] truncate">
+                      <span className="text-sm font-bold text-[#0F172A] truncate">
                         {ord.companyName || ord.clientName}
                       </span>
                     </div>
 
-                    <p className="text-xs text-[#64748D] truncate">
+                    <p className="text-xs text-slate-500 truncate">
                       {ord.demoTitle}
                     </p>
 
-                    <div className="flex items-center gap-3 text-xs text-[#273951] pt-1">
+                    <div className="flex items-center gap-3 text-xs text-slate-600 pt-1">
                       <span>তারিখ: <strong>{ord.createdAt || 'N/A'}</strong></span>
-                      <span>মেকিং চার্জ: <strong className="text-[#2B47EE]">১,৯৯০ ৳</strong></span>
+                      <span>মেকিং চার্জ: <strong className="text-[#6B46C1]">১,৯৯০ ৳</strong></span>
                       <span>পেমেন্ট: <strong>{String(ord.paymentMethod || 'bKash').toUpperCase()}</strong></span>
                       <span>TrxID: <strong className="font-mono text-[#00B261]">{ord.transactionId || 'N/A'}</strong></span>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2.5 w-full sm:w-auto justify-between sm:justify-end shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-[#E5EDF5]">
-                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-[#FFD552]/20 text-[#8A6D00] border border-[#FFD552] flex items-center gap-1">
+                  <div className="flex items-center gap-2.5 w-full sm:w-auto justify-between sm:justify-end shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-200">
+                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200 flex items-center gap-1">
                       <span>⏳ পেন্ডিং যাচাই (১ মি. - ১ ঘণ্টা)</span>
                     </span>
 
                     <button
                       onClick={() => setSelectedReceiptOrder(ord)}
-                      className="px-3.5 py-1.5 rounded-xl bg-[#F8FAFD] hover:bg-[#EEF2FF] text-[#2B47EE] border border-[#E5EDF5] text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
+                      className="px-3.5 py-1.5 rounded-xl bg-slate-50 hover:bg-[#FAF5FF] text-[#6B46C1] border border-slate-200 hover:border-[#DDD6FE] text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
                     >
                       <Eye className="w-3.5 h-3.5" />
                       <span>রসিদ দেখুন</span>
@@ -1425,35 +1425,35 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
           <div className="flex items-center justify-between">
             <button
               onClick={() => navigateSubView('overview')}
-              className="px-3.5 py-2 rounded-xl bg-[#F8FAFD] hover:bg-[#EEF2FF] text-[#2B47EE] border border-[#E5EDF5] text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
+              className="px-3.5 py-2 rounded-xl bg-slate-50 hover:bg-[#FAF5FF] text-[#6B46C1] border border-slate-200 hover:border-[#DDD6FE] text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>← অ্যাকাউন্টে ফিরে যান</span>
             </button>
-            <span className="text-xs font-bold text-[#64748D]">BongoWeb পলিসি</span>
+            <span className="text-xs font-bold text-slate-500">BongoWeb পলিসি</span>
           </div>
 
-          <div className="bg-[#FFFFFF] border border-[#E5EDF5] rounded-3xl p-6 sm:p-8 shadow-xs space-y-4">
-            <div className="flex items-center gap-2.5 pb-3 border-b border-[#E5EDF5]">
-              <ShieldCheck className="w-6 h-6 text-[#2B47EE]" />
-              <h1 className="text-lg sm:text-xl font-black text-[#0D253D]">
+          <div className="bg-[#FFFFFF] border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-4">
+            <div className="flex items-center gap-2.5 pb-3 border-b border-slate-100">
+              <ShieldCheck className="w-6 h-6 text-[#6B46C1]" />
+              <h1 className="text-lg sm:text-xl font-black text-[#0F172A]">
                 গোপনীয়তা নীতিমালা (Privacy Policy)
               </h1>
             </div>
 
-            <div className="space-y-4 text-xs sm:text-sm text-[#273951] leading-relaxed">
+            <div className="space-y-4 text-xs sm:text-sm text-slate-700 leading-relaxed">
               <p>
                 BongoWeb গ্রাহকদের তথ্যের গোপনীয়তা ও নিরাপত্তাকে সর্বোচ্চ প্রাধান্য দেয়। আপনি যখন আমাদের ওয়েবসাইট সেবা গ্রহণ করেন, আপনার প্রদত্ত ফোন নম্বর, ইমেইল ও ব্যবসার তথ্য শুধুমাত্র ওয়েবসাইট কনফিগারেশন ও অফিসিয়াল ডেলিভারির উদ্দেশ্যে সংরক্ষিত থাকে।
               </p>
-              <h3 className="text-sm font-bold text-[#0D253D]">১. তথ্য সংগ্রহ ও সুরক্ষা</h3>
+              <h3 className="text-sm font-bold text-[#0F172A]">১. তথ্য সংগ্রহ ও সুরক্ষা</h3>
               <p>
                 আপনার মোবাইল নম্বর, ইমেইল এবং পেমেন্ট ট্রানজেকশন আইডি ২৫৬-বিট এসএসএল (SSL) এনক্রিপশনের মাধ্যমে সম্পূর্ণ সুরক্ষিত ডেটাবেজে সংরক্ষিত থাকে। কোনো অবস্থাতেই তৃতীয় পক্ষের কাছে বাণিজ্যিক উদ্দেশ্যে তথ্য শেয়ার করা হয় না।
               </p>
-              <h3 className="text-sm font-bold text-[#0D253D]">২. ওয়েবসাইট অ্যাডমিন ও পাসওয়ার্ড গোপনীয়তা</h3>
+              <h3 className="text-sm font-bold text-[#0F172A]">২. ওয়েবসাইট অ্যাডমিন ও পাসওয়ার্ড গোপনীয়তা</h3>
               <p>
                 ওয়েবসাইট ডেলিভারির পর গ্রাহকের জন্য স্বতন্ত্র অ্যাডমিন আইডি ও পাসওয়ার্ড তৈরি করে সুরক্ষিত এনক্রিপশনে প্রদান করা হয়। গ্রাহক যেকোনো সময় নিজস্ব ওয়েবসাইট প্যানেল থেকে পাসওয়ার্ড পরিবর্তন করতে পারেন।
               </p>
-              <h3 className="text-sm font-bold text-[#0D253D]">৩. যোগাযোগ ও সহায়তা</h3>
+              <h3 className="text-sm font-bold text-[#0F172A]">৩. যোগাযোগ ও সহায়তা</h3>
               <p>
                 যেকোনো প্রয়োজনে আমাদের অফিসিয়াল সাপোর্ট নম্বরে কল অথবা অ্যাকাউন্টের মাধ্যমে যোগাযোগ করতে পারেন।
               </p>
@@ -1469,37 +1469,37 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
   // ==========================================
   if (subView === 'terms') {
     return (
-      <div className="w-full flex flex-col font-sans pb-28 pt-3 sm:pt-6 animate-fadeIn">
-        <section className="max-w-3xl mx-auto px-4 sm:px-6 w-full space-y-5">
+      <div className="w-full flex flex-col font-sans pb-28 lg:pb-12 pt-3 sm:pt-6 lg:pt-8 animate-fadeIn">
+        <section className="max-w-3xl lg:max-w-4xl mx-auto px-4 sm:px-6 w-full space-y-5">
           <div className="flex items-center justify-between">
             <button
               onClick={() => navigateSubView('overview')}
-              className="px-3.5 py-2 rounded-xl bg-[#F8FAFD] hover:bg-[#EEF2FF] text-[#2B47EE] border border-[#E5EDF5] text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
+              className="px-3.5 py-2 rounded-xl bg-slate-50 hover:bg-[#FAF5FF] text-[#6B46C1] border border-slate-200 hover:border-[#DDD6FE] text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>← অ্যাকাউন্টে ফিরে যান</span>
             </button>
-            <span className="text-xs font-bold text-[#64748D]">BongoWeb টার্মস</span>
+            <span className="text-xs font-bold text-slate-500">BongoWeb টার্মস</span>
           </div>
 
-          <div className="bg-[#FFFFFF] border border-[#E5EDF5] rounded-3xl p-6 sm:p-8 shadow-xs space-y-4">
-            <div className="flex items-center gap-2.5 pb-3 border-b border-[#E5EDF5]">
-              <FileText className="w-6 h-6 text-[#2B47EE]" />
-              <h1 className="text-lg sm:text-xl font-black text-[#0D253D]">
+          <div className="bg-[#FFFFFF] border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs space-y-4">
+            <div className="flex items-center gap-2.5 pb-3 border-b border-slate-100">
+              <FileText className="w-6 h-6 text-[#6B46C1]" />
+              <h1 className="text-lg sm:text-xl font-black text-[#0F172A]">
                 শর্তাবলি ও ব্যবহারের নিয়ম (Terms & Conditions)
               </h1>
             </div>
 
-            <div className="space-y-4 text-xs sm:text-sm text-[#273951] leading-relaxed">
-              <h3 className="text-sm font-bold text-[#0D253D]">১. মেকিং ও ডেলিভারি চার্জ</h3>
+            <div className="space-y-4 text-xs sm:text-sm text-slate-700 leading-relaxed">
+              <h3 className="text-sm font-bold text-[#0F172A]">১. মেকিং ও ডেলিভারি চার্জ</h3>
               <p>
                 প্রতিটি প্রি-বিল্ট ওয়েবসাইটের এককালীন রেডিমেকিং চার্জ মাত্র ১,৯৯০ টাকা। অর্ডার নিশ্চিত হওয়ার পর সর্বোচ্চ ২৪ থেকে ৪৮ ঘণ্টার মধ্যে সম্পূর্ণ লাইভ ওয়েবসাইট ডেলিভারি সম্পন্ন হয়।
               </p>
-              <h3 className="text-sm font-bold text-[#0D253D]">২. ক্লাউড সার্ভার ও মেইনটেন্যান্স (মাসিক খরচ ২৫০ টাকা)</h3>
+              <h3 className="text-sm font-bold text-[#0F172A]">২. ক্লাউড সার্ভার ও মেইনটেন্যান্স (মাসিক খরচ ২৫০ টাকা)</h3>
               <p>
                 ওয়েবসাইট নিরবচ্ছিন্নভাবে লাইভ ও নিরাপদ রাখার জন্য মাসিক খরচ ২৫০ টাকা। এই ফিতে সার্বক্ষণিক এসএসএল সিকিউরিটি, ডেটা ব্যাকআপ ও ক্লাউড নোড অপটিমাইজেশন অন্তর্ভুক্ত থাকে।
               </p>
-              <h3 className="text-sm font-bold text-[#0D253D]">৩. ফ্রি সাপোর্ট ও পরামর্শ</h3>
+              <h3 className="text-sm font-bold text-[#0F172A]">৩. ফ্রি সাপোর্ট ও পরামর্শ</h3>
               <p>
                 ওয়েবসাইট পরিচালনার জন্য সকল গ্রাহককে ফ্রি ভিডিও টিউটোরিয়াল প্রদান করা হয় এবং লাইভ সাপোর্ট টিকেট ও চ্যাটের মাধ্যমে সার্বক্ষণিক ফ্রি সাপোর্ট নিশ্চিত করা হয়।
               </p>
@@ -1514,67 +1514,67 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
   function renderReceiptModal() {
     if (!selectedReceiptOrder) return null;
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0D253D]/60 backdrop-blur-xs animate-fadeIn">
-        <div className="w-full max-w-lg bg-[#FFFFFF] rounded-3xl border border-[#E5EDF5] shadow-2xl p-6 sm:p-8 animate-slideUpModal relative space-y-4">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs animate-fadeIn">
+        <div className="w-full max-w-lg bg-[#FFFFFF] rounded-3xl border border-slate-200 shadow-2xl p-6 sm:p-8 animate-slideUpModal relative space-y-4">
           <button
             onClick={() => setSelectedReceiptOrder(null)}
-            className="absolute top-4 right-4 p-2 rounded-xl text-[#64748D] hover:text-[#0D253D] hover:bg-[#F8FAFD] cursor-pointer"
+            className="absolute top-4 right-4 p-2 rounded-xl text-slate-400 hover:text-slate-800 hover:bg-slate-100 cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
 
-          <div className="text-center pb-4 border-b border-[#E5EDF5]">
-            <span className="px-3 py-1 rounded-full bg-[#EEF2FF] text-[#2B47EE] text-xs font-black font-mono">
+          <div className="text-center pb-4 border-b border-slate-100">
+            <span className="px-3 py-1 rounded-full bg-[#FAF5FF] text-[#6B46C1] border border-[#DDD6FE] text-xs font-black font-mono">
               {selectedReceiptOrder.orderId}
             </span>
-            <h3 className="text-lg font-black text-[#0D253D] mt-2">
+            <h3 className="text-lg font-black text-[#0F172A] mt-2">
               অফিসিয়াল অর্ডার রসিদ (Official Receipt)
             </h3>
-            <p className="text-[11px] text-[#64748D]">
+            <p className="text-[11px] text-slate-500">
               BongoWeb — ২৪ ঘণ্টা এক্সপ্রেস ডেলিভারি
             </p>
           </div>
 
           <div className="space-y-2 text-xs">
-            <div className="flex justify-between py-1.5 border-b border-[#E5EDF5]">
-              <span className="text-[#64748D]">গ্রাহকের নাম:</span>
-              <span className="font-bold text-[#0D253D]">{selectedReceiptOrder.clientName}</span>
+            <div className="flex justify-between py-1.5 border-b border-slate-100">
+              <span className="text-slate-500">গ্রাহকের নাম:</span>
+              <span className="font-bold text-[#0F172A]">{selectedReceiptOrder.clientName}</span>
             </div>
-            <div className="flex justify-between py-1.5 border-b border-[#E5EDF5]">
-              <span className="text-[#64748D]">ব্যবসা/কোম্পানি:</span>
-              <span className="font-bold text-[#0D253D]">{selectedReceiptOrder.companyName}</span>
+            <div className="flex justify-between py-1.5 border-b border-slate-100">
+              <span className="text-slate-500">ব্যবসা/কোম্পানি:</span>
+              <span className="font-bold text-[#0F172A]">{selectedReceiptOrder.companyName}</span>
             </div>
-            <div className="flex justify-between py-1.5 border-b border-[#E5EDF5]">
-              <span className="text-[#64748D]">মোবাইল নম্বর:</span>
-              <span className="font-bold font-mono text-[#0D253D]">{selectedReceiptOrder.phone}</span>
+            <div className="flex justify-between py-1.5 border-b border-slate-100">
+              <span className="text-slate-500">মোবাইল নম্বর:</span>
+              <span className="font-bold font-mono text-[#0F172A]">{selectedReceiptOrder.phone}</span>
             </div>
-            <div className="flex justify-between py-1.5 border-b border-[#E5EDF5]">
-              <span className="text-[#64748D]">ইমেইল এড্রেস:</span>
-              <span className="font-bold font-mono text-[#0D253D]">{selectedReceiptOrder.email}</span>
+            <div className="flex justify-between py-1.5 border-b border-slate-100">
+              <span className="text-slate-500">ইমেইল এড্রেস:</span>
+              <span className="font-bold font-mono text-[#0F172A]">{selectedReceiptOrder.email}</span>
             </div>
-            <div className="flex justify-between py-1.5 border-b border-[#E5EDF5]">
-              <span className="text-[#64748D]">পেমেন্ট মাধ্যম:</span>
-              <span className="font-bold text-[#0D253D] uppercase">{selectedReceiptOrder.paymentMethod}</span>
+            <div className="flex justify-between py-1.5 border-b border-slate-100">
+              <span className="text-slate-500">পেমেন্ট মাধ্যম:</span>
+              <span className="font-bold text-[#0F172A] uppercase">{selectedReceiptOrder.paymentMethod}</span>
             </div>
-            <div className="flex justify-between py-1.5 border-b border-[#E5EDF5]">
-              <span className="text-[#64748D]">ট্রানজেকশন TrxID:</span>
+            <div className="flex justify-between py-1.5 border-b border-slate-100">
+              <span className="text-slate-500">ট্রানজেকশন TrxID:</span>
               <span className="font-bold font-mono text-[#00B261]">{selectedReceiptOrder.transactionId}</span>
             </div>
-            <div className="flex justify-between py-1.5 border-b border-[#E5EDF5]">
-              <span className="text-[#64748D]">এককালীন চার্জ:</span>
-              <span className="font-black text-sm text-[#0D253D]">১,৯৯০ ৳</span>
+            <div className="flex justify-between py-1.5 border-b border-slate-100">
+              <span className="text-slate-500">এককালীন চার্জ:</span>
+              <span className="font-black text-sm text-[#0F172A]">১,৯৯০ ৳</span>
             </div>
-            <div className="flex justify-between py-1.5 border-b border-[#E5EDF5]">
-              <span className="text-[#64748D]">মাসিক খরচ:</span>
-              <span className="font-bold text-[#9333EA]">মাসিক খরচ ২৫০ টাকা</span>
+            <div className="flex justify-between py-1.5 border-b border-slate-100">
+              <span className="text-slate-500">মাসিক খরচ:</span>
+              <span className="font-bold text-[#6B46C1]">মাসিক খরচ ২৫০ টাকা</span>
             </div>
             <div className="flex justify-between py-1.5">
-              <span className="text-[#64748D]">স্ট্যাটাস:</span>
+              <span className="text-slate-500">স্ট্যাটাস:</span>
               <span className={`font-bold flex items-center gap-1 ${
                 selectedReceiptOrder.status === 'completed'
                   ? 'text-[#008A4B]'
                   : selectedReceiptOrder.status === 'processing' || selectedReceiptOrder.status === 'verified'
-                  ? 'text-[#2B47EE]'
+                  ? 'text-[#6B46C1]'
                   : selectedReceiptOrder.status === 'cancelled'
                   ? 'text-[#E53935]'
                   : 'text-[#D8351E]'
@@ -1593,14 +1593,14 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
           <div className="pt-2 flex gap-2">
             <button
               onClick={() => window.print()}
-              className="flex-1 py-2.5 rounded-xl bg-[#2B47EE] hover:bg-[#203CD4] text-white text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+              className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] hover:from-[#5B21B6] hover:to-[#6D28D9] text-white text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer shadow-md transition-all"
             >
               <Printer className="w-3.5 h-3.5" />
               <span>প্রিন্ট / ডাউনলোড</span>
             </button>
             <button
               onClick={() => setSelectedReceiptOrder(null)}
-              className="px-4 py-2.5 rounded-xl bg-[#F8FAFD] hover:bg-[#EEF2FF] text-[#2B47EE] border border-[#E5EDF5] text-xs font-bold cursor-pointer"
+              className="px-4 py-2.5 rounded-xl bg-slate-50 hover:bg-[#FAF5FF] text-[#6B46C1] border border-slate-200 hover:border-[#DDD6FE] text-xs font-bold cursor-pointer transition-colors"
             >
               বন্ধ করুন
             </button>
@@ -1614,9 +1614,9 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
   // VIEW: MAIN LOGGED-IN ACCOUNT OVERVIEW
   // ==========================================
   return (
-    <div className="w-full flex flex-col font-sans pb-28 pt-2 animate-fadeIn">
+    <div className="w-full flex flex-col font-sans pb-28 lg:pb-12 pt-2 sm:pt-4 lg:pt-6 animate-fadeIn">
       {/* 3. SECTION: CLIENT ACCOUNT / PROFILE SECTION (Requirement 2) */}
-      <section className="max-w-4xl mx-auto px-4 sm:px-6 w-full mb-6">
+      <section className="max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto px-4 sm:px-6 w-full mb-6">
         <div className="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-7 shadow-xs space-y-6">
           {/* Header Profile Section */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
@@ -1885,14 +1885,14 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                       setShowSecurityCodeModal(false);
                       setAuthStep('email');
                     }}
-                    className="flex-1 py-2.5 rounded-xl bg-[#2B47EE] hover:bg-[#1E3A8A] text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
+                    className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] hover:from-[#5B21B6] hover:to-[#6D28D9] text-white text-xs font-bold transition-all shadow-md cursor-pointer"
                   >
                     Account তৈরি করুন
                   </button>
                   <button
                     type="button"
                     onClick={() => setShowSecurityCodeModal(false)}
-                    className="px-4 py-2.5 rounded-xl bg-[#F8FAFD] text-[#64748D] hover:text-[#0D253D] text-xs font-semibold cursor-pointer"
+                    className="px-4 py-2.5 rounded-xl bg-slate-100 text-slate-600 hover:text-slate-900 text-xs font-semibold cursor-pointer"
                   >
                     বন্ধ করুন
                   </button>
@@ -1901,29 +1901,29 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
             ) : (
               <div className="space-y-4 pt-1">
                 <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-2xl bg-[#EEF2FF] text-[#2B47EE] flex items-center justify-center shadow-xs">
+                  <div className="w-11 h-11 rounded-2xl bg-[#FAF5FF] text-[#6B46C1] border border-[#DDD6FE] flex items-center justify-center shadow-xs">
                     <ShieldCheck className="w-6 h-6" />
                   </div>
                   <div>
-                    <span className="text-[10px] font-bold text-[#2B47EE] uppercase tracking-wider block">
+                    <span className="text-[10px] font-bold text-[#6B46C1] uppercase tracking-wider block">
                       ভেরিফিকেশন সুরক্ষা কোড
                     </span>
-                    <h3 className="text-base font-black text-[#0D253D]">
+                    <h3 className="text-base font-black text-[#0F172A]">
                       Your Security Code
                     </h3>
                   </div>
                 </div>
 
-                <div className="p-5 rounded-2xl bg-[#F8FAFD] border-2 border-[#2B47EE]/30 text-center space-y-2">
-                  <span className="text-xs text-[#64748D] font-medium block">
+                <div className="p-5 rounded-2xl bg-[#FAF5FF] border-2 border-[#7C3AED]/30 text-center space-y-2">
+                  <span className="text-xs text-slate-500 font-medium block">
                     আপনার বর্তমান ৫-মিনিটের সক্রিয় সিকিউরিটি কোড:
                   </span>
-                  <div className="text-3xl sm:text-4xl font-black font-mono tracking-[0.25em] text-[#2B47EE] select-all py-1">
+                  <div className="text-3xl sm:text-4xl font-black font-mono tracking-[0.25em] text-[#6B46C1] select-all py-1">
                     {getClientSecurityCode(currentUser.phone || currentUser.email)}
                   </div>
-                  <div className="flex items-center justify-center gap-1.5 text-xs text-[#64748D] font-medium">
+                  <div className="flex items-center justify-center gap-1.5 text-xs text-slate-500 font-medium">
                     <span className="w-2 h-2 rounded-full bg-[#00B261] animate-pulse" />
-                    <span>মেয়াদ বাকি: <strong className="text-[#0D253D] font-mono">{formatRemainingTime(codeRemainingSec)}</strong></span>
+                    <span>মেয়াদ বাকি: <strong className="text-[#0F172A] font-mono">{formatRemainingTime(codeRemainingSec)}</strong></span>
                   </div>
                 </div>
 
@@ -1935,10 +1935,10 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                     setSecurityCodeCopied(true);
                     setTimeout(() => setSecurityCodeCopied(false), 2000);
                   }}
-                  className={`w-full py-3 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs ${
+                  className={`w-full py-3 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md ${
                     securityCodeCopied
                       ? 'bg-[#00B261] text-white'
-                      : 'bg-[#2B47EE] hover:bg-[#1E3A8A] text-white'
+                      : 'bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] hover:from-[#5B21B6] hover:to-[#6D28D9] text-white'
                   }`}
                 >
                   {securityCodeCopied ? (
@@ -1954,7 +1954,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                   )}
                 </button>
 
-                <p className="text-[11px] text-[#64748D] text-center leading-relaxed">
+                <p className="text-[11px] text-slate-500 text-center leading-relaxed">
                   * এই কোডটি প্রতি ৫ মিনিটে স্বয়ংক্রিয়ভাবে পরিবর্তিত হয়। অ্যাডমিন বা সাপোর্ট টিম চাইলে তাদের এই কোডটি প্রদান করুন।
                 </p>
               </div>
@@ -1964,25 +1964,25 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
       )}
       {/* Client Report Submission Modal */}
       {showReportModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0D253D]/70 backdrop-blur-xs animate-fadeIn">
-          <div className="w-full max-w-md bg-[#FFFFFF] rounded-3xl border border-[#E5EDF5] shadow-2xl p-6 sm:p-7 relative space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs animate-fadeIn">
+          <div className="w-full max-w-md bg-[#FFFFFF] rounded-3xl border border-slate-200 shadow-2xl p-6 sm:p-7 relative space-y-4">
             <button
               type="button"
               onClick={() => setShowReportModal(false)}
-              className="absolute top-4 right-4 p-1.5 rounded-xl text-[#64748D] hover:text-[#0D253D] hover:bg-[#F8FAFD] transition-all cursor-pointer"
+              className="absolute top-4 right-4 p-1.5 rounded-xl text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-all cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
 
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-[#EEF2FF] text-[#2B47EE] flex items-center justify-center shadow-xs">
+              <div className="w-10 h-10 rounded-2xl bg-[#FAF5FF] text-[#6B46C1] border border-[#DDD6FE] flex items-center justify-center shadow-xs">
                 <Flag className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="text-base font-black text-[#0D253D]">
+                <h3 className="text-base font-black text-[#0F172A]">
                   অভিযোগ ও রিপোর্ট পাঠান
                 </h3>
-                <p className="text-[11px] text-[#64748D]">
+                <p className="text-[11px] text-slate-500">
                   আপনার মতামত, টেকনিক্যাল সমস্যা বা অভিযোগ সরাসরি অ্যাডমিনকে জানান
                 </p>
               </div>
@@ -1993,35 +1993,35 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                 <div className="w-12 h-12 rounded-full bg-[#00B261]/10 text-[#00B261] flex items-center justify-center mx-auto">
                   <CheckCircle2 className="w-6 h-6" />
                 </div>
-                <h4 className="text-sm font-bold text-[#0D253D]">
+                <h4 className="text-sm font-bold text-[#0F172A]">
                   রিপোর্ট সফলভাবে পাঠানো হয়েছে!
                 </h4>
-                <p className="text-xs text-[#64748D]">
+                <p className="text-xs text-slate-500">
                   {reportSuccess}
                 </p>
               </div>
             ) : (
               <form onSubmit={handleReportSubmit} className="space-y-3.5">
                 {/* Auto-filled details (User doesn't need to type them) */}
-                <div className="p-3.5 rounded-2xl bg-[#F8FAFD] border border-[#E5EDF5] space-y-2 text-xs">
+                <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2 text-xs">
                   <div className="flex items-center justify-between">
-                    <span className="text-[#64748D]">ক্লায়েন্ট আইডি:</span>
-                    <span className="font-mono font-bold text-[#2B47EE] bg-[#EEF2FF] px-2.5 py-0.5 rounded-md">
+                    <span className="text-slate-500">ক্লায়েন্ট আইডি:</span>
+                    <span className="font-mono font-bold text-[#6B46C1] bg-[#FAF5FF] border border-[#DDD6FE] px-2.5 py-0.5 rounded-md">
                       {currentUser?.clientId || (currentUser?.phone ? `#BW-USER-${currentUser.phone.slice(-4)}` : '#BW-CLIENT')}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-[#64748D]">নাম:</span>
-                    <strong className="text-[#0D253D]">{currentUser?.name}</strong>
+                    <span className="text-slate-500">নাম:</span>
+                    <strong className="text-[#0F172A]">{currentUser?.name}</strong>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-[#64748D]">মোবাইল নম্বর:</span>
-                    <span className="font-mono text-[#0D253D]">{currentUser?.phone}</span>
+                    <span className="text-slate-500">মোবাইল নম্বর:</span>
+                    <span className="font-mono text-[#0F172A]">{currentUser?.phone}</span>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-[#0D253D] mb-1.5">
+                  <label className="block text-xs font-bold text-[#0F172A] mb-1.5">
                     আপনার অভিযোগ বা সমস্যা লিখুন <span className="text-[#E53935]">*</span>
                   </label>
                   <textarea
@@ -2030,7 +2030,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                     value={reportMessage}
                     onChange={(e) => setReportMessage(e.target.value)}
                     placeholder="আপনার অভিযোগ, ওয়েবসাইটের সমস্যা বা যেকোনো প্রশ্ন বিস্তারিত লিখুন..."
-                    className="w-full p-3.5 rounded-2xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs text-[#0D253D] focus:outline-none focus:border-[#2B47EE] focus:ring-1 focus:ring-[#2B47EE] resize-none"
+                    className="w-full p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-[#0F172A] focus:outline-none focus:bg-white focus:border-[#7C3AED] focus:ring-2 focus:ring-[#7C3AED]/20 transition-all resize-none"
                   />
                 </div>
 
@@ -2038,7 +2038,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                   <button
                     type="submit"
                     disabled={reportLoading || !reportMessage.trim()}
-                    className="flex-1 py-3 rounded-xl bg-[#2B47EE] hover:bg-[#1E3A8A] text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 shadow-xs"
+                    className="flex-1 py-3 rounded-xl bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] hover:from-[#5B21B6] hover:to-[#6D28D9] text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 shadow-md"
                   >
                     <Flag className="w-3.5 h-3.5" />
                     <span>{reportLoading ? 'পাঠানো হচ্ছে...' : 'রিপোর্ট পাঠান (Send Report)'}</span>
@@ -2046,7 +2046,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                   <button
                     type="button"
                     onClick={() => setShowReportModal(false)}
-                    className="px-4 py-3 rounded-xl bg-[#F8FAFD] text-[#64748D] hover:text-[#0D253D] text-xs font-bold cursor-pointer"
+                    className="px-4 py-3 rounded-xl bg-slate-100 text-slate-600 hover:text-slate-900 text-xs font-bold cursor-pointer"
                   >
                     বাতিল
                   </button>
@@ -2058,7 +2058,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
       )}
       {/* Phone Verification Explanation Modal (Requirement 2) */}
       {showVerificationExplainerModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0D253D]/60 backdrop-blur-xs animate-fadeIn">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs animate-fadeIn">
           <div className="w-full max-w-md bg-white rounded-3xl border border-slate-200 shadow-2xl p-6 sm:p-7 relative space-y-4 animate-slideUpModal">
             <button
               type="button"
@@ -2073,7 +2073,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                 <HelpCircle className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="text-base font-black text-[#0D253D]">
+                <h3 className="text-base font-black text-[#0F172A]">
                   নম্বর ভেরিফিকেশন তথ্য
                 </h3>
                 <span className="text-[11px] font-bold text-slate-500">
@@ -2097,7 +2097,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
             <button
               type="button"
               onClick={() => setShowVerificationExplainerModal(false)}
-              className="w-full py-3 rounded-xl bg-gradient-to-r from-[#2B47EE] to-[#7C3AED] hover:from-[#203CD4] hover:to-[#6D28D9] text-white text-xs sm:text-sm font-bold shadow-xs transition-all cursor-pointer"
+              className="w-full py-3 rounded-xl bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] hover:from-[#5B21B6] hover:to-[#6D28D9] text-white text-xs sm:text-sm font-bold shadow-md transition-all cursor-pointer"
             >
               বুঝেছি (Got it)
             </button>

@@ -179,9 +179,9 @@ export default function WebsiteCredentialsModal({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
-        <div className="px-5 py-4 sm:px-6 sm:py-5 border-b border-slate-100 flex items-center justify-between bg-gradient-to-r from-slate-50 via-white to-indigo-50/30">
+        <div className="px-5 py-4 sm:px-6 sm:py-5 border-b border-slate-100 flex items-center justify-between bg-gradient-to-r from-slate-50 via-white to-purple-50/30">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-[#EEF2FF] text-[#2B47EE] flex items-center justify-center shadow-xs">
+            <div className="w-10 h-10 rounded-2xl bg-[#FAF5FF] text-[#6B46C1] flex items-center justify-center shadow-xs">
               <Key className="w-5 h-5 stroke-[2.2]" />
             </div>
             <div>
@@ -208,7 +208,7 @@ export default function WebsiteCredentialsModal({
         <div className="p-5 sm:p-6 overflow-y-auto space-y-4">
           {loading ? (
             <div className="py-16 text-center text-xs text-slate-400 space-y-2">
-              <div className="w-8 h-8 mx-auto border-3 border-[#2B47EE] border-t-transparent rounded-full animate-spin" />
+              <div className="w-8 h-8 mx-auto border-3 border-[#6B46C1] border-t-transparent rounded-full animate-spin" />
               <p className="font-bold">তথ্য লোড হচ্ছে...</p>
             </div>
           ) : credentialsList.length > 0 ? (
@@ -260,7 +260,7 @@ export default function WebsiteCredentialsModal({
                       <button
                         type="button"
                         onClick={() => handleCopy(cred.websiteAdminId, `id-${cred.id}`)}
-                        className="px-2.5 py-1.5 rounded-xl bg-slate-50 hover:bg-[#EEF2FF] text-[#2B47EE] border border-slate-200 text-xs font-bold transition-all flex items-center gap-1 cursor-pointer shrink-0"
+                        className="px-2.5 py-1.5 rounded-xl bg-slate-50 hover:bg-[#FAF5FF] text-[#6B46C1] border border-slate-200 text-xs font-bold transition-all flex items-center gap-1 cursor-pointer shrink-0"
                         title="আইডি কপি করুন"
                       >
                         {copiedKey === `id-${cred.id}` ? (
@@ -283,14 +283,14 @@ export default function WebsiteCredentialsModal({
                         <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
                           অ্যাডমিন পাসওয়ার্ড
                         </span>
-                        <span className="text-sm font-mono font-black text-[#2B47EE] select-all truncate block">
+                        <span className="text-sm font-mono font-black text-[#6B46C1] select-all truncate block">
                           {cred.websiteAdminPass}
                         </span>
                       </div>
                       <button
                         type="button"
                         onClick={() => handleCopy(cred.websiteAdminPass, `pass-${cred.id}`)}
-                        className="px-2.5 py-1.5 rounded-xl bg-slate-50 hover:bg-[#EEF2FF] text-[#2B47EE] border border-slate-200 text-xs font-bold transition-all flex items-center gap-1 cursor-pointer shrink-0"
+                        className="px-2.5 py-1.5 rounded-xl bg-slate-50 hover:bg-[#FAF5FF] text-[#6B46C1] border border-slate-200 text-xs font-bold transition-all flex items-center gap-1 cursor-pointer shrink-0"
                         title="পাসওয়ার্ড কপি করুন"
                       >
                         {copiedKey === `pass-${cred.id}` ? (
@@ -364,7 +364,7 @@ export default function WebsiteCredentialsModal({
                     onClose();
                     if (onGoToDashboard) onGoToDashboard();
                   }}
-                  className="px-5 py-3 rounded-2xl bg-[#2B47EE] hover:bg-[#1E3AE5] text-white text-xs sm:text-sm font-black transition-all inline-flex items-center gap-2 shadow-md hover:shadow-lg cursor-pointer"
+                  className="px-5 py-3 rounded-2xl bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] hover:from-[#5B21B6] hover:to-[#6D28D9] text-white text-xs sm:text-sm font-black transition-all inline-flex items-center gap-2 shadow-md hover:shadow-lg cursor-pointer"
                 >
                   <Laptop className="w-4 h-4" />
                   <span>ড্যাশবোর্ডে ওয়েবসাইট দেখুন</span>

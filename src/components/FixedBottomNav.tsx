@@ -45,7 +45,7 @@ export default function FixedBottomNav({
   return (
     <nav
       id="fixed-bottom-nav"
-      className="fixed bottom-0 left-0 right-0 z-40 w-full bg-[#FFFFFF]/92 backdrop-blur-xl border-t border-[#E5EDF5] shadow-[0_-8px_32px_rgba(13,37,61,0.06)] h-16 sm:h-[72px] flex items-center select-none"
+      className="fixed bottom-0 left-0 right-0 z-40 w-full bg-[#FFFFFF]/95 backdrop-blur-xl border-t border-slate-200/90 shadow-[0_-8px_32px_rgba(107,70,193,0.08)] h-16 sm:h-[72px] flex items-center select-none lg:hidden"
     >
       <div className="max-w-lg sm:max-w-xl md:max-w-2xl w-full mx-auto px-3 sm:px-6 h-full flex items-center justify-around gap-1.5 sm:gap-2">
         {tabs.map((tab) => {
@@ -59,13 +59,13 @@ export default function FixedBottomNav({
               id={`bottom-nav-${tab.id}`}
               className={`relative flex-1 flex flex-col items-center justify-center py-1 sm:py-1.5 px-2 rounded-2xl transition-all duration-200 cursor-pointer touch-manipulation min-h-[50px] group ${
                 isActive
-                  ? 'text-[#2B47EE] font-black'
-                  : 'text-[#64748D] hover:text-[#0D253D] font-bold active:scale-95'
+                  ? 'text-[#6B46C1] font-black'
+                  : 'text-slate-500 hover:text-slate-900 font-bold active:scale-95'
               }`}
             >
               {/* Active Tab Floating Capsule with Soft Light Elevation */}
               {isActive && (
-                <span className="absolute inset-x-1 sm:inset-x-2 inset-y-1 bg-gradient-to-b from-[#EEF2FF] to-[#E0E7FF] border border-[#2B47EE]/20 rounded-xl sm:rounded-2xl -z-10 shadow-[0_2px_10px_rgba(43,71,238,0.12)] transition-all animate-fadeIn" />
+                <span className="absolute inset-x-1 sm:inset-x-2 inset-y-1 bg-gradient-to-b from-[#FAF5FF] via-[#F3E8FF] to-[#EDE9FE] border border-[#7C3AED]/25 rounded-xl sm:rounded-2xl -z-10 shadow-[0_2px_12px_rgba(107,70,193,0.15)] transition-all animate-fadeIn" />
               )}
 
               {/* Icon Container with Badge */}
@@ -73,8 +73,8 @@ export default function FixedBottomNav({
                 <Icon
                   className={`w-5 h-5 sm:w-5.5 sm:h-5.5 transition-all duration-200 ${
                     isActive 
-                      ? 'scale-110 stroke-[2.4] text-[#2B47EE] drop-shadow-xs' 
-                      : 'stroke-[1.9] text-[#64748D] group-hover:text-[#0D253D] group-hover:scale-105'
+                      ? 'scale-110 stroke-[2.4] text-[#6B46C1] drop-shadow-xs' 
+                      : 'stroke-[1.9] text-slate-500 group-hover:text-slate-900 group-hover:scale-105'
                   }`}
                 />
                 {tab.badge && tab.badge > 0 && (
@@ -87,7 +87,7 @@ export default function FixedBottomNav({
               {/* Tab Title */}
               <span
                 className={`text-[10.5px] sm:text-[11.5px] leading-tight tracking-tight transition-colors mt-0.5 ${
-                  isActive ? 'text-[#2B47EE] font-extrabold' : 'text-[#64748D] group-hover:text-[#0D253D]'
+                  isActive ? 'text-[#6B46C1] font-extrabold' : 'text-slate-500 group-hover:text-slate-900'
                 }`}
               >
                 {tab.label}
@@ -95,7 +95,7 @@ export default function FixedBottomNav({
 
               {/* Active Pip Indicator */}
               {isActive && (
-                <span className="absolute bottom-1 w-3.5 sm:w-4 h-0.5 rounded-full bg-[#2B47EE] shadow-[0_1px_4px_rgba(43,71,238,0.4)]" />
+                <span className="absolute bottom-1 w-3.5 sm:w-4 h-0.5 rounded-full bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] shadow-[0_1px_4px_rgba(107,70,193,0.5)]" />
               )}
             </button>
           );

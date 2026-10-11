@@ -46,9 +46,9 @@ export default function CategoryWebsitesView({
       descriptionEn: 'Browse all live high-converting ecommerce online store templates ready with payment & courier integration.',
       descriptionBn: 'অটো বিকাশ/নগদ পেমেন্ট ও রিয়েল-টাইম কুরিয়ার সংযুক্ত সকল রেডিমেড ই-কমার্স ওয়েবসাইট এক্সপ্লোর করুন।',
       icon: ShoppingBag,
-      accentColor: '#2563EB',
-      gradientBg: 'from-blue-600 via-indigo-600 to-blue-700',
-      chipBg: 'bg-rose-50 text-rose-700 border-rose-200'
+      accentColor: '#6B46C1',
+      gradientBg: 'from-[#5521B5] via-[#6B46C1] to-[#7C3AED]',
+      chipBg: 'bg-[#FAF5FF] text-[#6B46C1] border-[#DDD6FE]'
     },
     restaurant: {
       nameEn: 'Restaurant & Cafe',
@@ -194,10 +194,10 @@ export default function CategoryWebsitesView({
   });
 
   return (
-    <div className="w-full min-h-[calc(100vh-4rem)] bg-slate-50 flex flex-col font-sans select-none pb-16">
+    <div className="w-full min-h-[calc(100vh-4rem)] bg-slate-50 flex flex-col font-sans select-none pb-20 lg:pb-12">
       {/* Category Hero Banner */}
       <section className="w-full bg-white border-b border-slate-200 shadow-xs">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
+        <div className="max-w-6xl xl:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
           {/* Top navigation row */}
           <div className="flex items-center justify-between gap-3 mb-4">
             <button
@@ -250,7 +250,7 @@ export default function CategoryWebsitesView({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={language === 'en' ? 'Search by code or keyword...' : 'কোড বা নাম দিয়ে খুঁজুন (#1042)...'}
-                className="w-full pl-9 pr-3.5 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-900 placeholder:text-slate-400"
+                className="w-full pl-9 pr-3.5 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#7C3AED]/20 focus:border-[#7C3AED] transition-all text-slate-900 placeholder:text-slate-400"
               />
             </div>
           </div>
@@ -282,7 +282,7 @@ export default function CategoryWebsitesView({
       </section>
 
       {/* Main Grid of Websites */}
-      <main className="max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 flex-1">
+      <main className="max-w-6xl xl:max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8 flex-1">
         {matchingWebsites.length === 0 ? (
           <div className="text-center py-16 px-4 bg-white rounded-3xl border border-slate-200 shadow-xs max-w-md mx-auto my-6">
             <Search className="w-10 h-10 text-slate-400 mx-auto mb-3" />
@@ -307,18 +307,18 @@ export default function CategoryWebsitesView({
               <div
                 key={demo.id}
                 onClick={() => onOpenWebsiteDetail(demo)}
-                className="group bg-white rounded-2xl border-2 border-slate-200 hover:border-blue-500/70 shadow-xs hover:shadow-[0_12px_32px_rgba(37,99,235,0.12)] transition-all duration-200 overflow-hidden flex flex-col justify-between cursor-pointer hover:-translate-y-1"
+                className="group bg-white rounded-2xl border-2 border-slate-200 hover:border-[#7C3AED]/70 shadow-xs hover:shadow-[0_12px_32px_rgba(107,70,193,0.14)] transition-all duration-200 overflow-hidden flex flex-col justify-between cursor-pointer hover:-translate-y-1"
               >
                 <div>
                   {/* Top bar with serial code */}
                   <div className="px-3.5 py-2 bg-slate-100/90 border-b border-slate-200 flex items-center justify-between text-xs">
                     <div className="flex items-center gap-1.5">
                       <span className="w-2 h-2 rounded-full bg-slate-300" />
-                      <span className="w-2 h-2 rounded-full bg-blue-400/50" />
-                      <span className="w-2 h-2 rounded-full bg-blue-600" />
+                      <span className="w-2 h-2 rounded-full bg-[#9F7AEA]/50" />
+                      <span className="w-2 h-2 rounded-full bg-[#7C3AED]" />
                     </div>
 
-                    <span className="font-mono text-xs font-black px-2 py-0.5 rounded-md bg-white text-blue-700 border border-slate-200 shadow-2xs">
+                    <span className="font-mono text-xs font-black px-2 py-0.5 rounded-md bg-white text-[#6B46C1] border border-slate-200 shadow-2xs">
                       {demo.fourDigitCode}
                     </span>
                   </div>
@@ -333,8 +333,8 @@ export default function CategoryWebsitesView({
                     />
 
                     <div className="absolute inset-0 bg-slate-950/0 group-hover:bg-slate-950/20 transition-colors flex items-center justify-center">
-                      <span className="opacity-0 group-hover:opacity-100 transition-opacity px-3.5 py-1.5 rounded-lg bg-white/95 text-blue-600 font-bold text-xs shadow-md flex items-center gap-1.5 transform translate-y-1 group-hover:translate-y-0 duration-200">
-                        <Eye className="w-3.5 h-3.5 text-blue-600" />
+                      <span className="opacity-0 group-hover:opacity-100 transition-opacity px-3.5 py-1.5 rounded-lg bg-white/95 text-[#6B46C1] font-bold text-xs shadow-md flex items-center gap-1.5 transform translate-y-1 group-hover:translate-y-0 duration-200">
+                        <Eye className="w-3.5 h-3.5 text-[#6B46C1]" />
                         <span>{language === 'en' ? 'Live Preview' : 'লাইভ প্রিভিউ'}</span>
                       </span>
                     </div>
@@ -350,7 +350,7 @@ export default function CategoryWebsitesView({
                   {/* Body Content - Clean & Structured */}
                   <div className="p-4 sm:p-5">
                     {/* Prominent Website Name */}
-                    <h3 className="text-base sm:text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors leading-snug line-clamp-1">
+                    <h3 className="text-base sm:text-lg font-bold text-slate-900 group-hover:text-[#6B46C1] transition-colors leading-snug line-clamp-1">
                       {demo.title}
                     </h3>
 
@@ -375,7 +375,7 @@ export default function CategoryWebsitesView({
                             {language === 'en' ? 'Monthly Upkeep' : 'মাসিক সার্ভিস চার্জ'}
                           </span>
                           <div className="flex items-baseline justify-end gap-0.5 font-mono">
-                            <span className="text-sm sm:text-base font-extrabold text-blue-700">৳১২০</span>
+                            <span className="text-sm sm:text-base font-extrabold text-[#6B46C1]">৳১২০</span>
                             <span className="text-[11px] text-slate-500 font-medium">
                               {language === 'en' ? '/mo' : '/মাস'}
                             </span>
@@ -405,9 +405,9 @@ export default function CategoryWebsitesView({
                       e.stopPropagation();
                       onOpenWebsiteDetail(demo);
                     }}
-                    className="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer border border-slate-200 shadow-2xs"
+                    className="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-[#FAF5FF] hover:text-[#6B46C1] hover:border-[#DDD6FE] text-slate-800 text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer border border-slate-200 shadow-2xs"
                   >
-                    <Eye className="w-3.5 h-3.5 text-slate-600" />
+                    <Eye className="w-3.5 h-3.5 text-slate-600 group-hover:text-[#6B46C1]" />
                     <span>{language === 'en' ? 'Preview Demo' : 'প্রিভিউ দেখুন'}</span>
                   </button>
 
@@ -417,7 +417,7 @@ export default function CategoryWebsitesView({
                       e.stopPropagation();
                       onOpenOrder(demo);
                     }}
-                    className="flex-1 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer hover:scale-[1.02] active:scale-95"
+                    className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-[#6B46C1] via-[#7C3AED] to-[#5521B5] hover:from-[#5B21B6] hover:to-[#4C1D95] text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-[0_2px_10px_rgba(107,70,193,0.3)] hover:shadow-[0_4px_16px_rgba(107,70,193,0.4)] cursor-pointer hover:scale-[1.02] active:scale-95"
                   >
                     <span>{language === 'en' ? 'Order Website' : 'অর্ডার করুন'}</span>
                     <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />

@@ -72,15 +72,15 @@ export default function DashboardView({
       tagBn: '🔥 জনপ্রিয়',
       demoId: 'ecom-1',
       icon: ShoppingBag,
-      iconBg: 'bg-gradient-to-tr from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/20',
-      iconColor: 'text-blue-600',
-      cardBg: 'bg-gradient-to-br from-blue-50/60 via-white to-indigo-50/30',
-      cardBorderHover: 'hover:border-rose-400/90',
-      hoverShadow: 'hover:shadow-[0_12px_28px_rgba(225,29,72,0.12)]',
-      badgeBg: 'bg-rose-100/90',
-      badgeText: 'text-rose-700',
-      badgeBorder: 'border-rose-200/80',
-      actionHoverBg: 'group-hover:bg-blue-600 group-hover:text-white',
+      iconBg: 'bg-gradient-to-tr from-[#6B46C1] via-[#7C3AED] to-[#9F7AEA] text-white shadow-md shadow-[#6B46C1]/25',
+      iconColor: 'text-[#6B46C1]',
+      cardBg: 'bg-gradient-to-br from-[#FAF5FF]/70 via-white to-[#F3E8FF]/30',
+      cardBorderHover: 'hover:border-[#7C3AED]/70',
+      hoverShadow: 'hover:shadow-[0_12px_28px_rgba(107,70,193,0.18)]',
+      badgeBg: 'bg-[#FAF5FF]',
+      badgeText: 'text-[#6B46C1]',
+      badgeBorder: 'border-[#DDD6FE]',
+      actionHoverBg: 'group-hover:bg-[#6B46C1] group-hover:text-white',
       featuresEn: ['bKash / Nagad', 'Courier Tracking', 'Cart & Stock'],
       featuresBn: ['বিকাশ/নগদ অটো', 'কুরিয়ার ট্র্যাকিং', 'স্টক ইনভেন্টরি'],
       startingPrice: '৳১,৯৯০',
@@ -88,7 +88,7 @@ export default function DashboardView({
       demandTier: 'most-demanded',
       demandBadgeEn: '🔥 Most Demanding',
       demandBadgeBn: '🔥 সর্বোচ্চ চাহিদা',
-      demandBadgeBg: 'bg-rose-50 text-rose-700 border-rose-200/90 shadow-2xs',
+      demandBadgeBg: 'bg-[#FAF5FF] text-[#6B46C1] border-[#DDD6FE] shadow-2xs',
       demandHighlightEn: 'Highest market demand • High-converting online storefront',
       demandHighlightBn: 'সর্বাধিক চাহিদাসম্পন্ন • হাই-কনভার্সন অনলাইন শপ'
     },
@@ -104,15 +104,15 @@ export default function DashboardView({
       tagBn: '⭐ ট্রেন্ডিং',
       demoId: 'rest-1',
       icon: UtensilsCrossed,
-      iconBg: 'bg-gradient-to-tr from-orange-500 to-amber-500 text-white shadow-md shadow-orange-500/20',
-      iconColor: 'text-orange-600',
-      cardBg: 'bg-gradient-to-br from-orange-50/60 via-white to-amber-50/30',
+      iconBg: 'bg-gradient-to-tr from-amber-500 to-orange-500 text-white shadow-md shadow-orange-500/20',
+      iconColor: 'text-amber-600',
+      cardBg: 'bg-gradient-to-br from-amber-50/60 via-white to-orange-50/30',
       cardBorderHover: 'hover:border-amber-400/90',
-      hoverShadow: 'hover:shadow-[0_12px_28px_rgba(217,119,6,0.12)]',
+      hoverShadow: 'hover:shadow-[0_12px_28px_rgba(217,119,6,0.14)]',
       badgeBg: 'bg-amber-100/90',
       badgeText: 'text-amber-800',
       badgeBorder: 'border-amber-200/80',
-      actionHoverBg: 'group-hover:bg-orange-600 group-hover:text-white',
+      actionHoverBg: 'group-hover:bg-amber-600 group-hover:text-white',
       featuresEn: ['Online Menu', 'Table Booking', 'Home Delivery'],
       featuresBn: ['ফুড মেনু', 'টেবিল বুকিং', 'হোম ডেলিভারি'],
       startingPrice: '৳১,৯৯০',
@@ -136,15 +136,15 @@ export default function DashboardView({
       tagBn: '📈 হাই ট্রাফিক',
       demoId: 'blog-1',
       icon: Newspaper,
-      iconBg: 'bg-gradient-to-tr from-purple-600 to-violet-600 text-white shadow-md shadow-purple-500/20',
-      iconColor: 'text-purple-600',
-      cardBg: 'bg-gradient-to-br from-purple-50/60 via-white to-violet-50/30',
-      cardBorderHover: 'hover:border-purple-400/90',
-      hoverShadow: 'hover:shadow-[0_12px_28px_rgba(124,58,237,0.12)]',
-      badgeBg: 'bg-purple-100/90',
-      badgeText: 'text-purple-700',
-      badgeBorder: 'border-purple-200/80',
-      actionHoverBg: 'group-hover:bg-purple-600 group-hover:text-white',
+      iconBg: 'bg-gradient-to-tr from-blue-600 to-indigo-600 text-white shadow-md shadow-indigo-500/20',
+      iconColor: 'text-indigo-600',
+      cardBg: 'bg-gradient-to-br from-blue-50/60 via-white to-indigo-50/30',
+      cardBorderHover: 'hover:border-indigo-400/90',
+      hoverShadow: 'hover:shadow-[0_12px_28px_rgba(79,70,229,0.14)]',
+      badgeBg: 'bg-indigo-100/90',
+      badgeText: 'text-indigo-700',
+      badgeBorder: 'border-indigo-200/80',
+      actionHoverBg: 'group-hover:bg-indigo-600 group-hover:text-white',
       featuresEn: ['Google SEO', 'AdSense Ready', 'Fast Articles'],
       featuresBn: ['গুগল এসইও', 'এডসেন্স রেডি', 'দ্রুত আর্টিকেল'],
       startingPrice: '৳১,৯৯০',
@@ -152,7 +152,7 @@ export default function DashboardView({
       demandTier: 'growing',
       demandBadgeEn: '📈 Growing Demand',
       demandBadgeBn: '📈 ক্রমবর্ধমান চাহিদা',
-      demandBadgeBg: 'bg-purple-50 text-purple-700 border-purple-200/90 shadow-2xs',
+      demandBadgeBg: 'bg-indigo-50 text-indigo-700 border-indigo-200/90 shadow-2xs',
       demandHighlightEn: 'Steady traffic • Fast Google indexing & AdSense income',
       demandHighlightBn: 'গ্রোথ ও রেভিনিউ চাহিদা • দ্রুত গুগল র‍্যাংক ও অটো অ্যাডসেন্স'
     },
@@ -172,7 +172,7 @@ export default function DashboardView({
       iconColor: 'text-emerald-600',
       cardBg: 'bg-gradient-to-br from-emerald-50/60 via-white to-teal-50/30',
       cardBorderHover: 'hover:border-emerald-400/90',
-      hoverShadow: 'hover:shadow-[0_12px_28px_rgba(5,150,105,0.12)]',
+      hoverShadow: 'hover:shadow-[0_12px_28px_rgba(5,150,105,0.14)]',
       badgeBg: 'bg-emerald-100/90',
       badgeText: 'text-emerald-700',
       badgeBorder: 'border-emerald-200/80',
@@ -249,35 +249,31 @@ export default function DashboardView({
 
   return (
     <div 
-      className="w-full h-[calc(100dvh-4rem-4rem)] sm:h-[calc(100vh-4.25rem-4.5rem)] max-h-[calc(100dvh-4rem-4rem)] sm:max-h-[calc(100vh-4.25rem-4.5rem)] overflow-hidden flex flex-col justify-between items-center px-4 sm:px-6 py-2.5 sm:py-4 select-none bg-gradient-to-b from-slate-50/80 via-white to-slate-100/60 font-sans"
+      className="w-full h-[calc(100dvh-4rem-4rem)] sm:h-[calc(100vh-4.25rem-4.5rem)] max-h-[calc(100dvh-4rem-4rem)] sm:max-h-[calc(100vh-4.25rem-4.5rem)] lg:h-auto lg:min-h-[calc(100vh-4.75rem)] lg:max-h-none overflow-hidden lg:overflow-visible flex flex-col justify-between lg:justify-center items-center px-4 sm:px-6 lg:px-8 xl:px-12 py-2.5 sm:py-4 lg:py-8 xl:py-10 select-none bg-gradient-to-b from-slate-50/80 via-white to-[#FAF5FF]/30 font-sans"
     >
       {/* Main Targeted Section (section:nth-of-type(1)) */}
-      <section className="max-w-2xl sm:max-w-3xl w-full mx-auto h-full flex flex-col justify-between py-1.5 sm:py-2.5">
+      <section className="max-w-2xl sm:max-w-3xl lg:max-w-5xl xl:max-w-6xl w-full mx-auto h-full lg:h-auto flex flex-col justify-between lg:justify-center py-1.5 sm:py-2.5 lg:py-0 lg:gap-7 xl:gap-8">
         
         {/* Clean, Refined Header */}
-        <header className="shrink-0 text-center pt-0.5 pb-1">
-          <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-blue-50 text-blue-700 text-[11px] font-semibold tracking-wide mb-1 border border-blue-100/80">
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
+        <header className="shrink-0 text-center pt-0.5 pb-1 lg:pb-0">
+          <div className="inline-flex items-center gap-1.5 px-3 py-0.5 lg:px-3.5 lg:py-1 rounded-full bg-[#FAF5FF] text-[#6B46C1] text-[11px] lg:text-xs font-bold tracking-wide mb-1 lg:mb-2 border border-[#DDD6FE]/90 shadow-2xs">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#7C3AED] animate-pulse" />
             <span>{language === 'en' ? 'Interactive Demos' : 'লাইভ ওয়েবসাইট ডেমো'}</span>
           </div>
-          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-[34px] font-black text-slate-900 tracking-tight leading-tight">
             {language === 'en' ? 'Website Categories' : 'ক্যাটাগরি নির্বাচন করুন'}
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+          <p className="text-xs sm:text-sm lg:text-base text-slate-500 mt-0.5 lg:mt-1.5 max-w-xl mx-auto leading-relaxed">
             {language === 'en' 
               ? 'Choose a category to browse ready-to-launch website demos' 
               : 'সবগুলো লাইভ ওয়েবসাইট ডেমো দেখতে একটি ক্যাটাগরি বেছে নিন'}
           </p>
         </header>
 
-        {/* Clean Category List (Polished, Balanced & Tactile) */}
-        <div className="flex-1 flex flex-col justify-between gap-3 sm:gap-3.5 my-auto w-full py-1.5 min-h-0">
+        {/* 1. Mobile Category List: Compact & Preserved for Mobile Screens (< lg) */}
+        <div className="flex-1 flex flex-col justify-between gap-3 sm:gap-3.5 my-auto w-full py-1.5 min-h-0 lg:hidden">
           {categoryContacts.map((cat) => {
             const IconComponent = cat.icon;
-            const demoCount = allAvailableWebsites.filter(d => 
-              d.category === cat.id || 
-              (cat.id === 'blogging' && ((d.category as string) === 'newspaper' || d.category === 'blogging'))
-            ).length;
 
             return (
               <div
@@ -292,7 +288,7 @@ export default function DashboardView({
                   }
                 }}
                 aria-label={`Select ${language === 'en' ? cat.nameEn : cat.nameBn}`}
-                className={`group w-full flex-1 min-h-[74px] sm:min-h-[82px] max-h-[100px] px-3.5 sm:px-5 py-2.5 sm:py-3 rounded-2xl bg-white border border-slate-200/90 ${cat.cardBorderHover} shadow-xs ${cat.hoverShadow} transition-all duration-200 cursor-pointer flex items-center justify-between gap-3 sm:gap-4 hover:-translate-y-0.5 active:translate-y-0 outline-none focus-visible:ring-2 focus-visible:ring-blue-500`}
+                className={`group w-full flex-1 min-h-[74px] sm:min-h-[82px] max-h-[100px] px-3.5 sm:px-5 py-2.5 sm:py-3 rounded-2xl bg-white border border-slate-200/90 ${cat.cardBorderHover} shadow-xs ${cat.hoverShadow} transition-all duration-200 cursor-pointer flex items-center justify-between gap-3 sm:gap-4 hover:-translate-y-0.5 active:translate-y-0 outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED]`}
               >
                 {/* Left: Clean Icon & Perfectly Aligned 2-Row Category Hierarchy */}
                 <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
@@ -300,14 +296,12 @@ export default function DashboardView({
                     <IconComponent className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.2]" />
                   </div>
 
-                  {/* Centered Structured Content: Guaranteed Identical Vertical Placement & Full Title Visibility */}
+                  {/* Centered Structured Content */}
                   <div className="min-w-0 flex-1 flex flex-col justify-center">
-                    {/* Row 1: Category Name - 100% Fully Visible, No Truncation, Generous Line-Height */}
-                    <h2 className="text-[14.5px] sm:text-[16px] font-bold text-slate-900 group-hover:text-blue-600 transition-colors leading-snug tracking-tight">
+                    <h2 className="text-[14.5px] sm:text-[16px] font-bold text-slate-900 group-hover:text-[#6B46C1] transition-colors leading-snug tracking-tight">
                       {language === 'en' ? cat.nameEn : cat.nameBn}
                     </h2>
 
-                    {/* Row 2: Highlighting Badge for Category Demand */}
                     <div className="flex items-center gap-1.5 mt-1 min-w-0">
                       <span className={`inline-flex items-center gap-1 text-[10px] sm:text-[10.5px] font-bold px-2.5 py-0.5 rounded-full border shrink-0 leading-none ${cat.demandBadgeBg}`}>
                         <span>{language === 'en' ? cat.demandBadgeEn : cat.demandBadgeBn}</span>
@@ -336,9 +330,106 @@ export default function DashboardView({
           })}
         </div>
 
+        {/* 2. Laptop / Desktop 2x2 Bento Grid: Spacious, Tactile & Rich (lg: & xl: screens) */}
+        <div className="hidden lg:grid lg:grid-cols-2 lg:gap-5 xl:gap-6 w-full">
+          {categoryContacts.map((cat) => {
+            const IconComponent = cat.icon;
+
+            return (
+              <div
+                key={cat.id}
+                role="button"
+                tabIndex={0}
+                onClick={() => handleSelectCategory(cat)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleSelectCategory(cat);
+                  }
+                }}
+                aria-label={`Select ${language === 'en' ? cat.nameEn : cat.nameBn}`}
+                className={`group w-full p-6 xl:p-7 rounded-3xl bg-white border border-slate-200/90 ${cat.cardBorderHover} shadow-xs ${cat.hoverShadow} transition-all duration-300 cursor-pointer flex flex-col justify-between hover:-translate-y-1 outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED] relative overflow-hidden`}
+              >
+                {/* Subtle Ambient Accent Glow in Top-Right Corner */}
+                <div 
+                  className={`absolute -top-12 -right-12 w-36 h-36 rounded-full blur-2xl opacity-40 pointer-events-none transition-opacity duration-300 group-hover:opacity-75 ${
+                    cat.id === 'ecommerce' ? 'bg-purple-300/60' :
+                    cat.id === 'restaurant' ? 'bg-amber-300/60' :
+                    cat.id === 'blogging' ? 'bg-indigo-300/60' :
+                    'bg-emerald-300/60'
+                  }`} 
+                />
+
+                {/* Top Section: Icon, Titles, Code Badge, Description & Features */}
+                <div className="relative z-10">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-center gap-3.5 xl:gap-4 min-w-0">
+                      <div className={`w-12 h-12 xl:w-14 xl:h-14 rounded-2xl ${cat.iconBg} flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-105 shadow-md`}>
+                        <IconComponent className="w-6 h-6 xl:w-7 xl:h-7 stroke-[2.2]" />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h2 className="text-lg xl:text-xl font-black text-slate-900 group-hover:text-[#6B46C1] transition-colors leading-snug tracking-tight">
+                            {language === 'en' ? cat.nameEn : cat.nameBn}
+                          </h2>
+                          <span className={`inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full border leading-none ${cat.demandBadgeBg}`}>
+                            <span>{language === 'en' ? cat.demandBadgeEn : cat.demandBadgeBn}</span>
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-500 font-medium mt-1">
+                          {language === 'en' ? cat.demandHighlightEn : cat.demandHighlightBn}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="shrink-0 flex items-center pt-0.5">
+                      <span className="font-mono text-[11px] xl:text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-500 border border-slate-200/80 shadow-2xs">
+                        {cat.code}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Middle Section: Existing Description & Feature Pills */}
+                  <div className="my-4 pt-3.5 border-t border-slate-100 space-y-3">
+                    <p className="text-xs xl:text-sm text-slate-600 leading-relaxed font-normal">
+                      {language === 'en' ? cat.descEn : cat.descBn}
+                    </p>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {(language === 'en' ? cat.featuresEn : cat.featuresBn).map((feat, fIdx) => (
+                        <span 
+                          key={fIdx} 
+                          className="text-[11px] xl:text-xs font-semibold text-slate-700 bg-slate-50 group-hover:bg-slate-100/80 px-3 py-1 rounded-xl border border-slate-200/70 shadow-2xs transition-colors"
+                        >
+                          {feat}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bottom Row: Starting Price & Interactive Arrow Action */}
+                <div className="pt-3.5 border-t border-slate-100 flex items-center justify-between relative z-10">
+                  <div>
+                    <span className="text-[10px] xl:text-[11px] text-slate-400 block font-medium leading-none">
+                      {language === 'en' ? 'Starts at' : 'শুরু মাত্র'}
+                    </span>
+                    <span className="text-base xl:text-lg font-black text-slate-900 mt-1 block leading-tight font-mono">
+                      {cat.startingPrice}
+                    </span>
+                  </div>
+
+                  <div className={`w-9 h-9 xl:w-10 xl:h-10 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-center text-slate-600 ${cat.actionHoverBg} transition-all duration-300 shadow-2xs group-hover:scale-105`}>
+                    <ChevronRight className="w-4.5 h-4.5 stroke-[2.2] group-hover:translate-x-0.5 transition-transform" />
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
         {/* Clean, Subtle Micro Footer */}
-        <footer className="shrink-0 text-center py-1">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/90 border border-slate-200/80 shadow-2xs text-[11px] sm:text-xs text-slate-600 font-medium">
+        <footer className="shrink-0 text-center py-1 lg:py-1">
+          <div className="inline-flex items-center gap-2 px-3 py-1 lg:px-4 lg:py-1.5 rounded-full bg-white/90 border border-slate-200/80 shadow-2xs text-[11px] sm:text-xs lg:text-sm text-slate-600 font-medium">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
             <span>
               {language === 'en' 

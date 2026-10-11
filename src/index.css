@@ -3,16 +3,16 @@
 @layer base {
   :root {
     /* Exact BongoWeb Official Brand Colors from Vector Logo */
-    --color-primary: #2B47EE;
-    --color-primary-hover: #203CD4;
-    --color-primary-active: #1E3A8A;
+    --color-primary: #6B46C1;
+    --color-primary-hover: #5B21B6;
+    --color-primary-active: #4C1D95;
     --color-primary-dark: #0F172A;
-    --color-brand-deep: #0B132B;
+    --color-brand-deep: #1E1B4B;
     
-    /* Logo Flame & Ribbon Accents */
-    --color-brand-purple: #A855F7;
+    /* Logo Flame & Ribbon Violet Accents */
+    --color-brand-purple: #9F7AEA;
     --color-brand-violet: #7C3AED;
-    --color-brand-indigo: #4F46E5;
+    --color-brand-indigo: #5521B5;
     --color-brand-lilac: #C084FC;
     
     /* Functional Semantic Accents */
@@ -20,40 +20,40 @@
     --color-warning: #F59E0B;
     --color-error: #EF4444;
     --color-info: #0EA5E9;
-    --color-rose: #F43F5E;
+    --color-rose: #E11D48;
     
     /* Typography Neutrals */
-    --color-text-primary: #0D253D;
-    --color-text-secondary: #273951;
-    --color-text-muted: #64748D;
-    --color-text-quiet: #7D8BA4;
+    --color-text-primary: #0F172A;
+    --color-text-secondary: #334155;
+    --color-text-muted: #64748B;
+    --color-text-quiet: #94A3B8;
     --color-text-on-primary: #FFFFFF;
     
     /* Surface Backgrounds */
     --color-bg-main: #FFFFFF;
-    --color-bg-quiet: #F8FAFD;
-    --color-bg-subdued: #E5EDF5;
-    --color-bg-accent-subdued: #EEF2FF;
-    --color-bg-soft-neutral: #D4DEE9;
+    --color-bg-quiet: #FAF5FF;
+    --color-bg-subdued: #F1F5F9;
+    --color-bg-accent-subdued: #F5F3FF;
+    --color-bg-soft-neutral: #E2E8F0;
 
-    /* Signature Gradients */
-    --gradient-flame: linear-gradient(135deg, #A855F7 0%, #7C3AED 30%, #4F46E5 65%, #2B47EE 100%);
-    --gradient-ribbon: linear-gradient(135deg, #C084FC 0%, #7C3AED 40%, #3B52E8 75%, #253BD9 100%);
-    --gradient-primary: linear-gradient(135deg, #2B47EE 0%, #7C3AED 100%);
-    --gradient-royal-deep: linear-gradient(135deg, #2B47EE 0%, #1E3A8A 100%);
+    /* Signature Gradients based on Official BongoWeb Logo */
+    --gradient-flame: linear-gradient(135deg, #9F7AEA 0%, #805AD5 30%, #6B46C1 65%, #5521B5 100%);
+    --gradient-ribbon: linear-gradient(135deg, #C084FC 0%, #7C3AED 40%, #6B46C1 75%, #5521B5 100%);
+    --gradient-primary: linear-gradient(135deg, #7C3AED 0%, #6B46C1 50%, #5521B5 100%);
+    --gradient-royal-deep: linear-gradient(135deg, #1E1B4B 0%, #5521B5 55%, #6B46C1 100%);
     --gradient-emerald: linear-gradient(135deg, #10B981 0%, #059669 100%);
     --gradient-amber: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
   }
 
   * {
-    border-color: #E5EDF5;
+    border-color: #E2E8F0;
     box-sizing: border-box;
   }
 
   html {
     scroll-behavior: smooth;
     background-color: #FFFFFF;
-    color: #0D253D;
+    color: #0F172A;
     overflow-x: hidden;
     width: 100%;
     font-size: 16px;
@@ -66,7 +66,7 @@
     text-rendering: optimizeLegibility;
     -webkit-tap-highlight-color: transparent;
     background-color: #FFFFFF;
-    color: #0D253D;
+    color: #0F172A;
     overflow-x: hidden;
     width: 100%;
     min-width: 320px;
@@ -86,51 +86,51 @@
   }
 
   ::selection {
-    background-color: #EEF2FF;
-    color: #2B47EE;
+    background-color: #EDE9FE;
+    color: #6B46C1;
   }
 }
 
 /* BongoWeb Signature Color Classes */
 .bg-stripe-primary,
 .bg-brand-primary {
-  background-color: #2B47EE;
+  background-color: #6B46C1;
 }
 .bg-stripe-primary:hover,
 .bg-brand-primary:hover {
-  background-color: #203CD4;
+  background-color: #5B21B6;
 }
 .bg-stripe-primary:active,
 .bg-brand-primary:active {
-  background-color: #1E3A8A;
+  background-color: #4C1D95;
 }
 
 .text-stripe-primary,
 .text-brand-primary {
-  color: #2B47EE;
+  color: #6B46C1;
 }
 .text-stripe-primary:hover,
 .text-brand-primary:hover {
-  color: #203CD4;
+  color: #5B21B6;
 }
 
 .bg-stripe-gradient,
 .bg-brand-gradient {
-  background: linear-gradient(135deg, #7C3AED 0%, #4F46E5 50%, #2B47EE 100%);
+  background: linear-gradient(135deg, #7C3AED 0%, #6B46C1 50%, #5521B5 100%);
 }
 
 .bg-brand-flame {
-  background: linear-gradient(135deg, #A855F7 0%, #7C3AED 30%, #4F46E5 65%, #2B47EE 100%);
+  background: linear-gradient(135deg, #9F7AEA 0%, #805AD5 30%, #6B46C1 65%, #5521B5 100%);
 }
 
 .text-brand-flame {
-  background: linear-gradient(135deg, #A855F7 0%, #7C3AED 35%, #4F46E5 70%, #2B47EE 100%);
+  background: linear-gradient(135deg, #9F7AEA 0%, #7C3AED 35%, #6B46C1 70%, #5521B5 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .bg-stripe-gradient-subtle {
-  background: linear-gradient(180deg, #F8FAFD 0%, #FFFFFF 100%);
+  background: linear-gradient(180deg, #FAF5FF 0%, #FFFFFF 100%);
 }
 
 .bg-stripe-accent-orange {
@@ -138,7 +138,7 @@
 }
 
 .bg-stripe-accent-magenta {
-  background: linear-gradient(135deg, #A855F7 0%, #7C3AED 100%);
+  background: linear-gradient(135deg, #C084FC 0%, #7C3AED 100%);
 }
 
 /* Fluid responsive grid & line-length typography classes */
@@ -203,18 +203,18 @@
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #F8FAFD;
+  background: #FAF5FF;
 }
 ::-webkit-scrollbar-thumb {
-  background: #D4DEE9;
+  background: #DDD6FE;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #2B47EE;
+  background: #7C3AED;
 }
 
 /* Interactive focus ring discipline */
 button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible {
-  outline: 2px solid #2B47EE;
+  outline: 2px solid #7C3AED;
   outline-offset: 2px;
 }

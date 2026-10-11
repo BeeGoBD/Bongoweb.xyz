@@ -68,19 +68,19 @@ export default function AfterOrderView({ onGoToDashboard: _onGoToDashboard, onOp
   ];
 
   return (
-    <div className="w-full flex flex-col font-sans pb-28 pt-4">
+    <div className="w-full flex flex-col font-sans pb-28 lg:pb-12 pt-4 lg:pt-8">
       {/* SECTION: SERIALIZED ORDER STEPS (অর্ডারের পর ধারাবাহিক পদক্ষেপসমূহ) */}
-      <section className="max-w-4xl mx-auto px-4 sm:px-6 w-full">
+      <section className="max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         {/* Header (div:nth-of-type(1)) */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-8 lg:mb-10">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold border border-blue-100/80 mb-2.5">
             <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
             <span>অর্ডার প্রসেস • Order Workflow</span>
           </div>
-          <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 tracking-tight">
             অর্ডারের পর ধারাবাহিক ৪টি পদক্ষেপ
           </h2>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1.5 max-w-lg mx-auto">
+          <p className="text-xs sm:text-sm lg:text-base text-slate-500 mt-1.5 max-w-lg mx-auto">
             আপনার পছন্দের ডিজাইনটি বেছে অর্ডার করার পর আমাদের টিম যেভাবে আপনার ওয়েবসাইটটি রেডি করবে:
           </p>
         </div>
@@ -88,11 +88,11 @@ export default function AfterOrderView({ onGoToDashboard: _onGoToDashboard, onOp
         {/* Targeted Order Steps Container (div:nth-of-type(2)) */}
         <div className="w-full space-y-6">
           {/* Visual Workflow Stepper Bar (Connected Progress Flow) */}
-          <div className="hidden sm:flex items-center justify-between p-3.5 bg-slate-50/90 rounded-2xl border border-slate-200/80">
+          <div className="hidden sm:flex items-center justify-between p-3.5 lg:p-4 bg-slate-50/90 rounded-2xl border border-slate-200/80">
             {serialSteps.map((s, idx) => (
               <React.Fragment key={s.stepNum}>
                 <div className="flex items-center gap-2.5">
-                  <span className={`w-6 h-6 rounded-lg text-xs font-bold flex items-center justify-center shrink-0 ${
+                  <span className={`w-6 h-6 lg:w-7 lg:h-7 rounded-lg text-xs font-bold flex items-center justify-center shrink-0 ${
                     idx === 0 
                       ? 'bg-blue-600 text-white shadow-xs' 
                       : 'bg-white border border-slate-200 text-slate-700'
@@ -100,10 +100,10 @@ export default function AfterOrderView({ onGoToDashboard: _onGoToDashboard, onOp
                     {s.stepNum}
                   </span>
                   <div className="text-left">
-                    <span className="text-[11px] font-semibold text-slate-900 block leading-none">
+                    <span className="text-[11px] lg:text-xs font-semibold text-slate-900 block leading-none">
                       {s.stage}
                     </span>
-                    <span className="text-[10px] text-slate-400 font-medium leading-tight">
+                    <span className="text-[10px] lg:text-[11px] text-slate-400 font-medium leading-tight">
                       {s.timeEst}
                     </span>
                   </div>
@@ -116,7 +116,7 @@ export default function AfterOrderView({ onGoToDashboard: _onGoToDashboard, onOp
           </div>
 
           {/* Executive Step Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4 lg:gap-5">
             {serialSteps.map((step) => {
               const Icon = step.icon;
               return (

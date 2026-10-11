@@ -92,7 +92,7 @@ export default function ClientSecurityCodeModal({
                   onClose();
                   if (onGoToLogin) onGoToLogin();
                 }}
-                className="flex-1 py-2.5 rounded-xl bg-[#2B47EE] hover:bg-[#1E3A8A] text-white text-xs font-bold transition-all shadow-xs cursor-pointer flex items-center justify-center gap-1.5"
+                className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] hover:from-[#5B21B6] hover:to-[#6D28D9] text-white text-xs font-bold transition-all shadow-md cursor-pointer flex items-center justify-center gap-1.5"
               >
                 <LogIn className="w-4 h-4" />
                 <span>Account-এ যান</span>
@@ -109,30 +109,30 @@ export default function ClientSecurityCodeModal({
         ) : (
           <div className="space-y-4 pt-1">
             <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-2xl bg-[#EEF2FF] text-[#2B47EE] flex items-center justify-center shadow-xs">
+              <div className="w-11 h-11 rounded-2xl bg-[#FAF5FF] text-[#6B46C1] border border-[#DDD6FE] flex items-center justify-center shadow-xs">
                 <ShieldCheck className="w-6 h-6 stroke-[2.2]" />
               </div>
               <div>
-                <span className="text-[10px] font-bold text-[#2B47EE] uppercase tracking-wider block">
+                <span className="text-[10px] font-bold text-[#6B46C1] uppercase tracking-wider block">
                   ভেরিফিকেশন সুরক্ষা কোড
                 </span>
-                <h3 className="text-base font-black text-[#0D253D]">
+                <h3 className="text-base font-black text-[#0F172A]">
                   Your Security Code
                 </h3>
               </div>
             </div>
 
-            <div className="p-5 rounded-2xl bg-[#F8FAFD] border-2 border-[#2B47EE]/30 text-center space-y-2">
-              <span className="text-xs text-[#64748D] font-medium block">
+            <div className="p-5 rounded-2xl bg-[#FAF5FF] border-2 border-[#7C3AED]/30 text-center space-y-2">
+              <span className="text-xs text-slate-500 font-medium block">
                 আপনার বর্তমান ৫-মিনিটের সক্রিয় সিকিউরিটি কোড:
               </span>
-              <div className="text-3xl sm:text-4xl font-black font-mono tracking-[0.25em] text-[#2B47EE] select-all py-1">
+              <div className="text-3xl sm:text-4xl font-black font-mono tracking-[0.25em] text-[#6B46C1] select-all py-1">
                 {currentCode}
               </div>
-              <div className="flex items-center justify-center gap-1.5 text-xs text-[#64748D] font-medium">
+              <div className="flex items-center justify-center gap-1.5 text-xs text-slate-500 font-medium">
                 <span className="w-2 h-2 rounded-full bg-[#00B261] animate-pulse" />
                 <span>
-                  মেয়াদ বাকি: <strong className="text-[#0D253D] font-mono">{formatRemainingTime(codeRemainingSec)}</strong>
+                  মেয়াদ বাকি: <strong className="text-[#0F172A] font-mono">{formatRemainingTime(codeRemainingSec)}</strong>
                 </span>
               </div>
             </div>
@@ -140,10 +140,10 @@ export default function ClientSecurityCodeModal({
             <button
               type="button"
               onClick={handleCopy}
-              className={`w-full py-3 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs ${
+              className={`w-full py-3 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md ${
                 copied
                   ? 'bg-[#00B261] text-white'
-                  : 'bg-[#2B47EE] hover:bg-[#1E3A8A] text-white'
+                  : 'bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] hover:from-[#5B21B6] hover:to-[#6D28D9] text-white'
               }`}
             >
               {copied ? (

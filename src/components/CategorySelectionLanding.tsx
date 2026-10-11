@@ -182,14 +182,14 @@ export default function CategorySelectionLanding({
       {/* 2. Main Viewport: All 4 categories with premium studio presence */}
       <main className="flex-1 max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12 w-full flex flex-col justify-center items-center relative overflow-hidden">
         {/* Subtle Ambient Background Spotlight */}
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[450px] bg-gradient-to-tr from-[#2B47EE]/[0.08] via-[#7C3AED]/[0.05] to-[#10B981]/[0.04] rounded-full blur-3xl pointer-events-none -z-10" />
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[450px] bg-gradient-to-tr from-[#6B46C1]/[0.09] via-[#7C3AED]/[0.06] to-[#10B981]/[0.04] rounded-full blur-3xl pointer-events-none -z-10" />
 
         {/* Hero Title Section */}
         <div className="text-center mb-7 sm:mb-9 max-w-2xl mx-auto">
-          <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-gradient-to-r from-blue-50/90 to-indigo-50/80 border border-blue-200/80 text-[#2B47EE] text-[11px] font-bold mb-4 shadow-xs select-none">
+          <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-gradient-to-r from-[#FAF5FF] to-indigo-50/80 border border-[#DDD6FE] text-[#6B46C1] text-[11px] font-bold mb-4 shadow-xs select-none">
             <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#2B47EE] opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#2B47EE]"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#6B46C1] opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#6B46C1]"></span>
             </span>
             <span>
               {t(
@@ -202,11 +202,11 @@ export default function CategorySelectionLanding({
           <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-[1.15]">
             {language === 'bn' ? (
               <>
-                Select Your Website <span className="bg-gradient-to-r from-[#2B47EE] via-[#4F46E5] to-[#7C3AED] bg-clip-text text-transparent">Category</span>
+                Select Your Website <span className="bg-gradient-to-r from-[#5521B5] via-[#6B46C1] to-[#9F7AEA] bg-clip-text text-transparent">Category</span>
               </>
             ) : (
               <>
-                Choose Your Website <span className="bg-gradient-to-r from-[#2B47EE] via-[#4F46E5] to-[#7C3AED] bg-clip-text text-transparent">Category</span>
+                Choose Your Website <span className="bg-gradient-to-r from-[#5521B5] via-[#6B46C1] to-[#9F7AEA] bg-clip-text text-transparent">Category</span>
               </>
             )}
           </h1>
@@ -303,10 +303,10 @@ export default function CategorySelectionLanding({
         <div className="mt-7 sm:mt-9 text-center flex flex-col items-center gap-4">
           <button
             onClick={() => onSelectCategory('all')}
-            className="inline-flex items-center gap-2.5 px-6 py-3 sm:px-7 sm:py-3.5 rounded-2xl bg-white hover:bg-slate-50 text-slate-800 hover:text-[#2B47EE] border border-slate-200/90 hover:border-[#2B47EE]/40 font-extrabold text-xs sm:text-sm transition-all shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_20px_-4px_rgba(43,71,238,0.18)] cursor-pointer group active:scale-[0.99]"
+            className="inline-flex items-center gap-2.5 px-6 py-3 sm:px-7 sm:py-3.5 rounded-2xl bg-white hover:bg-[#FAF5FF] text-slate-800 hover:text-[#6B46C1] border border-slate-200/90 hover:border-[#DDD6FE] font-extrabold text-xs sm:text-sm transition-all shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_20px_-4px_rgba(107,70,193,0.18)] cursor-pointer group active:scale-[0.99]"
           >
             <span>{t('সবগুলো ক্যাটাগরি একসাথে ব্রাউজ করুন', 'Browse All Categories Together')}</span>
-            <ArrowRight className="w-4 h-4 text-[#2B47EE] transition-transform group-hover:translate-x-1 stroke-[2.5]" />
+            <ArrowRight className="w-4 h-4 text-[#6B46C1] transition-transform group-hover:translate-x-1 stroke-[2.5]" />
           </button>
 
           {/* Trust Reassurance Footnotes */}

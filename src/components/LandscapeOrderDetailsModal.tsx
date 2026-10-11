@@ -118,9 +118,9 @@ export default function LandscapeOrderDetailsModal({
         role="dialog"
       >
         {/* Top Header */}
-        <div className="px-5 py-4 sm:px-7 sm:py-5 border-b border-[#E5EDF5] bg-[#F8FAFD] flex items-center justify-between gap-3 shrink-0">
+        <div className="px-5 py-4 sm:px-7 sm:py-5 border-b border-slate-200 bg-slate-50 flex items-center justify-between gap-3 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-[#EEF2FF] text-[#2B47EE] flex items-center justify-center font-black shadow-xs shrink-0">
+            <div className="w-10 h-10 rounded-2xl bg-[#FAF5FF] text-[#6B46C1] border border-[#DDD6FE] flex items-center justify-center font-black shadow-xs shrink-0">
               <ShieldCheck className="w-5 h-5 stroke-[2.2]" />
             </div>
             <div>
@@ -143,37 +143,37 @@ export default function LandscapeOrderDetailsModal({
         </div>
 
         {/* Quick Stat Chips Bar */}
-        <div className="px-5 py-3 sm:px-7 bg-white border-b border-[#E5EDF5] flex items-center gap-2 flex-wrap shrink-0">
-          <span className="px-3 py-1 rounded-xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs font-bold text-[#0D253D]">
-            মোট অর্ডার: <strong className="text-[#2B47EE] font-mono">{relevantOrders.length}</strong>
+        <div className="px-5 py-3 sm:px-7 bg-white border-b border-slate-200 flex items-center gap-2 flex-wrap shrink-0">
+          <span className="px-3 py-1 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-800">
+            মোট অর্ডার: <strong className="text-[#6B46C1] font-mono">{relevantOrders.length}</strong>
           </span>
-          <span className="px-3 py-1 rounded-xl bg-[#FFF8E7] border border-[#FFD552] text-xs font-bold text-[#8A6D00]">
+          <span className="px-3 py-1 rounded-xl bg-amber-50 border border-amber-200 text-xs font-bold text-amber-800">
             পেন্ডিং যাচাই: <strong className="font-mono">{pendingCount}</strong>
           </span>
-          <span className="px-3 py-1 rounded-xl bg-[#EEF2FF] border border-[#2B47EE]/30 text-xs font-bold text-[#2B47EE]">
+          <span className="px-3 py-1 rounded-xl bg-[#FAF5FF] border border-[#DDD6FE] text-xs font-bold text-[#6B46C1]">
             প্রসেসিং (সেটআপ): <strong className="font-mono">{processingCount}</strong>
           </span>
-          <span className="px-3 py-1 rounded-xl bg-[#E8F8F0] border border-[#00B261]/30 text-xs font-bold text-[#008A4B]">
+          <span className="px-3 py-1 rounded-xl bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-800">
             সম্পূর্ণ ও ডেলিভারি সম্পন্ন: <strong className="font-mono">{completedCount}</strong>
           </span>
         </div>
 
         {/* Modal Scrollable Body */}
-        <div className="flex-1 overflow-y-auto p-5 sm:p-7 space-y-5 bg-[#FAF7F2]/40">
+        <div className="flex-1 overflow-y-auto p-5 sm:p-7 space-y-5 bg-slate-50/60">
           {loading ? (
-            <div className="py-16 text-center flex flex-col items-center justify-center gap-2 text-[#64748D]">
-              <RefreshCw className="w-6 h-6 animate-spin text-[#2B47EE]" />
+            <div className="py-16 text-center flex flex-col items-center justify-center gap-2 text-slate-500">
+              <RefreshCw className="w-6 h-6 animate-spin text-[#6B46C1]" />
               <p className="text-xs">অর্ডারের তথ্য লোড হচ্ছে...</p>
             </div>
           ) : relevantOrders.length === 0 ? (
-            <div className="py-16 text-center bg-white rounded-3xl border border-[#E5EDF5] p-8 space-y-3">
-              <div className="w-14 h-14 rounded-2xl bg-[#EEF2FF] text-[#2B47EE] flex items-center justify-center mx-auto mb-2">
+            <div className="py-16 text-center bg-white rounded-3xl border border-slate-200 p-8 space-y-3">
+              <div className="w-14 h-14 rounded-2xl bg-[#FAF5FF] text-[#6B46C1] border border-[#DDD6FE] flex items-center justify-center mx-auto mb-2">
                 <Clock className="w-7 h-7" />
               </div>
-              <h3 className="text-base font-black text-[#0D253D]">
+              <h3 className="text-base font-black text-[#0F172A]">
                 আপনি এখনো কোনো ওয়েবসাইট অর্ডার করেননি
               </h3>
-              <p className="text-xs text-[#64748D] max-w-md mx-auto">
+              <p className="text-xs text-slate-500 max-w-md mx-auto">
                 আমাদের ড্যাশবোর্ডে গিয়ে মাত্র ১,৯৯০ টাকায় আপনার পছন্দের ক্যাটাগরি থেকে রেডি ওয়েবসাইট অর্ডার করতে পারেন।
               </p>
               {onGoToDashboard && (
@@ -182,7 +182,7 @@ export default function LandscapeOrderDetailsModal({
                     onClose();
                     onGoToDashboard();
                   }}
-                  className="mt-3 px-6 py-2.5 rounded-xl bg-[#2B47EE] hover:bg-[#203CD4] text-white text-xs font-bold shadow-xs cursor-pointer inline-flex items-center gap-1.5"
+                  className="mt-3 px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] hover:from-[#5B21B6] hover:to-[#6D28D9] text-white text-xs font-bold shadow-md cursor-pointer inline-flex items-center gap-1.5 transition-all"
                 >
                   <span>ওয়েবসাইট ব্রাউজ করুন</span>
                   <ArrowRight className="w-4 h-4" />
@@ -229,20 +229,20 @@ export default function LandscapeOrderDetailsModal({
                       isCompleted
                         ? 'border-[#00B261]/40 hover:border-[#00B261]'
                         : isProcessing
-                        ? 'border-[#2B47EE]/40 hover:border-[#2B47EE]'
+                        ? 'border-[#7C3AED]/40 hover:border-[#7C3AED]'
                         : 'border-[#FFD552] hover:border-[#E53935]'
                     }`}
                   >
                     {/* Top Row: IDs, Website Title & Status Pill */}
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#F1F5F9] pb-3.5">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3.5">
                       <div className="flex items-center gap-2.5 flex-wrap">
-                        <span className="px-3 py-1 rounded-xl bg-[#2B47EE] text-white font-mono font-black text-xs shadow-2xs">
+                        <span className="px-3 py-1 rounded-xl bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] text-white font-mono font-black text-xs shadow-2xs">
                           {ord.orderId}
                         </span>
-                        <span className="px-2.5 py-0.5 rounded-lg bg-[#EEF2FF] text-[#2B47EE] text-xs font-bold font-mono border border-[#2B47EE]/20">
+                        <span className="px-2.5 py-0.5 rounded-lg bg-[#FAF5FF] text-[#6B46C1] text-xs font-bold font-mono border border-[#DDD6FE]">
                           {ord.demoCode}
                         </span>
-                        <h3 className="text-sm sm:text-base font-extrabold text-[#0D253D]">
+                        <h3 className="text-sm sm:text-base font-extrabold text-[#0F172A]">
                           {ord.companyName || ord.clientName}
                         </h3>
                         {ord.customDomain && (
@@ -257,7 +257,7 @@ export default function LandscapeOrderDetailsModal({
                           isCompleted
                             ? 'bg-[#00B261]/15 text-[#008A4B] border border-[#00B261]/30'
                             : isProcessing
-                            ? 'bg-[#2B47EE]/15 text-[#2B47EE] border border-[#2B47EE]/30'
+                            ? 'bg-[#FAF5FF] text-[#6B46C1] border border-[#DDD6FE]'
                             : 'bg-[#FFD552]/20 text-[#8A6D00] border border-[#FFD552]'
                         }`}>
                           {isCompleted ? (
@@ -267,7 +267,7 @@ export default function LandscapeOrderDetailsModal({
                             </>
                           ) : isProcessing ? (
                             <>
-                              <span className="w-2 h-2 rounded-full bg-[#2B47EE] animate-pulse" />
+                              <span className="w-2 h-2 rounded-full bg-[#7C3AED] animate-pulse" />
                               <span>⚡ অনুমোদিত (প্রসেসিং)</span>
                             </>
                           ) : (
@@ -281,7 +281,7 @@ export default function LandscapeOrderDetailsModal({
                         <button
                           type="button"
                           onClick={() => setSelectedReceiptOrder(ord)}
-                          className="px-3 py-1 rounded-xl bg-[#F8FAFD] hover:bg-[#EEF2FF] text-[#2B47EE] border border-[#E5EDF5] text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
+                          className="px-3 py-1 rounded-xl bg-slate-50 hover:bg-[#FAF5FF] text-[#6B46C1] border border-slate-200 hover:border-[#DDD6FE] text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
                         >
                           <Eye className="w-3.5 h-3.5" />
                           <span>রসিদ দেখুন</span>
@@ -290,16 +290,16 @@ export default function LandscapeOrderDetailsModal({
                     </div>
 
                     {/* 3-Step Live Visual Lifecycle Pipeline */}
-                    <div className="bg-[#F8FAFD] p-3 sm:p-4 rounded-2xl border border-[#E5EDF5]">
+                    <div className="bg-slate-50 p-3 sm:p-4 rounded-2xl border border-slate-200">
                       <div className="grid grid-cols-3 gap-2 text-center text-xs">
                         {/* Step 1: Pending */}
                         <div className={`p-2.5 rounded-xl flex flex-col items-center gap-1 transition-all ${
                           isPending 
                             ? 'bg-[#FFF8E7] border border-[#FFD552] text-[#8A6D00] font-bold shadow-2xs' 
-                            : 'bg-white border border-[#E5EDF5] text-[#008A4B]'
+                            : 'bg-white border border-slate-200 text-[#008A4B]'
                         }`}>
                           <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
-                            isPending ? 'bg-[#FFD552] text-[#0D253D]' : 'bg-[#00B261] text-white'
+                            isPending ? 'bg-[#FFD552] text-[#0F172A]' : 'bg-[#00B261] text-white'
                           }`}>
                             {isPending ? '১' : '✓'}
                           </div>
@@ -309,13 +309,13 @@ export default function LandscapeOrderDetailsModal({
                         {/* Step 2: Processing */}
                         <div className={`p-2.5 rounded-xl flex flex-col items-center gap-1 transition-all ${
                           isProcessing 
-                            ? 'bg-[#EEF2FF] border border-[#2B47EE] text-[#2B47EE] font-bold shadow-2xs' 
+                            ? 'bg-[#FAF5FF] border border-[#7C3AED] text-[#6B46C1] font-bold shadow-2xs' 
                             : isCompleted 
-                            ? 'bg-white border border-[#E5EDF5] text-[#008A4B]'
-                            : 'bg-white/50 border border-[#E5EDF5] text-[#94A3B8]'
+                            ? 'bg-white border border-slate-200 text-[#008A4B]'
+                            : 'bg-white/50 border border-slate-200 text-slate-400'
                         }`}>
                           <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
-                            isProcessing ? 'bg-[#2B47EE] text-white' : isCompleted ? 'bg-[#00B261] text-white' : 'bg-[#CBD5E1] text-[#64748D]'
+                            isProcessing ? 'bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] text-white' : isCompleted ? 'bg-[#00B261] text-white' : 'bg-slate-200 text-slate-500'
                           }`}>
                             {isCompleted ? '✓' : '২'}
                           </div>
@@ -365,19 +365,19 @@ export default function LandscapeOrderDetailsModal({
                             <button
                               type="button"
                               onClick={() => handleCopy(matchingCred.websiteAdminId, `user-${ord.orderId}`)}
-                              className="px-2.5 py-1 rounded-lg bg-[#F8FAFD] hover:bg-[#EEF2FF] text-[#2B47EE] border border-[#E5EDF5] text-xs font-bold flex items-center gap-1 cursor-pointer shrink-0"
+                              className="px-2.5 py-1 rounded-lg bg-slate-50 hover:bg-[#FAF5FF] text-[#6B46C1] border border-slate-200 text-xs font-bold flex items-center gap-1 cursor-pointer shrink-0 transition-colors"
                               title="কপি করুন"
                             >
                               {copiedId === `user-${ord.orderId}` ? (
-                                <>
-                                  <Check className="w-3.5 h-3.5 text-[#00B261]" />
-                                  <span>কপি হয়েছে</span>
-                                </>
+                                 <>
+                                   <Check className="w-3.5 h-3.5 text-[#00B261]" />
+                                   <span>কপি হয়েছে</span>
+                                 </>
                               ) : (
-                                <>
-                                  <Copy className="w-3.5 h-3.5" />
-                                  <span>কপি</span>
-                                </>
+                                 <>
+                                   <Copy className="w-3.5 h-3.5" />
+                                   <span>কপি</span>
+                                 </>
                               )}
                             </button>
                           </div>
@@ -385,10 +385,10 @@ export default function LandscapeOrderDetailsModal({
                           {/* Password */}
                           <div className="p-3 bg-white rounded-xl border border-[#00B261]/30 flex items-center justify-between gap-2 shadow-2xs">
                             <div className="min-w-0">
-                              <span className="text-[10px] text-[#64748D] block uppercase font-bold">
+                              <span className="text-[10px] text-slate-500 block uppercase font-bold">
                                 অ্যাডমিন পাসওয়ার্ড
                               </span>
-                              <span className="text-xs sm:text-sm font-black font-mono text-[#0D253D] truncate block">
+                              <span className="text-xs sm:text-sm font-black font-mono text-[#0F172A] truncate block">
                                 {revealedPass[ord.orderId] ? matchingCred.websiteAdminPass : '••••••••••••'}
                               </span>
                             </div>
@@ -396,14 +396,14 @@ export default function LandscapeOrderDetailsModal({
                               <button
                                 type="button"
                                 onClick={() => toggleRevealPass(ord.orderId)}
-                                className="px-2 py-1 rounded-lg text-[#64748D] hover:text-[#0D253D] text-[11px] font-bold"
+                                className="px-2 py-1 rounded-lg text-slate-500 hover:text-slate-800 text-[11px] font-bold"
                               >
                                 {revealedPass[ord.orderId] ? 'লুকান' : 'দেখুন'}
                               </button>
                               <button
                                 type="button"
                                 onClick={() => handleCopy(matchingCred.websiteAdminPass, `pass-${ord.orderId}`)}
-                                className="px-2.5 py-1 rounded-lg bg-[#F8FAFD] hover:bg-[#EEF2FF] text-[#2B47EE] border border-[#E5EDF5] text-xs font-bold flex items-center gap-1 cursor-pointer"
+                                className="px-2.5 py-1 rounded-lg bg-slate-50 hover:bg-[#FAF5FF] text-[#6B46C1] border border-slate-200 text-xs font-bold flex items-center gap-1 cursor-pointer transition-colors"
                                 title="কপি করুন"
                               >
                                 {copiedId === `pass-${ord.orderId}` ? (
@@ -427,8 +427,8 @@ export default function LandscapeOrderDetailsModal({
                         </p>
                       </div>
                     ) : isProcessing ? (
-                      <div className="p-3.5 rounded-2xl bg-[#EEF2FF] border border-[#2B47EE]/30 text-[#2B47EE] text-xs font-medium flex items-center gap-2.5">
-                        <Clock className="w-4 h-4 shrink-0 text-[#2B47EE] animate-spin" />
+                      <div className="p-3.5 rounded-2xl bg-[#FAF5FF] border border-[#DDD6FE] text-[#6B46C1] text-xs font-medium flex items-center gap-2.5">
+                        <Clock className="w-4 h-4 shrink-0 text-[#6B46C1] animate-spin" />
                         <span>
                           আমাদের ইঞ্জিনিয়ার টিম আপনার ওয়েবসাইট দ্রুত কনফিগার করছেন। সেটআপ সম্পন্ন হওয়া মাত্রই এখানে আপনার অ্যাডমিন আইডি ও পাসওয়ার্ড ভেসে উঠবে।
                         </span>
@@ -480,54 +480,54 @@ export default function LandscapeOrderDetailsModal({
               <X className="w-5 h-5" />
             </button>
 
-            <div className="text-center pb-4 border-b border-[#E5EDF5]">
-              <span className="px-3 py-1 rounded-full bg-[#EEF2FF] text-[#2B47EE] text-xs font-mono font-black inline-block mb-1">
+            <div className="text-center pb-4 border-b border-slate-200">
+              <span className="px-3 py-1 rounded-full bg-[#FAF5FF] text-[#6B46C1] border border-[#DDD6FE] text-xs font-mono font-black inline-block mb-1">
                 {selectedReceiptOrder.orderId}
               </span>
-              <h3 className="text-lg font-black text-[#0D253D]">অফিসিয়াল অর্ডার রসিদ (Receipt)</h3>
-              <p className="text-[11px] text-[#64748D]">BongoWeb — ২৪ ঘণ্টা এক্সপ্রেস ডেলিভারি</p>
+              <h3 className="text-lg font-black text-[#0F172A]">অফিসিয়াল অর্ডার রসিদ (Receipt)</h3>
+              <p className="text-[11px] text-slate-500">BongoWeb — ২৪ ঘণ্টা এক্সপ্রেস ডেলিভারি</p>
             </div>
 
             <div className="space-y-2 text-xs">
-              <div className="flex justify-between py-1.5 border-b border-[#E5EDF5]">
-                <span className="text-[#64748D]">গ্রাহকের নাম:</span>
-                <span className="font-bold text-[#0D253D]">{selectedReceiptOrder.clientName}</span>
+              <div className="flex justify-between py-1.5 border-b border-slate-100">
+                <span className="text-slate-500">গ্রাহকের নাম:</span>
+                <span className="font-bold text-[#0F172A]">{selectedReceiptOrder.clientName}</span>
               </div>
-              <div className="flex justify-between py-1.5 border-b border-[#E5EDF5]">
-                <span className="text-[#64748D]">ব্যবসা/কোম্পানি:</span>
-                <span className="font-bold text-[#0D253D]">{selectedReceiptOrder.companyName}</span>
+              <div className="flex justify-between py-1.5 border-b border-slate-100">
+                <span className="text-slate-500">ব্যবসা/কোম্পানি:</span>
+                <span className="font-bold text-[#0F172A]">{selectedReceiptOrder.companyName}</span>
               </div>
-              <div className="flex justify-between py-1.5 border-b border-[#E5EDF5]">
-                <span className="text-[#64748D]">মোবাইল নম্বর:</span>
-                <span className="font-bold font-mono text-[#0D253D]">{selectedReceiptOrder.phone}</span>
+              <div className="flex justify-between py-1.5 border-b border-slate-100">
+                <span className="text-slate-500">মোবাইল নম্বর:</span>
+                <span className="font-bold font-mono text-[#0F172A]">{selectedReceiptOrder.phone}</span>
               </div>
-              <div className="flex justify-between py-1.5 border-b border-[#E5EDF5]">
-                <span className="text-[#64748D]">ইমেইল এড্রেস:</span>
-                <span className="font-bold font-mono text-[#0D253D]">{selectedReceiptOrder.email || 'N/A'}</span>
+              <div className="flex justify-between py-1.5 border-b border-slate-100">
+                <span className="text-slate-500">ইমেইল এড্রেস:</span>
+                <span className="font-bold font-mono text-[#0F172A]">{selectedReceiptOrder.email || 'N/A'}</span>
               </div>
-              <div className="flex justify-between py-1.5 border-b border-[#E5EDF5]">
-                <span className="text-[#64748D]">পেমেন্ট মাধ্যম:</span>
-                <span className="font-bold text-[#0D253D] uppercase">{selectedReceiptOrder.paymentMethod}</span>
+              <div className="flex justify-between py-1.5 border-b border-slate-100">
+                <span className="text-slate-500">পেমেন্ট মাধ্যম:</span>
+                <span className="font-bold text-[#0F172A] uppercase">{selectedReceiptOrder.paymentMethod}</span>
               </div>
-              <div className="flex justify-between py-1.5 border-b border-[#E5EDF5]">
-                <span className="text-[#64748D]">ট্রানজেকশন TrxID:</span>
+              <div className="flex justify-between py-1.5 border-b border-slate-100">
+                <span className="text-slate-500">ট্রানজেকশন TrxID:</span>
                 <span className="font-bold font-mono text-[#00B261]">{selectedReceiptOrder.transactionId}</span>
               </div>
-              <div className="flex justify-between py-1.5 border-b border-[#E5EDF5]">
-                <span className="text-[#64748D]">এককালীন চার্জ:</span>
-                <span className="font-black text-sm text-[#0D253D]">১,৯৯০ ৳</span>
+              <div className="flex justify-between py-1.5 border-b border-slate-100">
+                <span className="text-slate-500">এককালীন চার্জ:</span>
+                <span className="font-black text-sm text-[#0F172A]">১,৯৯০ ৳</span>
               </div>
-              <div className="flex justify-between py-1.5 border-b border-[#E5EDF5]">
-                <span className="text-[#64748D]">মাসিক খরচ:</span>
-                <span className="font-bold text-[#9333EA]">মাসিক খরচ ২৫০ টাকা</span>
+              <div className="flex justify-between py-1.5 border-b border-slate-100">
+                <span className="text-slate-500">মাসিক খরচ:</span>
+                <span className="font-bold text-[#6B46C1]">মাসিক খরচ ২৫০ টাকা</span>
               </div>
               <div className="flex justify-between py-1.5">
-                <span className="text-[#64748D]">স্ট্যাটাস:</span>
+                <span className="text-slate-500">স্ট্যাটাস:</span>
                 <span className={`font-bold flex items-center gap-1 ${
                   selectedReceiptOrder.status === 'completed'
                     ? 'text-[#008A4B]'
                     : selectedReceiptOrder.status === 'processing' || selectedReceiptOrder.status === 'verified'
-                    ? 'text-[#2B47EE]'
+                    ? 'text-[#6B46C1]'
                     : selectedReceiptOrder.status === 'cancelled'
                     ? 'text-[#E53935]'
                     : 'text-[#D8351E]'
@@ -546,14 +546,14 @@ export default function LandscapeOrderDetailsModal({
             <div className="pt-2 flex gap-2">
               <button
                 onClick={() => window.print()}
-                className="flex-1 py-2.5 rounded-xl bg-[#2B47EE] hover:bg-[#203CD4] text-white text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+                className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] hover:from-[#5B21B6] hover:to-[#6D28D9] text-white text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer shadow-md transition-all"
               >
                 <Printer className="w-3.5 h-3.5" />
                 <span>প্রিন্ট / ডাউনলোড</span>
               </button>
               <button
                 onClick={() => setSelectedReceiptOrder(null)}
-                className="px-4 py-2.5 rounded-xl bg-[#F8FAFD] hover:bg-[#EEF2FF] text-[#2B47EE] border border-[#E5EDF5] text-xs font-bold cursor-pointer"
+                className="px-4 py-2.5 rounded-xl bg-slate-50 hover:bg-[#FAF5FF] text-[#6B46C1] border border-slate-200 hover:border-[#DDD6FE] text-xs font-bold cursor-pointer transition-colors"
               >
                 বন্ধ করুন
               </button>

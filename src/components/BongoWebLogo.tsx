@@ -117,7 +117,7 @@ export default function BongoWebLogo({
       case 'monochrome':
         return 'bg-gradient-to-r from-[#0F172A] via-[#334155] to-[#475569]';
       case 'royal':
-        return 'bg-gradient-to-r from-[#2B47EE] via-[#4F46E5] to-[#7C3AED]';
+        return 'bg-gradient-to-r from-[#6B46C1] via-[#4F46E5] to-[#7C3AED]';
       case 'violet':
       default:
         return 'bg-gradient-to-r from-[#5521B5] via-[#6B46C1] to-[#9F7AEA]';

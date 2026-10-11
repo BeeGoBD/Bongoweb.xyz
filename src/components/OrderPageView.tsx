@@ -387,21 +387,21 @@ export default function OrderPageView({
                   onBackToDashboard();
                 }
               }}
-              className="px-3 py-1.5 rounded-xl bg-[#F8FAFD] hover:bg-[#EEF2FF] text-[#2B47EE] border border-[#E5EDF5] text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
+              className="px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-[#FAF5FF] text-[#6B46C1] border border-slate-200 hover:border-[#DDD6FE] text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>পেছনে ফিরুন</span>
             </button>
 
-            <span className="px-3 py-1 rounded-xl bg-[#2B47EE] text-white text-xs font-mono font-black shadow-xs">
+            <span className="px-3 py-1 rounded-xl bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] text-white text-xs font-mono font-black shadow-xs">
               {demoCode}
             </span>
-            <span className="text-xs sm:text-sm font-black text-[#0D253D] hidden xs:inline">
+            <span className="text-xs sm:text-sm font-black text-slate-900 hidden xs:inline">
               চেকআউট ও অর্ডার
             </span>
           </div>
 
-          <div className="flex items-center gap-2 text-xs font-bold text-[#00B261]">
+          <div className="flex items-center gap-2 text-xs font-bold text-emerald-600">
             <Lock className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">১০০% নিরাপদ SSL চেকআউট</span>
           </div>
@@ -411,8 +411,8 @@ export default function OrderPageView({
       {/* Floating Notification */}
       {emailNotification && (
         <div className="sticky top-16 z-50 max-w-xl mx-auto px-4 py-2 animate-slideDown">
-          <div className="p-3 sm:p-4 rounded-2xl bg-[#2B47EE] text-white text-xs sm:text-sm font-bold shadow-xl flex items-center gap-2.5">
-            <Sparkles className="w-5 h-5 text-[#FFD552] shrink-0" />
+          <div className="p-3 sm:p-4 rounded-2xl bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] text-white text-xs sm:text-sm font-bold shadow-xl flex items-center gap-2.5">
+            <Sparkles className="w-5 h-5 text-amber-300 shrink-0" />
             <div className="flex-1">
               <span>ইমেইল সফলভাবে ভেরিফাইড হয়েছে!</span>
               <p className="text-[11px] text-white/80 font-normal mt-0.5">
@@ -432,19 +432,19 @@ export default function OrderPageView({
           <div className="flex items-center justify-center gap-2 sm:gap-4 mb-8">
             <div className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-black transition-all ${
               currentStep === 1 || currentStep === 'otp'
-                ? 'bg-[#2B47EE] text-white shadow-xs' 
-                : 'bg-[#00B261]/15 text-[#00B261]'
+                ? 'bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] text-white shadow-xs' 
+                : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
             }`}>
               <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-[10px]">১</span>
               <span>তথ্য ও ওটিপি যাচাই</span>
             </div>
 
-            <span className="text-[#64748D] font-bold">→</span>
+            <span className="text-slate-400 font-bold">→</span>
 
             <div className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-black transition-all ${
               currentStep === 2 
-                ? 'bg-[#2B47EE] text-white shadow-xs' 
-                : 'bg-[#F8FAFD] text-[#64748D] border border-[#E5EDF5]'
+                ? 'bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] text-white shadow-xs' 
+                : 'bg-slate-50 text-slate-500 border border-slate-200'
             }`}>
               <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-[10px]">২</span>
               <span>ডোমেইন ও পেমেন্ট</span>
@@ -454,21 +454,21 @@ export default function OrderPageView({
 
         {/* ----------------- STEP 1: Client Information (No Password) ----------------- */}
         {currentStep === 1 && (
-          <div className="bg-[#FFFFFF] border border-[#E5EDF5] rounded-3xl p-6 sm:p-10 shadow-sm max-w-2xl mx-auto animate-fadeIn">
+          <div className="bg-[#FFFFFF] border border-slate-200/90 rounded-3xl p-6 sm:p-10 shadow-sm max-w-2xl mx-auto animate-fadeIn">
             <div className="text-center mb-6">
-              <span className="px-3 py-1 rounded-full bg-[#EEF2FF] text-[#2B47EE] text-xs font-bold inline-block mb-2">
+              <span className="px-3 py-1 rounded-full bg-[#FAF5FF] text-[#6B46C1] text-xs font-bold inline-block mb-2 border border-[#DDD6FE]">
                 ধাপ ১ • গ্রাহকের তথ্য
               </span>
-              <h1 className="text-xl sm:text-2xl font-black text-[#0D253D]">
+              <h1 className="text-xl sm:text-2xl font-black text-slate-900">
                 আপনার তথ্য দিয়ে সরাসরি চেকআউট শুরু করুন
               </h1>
-              <p className="text-xs text-[#64748D] mt-1">
+              <p className="text-xs text-slate-500 mt-1">
                 পাসওয়ার্ডের কোনো ঝামেলা নেই। তথ্য দেওয়ার পর ওটিপি কোড দিয়ে তাৎক্ষণিক ভেরিফাই হবে।
               </p>
             </div>
 
             {step1Error && (
-              <div className="mb-4 p-3 rounded-xl bg-[#D8351E]/10 border border-[#D8351E]/20 text-[#D8351E] text-xs font-bold flex items-center gap-2 animate-shake">
+              <div className="mb-4 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold flex items-center gap-2 animate-shake">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>{step1Error}</span>
               </div>
@@ -476,8 +476,8 @@ export default function OrderPageView({
 
             <form onSubmit={handleStep1Submit} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-[#0D253D] mb-1">
-                  আপনার পুরো নাম <span className="text-[#D8351E]">*</span>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  আপনার পুরো নাম <span className="text-rose-500">*</span>
                 </label>
                 <div className="relative">
                   <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -487,14 +487,14 @@ export default function OrderPageView({
                     placeholder="যেমন: মোঃ সাকিব হাসান"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs sm:text-sm text-[#0D253D] placeholder-[#7D8BA4] focus:outline-none focus:bg-[#FFFFFF] focus:border-[#2B47EE] focus:ring-1 focus:ring-[#2B47EE] transition-all"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-[#7C3AED] focus:ring-1 focus:ring-[#7C3AED] transition-all"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[#0D253D] mb-1">
-                  মোবাইল নম্বর <span className="text-[#D8351E]">*</span>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  মোবাইল নম্বর <span className="text-rose-500">*</span>
                 </label>
                 <div className="relative">
                   <Phone className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -504,14 +504,14 @@ export default function OrderPageView({
                     placeholder="017xxxxxxxx"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs sm:text-sm text-[#0D253D] placeholder-[#7D8BA4] focus:outline-none focus:bg-[#FFFFFF] focus:border-[#2B47EE] focus:ring-1 focus:ring-[#2B47EE] transition-all font-mono"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-[#7C3AED] focus:ring-1 focus:ring-[#7C3AED] transition-all font-mono"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[#0D253D] mb-1">
-                  ইমেইল এড্রেস <span className="text-[#D8351E]">*</span>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  ইমেইল এড্রেস <span className="text-rose-500">*</span>
                 </label>
                 <div className="relative">
                   <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -521,22 +521,22 @@ export default function OrderPageView({
                     placeholder="name@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs sm:text-sm text-[#0D253D] placeholder-[#7D8BA4] focus:outline-none focus:bg-[#FFFFFF] focus:border-[#2B47EE] focus:ring-1 focus:ring-[#2B47EE] transition-all font-mono"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-[#7C3AED] focus:ring-1 focus:ring-[#7C3AED] transition-all font-mono"
                   />
                 </div>
               </div>
 
               {/* Price Reminder */}
-              <div className="p-3 rounded-2xl bg-[#F8FAFD] border border-[#E5EDF5] flex items-center justify-between text-xs mt-3">
-                <span className="text-[#64748D]">এককালীন মেকিং চার্জ: <strong className="text-[#9333EA]">১,৯৯০ ৳</strong></span>
-                <span className="text-[#64748D]"><strong className="text-[#9333EA]">মাসিক খরচ ২৫০ টাকা</strong></span>
+              <div className="p-3 rounded-2xl bg-[#FAF5FF]/70 border border-[#DDD6FE] flex items-center justify-between text-xs mt-3">
+                <span className="text-slate-600">এককালীন সেটআপ চার্জ: <strong className="text-[#6B46C1] font-mono">১,৯৯০ ৳</strong></span>
+                <span className="text-slate-600">মাসিক ক্লাউড: <strong className="text-[#6B46C1] font-mono">১২০ টাকা</strong></span>
               </div>
 
               <div className="pt-3">
                 <button
                   type="submit"
                   disabled={step1Loading}
-                  className="w-full py-3 px-4 rounded-xl bg-[#2B47EE] hover:bg-[#203CD4] active:bg-[#1E3A8A] text-white text-xs sm:text-sm font-bold shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.01] disabled:opacity-60"
+                  className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#6B46C1] via-[#7C3AED] to-[#5521B5] hover:from-[#5B21B6] hover:to-[#4C1D95] text-white text-xs sm:text-sm font-bold shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.01] disabled:opacity-60"
                 >
                   {step1Loading ? (
                     <span className="flex items-center gap-2">
@@ -557,24 +557,24 @@ export default function OrderPageView({
 
         {/* ----------------- STEP 'otp': OTP Verification Page ----------------- */}
         {currentStep === 'otp' && (
-          <div className="bg-[#FFFFFF] border border-[#E5EDF5] rounded-3xl p-6 sm:p-10 shadow-sm max-w-xl mx-auto animate-fadeIn space-y-6">
+          <div className="bg-[#FFFFFF] border border-slate-200/90 rounded-3xl p-6 sm:p-10 shadow-sm max-w-xl mx-auto animate-fadeIn space-y-6">
             <div className="text-center">
-              <div className="w-14 h-14 rounded-2xl bg-[#EEF2FF] border border-[#2B47EE]/20 text-[#2B47EE] flex items-center justify-center mx-auto mb-3 shadow-xs">
+              <div className="w-14 h-14 rounded-2xl bg-[#FAF5FF] border border-[#DDD6FE] text-[#6B46C1] flex items-center justify-center mx-auto mb-3 shadow-xs">
                 <Mail className="w-7 h-7" />
               </div>
-              <span className="px-3 py-1 rounded-full bg-[#EEF2FF] text-[#2B47EE] text-xs font-bold inline-block mb-2">
+              <span className="px-3 py-1 rounded-full bg-[#FAF5FF] text-[#6B46C1] text-xs font-bold inline-block mb-2 border border-[#DDD6FE]">
                 ইমেইল ওটিপি যাচাই
               </span>
-              <h2 className="text-xl sm:text-2xl font-black text-[#0D253D] tracking-tight">
+              <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
                 ৬-সংখ্যার কোডটি প্রবেশ করান
               </h2>
-              <p className="text-xs text-[#64748D] mt-1.5 leading-relaxed max-w-sm mx-auto">
+              <p className="text-xs text-slate-500 mt-1.5 leading-relaxed max-w-sm mx-auto">
                 <strong className="text-slate-900 font-bold">{email}</strong> ঠিকানায় একটি ৬-সংখ্যার ভেরিফিকেশন কোড পাঠানো হয়েছে।
               </p>
               <button
                 type="button"
                 onClick={() => setCurrentStep(1)}
-                className="mt-1 text-xs text-[#2B47EE] hover:underline font-semibold cursor-pointer"
+                className="mt-1 text-xs text-[#6B46C1] hover:underline font-semibold cursor-pointer"
               >
                 ইমেইল বা ফোন পরিবর্তন করুন
               </button>
@@ -588,7 +588,7 @@ export default function OrderPageView({
             )}
 
             {/* OTP Input Card */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-[#F8FAFD] border border-[#E5EDF5] space-y-3">
+            <div className="p-4 sm:p-5 rounded-2xl bg-[#FAF5FF]/50 border border-slate-200 space-y-3">
               <div className="flex items-center justify-between text-xs font-bold text-slate-800">
                 <span>৬-ডিজিটের কোড</span>
                 <span className="text-[11px] text-emerald-600 font-semibold flex items-center gap-1">
@@ -605,10 +605,10 @@ export default function OrderPageView({
                   placeholder="● ● ● ● ● ●"
                   value={otpCode}
                   onChange={handleOtpChange}
-                  className="w-full px-4 py-3 rounded-xl bg-white border border-[#E5EDF5] text-center font-mono font-black tracking-[0.4em] text-xl text-[#0D253D] focus:outline-none focus:border-[#2B47EE] focus:ring-2 focus:ring-[#2B47EE]/20 transition-all shadow-2xs"
+                  className="w-full px-4 py-3 rounded-xl bg-white border border-slate-200 text-center font-mono font-black tracking-[0.4em] text-xl text-slate-900 focus:outline-none focus:border-[#7C3AED] focus:ring-2 focus:ring-[#7C3AED]/20 transition-all shadow-2xs"
                 />
                 {otpVerifying && (
-                  <div className="absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5 text-xs text-[#2B47EE] font-bold bg-white/95 px-2.5 py-1 rounded-lg shadow-2xs">
+                  <div className="absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5 text-xs text-[#6B46C1] font-bold bg-white/95 px-2.5 py-1 rounded-lg shadow-2xs">
                     <RefreshCw className="w-3.5 h-3.5 animate-spin" />
                     <span>যাচাই হচ্ছে...</span>
                   </div>
@@ -617,7 +617,7 @@ export default function OrderPageView({
 
               {/* Resend button */}
               <div className="flex items-center justify-between text-xs pt-1">
-                <span className="text-[#64748D]">কোড পাননি?</span>
+                <span className="text-slate-500">কোড পাননি?</span>
                 {otpCountdown > 0 ? (
                   <span className="text-slate-400 font-mono text-[11px]">
                     পুনরায় পাঠাতে অপেক্ষা করুন: {otpCountdown}s
@@ -627,7 +627,7 @@ export default function OrderPageView({
                     type="button"
                     onClick={handleResendOtp}
                     disabled={otpSending}
-                    className="text-[#2B47EE] hover:underline font-bold cursor-pointer"
+                    className="text-[#6B46C1] hover:underline font-bold cursor-pointer"
                   >
                     {otpSending ? 'পাঠানো হচ্ছে...' : 'পুনরায় কোড পাঠান'}
                   </button>
@@ -640,7 +640,7 @@ export default function OrderPageView({
                 type="button"
                 onClick={() => handleVerifyOtp()}
                 disabled={otpCode.length < 6 || otpVerifying}
-                className="w-full py-3 px-4 rounded-xl bg-[#2B47EE] hover:bg-[#203CD4] active:bg-[#1E3A8A] text-white text-xs sm:text-sm font-bold shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#6B46C1] via-[#7C3AED] to-[#5521B5] hover:from-[#5B21B6] hover:to-[#4C1D95] text-white text-xs sm:text-sm font-bold shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
               >
                 {otpVerifying ? (
                   <span className="flex items-center gap-2">
@@ -668,20 +668,20 @@ export default function OrderPageView({
 
         {/* ----------------- STEP 2: Main Step (Company, Domain, Payment) ----------------- */}
         {currentStep === 2 && (
-          <div className="bg-[#FFFFFF] border border-[#E5EDF5] rounded-3xl p-6 sm:p-10 shadow-sm max-w-3xl mx-auto animate-fadeIn space-y-6">
+          <div className="bg-[#FFFFFF] border border-slate-200/90 rounded-3xl p-6 sm:p-10 shadow-sm max-w-3xl mx-auto animate-fadeIn space-y-6">
             <div className="text-center">
-              <span className="px-3 py-1 rounded-full bg-[#EEF2FF] text-[#2B47EE] text-xs font-bold inline-block mb-2">
+              <span className="px-3 py-1 rounded-full bg-[#FAF5FF] text-[#6B46C1] text-xs font-bold inline-block mb-2 border border-[#DDD6FE]">
                 ধাপ ২ • ডোমেইন ও পেমেন্ট
               </span>
-              <h1 className="text-xl sm:text-2xl font-black text-[#0D253D]">
+              <h1 className="text-xl sm:text-2xl font-black text-slate-900">
                 ব্যবসার বিবরণ ও ম্যানুয়াল পেমেন্ট সম্পন্ন করুন
               </h1>
             </div>
 
             {/* Verified Client Info Capsule */}
-            <div className="p-3.5 sm:p-4 rounded-2xl bg-blue-50/70 border border-blue-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs">
+            <div className="p-3.5 sm:p-4 rounded-2xl bg-[#FAF5FF]/80 border border-[#DDD6FE] flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold">
+                <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#6B46C1] to-[#7C3AED] text-white flex items-center justify-center font-bold">
                   <CheckCircle2 className="w-4.5 h-4.5" />
                 </div>
                 <div>
@@ -699,7 +699,7 @@ export default function OrderPageView({
             </div>
 
             {step2Error && (
-              <div className="p-3 rounded-xl bg-[#D8351E]/10 border border-[#D8351E]/20 text-[#D8351E] text-xs font-bold flex items-center gap-2">
+              <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>{step2Error}</span>
               </div>
@@ -708,8 +708,8 @@ export default function OrderPageView({
             <form onSubmit={handleStep2Submit} className="space-y-6">
               {/* 1. Company Name */}
               <div>
-                <label className="block text-xs font-bold text-[#0D253D] mb-1.5">
-                  কোম্পানি বা ব্যবসার নাম <span className="text-[#D8351E]">*</span>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                  কোম্পানি বা ব্যবসার নাম <span className="text-rose-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -717,17 +717,17 @@ export default function OrderPageView({
                   placeholder="যেমন: স্টাইল মার্ট / টেক জোন"
                   value={companyName}
                   onChange={(e) => setCompanyName(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs sm:text-sm text-[#0D253D] placeholder-[#7D8BA4] focus:outline-none focus:bg-[#FFFFFF] focus:border-[#2B47EE] focus:ring-1 focus:ring-[#2B47EE] transition-all"
+                  className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-[#7C3AED] focus:ring-1 focus:ring-[#7C3AED] transition-all"
                 />
               </div>
 
               {/* 2. Domain Choice Section (3 Options in Bangla) */}
-              <div className="p-4 sm:p-5 rounded-2xl bg-[#F8FAFD] border border-[#E5EDF5] space-y-3">
+              <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
                 <div>
-                  <h4 className="text-xs sm:text-sm font-black text-[#0D253D]">
+                  <h4 className="text-xs sm:text-sm font-black text-slate-900">
                     ডোমেইন নির্বাচন
                   </h4>
-                  <p className="text-[11px] text-[#64748D] mt-0.5">
+                  <p className="text-[11px] text-slate-500 mt-0.5">
                     ডোমেইন সম্পর্কে না জানলে নিচের ৩য় অপশনটি নির্বাচন করুন।
                   </p>
                 </div>
@@ -738,8 +738,8 @@ export default function OrderPageView({
                     onClick={() => setDomainOption('have_domain')}
                     className={`p-3 rounded-xl border text-xs font-bold transition-all text-left cursor-pointer ${
                       domainOption === 'have_domain'
-                        ? 'bg-[#2B47EE] text-white border-[#2B47EE] shadow-xs'
-                        : 'bg-white text-[#0D253D] border-[#E5EDF5] hover:border-[#2B47EE]/40'
+                        ? 'bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] text-white border-[#6B46C1] shadow-xs'
+                        : 'bg-white text-slate-800 border-slate-200 hover:border-[#7C3AED]/40'
                     }`}
                   >
                     আমার ডোমেন আছে
@@ -750,8 +750,8 @@ export default function OrderPageView({
                     onClick={() => setDomainOption('no_domain')}
                     className={`p-3 rounded-xl border text-xs font-bold transition-all text-left cursor-pointer ${
                       domainOption === 'no_domain'
-                        ? 'bg-[#2B47EE] text-white border-[#2B47EE] shadow-xs'
-                        : 'bg-white text-[#0D253D] border-[#E5EDF5] hover:border-[#2B47EE]/40'
+                        ? 'bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] text-white border-[#6B46C1] shadow-xs'
+                        : 'bg-white text-slate-800 border-slate-200 hover:border-[#7C3AED]/40'
                     }`}
                   >
                     আমার ডোমেন নেই
@@ -762,8 +762,8 @@ export default function OrderPageView({
                     onClick={() => setDomainOption('dont_know')}
                     className={`p-3 rounded-xl border text-xs font-bold transition-all text-left cursor-pointer ${
                       domainOption === 'dont_know'
-                        ? 'bg-[#2B47EE] text-white border-[#2B47EE] shadow-xs'
-                        : 'bg-white text-[#0D253D] border-[#E5EDF5] hover:border-[#2B47EE]/40'
+                        ? 'bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] text-white border-[#6B46C1] shadow-xs'
+                        : 'bg-white text-slate-800 border-slate-200 hover:border-[#7C3AED]/40'
                     }`}
                   >
                     ডোমেন কী আমি জানি না
@@ -773,7 +773,7 @@ export default function OrderPageView({
                 {/* Sub-box based on selection */}
                 {domainOption === 'have_domain' && (
                   <div className="pt-2 animate-fadeIn">
-                    <label className="block text-xs font-bold text-[#0D253D] mb-1">
+                    <label className="block text-xs font-bold text-slate-800 mb-1">
                       আপনার বিদ্যমান ডোমেইন নামটি লিখুন:
                     </label>
                     <input
@@ -781,20 +781,20 @@ export default function OrderPageView({
                       placeholder="যেমন: mybrand.com বা myshop.xyz"
                       value={customDomainName}
                       onChange={(e) => setCustomDomainName(e.target.value)}
-                      className="w-full px-3.5 py-2 rounded-xl bg-white border border-[#E5EDF5] text-xs font-mono text-[#0D253D] placeholder-[#7D8BA4] focus:outline-none focus:border-[#2B47EE]"
+                      className="w-full px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-mono text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#7C3AED]"
                     />
                   </div>
                 )}
 
                 {domainOption === 'no_domain' && (
-                  <p className="text-xs text-[#00B261] font-semibold bg-white p-2.5 rounded-xl border border-[#E5EDF5] animate-fadeIn">
+                  <p className="text-xs text-emerald-700 font-semibold bg-emerald-50 p-2.5 rounded-xl border border-emerald-200 animate-fadeIn">
                     ✓ আপনার প্যাকেজের সাথে ১ বছরের সম্পূর্ণ ফ্রি ডোমেইন ও হোস্টিং যুক্ত থাকবে।
                   </p>
                 )}
 
                 {domainOption === 'dont_know' && (
-                  <div className="p-3 rounded-xl bg-white border border-[#E5EDF5] text-xs text-[#273951] leading-relaxed animate-fadeIn">
-                    <span className="font-bold text-[#2B47EE]">ডোমেন কী?</span> ডোমেন হলো ইন্টারনেটে আপনার ওয়েবসাইটের সুনির্দিষ্ট ঠিকানা (যেমন: daraz.com.bd বা bikroy.com) যার মাধ্যমে গ্রাহকরা আপনার ওয়েবসাইটে প্রবেশ করবে। প্যাকেজের সাথে ১ বছরের ফ্রি ডোমেইন অন্তর্ভুক্ত রয়েছে, যা আমাদের ইঞ্জিনিয়ার সরাসরি আপনার সাথে কথা বলে আপনার কোম্পানির নামে রেজিস্টার করে দেবে।
+                  <div className="p-3 rounded-xl bg-white border border-slate-200 text-xs text-slate-700 leading-relaxed animate-fadeIn">
+                    <span className="font-bold text-[#6B46C1]">ডোমেন কী?</span> ডোমেন হলো ইন্টারনেটে আপনার ওয়েবসাইটের সুনির্দিষ্ট ঠিকানা (যেমন: daraz.com.bd বা bikroy.com) যার মাধ্যমে গ্রাহকরা আপনার ওয়েবসাইটে প্রবেশ করবে। প্যাকেজের সাথে ১ বছরের ফ্রি ডোমেইন অন্তর্ভুক্ত রয়েছে, যা আমাদের ইঞ্জিনিয়ার সরাসরি আপনার সাথে কথা বলে আপনার কোম্পানির নামে রেজিস্টার করে দেবে।
                   </div>
                 )}
               </div>
@@ -802,10 +802,10 @@ export default function OrderPageView({
               {/* 3. Manual Payment Method Selector (bKash, Nagad, Rocket, Upay) */}
               <div className="space-y-3">
                 <div>
-                  <h4 className="text-xs sm:text-sm font-black text-[#0D253D]">
+                  <h4 className="text-xs sm:text-sm font-black text-slate-900">
                     পেমেন্ট মেথড নির্বাচন করুন (ম্যানুয়াল পেমেন্ট)
                   </h4>
-                  <p className="text-[11px] text-[#64748D]">
+                  <p className="text-[11px] text-slate-500">
                     নিচের যেকোনো একটি মাধ্যমে এককালীন মেকিং চার্জ ১,৯৯০ টাকা পাঠান।
                   </p>
                 </div>
@@ -826,8 +826,8 @@ export default function OrderPageView({
                         onClick={() => setPaymentMethod(method)}
                         className={`p-3 rounded-xl border text-xs font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                           isSelected
-                            ? 'bg-[#2B47EE] text-white border-[#2B47EE] shadow-xs'
-                            : 'bg-[#F8FAFD] text-[#0D253D] border-[#E5EDF5] hover:border-[#2B47EE]/40'
+                            ? 'bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] text-white border-[#6B46C1] shadow-xs'
+                            : 'bg-slate-50 text-slate-800 border-slate-200 hover:border-[#7C3AED]/40'
                         }`}
                       >
                         {labels[method]}
@@ -837,13 +837,13 @@ export default function OrderPageView({
                 </div>
 
                 {/* Dedicated Payment Box with 1-Click Copy Number */}
-                <div className="p-4 sm:p-5 rounded-2xl bg-[#F8FAFD] border-2 border-[#2B47EE]/30 space-y-4">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-3.5 rounded-xl border border-[#E5EDF5]">
+                <div className="p-4 sm:p-5 rounded-2xl bg-[#FAF5FF]/50 border-2 border-[#7C3AED]/30 space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-3.5 rounded-xl border border-slate-200">
                     <div>
-                      <span className="text-[10px] font-bold text-[#64748D] block uppercase">
+                      <span className="text-[10px] font-bold text-slate-500 block uppercase">
                         {paymentNumbers[paymentMethod].type}
                       </span>
-                      <span className="text-base sm:text-lg font-mono font-black text-[#0D253D]">
+                      <span className="text-base sm:text-lg font-mono font-black text-slate-900">
                         {paymentNumbers[paymentMethod].number}
                       </span>
                     </div>
@@ -851,7 +851,7 @@ export default function OrderPageView({
                     <button
                       type="button"
                       onClick={handleCopyNumber}
-                      className="px-3.5 py-1.5 rounded-xl bg-[#2B47EE] hover:bg-[#203CD4] text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+                      className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] hover:from-[#5B21B6] hover:to-[#6B46C1] text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
                     >
                       {copiedNumber ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                       <span>{copiedNumber ? 'কপি হয়েছে!' : 'নাম্বার কপি করুন'}</span>
@@ -860,8 +860,8 @@ export default function OrderPageView({
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-bold text-[#0D253D] mb-1">
-                        ট্রানজেকশন আইডি (TrxID) <span className="text-[#D8351E]">*</span>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">
+                        ট্রানজেকশন আইডি (TrxID) <span className="text-rose-500">*</span>
                       </label>
                       <input
                         type="text"
@@ -869,12 +869,12 @@ export default function OrderPageView({
                         placeholder="যেমন: 8N7X2Q9L"
                         value={transactionId}
                         onChange={(e) => setTransactionId(e.target.value)}
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#E5EDF5] text-xs font-mono font-bold text-[#0D253D] placeholder-[#7D8BA4] uppercase focus:outline-none focus:border-[#2B47EE]"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-xs font-mono font-bold text-slate-900 placeholder:text-slate-400 uppercase focus:outline-none focus:border-[#7C3AED]"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold text-[#0D253D] mb-1">
+                      <label className="block text-xs font-bold text-slate-700 mb-1">
                         পেমেন্ট স্ক্রিনশট (ঐচ্ছিক)
                       </label>
                       <input
@@ -884,7 +884,7 @@ export default function OrderPageView({
                           const file = e.target.files?.[0];
                           if (file) setScreenshotName(file.name);
                         }}
-                        className="w-full text-xs text-[#64748D] file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-[#EEF2FF] file:text-[#2B47EE] hover:file:bg-[#2B47EE] hover:file:text-white cursor-pointer"
+                        className="w-full text-xs text-slate-600 file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-[#FAF5FF] file:text-[#6B46C1] hover:file:bg-[#6B46C1] hover:file:text-white cursor-pointer"
                       />
                     </div>
                   </div>
@@ -939,20 +939,20 @@ export default function OrderPageView({
               <div className="w-14 h-14 rounded-full bg-[#00B261]/10 text-[#00B261] flex items-center justify-center mx-auto mb-3">
                 <CheckCircle2 className="w-8 h-8 stroke-[2.5]" />
               </div>
-              <span className="px-3 py-1 rounded-full bg-[#EEF2FF] text-[#2B47EE] text-xs font-black font-mono inline-block mb-1">
+              <span className="px-3 py-1 rounded-full bg-[#FAF5FF] text-[#6B46C1] text-xs font-black font-mono inline-block mb-1 border border-[#DDD6FE]">
                 অর্ডার আইডি: {createdOrder.orderId}
               </span>
-              <h1 className="text-2xl font-black text-[#0D253D]">
+              <h1 className="text-2xl font-black text-slate-900">
                 অফিসিয়াল অর্ডার রসিদ (Official Receipt)
               </h1>
-              <p className="text-xs text-[#64748D] mt-1">
+              <p className="text-xs text-slate-500 mt-1">
                 BongoWeb • ২৪ ঘণ্টার মধ্যে সম্পূর্ণ লাইভ ডেলিভারি গ্যারান্টি
               </p>
             </div>
 
             {/* Global Notice Alert */}
-            <div className="p-4 rounded-2xl bg-[#FFD552]/20 border border-[#FFD552] text-xs font-bold text-[#8A6D00] flex items-center gap-2.5">
-              <AlertCircle className="w-5 h-5 shrink-0" />
+            <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-xs font-bold text-amber-900 flex items-center gap-2.5">
+              <AlertCircle className="w-5 h-5 text-amber-600 shrink-0" />
               <span>
                 আপনার পেমেন্ট ভেরিফিকেশন প্রক্রিয়াধীন রয়েছে। ১ মিনিট থেকে ১ ঘণ্টার মধ্যে সিস্টেম স্বয়ংক্রিয়ভাবে নিশ্চিত করবে।
               </span>
@@ -960,53 +960,53 @@ export default function OrderPageView({
 
             {/* Receipt Details Table */}
             <div className="space-y-2.5 text-xs">
-              <div className="flex justify-between py-2 border-b border-[#E5EDF5]">
-                <span className="text-[#64748D]">গ্রাহকের নাম:</span>
-                <span className="font-bold text-[#0D253D]">{createdOrder.clientName}</span>
+              <div className="flex justify-between py-2 border-b border-slate-200">
+                <span className="text-slate-500">গ্রাহকের নাম:</span>
+                <span className="font-bold text-slate-900">{createdOrder.clientName}</span>
               </div>
-              <div className="flex justify-between py-2 border-b border-[#E5EDF5]">
-                <span className="text-[#64748D]">কোম্পানি / ব্যবসার নাম:</span>
-                <span className="font-bold text-[#0D253D]">{createdOrder.companyName}</span>
+              <div className="flex justify-between py-2 border-b border-slate-200">
+                <span className="text-slate-500">কোম্পানি / ব্যবসার নাম:</span>
+                <span className="font-bold text-slate-900">{createdOrder.companyName}</span>
               </div>
-              <div className="flex justify-between py-2 border-b border-[#E5EDF5]">
-                <span className="text-[#64748D]">মোবাইল নম্বর:</span>
-                <span className="font-bold font-mono text-[#0D253D]">{createdOrder.phone}</span>
+              <div className="flex justify-between py-2 border-b border-slate-200">
+                <span className="text-slate-500">মোবাইল নম্বর:</span>
+                <span className="font-bold font-mono text-slate-900">{createdOrder.phone}</span>
               </div>
-              <div className="flex justify-between py-2 border-b border-[#E5EDF5]">
-                <span className="text-[#64748D]">ইমেইল এড্রেস:</span>
-                <span className="font-bold font-mono text-[#0D253D]">{createdOrder.email}</span>
+              <div className="flex justify-between py-2 border-b border-slate-200">
+                <span className="text-slate-500">ইমেইল এড্রেস:</span>
+                <span className="font-bold font-mono text-slate-900">{createdOrder.email}</span>
               </div>
-              <div className="flex justify-between py-2 border-b border-[#E5EDF5]">
-                <span className="text-[#64748D]">নির্বাচিত ওয়েবসাইট কোড:</span>
-                <span className="font-bold font-mono text-[#2B47EE]">{createdOrder.demoCode}</span>
+              <div className="flex justify-between py-2 border-b border-slate-200">
+                <span className="text-slate-500">নির্বাচিত ওয়েবসাইট কোড:</span>
+                <span className="font-bold font-mono text-[#6B46C1]">{createdOrder.demoCode}</span>
               </div>
-              <div className="flex justify-between py-2 border-b border-[#E5EDF5]">
-                <span className="text-[#64748D]">পেমেন্ট মেথড:</span>
-                <span className="font-bold text-[#0D253D] uppercase">{createdOrder.paymentMethod}</span>
+              <div className="flex justify-between py-2 border-b border-slate-200">
+                <span className="text-slate-500">পেমেন্ট মেথড:</span>
+                <span className="font-bold text-slate-900 uppercase">{createdOrder.paymentMethod}</span>
               </div>
-              <div className="flex justify-between py-2 border-b border-[#E5EDF5]">
-                <span className="text-[#64748D]">ট্রানজেকশন আইডি (TrxID):</span>
-                <span className="font-bold font-mono text-[#00B261]">{createdOrder.transactionId}</span>
+              <div className="flex justify-between py-2 border-b border-slate-200">
+                <span className="text-slate-500">ট্রানজেকশন আইডি (TrxID):</span>
+                <span className="font-bold font-mono text-emerald-600">{createdOrder.transactionId}</span>
               </div>
-              <div className="flex justify-between py-2 border-b border-[#E5EDF5]">
-                <span className="text-[#64748D]">মেকিং চার্জ (পরিশোধিত):</span>
-                <span className="font-black text-sm text-[#0D253D]">১,৯৯০ ৳</span>
+              <div className="flex justify-between py-2 border-b border-slate-200">
+                <span className="text-slate-500">মেকিং চার্জ (পরিশোধিত):</span>
+                <span className="font-black text-sm text-slate-900 font-mono">১,৯৯০ ৳</span>
               </div>
-              <div className="flex justify-between py-2 border-b border-[#E5EDF5]">
-                <span className="text-[#64748D]">মাসিক খরচ:</span>
-                <span className="font-bold text-[#9333EA]">মাসিক খরচ ২৫০ টাকা</span>
+              <div className="flex justify-between py-2 border-b border-slate-200">
+                <span className="text-slate-500">মাসিক খরচ:</span>
+                <span className="font-bold text-[#6B46C1] font-mono">১২০ টাকা / মাস</span>
               </div>
               <div className="flex justify-between py-2">
-                <span className="text-[#64748D]">অর্ডার স্ট্যাটাস:</span>
-                <span className="font-bold text-[#D8351E]">পেন্ডিং ভেরিফিকেশন (১ মিনিট - ১ ঘণ্টা)</span>
+                <span className="text-slate-500">অর্ডার স্ট্যাটাস:</span>
+                <span className="font-bold text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200">পেন্ডিং ভেরিফিকেশন (১ মিনিট - ১ ঘণ্টা)</span>
               </div>
             </div>
 
             {/* Print & Return Buttons */}
-            <div className="pt-4 border-t border-[#E5EDF5] flex flex-col sm:flex-row gap-3">
+            <div className="pt-4 border-t border-slate-200 flex flex-col sm:flex-row gap-3">
               <button
                 onClick={handlePrintReceipt}
-                className="flex-1 py-3 px-4 rounded-xl bg-[#2B47EE] hover:bg-[#203CD4] text-white text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+                className="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] hover:from-[#5B21B6] hover:to-[#6B46C1] text-white text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
               >
                 <Printer className="w-4 h-4" />
                 <span>রসিদ প্রিন্ট / ডাউনলোড করুন</span>
@@ -1014,7 +1014,7 @@ export default function OrderPageView({
 
               <button
                 onClick={onBackToDashboard}
-                className="flex-1 py-3 px-4 rounded-xl bg-[#F8FAFD] hover:bg-[#EEF2FF] text-[#2B47EE] border border-[#E5EDF5] text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer"
+                className="flex-1 py-3 px-4 rounded-xl bg-slate-50 hover:bg-[#FAF5FF] hover:border-[#DDD6FE] text-[#6B46C1] border border-slate-200 text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 <span>ড্যাশবোর্ডে ফিরুন</span>
               </button>
@@ -1024,28 +1024,28 @@ export default function OrderPageView({
 
         {/* Step 3 Fallback if refreshed without active order object */}
         {currentStep === 3 && !createdOrder && (
-          <div className="bg-[#FFFFFF] border-2 border-[#E5EDF5] rounded-3xl p-6 sm:p-10 shadow-lg max-w-xl mx-auto animate-fadeIn text-center space-y-4">
-            <div className="w-14 h-14 rounded-full bg-[#00B261]/10 text-[#00B261] flex items-center justify-center mx-auto">
+          <div className="bg-[#FFFFFF] border-2 border-slate-200 rounded-3xl p-6 sm:p-10 shadow-lg max-w-xl mx-auto animate-fadeIn text-center space-y-4">
+            <div className="w-14 h-14 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center mx-auto">
               <CheckCircle2 className="w-8 h-8 stroke-[2.5]" />
             </div>
-            <h2 className="text-xl font-black text-[#0D253D]">
+            <h2 className="text-xl font-black text-slate-900">
               অর্ডার রসিদ পৃষ্ঠা
             </h2>
-            <p className="text-xs sm:text-sm text-[#64748D] leading-relaxed max-w-md mx-auto">
+            <p className="text-xs sm:text-sm text-slate-500 leading-relaxed max-w-md mx-auto">
               আপনার দেওয়া অর্ডারের রসিদ প্রস্তুত রয়েছে। নতুন অর্ডার করতে চাইলে আগের ধাপে ফিরে যেতে পারেন অথবা সরাসরি ড্যাশবোর্ড বা ক্যাটালগ দেখতে পারেন।
             </p>
             <div className="flex flex-col sm:flex-row gap-2.5 justify-center pt-2">
               <button
                 type="button"
                 onClick={() => setCurrentStep(2)}
-                className="px-5 py-2.5 rounded-xl bg-[#F8FAFD] hover:bg-[#EEF2FF] text-[#2B47EE] border border-[#E5EDF5] text-xs font-bold transition-all"
+                className="px-5 py-2.5 rounded-xl bg-slate-50 hover:bg-[#FAF5FF] text-[#6B46C1] border border-slate-200 hover:border-[#DDD6FE] text-xs font-bold transition-all"
               >
                 ← পেমেন্ট ধাপে ফিরে যান
               </button>
               <button
                 type="button"
                 onClick={onBackToDashboard}
-                className="px-5 py-2.5 rounded-xl bg-[#2B47EE] hover:bg-[#1E3A8A] text-white text-xs font-bold transition-all"
+                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] hover:from-[#5B21B6] hover:to-[#6B46C1] text-white text-xs font-bold transition-all shadow-xs"
               >
                 ড্যাশবোর্ডে যান
               </button>

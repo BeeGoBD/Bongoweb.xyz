@@ -1,6 +1,7 @@
 import React from 'react';
-import { Bell, Menu, Sparkles } from 'lucide-react';
+import { Bell, Menu, Sparkles, LayoutGrid, ClipboardCheck, MessageCircle, User } from 'lucide-react';
 import { WebsiteCategory } from '../types';
+import { BottomTabType } from './FixedBottomNav';
 import BongoWebLogo from './BongoWebLogo';
 
 interface FixedHeaderProps {
@@ -10,6 +11,9 @@ interface FixedHeaderProps {
   onOpenLogoShowcase?: () => void;
   unreadCount?: number;
   currentCategory?: WebsiteCategory | string;
+  activeTab?: BottomTabType;
+  onTabChange?: (tab: BottomTabType) => void;
+  unreadChatCount?: number;
 }
 
 export default function FixedHeader({
@@ -18,17 +22,44 @@ export default function FixedHeader({
   onOpenMenu,
   onOpenLogoShowcase,
   unreadCount = 0,
-  currentCategory = 'all'
+  currentCategory = 'all',
+  activeTab = 'dashboard',
+  onTabChange,
+  unreadChatCount = 0
 }: FixedHeaderProps) {
+  const desktopTabs = [
+    {
+      id: 'dashboard' as BottomTabType,
+      label: 'ড্যাশবোর্ড',
+      icon: LayoutGrid
+    },
+    {
+      id: 'after-order' as BottomTabType,
+      label: 'অর্ডারের ধাপ',
+      icon: ClipboardCheck
+    },
+    {
+      id: 'live-chat' as BottomTabType,
+      label: 'লাইভ চ্যাট',
+      icon: MessageCircle,
+      badge: unreadChatCount
+    },
+    {
+      id: 'account' as BottomTabType,
+      label: 'Account',
+      icon: User
+    }
+  ];
+
   return (
     <div className="fixed top-0 left-0 right-0 z-40 w-full flex flex-col select-none">
       <header 
         id="fixed-main-header"
-        className="w-full bg-[#FFFFFF]/95 backdrop-blur-xl border-b border-slate-200/80 shadow-[0_2px_16px_rgba(171,85,247,0.06)] h-16 sm:h-[68px] flex items-center transition-all"
+        className="w-full bg-[#FFFFFF]/95 backdrop-blur-xl border-b border-slate-200/80 shadow-[0_2px_16px_rgba(171,85,247,0.06)] h-16 sm:h-[68px] lg:h-[72px] flex items-center transition-all"
       >
-        <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-3 sm:gap-4 h-full">
+        <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4 h-full">
           {/* Top Left: Official BongoWeb Logo */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <div 
               onClick={onBackToCategoryPicker}
               className="flex items-center cursor-pointer group"
@@ -41,7 +72,7 @@ export default function FixedHeader({
               <button
                 type="button"
                 onClick={onOpenLogoShowcase}
-                className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#AB55F7]/10 hover:bg-[#AB55F7]/15 text-[#9333EA] text-xs font-bold border border-[#AB55F7]/25 transition-all cursor-pointer shadow-2xs"
+                className="hidden xl:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#AB55F7]/10 hover:bg-[#AB55F7]/15 text-[#9333EA] text-xs font-bold border border-[#AB55F7]/25 transition-all cursor-pointer shadow-2xs"
                 title="View BongoWeb Logo Brand Versions (4:1 & 1:1)"
               >
                 <Sparkles className="w-3.5 h-3.5 text-[#9333EA]" />
@@ -50,8 +81,36 @@ export default function FixedHeader({
             )}
           </div>
 
+          {/* Center: Desktop Navigation Tabs (Laptop/Desktop View) */}
+          {onTabChange && (
+            <nav className="hidden lg:flex items-center gap-1.5 xl:gap-2 bg-slate-100/90 backdrop-blur-xs p-1.5 rounded-2xl border border-slate-200/90 shadow-xs">
+              {desktopTabs.map((tab) => {
+                const Icon = tab.icon;
+                const isActive = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => onTabChange(tab.id)}
+                    className={`px-4 xl:px-4.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer relative ${
+                      isActive
+                        ? 'bg-white text-[#6B46C1] shadow-xs font-black ring-1 ring-black/5'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 active:scale-95'
+                    }`}
+                  >
+                    <Icon className={`w-4 h-4 ${isActive ? 'text-[#6B46C1]' : 'text-slate-500'}`} />
+                    <span>{tab.label}</span>
+                    {tab.badge && tab.badge > 0 && (
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    )}
+                  </button>
+                );
+              })}
+            </nav>
+          )}
+
           {/* Top Right: Notifications Icon & 3-line Menu Icon */}
-          <div className="flex items-center gap-2 sm:gap-2.5">
+          <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
             {/* Notification Bell Button */}
             <button
               onClick={onOpenNotifications}

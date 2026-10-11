@@ -187,16 +187,16 @@ export default function SideMenuDrawer({
                   onSelectTab('after-order');
                 }
               }}
-              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl hover:bg-[#EEF2FF] text-[#0D253D] hover:text-[#2B47EE] transition-all text-xs font-bold text-left cursor-pointer group border border-[#E5EDF5] hover:border-[#2B47EE]/30 shadow-2xs"
+              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl hover:bg-[#FAF5FF] text-slate-800 hover:text-[#6B46C1] transition-all text-xs font-bold text-left cursor-pointer group border border-slate-200/90 hover:border-[#DDD6FE] shadow-2xs"
             >
-              <div className="w-9 h-9 rounded-xl bg-[#F8FAFD] group-hover:bg-[#FFFFFF] flex items-center justify-center text-[#2B47EE] border border-[#E5EDF5] shadow-xs shrink-0">
+              <div className="w-9 h-9 rounded-xl bg-slate-50 group-hover:bg-[#FFFFFF] flex items-center justify-center text-[#6B46C1] border border-slate-200 shadow-xs shrink-0">
                 <ClipboardCheck className="w-5 h-5" />
               </div>
               <div className="flex-1 min-w-0">
-                <span className="block text-sm font-black text-[#0D253D] group-hover:text-[#2B47EE]">
+                <span className="block text-sm font-black text-slate-900 group-hover:text-[#6B46C1]">
                   ১. আপনার Order এর বিস্তারিত
                 </span>
-                <span className="text-[11px] text-[#64748D] font-normal block truncate">
+                <span className="text-[11px] text-slate-500 font-normal block truncate">
                   পেন্ডিং, অনুমোদিত ও সম্পূর্ণ অর্ডারের লাইভ স্ট্যাটাস
                 </span>
               </div>
@@ -212,16 +212,16 @@ export default function SideMenuDrawer({
                   onSelectTab('account');
                 }
               }}
-              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl hover:bg-[#EEF2FF] text-[#0D253D] hover:text-[#2B47EE] transition-all text-xs font-bold text-left cursor-pointer group border border-[#E5EDF5] hover:border-[#2B47EE]/30 shadow-2xs"
+              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl hover:bg-[#FAF5FF] text-slate-800 hover:text-[#6B46C1] transition-all text-xs font-bold text-left cursor-pointer group border border-slate-200/90 hover:border-[#DDD6FE] shadow-2xs"
             >
-              <div className="w-9 h-9 rounded-xl bg-[#EEF2FF] group-hover:bg-[#2B47EE] flex items-center justify-center text-[#2B47EE] group-hover:text-white border border-[#2B47EE]/20 shadow-xs shrink-0 transition-colors">
+              <div className="w-9 h-9 rounded-xl bg-[#FAF5FF] group-hover:bg-[#6B46C1] flex items-center justify-center text-[#6B46C1] group-hover:text-white border border-[#DDD6FE] shadow-xs shrink-0 transition-colors">
                 <Key className="w-5 h-5" />
               </div>
               <div className="flex-1 min-w-0">
-                <span className="block text-sm font-black text-[#0D253D] group-hover:text-[#2B47EE]">
+                <span className="block text-sm font-black text-slate-900 group-hover:text-[#6B46C1]">
                   ২. ওয়েবসাইট আইডি ও পাসওয়ার্ড
                 </span>
-                <span className="text-[11px] text-[#64748D] font-normal block truncate">
+                <span className="text-[11px] text-slate-500 font-normal block truncate">
                   অ্যাডমিন আইডি ও পাসওয়ার্ড বিস্তারিত দেখুন
                 </span>
               </div>
@@ -233,16 +233,16 @@ export default function SideMenuDrawer({
                 onSelectTab('live-chat');
                 onClose();
               }}
-              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl hover:bg-[#EEF2FF] text-[#0D253D] hover:text-[#2B47EE] transition-all text-xs font-bold text-left cursor-pointer group border border-[#E5EDF5] hover:border-[#2B47EE]/30 shadow-2xs"
+              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl hover:bg-[#FAF5FF] text-slate-800 hover:text-[#6B46C1] transition-all text-xs font-bold text-left cursor-pointer group border border-slate-200/90 hover:border-[#DDD6FE] shadow-2xs"
             >
-              <div className="w-9 h-9 rounded-xl bg-[#F8FAFD] group-hover:bg-[#FFFFFF] flex items-center justify-center text-[#2B47EE] border border-[#E5EDF5] shadow-xs shrink-0">
+              <div className="w-9 h-9 rounded-xl bg-slate-50 group-hover:bg-[#FFFFFF] flex items-center justify-center text-[#6B46C1] border border-slate-200 shadow-xs shrink-0">
                 <MessageCircle className="w-5 h-5" />
               </div>
               <div className="flex-1 min-w-0">
-                <span className="block text-sm font-black text-[#0D253D] group-hover:text-[#2B47EE]">
+                <span className="block text-sm font-black text-slate-900 group-hover:text-[#6B46C1]">
                   ৩. BongoWeb Live Support (২৪/৭)
                 </span>
-                <span className="text-[11px] text-[#64748D] font-normal block truncate">
+                <span className="text-[11px] text-slate-500 font-normal block truncate">
                   সরাসরি আমাদের টিমের সাথে লাইভ চ্যাট
                 </span>
               </div>
@@ -251,16 +251,16 @@ export default function SideMenuDrawer({
             {/* 4. Support Ticket */}
             <button
               onClick={handleOpenTicket}
-              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl hover:bg-[#EEF2FF] text-[#0D253D] hover:text-[#2B47EE] transition-all text-xs font-bold text-left cursor-pointer group border border-[#E5EDF5] hover:border-[#2B47EE]/30 shadow-2xs"
+              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl hover:bg-[#FAF5FF] text-slate-800 hover:text-[#6B46C1] transition-all text-xs font-bold text-left cursor-pointer group border border-slate-200/90 hover:border-[#DDD6FE] shadow-2xs"
             >
-              <div className="w-9 h-9 rounded-xl bg-[#F8FAFD] group-hover:bg-[#FFFFFF] flex items-center justify-center text-[#2B47EE] border border-[#E5EDF5] shadow-xs shrink-0">
+              <div className="w-9 h-9 rounded-xl bg-slate-50 group-hover:bg-[#FFFFFF] flex items-center justify-center text-[#6B46C1] border border-slate-200 shadow-xs shrink-0">
                 <Ticket className="w-5 h-5" />
               </div>
               <div className="flex-1 min-w-0">
-                <span className="block text-sm font-black text-[#0D253D] group-hover:text-[#2B47EE]">
+                <span className="block text-sm font-black text-slate-900 group-hover:text-[#6B46C1]">
                   ৪. Support Ticket
                 </span>
-                <span className="text-[11px] text-[#64748D] font-normal block truncate">
+                <span className="text-[11px] text-slate-500 font-normal block truncate">
                   যেকোনো সমস্যায় সাপোর্ট টিকিট জমা দিন
                 </span>
               </div>
@@ -269,16 +269,16 @@ export default function SideMenuDrawer({
             {/* 5. Testimonials (Client Reviews & Ratings) */}
             <button
               onClick={() => setTestimonialsModalOpen(true)}
-              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl hover:bg-[#EEF2FF] text-[#0D253D] hover:text-[#2B47EE] transition-all text-xs font-bold text-left cursor-pointer group border border-[#E5EDF5] hover:border-[#2B47EE]/30 shadow-2xs"
+              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl hover:bg-[#FAF5FF] text-slate-800 hover:text-[#6B46C1] transition-all text-xs font-bold text-left cursor-pointer group border border-slate-200/90 hover:border-[#DDD6FE] shadow-2xs"
             >
-              <div className="w-9 h-9 rounded-xl bg-[#F8FAFD] group-hover:bg-[#FFFFFF] flex items-center justify-center text-[#F59E0B] border border-[#E5EDF5] shadow-xs shrink-0">
+              <div className="w-9 h-9 rounded-xl bg-slate-50 group-hover:bg-[#FFFFFF] flex items-center justify-center text-[#F59E0B] border border-slate-200 shadow-xs shrink-0">
                 <Star className="w-5 h-5 fill-[#F59E0B]" />
               </div>
               <div className="flex-1 min-w-0">
-                <span className="block text-sm font-black text-[#0D253D] group-hover:text-[#2B47EE]">
+                <span className="block text-sm font-black text-slate-900 group-hover:text-[#6B46C1]">
                   ৫. Testimonials (Client Reviews & Ratings)
                 </span>
-                <span className="text-[11px] text-[#64748D] font-normal block truncate">
+                <span className="text-[11px] text-slate-500 font-normal block truncate">
                   গ্রাহকদের মতামত ও ৫-স্টার রেটিং দেখুন
                 </span>
               </div>
@@ -347,19 +347,19 @@ export default function SideMenuDrawer({
                 <div className="w-14 h-14 rounded-full bg-[#00B261]/10 text-[#00B261] flex items-center justify-center mx-auto mb-2">
                   <CheckCircle2 className="w-8 h-8 stroke-[2.5]" />
                 </div>
-                <span className="px-3 py-1 rounded-full bg-[#EEF2FF] text-[#2B47EE] text-xs font-bold font-mono">
+                <span className="px-3 py-1 rounded-full bg-[#FAF5FF] text-[#6B46C1] border border-[#DDD6FE] text-xs font-bold font-mono">
                   {generatedTicketId}
                 </span>
-                <h3 className="text-xl font-black text-[#0D253D]">
+                <h3 className="text-xl font-black text-[#0F172A]">
                   সাপোর্ট টিকিট সফলভাবে গৃহীত হয়েছে!
                 </h3>
-                <p className="text-xs sm:text-sm text-[#273951] leading-relaxed max-w-sm mx-auto">
-                  ধন্যবাদ <strong className="text-[#2B47EE]">{ticketName}</strong>। আমাদের টেকনিক্যাল টিম আপনার টিকিট পর্যালোচনা করে খুব শীঘ্রই আপনার মোবাইল নম্বরে সমাধান জানাবে।
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-sm mx-auto">
+                  ধন্যবাদ <strong className="text-[#6B46C1]">{ticketName}</strong>। আমাদের টেকনিক্যাল টিম আপনার টিকিট পর্যালোচনা করে খুব শীঘ্রই আপনার মোবাইল নম্বরে সমাধান জানাবে।
                 </p>
                 <div className="pt-3">
                   <button
                     onClick={handleResetTicketModal}
-                    className="px-6 py-2.5 rounded-xl bg-[#2B47EE] text-white text-xs font-bold hover:bg-[#203CD4] transition-all cursor-pointer shadow-xs"
+                    className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] text-white text-xs font-bold hover:from-[#5B21B6] hover:to-[#6D28D9] transition-all cursor-pointer shadow-md"
                   >
                     বন্ধ করুন
                   </button>
@@ -368,20 +368,20 @@ export default function SideMenuDrawer({
             ) : (
               <div>
                 <div className="mb-5">
-                  <span className="px-2.5 py-0.5 rounded-full bg-[#EEF2FF] text-[#2B47EE] text-xs font-bold">
+                  <span className="px-2.5 py-0.5 rounded-full bg-[#FAF5FF] text-[#6B46C1] border border-[#DDD6FE] text-xs font-bold">
                     সরাসরি সাপোর্ট ডেস্ক
                   </span>
-                  <h2 className="text-xl font-black text-[#0D253D] mt-2">
+                  <h2 className="text-xl font-black text-[#0F172A] mt-2">
                     সাপোর্ট টিকিট জমা দিন (Support Ticket)
                   </h2>
-                  <p className="text-xs text-[#64748D] mt-1">
+                  <p className="text-xs text-slate-500 mt-1">
                     আপনার যেকোনো প্রশ্ন বা সমস্যার কারণ লিখে টিকিট পাঠান।
                   </p>
                 </div>
 
                 <form onSubmit={handleSubmitTicket} className="space-y-3.5">
                   <div>
-                    <label className="block text-xs font-bold text-[#0D253D] mb-1">
+                    <label className="block text-xs font-bold text-[#0F172A] mb-1">
                       টিকিটের কারণ / বিষয় (Reason Name) <span className="text-[#EF4444]">*</span>
                     </label>
                     <input
@@ -390,13 +390,13 @@ export default function SideMenuDrawer({
                       placeholder="যেমন: ডোমেইন সেটআপ, পেমেন্ট গেটওয়ে, কাস্টম ডিজাইন..."
                       value={ticketReason}
                       onChange={(e) => setTicketReason(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs text-[#0D253D] placeholder-[#7D8BA4] focus:outline-none focus:bg-[#FFFFFF] focus:border-[#2B47EE] focus:ring-1 focus:ring-[#2B47EE] transition-all"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-[#0F172A] placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#7C3AED] focus:ring-2 focus:ring-[#7C3AED]/20 transition-all"
                     />
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-bold text-[#0D253D] mb-1">
+                      <label className="block text-xs font-bold text-[#0F172A] mb-1">
                         আপনার নাম (Your Name) <span className="text-[#EF4444]">*</span>
                       </label>
                       <input
@@ -405,12 +405,12 @@ export default function SideMenuDrawer({
                         placeholder="আপনার নাম"
                         value={ticketName}
                         onChange={(e) => setTicketName(e.target.value)}
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs text-[#0D253D] placeholder-[#7D8BA4] focus:outline-none focus:bg-[#FFFFFF] focus:border-[#2B47EE] focus:ring-1 focus:ring-[#2B47EE] transition-all"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-[#0F172A] placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#7C3AED] focus:ring-2 focus:ring-[#7C3AED]/20 transition-all"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold text-[#0D253D] mb-1">
+                      <label className="block text-xs font-bold text-[#0F172A] mb-1">
                         মোবাইল নম্বর <span className="text-[#EF4444]">*</span>
                       </label>
                       <input
@@ -419,13 +419,13 @@ export default function SideMenuDrawer({
                         placeholder="017xxxxxxxx"
                         value={ticketPhone}
                         onChange={(e) => setTicketPhone(e.target.value)}
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs text-[#0D253D] placeholder-[#7D8BA4] focus:outline-none focus:bg-[#FFFFFF] focus:border-[#2B47EE] focus:ring-1 focus:ring-[#2B47EE] transition-all font-mono"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-[#0F172A] placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#7C3AED] focus:ring-2 focus:ring-[#7C3AED]/20 transition-all font-mono"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-[#0D253D] mb-1">
+                    <label className="block text-xs font-bold text-[#0F172A] mb-1">
                       আপনার প্রশ্ন বা সমস্যা (Your Question) <span className="text-[#EF4444]">*</span>
                     </label>
                     <textarea
@@ -434,14 +434,14 @@ export default function SideMenuDrawer({
                       placeholder="বিস্তারিত লিখুন..."
                       value={ticketQuestion}
                       onChange={(e) => setTicketQuestion(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs text-[#0D253D] placeholder-[#7D8BA4] focus:outline-none focus:bg-[#FFFFFF] focus:border-[#2B47EE] focus:ring-1 focus:ring-[#2B47EE] transition-all resize-none"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-[#0F172A] placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#7C3AED] focus:ring-2 focus:ring-[#7C3AED]/20 transition-all resize-none"
                     />
                   </div>
 
                   <div className="pt-2">
                     <button
                       type="submit"
-                      className="w-full py-3 px-4 rounded-xl bg-[#2B47EE] hover:bg-[#203CD4] active:bg-[#1E3A8A] text-[#FFFFFF] text-xs sm:text-sm font-bold transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                      className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] hover:from-[#5B21B6] hover:to-[#6D28D9] active:scale-[0.99] text-white text-xs sm:text-sm font-bold transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
                     >
                       <Send className="w-4 h-4" />
                       <span>টিকিট পাঠান (Send Ticket)</span>
@@ -466,24 +466,24 @@ export default function SideMenuDrawer({
             </button>
 
             <div className="mb-4">
-              <span className="px-2.5 py-0.5 rounded-full bg-[#EEF2FF] text-[#2B47EE] text-xs font-bold">
+              <span className="px-2.5 py-0.5 rounded-full bg-[#FAF5FF] text-[#6B46C1] border border-[#DDD6FE] text-xs font-bold">
                 গ্রাহকদের রেটিং ও রিভিউ
               </span>
-              <h2 className="text-xl font-black text-[#0D253D] mt-2">
+              <h2 className="text-xl font-black text-[#0F172A] mt-2">
                 Testimonials (Client Reviews & Ratings)
               </h2>
-              <p className="text-xs text-[#64748D] mt-0.5">
+              <p className="text-xs text-slate-500 mt-0.5">
                 BongoWeb থেকে ওয়েবসাইট নিয়ে গ্রাহকরা যা বলছেন:
               </p>
             </div>
 
             <div className="flex-1 overflow-y-auto space-y-3.5 pr-1">
               {TESTIMONIALS.map((t, idx) => (
-                <div key={idx} className="p-4 rounded-2xl bg-[#F8FAFD] border border-[#E5EDF5] space-y-2">
+                <div key={idx} className="p-4 rounded-2xl bg-[#FAF5FF]/50 border border-slate-200/80 space-y-2">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h4 className="text-xs sm:text-sm font-bold text-[#0D253D]">{t.name}</h4>
-                      <p className="text-[11px] text-[#64748D]">{t.business} • {t.role || t.location}</p>
+                      <h4 className="text-xs sm:text-sm font-bold text-[#0F172A]">{t.name}</h4>
+                      <p className="text-[11px] text-slate-500">{t.business} • {t.role || t.location}</p>
                     </div>
                     <div className="flex items-center gap-1 text-[#F59E0B]">
                       {[...Array(t.stars || 5)].map((_, rIdx) => (
@@ -491,17 +491,17 @@ export default function SideMenuDrawer({
                       ))}
                     </div>
                   </div>
-                  <p className="text-xs text-[#273951] italic leading-relaxed">
+                  <p className="text-xs text-slate-700 italic leading-relaxed">
                     "{t.quote}"
                   </p>
                 </div>
               ))}
             </div>
 
-            <div className="pt-4 border-t border-[#E5EDF5] text-center">
+            <div className="pt-4 border-t border-slate-200 text-center">
               <button
                 onClick={() => setTestimonialsModalOpen(false)}
-                className="px-6 py-2 rounded-xl bg-[#2B47EE] text-white text-xs font-bold hover:bg-[#203CD4] cursor-pointer"
+                className="px-6 py-2 rounded-xl bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] hover:from-[#5B21B6] hover:to-[#6D28D9] text-white text-xs font-bold transition-all cursor-pointer shadow-md"
               >
                 বন্ধ করুন
               </button>
@@ -512,31 +512,31 @@ export default function SideMenuDrawer({
 
       {/* Login Prompt Modal for Non-Logged-in Users */}
       {showLoginPromptModal && (
-        <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-[#0D253D]/70 backdrop-blur-xs animate-fadeIn">
-          <div className="w-full max-w-md bg-[#FFFFFF] rounded-3xl border border-[#E5EDF5] shadow-2xl p-6 sm:p-7 animate-slideUpModal relative">
+        <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs animate-fadeIn">
+          <div className="w-full max-w-md bg-[#FFFFFF] rounded-3xl border border-slate-200 shadow-2xl p-6 sm:p-7 animate-slideUpModal relative">
             <button
               onClick={() => setShowLoginPromptModal(false)}
-              className="absolute top-4 right-4 p-2 rounded-xl text-[#64748D] hover:text-[#0D253D] hover:bg-[#F8FAFD] cursor-pointer"
+              className="absolute top-4 right-4 p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
 
             <div className="text-center space-y-3">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#008A4B] to-[#00572F] text-white flex items-center justify-center mx-auto shadow-md">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#6B46C1] to-[#4C1D95] text-white flex items-center justify-center mx-auto shadow-md">
                 <PhoneCall className="w-7 h-7" />
               </div>
 
               <div>
-                <h3 className="text-lg font-black text-[#0D253D]">
+                <h3 className="text-lg font-black text-[#0F172A]">
                   কল ব্যাক সেবা (Call Back Request)
                 </h3>
-                <p className="text-xs text-[#64748D] mt-1.5 leading-relaxed">
+                <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">
                   কল ব্যাক রিকোয়েস্ট জমা দিতে এবং আমাদের সাপোর্ট টিমের সরাসরি কল পেতে অনুগ্রহ করে আপনার অ্যাকাউন্টে লগইন করুন বা একটি নতুন অ্যাকাউন্ট খুলুন।
                 </p>
               </div>
 
-              <div className="p-3.5 rounded-2xl bg-[#F0FDF4] border border-[#008A4B]/20 text-xs text-[#166534] flex items-center gap-2 text-left">
-                <Lock className="w-4 h-4 shrink-0 text-[#008A4B]" />
+              <div className="p-3.5 rounded-2xl bg-[#FAF5FF] border border-[#DDD6FE] text-xs text-[#6B46C1] flex items-center gap-2 text-left font-medium">
+                <Lock className="w-4 h-4 shrink-0 text-[#6B46C1]" />
                 <span>লগইন করার পর আপনার নাম ও নম্বর স্বয়ংক্রিয়ভাবে সংযুক্ত হবে।</span>
               </div>
 
@@ -548,14 +548,14 @@ export default function SideMenuDrawer({
                     onClose();
                     onSelectTab('account');
                   }}
-                  className="flex-1 py-3 px-4 rounded-xl bg-[#2B47EE] hover:bg-[#203CD4] text-white text-xs sm:text-sm font-bold transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                  className="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] hover:from-[#5B21B6] hover:to-[#6D28D9] text-white text-xs sm:text-sm font-bold transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <span>লগইন / সাইন আপ করুন</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowLoginPromptModal(false)}
-                  className="py-3 px-4 rounded-xl bg-[#F8FAFD] hover:bg-[#E5EDF5] text-[#64748D] text-xs font-bold transition-all cursor-pointer"
+                  className="py-3 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold transition-all cursor-pointer"
                 >
                   পরে করব
                 </button>
@@ -631,7 +631,7 @@ export default function SideMenuDrawer({
                   <button
                     type="button"
                     onClick={() => setCallBackModalOpen(false)}
-                    className="py-2.5 px-5 rounded-xl bg-[#2B47EE] text-white text-xs font-bold hover:bg-[#203CD4] cursor-pointer"
+                    className="py-2.5 px-5 rounded-xl bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] hover:from-[#5B21B6] hover:to-[#6D28D9] text-white text-xs font-bold transition-all cursor-pointer shadow-md"
                   >
                     ঠিক আছে
                   </button>
@@ -644,7 +644,7 @@ export default function SideMenuDrawer({
                     <CheckCircle2 className="w-6 h-6" />
                   </div>
                   <div>
-                    <h3 className="text-base sm:text-lg font-black text-[#0D253D]">
+                    <h3 className="text-base sm:text-lg font-black text-[#0F172A]">
                       কল ব্যাক সম্পন্ন ও অনুমোদিত!
                     </h3>
                     <p className="text-xs text-[#008A4B] font-semibold">
@@ -676,7 +676,7 @@ export default function SideMenuDrawer({
                   <button
                     type="button"
                     onClick={() => setCallBackModalOpen(false)}
-                    className="py-2.5 px-5 rounded-xl bg-[#F8FAFD] text-[#64748D] text-xs font-bold hover:bg-[#E5EDF5] cursor-pointer"
+                    className="py-2.5 px-5 rounded-xl bg-slate-100 text-slate-600 text-xs font-bold hover:bg-slate-200 cursor-pointer"
                   >
                     বন্ধ করুন
                   </button>
@@ -684,23 +684,23 @@ export default function SideMenuDrawer({
               </div>
             ) : callBackSuccess ? (
               <div className="text-center py-6 space-y-4">
-                <div className="w-16 h-16 rounded-3xl bg-[#008A4B]/10 text-[#008A4B] flex items-center justify-center mx-auto border border-[#008A4B]/20">
-                  <CheckCircle2 className="w-8 h-8" />
+                <div className="w-16 h-16 rounded-3xl bg-[#FAF5FF] text-[#6B46C1] flex items-center justify-center mx-auto border border-[#DDD6FE] shadow-xs">
+                  <CheckCircle2 className="w-8 h-8 text-[#6B46C1]" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-black text-[#0D253D]">
+                  <h3 className="text-lg font-black text-[#0F172A]">
                     কল ব্যাক রিকোয়েস্ট সফলভাবে জমা হয়েছে!
                   </h3>
-                  <p className="text-xs text-[#64748D] mt-1 max-w-sm mx-auto">
+                  <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
                     আমাদের সাপোর্ট টিম আপনার দেওয়া নম্বরে ({callBackPhone}) দ্রুত কল করবে।
                   </p>
                 </div>
 
-                <div className="p-3.5 rounded-2xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs text-left space-y-1">
-                  <div className="text-[#64748D]">
-                    কারণ: <span className="text-[#0D253D] font-bold">{callBackReason}</span>
+                <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-left space-y-1">
+                  <div className="text-slate-500">
+                    কারণ: <span className="text-[#0F172A] font-bold">{callBackReason}</span>
                   </div>
-                  <div className="text-[#64748D]">
+                  <div className="text-slate-500">
                     স্ট্যাটাস: <span className="text-amber-600 font-bold">অপেক্ষমান (পেন্ডিং)</span>
                   </div>
                 </div>
@@ -711,7 +711,7 @@ export default function SideMenuDrawer({
                     setCallBackModalOpen(false);
                     setCallBackSuccess(false);
                   }}
-                  className="w-full py-3 px-4 rounded-xl bg-[#2B47EE] hover:bg-[#203CD4] text-white text-xs sm:text-sm font-bold transition-all shadow-md cursor-pointer"
+                  className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] hover:from-[#5B21B6] hover:to-[#6D28D9] text-white text-xs sm:text-sm font-bold transition-all shadow-md cursor-pointer"
                 >
                   ঠিক আছে
                 </button>
@@ -719,14 +719,14 @@ export default function SideMenuDrawer({
             ) : (
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#008A4B] to-[#00572F] text-white flex items-center justify-center shadow-md shrink-0">
+                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#6B46C1] to-[#4C1D95] text-white flex items-center justify-center shadow-md shrink-0">
                     <PhoneCall className="w-6 h-6" />
                   </div>
                   <div>
-                    <h3 className="text-base sm:text-lg font-black text-[#0D253D]">
+                    <h3 className="text-base sm:text-lg font-black text-[#0F172A]">
                       ফ্রি কল ব্যাক রিকোয়েস্ট (Call Back)
                     </h3>
-                    <p className="text-xs text-[#64748D]">
+                    <p className="text-xs text-slate-500">
                       আপনার নাম ও নম্বর দিন এবং কল করার কারণ লিখুন।
                     </p>
                   </div>
@@ -735,7 +735,7 @@ export default function SideMenuDrawer({
                 <form onSubmit={handleSubmitCallBack} className="space-y-3.5">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-bold text-[#0D253D] mb-1">
+                      <label className="block text-xs font-bold text-[#0F172A] mb-1">
                         আপনার নাম <span className="text-[#EF4444]">*</span>
                       </label>
                       <input
@@ -744,12 +744,12 @@ export default function SideMenuDrawer({
                         placeholder="আপনার পূর্ণ নাম"
                         value={callBackName}
                         onChange={(e) => setCallBackName(e.target.value)}
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs text-[#0D253D] placeholder-[#7D8BA4] focus:outline-none focus:bg-[#FFFFFF] focus:border-[#2B47EE] focus:ring-1 focus:ring-[#2B47EE] transition-all font-medium"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-[#0F172A] placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#7C3AED] focus:ring-2 focus:ring-[#7C3AED]/20 transition-all font-medium"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold text-[#0D253D] mb-1">
+                      <label className="block text-xs font-bold text-[#0F172A] mb-1">
                         মোবাইল নম্বর <span className="text-[#EF4444]">*</span>
                       </label>
                       <input
@@ -758,13 +758,13 @@ export default function SideMenuDrawer({
                         placeholder="017xxxxxxxx"
                         value={callBackPhone}
                         onChange={(e) => setCallBackPhone(e.target.value)}
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs text-[#0D253D] placeholder-[#7D8BA4] focus:outline-none focus:bg-[#FFFFFF] focus:border-[#2B47EE] focus:ring-1 focus:ring-[#2B47EE] transition-all font-mono font-bold"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-[#0F172A] placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#7C3AED] focus:ring-2 focus:ring-[#7C3AED]/20 transition-all font-mono font-bold"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-[#0D253D] mb-1">
+                    <label className="block text-xs font-bold text-[#0F172A] mb-1">
                       কল করার কারণ (Reason for Call) <span className="text-[#EF4444]">*</span>
                     </label>
                     <textarea
@@ -773,7 +773,7 @@ export default function SideMenuDrawer({
                       placeholder="আপনি কেন কল ব্যাক চান? আপনার সমস্যা বা প্রয়োজনীয় তথ্য বিস্তারিত লিখুন..."
                       value={callBackReason}
                       onChange={(e) => setCallBackReason(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#F8FAFD] border border-[#E5EDF5] text-xs text-[#0D253D] placeholder-[#7D8BA4] focus:outline-none focus:bg-[#FFFFFF] focus:border-[#2B47EE] focus:ring-1 focus:ring-[#2B47EE] transition-all resize-none"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-[#0F172A] placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#7C3AED] focus:ring-2 focus:ring-[#7C3AED]/20 transition-all resize-none"
                     />
                   </div>
 

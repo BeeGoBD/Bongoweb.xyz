@@ -298,7 +298,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FFFFFF] text-[#0D253D] antialiased selection:bg-[#EEF2FF] selection:text-[#2B47EE] flex flex-col justify-between font-sans">
+    <div className="min-h-screen bg-[#FFFFFF] text-[#0F172A] antialiased selection:bg-[#EDE9FE] selection:text-[#6B46C1] flex flex-col justify-between font-sans">
       {/* 1. Standalone Executive Admin Panel */}
       {viewMode === 'admin' && (
         <AdminPanelView onBackToApp={handleReturnToDashboard} />
@@ -336,10 +336,13 @@ export default function App() {
             onOpenMenu={() => setSideMenuOpen(true)}
             unreadCount={unreadNotifications}
             currentCategory={selectedCategory}
+            activeTab={getActiveBottomTab()}
+            onTabChange={handleTabChange}
+            unreadChatCount={viewMode === 'live-chat' ? 0 : 1}
           />
 
           {/* Dynamic Content Views */}
-          <main className="flex-1 w-full pt-16 sm:pt-[72px]">
+          <main className="flex-1 w-full pt-16 sm:pt-[72px] lg:pt-[76px]">
             {/* Dashboard (URL: "/") */}
             {viewMode === 'dashboard' && (
               <DashboardView
