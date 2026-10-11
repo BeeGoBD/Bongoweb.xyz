@@ -78,55 +78,6 @@
       ]
     }
     </script>
-    <!-- Alap AI Live Chat WebSocket Bridge (ensures live connection across all live domains, GitHub Pages, and preview environments) -->
-    <script>
-      (function() {
-        var NativeWebSocket = window.WebSocket;
-        if (!NativeWebSocket) return;
-
-        function getBridgeUrl(url) {
-          if (typeof url !== 'string' || url.indexOf('api.alapai.app/ws/widget') === -1) {
-            return url;
-          }
-          var query = url.indexOf('?') !== -1 ? url.substring(url.indexOf('?')) : '';
-          var hostname = window.location.hostname || '';
-
-          // If hosted on GitHub Pages or any static hosting without local backend proxy
-          if (hostname.indexOf('github.io') !== -1) {
-            return 'wss://www.bongoweb.xyz/api/alapai-ws' + query;
-          }
-
-          // If hosted on bongoweb.xyz or its subdomains, or localhost/preview
-          var protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-          var host = window.location.host;
-          if (!host || host === '') {
-            return 'wss://www.bongoweb.xyz/api/alapai-ws' + query;
-          }
-
-          return protocol + '//' + host + '/api/alapai-ws' + query;
-        }
-
-        class AlapaiBridgeWebSocket extends NativeWebSocket {
-          constructor(url, protocols) {
-            var targetUrl = getBridgeUrl(url);
-            if (protocols !== undefined) {
-              super(targetUrl, protocols);
-            } else {
-              super(targetUrl);
-            }
-          }
-        }
-
-        // Maintain full RFC & native WebSocket constant compatibility
-        AlapaiBridgeWebSocket.CONNECTING = NativeWebSocket.CONNECTING !== undefined ? NativeWebSocket.CONNECTING : 0;
-        AlapaiBridgeWebSocket.OPEN = NativeWebSocket.OPEN !== undefined ? NativeWebSocket.OPEN : 1;
-        AlapaiBridgeWebSocket.CLOSING = NativeWebSocket.CLOSING !== undefined ? NativeWebSocket.CLOSING : 2;
-        AlapaiBridgeWebSocket.CLOSED = NativeWebSocket.CLOSED !== undefined ? NativeWebSocket.CLOSED : 3;
-
-        window.WebSocket = AlapaiBridgeWebSocket;
-      })();
-    </script>
-    <script src="https://alap-prod.sgp1.cdn.digitaloceanspaces.com/chat/widget-loader.js" data-client-id="2c8b94ad-421a-4a4e-a029-f86d59d21330" async></script>
   </head>
   <body class="font-sans antialiased text-[#0D253D] bg-[#FFFFFF] selection:bg-[#EEF2FF] selection:text-[#2B47EE]">
     <div id="root"></div>

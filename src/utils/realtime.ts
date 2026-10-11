@@ -179,6 +179,22 @@ class RealtimeManager {
     };
   }
 
+  // Unsubscribe from real-time event
+  public off(event: string, callback?: RealtimeCallback) {
+    if (!this.listeners.has(event)) return;
+    if (callback) {
+      const set = this.listeners.get(event);
+      if (set) {
+        set.delete(callback);
+        if (set.size === 0) {
+          this.listeners.delete(event);
+        }
+      }
+    } else {
+      this.listeners.delete(event);
+    }
+  }
+
   // Emit event to subscribers
   public emit(event: string, data: any) {
     const callbacks = this.listeners.get(event);

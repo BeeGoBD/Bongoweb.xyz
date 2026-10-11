@@ -383,51 +383,7 @@ async function startServer() {
     });
   }
 
-  // Alap AI WebSocket Proxy Server (authorizes requests to api.alapai.app with configured domain)
-  const alapaiProxyWss = new WebSocketServer({ noServer: true });
-
-  // Safe WebSocket close helper that guarantees valid RFC 6455 status codes and prevents TypeError
-  function safeWsClose(targetWs: WebSocket, code?: number, reason?: string | Buffer) {
-    try {
-      if (
-        !targetWs ||
-        targetWs.readyState === WebSocket.CLOSING ||
-        targetWs.readyState === WebSocket.CLOSED
-      ) {
-        return;
-      }
-
-      // RFC 6455 status code whitelist (1004, 1005, 1006 are reserved and forbidden in close frames)
-      const isValidCode =
-        typeof code === 'number' &&
-        ((code >= 1000 &&
-          code <= 1014 &&
-          code !== 1004 &&
-          code !== 1005 &&
-          code !== 1006) ||
-          (code >= 3000 && code <= 4999));
-
-      if (isValidCode) {
-        const safeReason =
-          typeof reason === 'string'
-            ? reason.slice(0, 100)
-            : Buffer.isBuffer(reason)
-            ? reason.subarray(0, 100)
-            : undefined;
-        targetWs.close(code, safeReason as any);
-      } else {
-        targetWs.close();
-      }
-    } catch (_) {
-      try {
-        targetWs.terminate();
-      } catch (__) {
-        // no-op
-      }
-    }
-  }
-
-  // Handle HTTP -> WebSocket Upgrade on /ws and /api/alapai-ws
+  // Handle HTTP -> WebSocket Upgrade on /ws
   server.on('upgrade', (request, socket, head) => {
     try {
       const parsedUrl = new URL(request.url || '', `http://${request.headers.host || 'localhost'}`);
@@ -436,73 +392,6 @@ async function startServer() {
       if (pathname === '/ws') {
         wss.handleUpgrade(request, socket, head, (ws) => {
           wss.emit('connection', ws, request);
-        });
-      } else if (pathname === '/api/alapai-ws') {
-        alapaiProxyWss.handleUpgrade(request, socket, head, (clientWs) => {
-          const key = parsedUrl.searchParams.get('key') || '2c8b94ad-421a-4a4e-a029-f86d59d21330';
-          const upstreamUrl = `wss://api.alapai.app/ws/widget/?key=${encodeURIComponent(key)}`;
-
-          const upstreamWs = new WebSocket(upstreamUrl, {
-            headers: {
-              Origin: 'https://bongoweb.xyz',
-              'User-Agent': (request.headers['user-agent'] as string) || 'BongoWeb/1.0'
-            }
-          });
-
-          const queue: Array<{ data: any; isBinary: boolean }> = [];
-
-          clientWs.on('message', (data, isBinary) => {
-            try {
-              if (upstreamWs.readyState === WebSocket.OPEN) {
-                upstreamWs.send(data, { binary: isBinary });
-              } else if (upstreamWs.readyState === WebSocket.CONNECTING) {
-                queue.push({ data, isBinary });
-              }
-            } catch (err) {
-              console.error('[Alapai Proxy Client Msg Error]:', err);
-            }
-          });
-
-          upstreamWs.on('open', () => {
-            try {
-              while (queue.length > 0) {
-                const item = queue.shift();
-                if (item && upstreamWs.readyState === WebSocket.OPEN) {
-                  upstreamWs.send(item.data, { binary: item.isBinary });
-                }
-              }
-            } catch (err) {
-              console.error('[Alapai Proxy Queue Flush Error]:', err);
-            }
-          });
-
-          upstreamWs.on('message', (data, isBinary) => {
-            try {
-              if (clientWs.readyState === WebSocket.OPEN) {
-                clientWs.send(data, { binary: isBinary });
-              }
-            } catch (err) {
-              console.error('[Alapai Proxy Upstream Msg Error]:', err);
-            }
-          });
-
-          upstreamWs.on('close', (code, reason) => {
-            safeWsClose(clientWs, code, reason);
-          });
-
-          upstreamWs.on('error', (err) => {
-            console.error('[Alapai Proxy Upstream Error]:', err.message);
-            safeWsClose(clientWs, 1011, 'Alap AI upstream error');
-          });
-
-          clientWs.on('close', (code, reason) => {
-            safeWsClose(upstreamWs, code, reason);
-          });
-
-          clientWs.on('error', (err) => {
-            console.error('[Alapai Proxy Client Error]:', err.message);
-            safeWsClose(upstreamWs);
-          });
         });
       }
     } catch (err) {
