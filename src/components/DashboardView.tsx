@@ -249,21 +249,21 @@ export default function DashboardView({
 
   return (
     <div 
-      className="w-full h-[calc(100dvh-4rem-4rem)] sm:h-[calc(100vh-4.25rem-4.5rem)] max-h-[calc(100dvh-4rem-4rem)] sm:max-h-[calc(100vh-4.25rem-4.5rem)] lg:h-auto lg:min-h-[calc(100vh-4.75rem)] lg:max-h-none overflow-hidden lg:overflow-visible flex flex-col justify-between lg:justify-center items-center px-4 sm:px-6 lg:px-8 xl:px-12 py-2.5 sm:py-4 lg:py-8 xl:py-10 select-none bg-gradient-to-b from-slate-50/80 via-white to-[#FAF5FF]/30 font-sans"
+      className="w-full h-[calc(100dvh-4rem-4rem)] sm:h-[calc(100vh-4.25rem-4.5rem)] max-h-[calc(100dvh-4rem-4rem)] sm:max-h-[calc(100vh-4.25rem-4.5rem)] lg:h-auto lg:min-h-[calc(100vh-4.75rem)] lg:max-h-none overflow-hidden lg:overflow-visible flex flex-col justify-between items-center px-4 sm:px-6 lg:px-8 xl:px-12 py-2.5 sm:py-4 lg:py-8 select-none bg-gradient-to-b from-slate-50/70 via-white to-slate-50/70 font-sans"
     >
       {/* Main Targeted Section (section:nth-of-type(1)) */}
-      <section className="max-w-2xl sm:max-w-3xl lg:max-w-5xl xl:max-w-6xl w-full mx-auto h-full lg:h-auto flex flex-col justify-between lg:justify-center py-1.5 sm:py-2.5 lg:py-0 lg:gap-7 xl:gap-8">
+      <section className="max-w-2xl sm:max-w-3xl lg:max-w-6xl xl:max-w-7xl w-full mx-auto h-full lg:h-auto my-auto flex flex-col justify-between lg:justify-center py-1.5 sm:py-2.5 lg:py-0 lg:gap-6 xl:gap-8">
         
         {/* Clean, Refined Header */}
         <header className="shrink-0 text-center pt-0.5 pb-1 lg:pb-0">
-          <div className="inline-flex items-center gap-1.5 px-3 py-0.5 lg:px-3.5 lg:py-1 rounded-full bg-[#FAF5FF] text-[#6B46C1] text-[11px] lg:text-xs font-bold tracking-wide mb-1 lg:mb-2 border border-[#DDD6FE]/90 shadow-2xs">
+          <div className="inline-flex items-center gap-1.5 px-3 py-0.5 lg:px-3.5 lg:py-1 rounded-full bg-[#FAF5FF] text-[#6B46C1] text-[11px] lg:text-xs font-bold tracking-wide mb-1 lg:mb-2 border border-[#DDD6FE]/80 shadow-2xs">
             <span className="w-1.5 h-1.5 rounded-full bg-[#7C3AED] animate-pulse" />
             <span>{language === 'en' ? 'Interactive Demos' : 'লাইভ ওয়েবসাইট ডেমো'}</span>
           </div>
-          <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-[34px] font-black text-slate-900 tracking-tight leading-tight">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-[32px] font-black text-slate-900 tracking-tight leading-tight">
             {language === 'en' ? 'Website Categories' : 'ক্যাটাগরি নির্বাচন করুন'}
           </h1>
-          <p className="text-xs sm:text-sm lg:text-base text-slate-500 mt-0.5 lg:mt-1.5 max-w-xl mx-auto leading-relaxed">
+          <p className="text-xs sm:text-sm lg:text-[15px] text-slate-500 mt-1 max-w-xl mx-auto leading-relaxed">
             {language === 'en' 
               ? 'Choose a category to browse ready-to-launch website demos' 
               : 'সবগুলো লাইভ ওয়েবসাইট ডেমো দেখতে একটি ক্যাটাগরি বেছে নিন'}
@@ -330,8 +330,8 @@ export default function DashboardView({
           })}
         </div>
 
-        {/* 2. Laptop / Desktop 2x2 Bento Grid: Spacious, Tactile & Rich (lg: & xl: screens) */}
-        <div className="hidden lg:grid lg:grid-cols-2 lg:gap-5 xl:gap-6 w-full">
+        {/* 2. Laptop / Desktop View: Clean, Minimalist 4-Card Deck (lg: & xl: screens) */}
+        <div className="hidden lg:grid lg:grid-cols-4 lg:gap-4 xl:gap-5 w-full">
           {categoryContacts.map((cat) => {
             const IconComponent = cat.icon;
 
@@ -348,78 +348,46 @@ export default function DashboardView({
                   }
                 }}
                 aria-label={`Select ${language === 'en' ? cat.nameEn : cat.nameBn}`}
-                className={`group w-full p-6 xl:p-7 rounded-3xl bg-white border border-slate-200/90 ${cat.cardBorderHover} shadow-xs ${cat.hoverShadow} transition-all duration-300 cursor-pointer flex flex-col justify-between hover:-translate-y-1 outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED] relative overflow-hidden`}
+                className={`group w-full p-5 xl:p-6 rounded-2xl xl:rounded-3xl bg-white border border-slate-200/90 ${cat.cardBorderHover} shadow-xs ${cat.hoverShadow} transition-all duration-200 cursor-pointer flex flex-col justify-between hover:-translate-y-1 outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED]`}
               >
-                {/* Subtle Ambient Accent Glow in Top-Right Corner */}
-                <div 
-                  className={`absolute -top-12 -right-12 w-36 h-36 rounded-full blur-2xl opacity-40 pointer-events-none transition-opacity duration-300 group-hover:opacity-75 ${
-                    cat.id === 'ecommerce' ? 'bg-purple-300/60' :
-                    cat.id === 'restaurant' ? 'bg-amber-300/60' :
-                    cat.id === 'blogging' ? 'bg-indigo-300/60' :
-                    'bg-emerald-300/60'
-                  }`} 
-                />
-
-                {/* Top Section: Icon, Titles, Code Badge, Description & Features */}
-                <div className="relative z-10">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex items-center gap-3.5 xl:gap-4 min-w-0">
-                      <div className={`w-12 h-12 xl:w-14 xl:h-14 rounded-2xl ${cat.iconBg} flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-105 shadow-md`}>
-                        <IconComponent className="w-6 h-6 xl:w-7 xl:h-7 stroke-[2.2]" />
-                      </div>
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <h2 className="text-lg xl:text-xl font-black text-slate-900 group-hover:text-[#6B46C1] transition-colors leading-snug tracking-tight">
-                            {language === 'en' ? cat.nameEn : cat.nameBn}
-                          </h2>
-                          <span className={`inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full border leading-none ${cat.demandBadgeBg}`}>
-                            <span>{language === 'en' ? cat.demandBadgeEn : cat.demandBadgeBn}</span>
-                          </span>
-                        </div>
-                        <p className="text-xs text-slate-500 font-medium mt-1">
-                          {language === 'en' ? cat.demandHighlightEn : cat.demandHighlightBn}
-                        </p>
-                      </div>
+                <div>
+                  {/* Top Row: Icon + Category Code */}
+                  <div className="flex items-center justify-between gap-2">
+                    <div className={`w-12 h-12 xl:w-13 xl:h-13 rounded-2xl ${cat.iconBg} flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-105 shadow-sm`}>
+                      <IconComponent className="w-6 h-6 stroke-[2.2]" />
                     </div>
-
-                    <div className="shrink-0 flex items-center pt-0.5">
-                      <span className="font-mono text-[11px] xl:text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-500 border border-slate-200/80 shadow-2xs">
-                        {cat.code}
-                      </span>
-                    </div>
+                    <span className="font-mono text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-500 border border-slate-200/70 shadow-2xs">
+                      {cat.code}
+                    </span>
                   </div>
 
-                  {/* Middle Section: Existing Description & Feature Pills */}
-                  <div className="my-4 pt-3.5 border-t border-slate-100 space-y-3">
-                    <p className="text-xs xl:text-sm text-slate-600 leading-relaxed font-normal">
-                      {language === 'en' ? cat.descEn : cat.descBn}
-                    </p>
-                    <div className="flex items-center gap-2 flex-wrap">
-                      {(language === 'en' ? cat.featuresEn : cat.featuresBn).map((feat, fIdx) => (
-                        <span 
-                          key={fIdx} 
-                          className="text-[11px] xl:text-xs font-semibold text-slate-700 bg-slate-50 group-hover:bg-slate-100/80 px-3 py-1 rounded-xl border border-slate-200/70 shadow-2xs transition-colors"
-                        >
-                          {feat}
-                        </span>
-                      ))}
+                  {/* Title + Demand Status Badge */}
+                  <div className="mt-4 xl:mt-5">
+                    <h2 className="text-[16px] xl:text-[17px] font-bold text-slate-900 group-hover:text-[#6B46C1] transition-colors leading-snug tracking-tight">
+                      {language === 'en' ? cat.nameEn : cat.nameBn}
+                    </h2>
+
+                    <div className="mt-2">
+                      <span className={`inline-flex items-center gap-1 text-[10.5px] font-bold px-2.5 py-0.5 rounded-full border leading-none ${cat.demandBadgeBg}`}>
+                        <span>{language === 'en' ? cat.demandBadgeEn : cat.demandBadgeBn}</span>
+                      </span>
                     </div>
                   </div>
                 </div>
 
-                {/* Bottom Row: Starting Price & Interactive Arrow Action */}
-                <div className="pt-3.5 border-t border-slate-100 flex items-center justify-between relative z-10">
+                {/* Bottom Row: Starting Price & Action Arrow Button */}
+                <div className="pt-4 mt-5 border-t border-slate-100 flex items-center justify-between">
                   <div>
-                    <span className="text-[10px] xl:text-[11px] text-slate-400 block font-medium leading-none">
+                    <span className="text-[9.5px] xl:text-[10px] text-slate-400 block font-medium leading-none">
                       {language === 'en' ? 'Starts at' : 'শুরু মাত্র'}
                     </span>
-                    <span className="text-base xl:text-lg font-black text-slate-900 mt-1 block leading-tight font-mono">
+                    <span className="text-sm xl:text-base font-bold text-slate-900 mt-1 block leading-tight font-mono">
                       {cat.startingPrice}
                     </span>
                   </div>
 
-                  <div className={`w-9 h-9 xl:w-10 xl:h-10 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-center text-slate-600 ${cat.actionHoverBg} transition-all duration-300 shadow-2xs group-hover:scale-105`}>
-                    <ChevronRight className="w-4.5 h-4.5 stroke-[2.2] group-hover:translate-x-0.5 transition-transform" />
+                  <div className={`w-8.5 h-8.5 xl:w-9 xl:h-9 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-center text-slate-500 ${cat.actionHoverBg} transition-all duration-200 shadow-2xs group-hover:scale-105`}>
+                    <ChevronRight className="w-4 h-4 stroke-[2.2] group-hover:translate-x-0.5 transition-transform" />
                   </div>
                 </div>
               </div>
@@ -428,8 +396,8 @@ export default function DashboardView({
         </div>
 
         {/* Clean, Subtle Micro Footer */}
-        <footer className="shrink-0 text-center py-1 lg:py-1">
-          <div className="inline-flex items-center gap-2 px-3 py-1 lg:px-4 lg:py-1.5 rounded-full bg-white/90 border border-slate-200/80 shadow-2xs text-[11px] sm:text-xs lg:text-sm text-slate-600 font-medium">
+        <footer className="shrink-0 text-center py-1">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-slate-200/80 shadow-2xs text-[11px] sm:text-xs lg:text-sm text-slate-600 font-medium">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
             <span>
               {language === 'en' 
