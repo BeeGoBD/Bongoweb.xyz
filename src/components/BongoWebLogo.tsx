@@ -185,10 +185,10 @@ export default function BongoWebLogo({
             </linearGradient>
 
             <linearGradient id="bwTextGradientInline" x1="120" y1="20" x2="430" y2="85" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stopColor="#0F172A" />
-              <stop offset="55%" stopColor="#1E1B4B" />
-              <stop offset="78%" stopColor="#6B46C1" />
-              <stop offset="100%" stopColor="#9F7AEA" />
+              <stop offset="0%" stopColor="#FFFFFF" />
+              <stop offset="55%" stopColor="#F1F5F9" />
+              <stop offset="80%" stopColor="#C084FC" />
+              <stop offset="100%" stopColor="#A855F7" />
             </linearGradient>
           </defs>
 

@@ -72,23 +72,22 @@ export default function DashboardView({
       tagBn: '🔥 জনপ্রিয়',
       demoId: 'ecom-1',
       icon: ShoppingBag,
-      iconBg: 'bg-gradient-to-tr from-[#6B46C1] via-[#7C3AED] to-[#9F7AEA] text-white shadow-md shadow-[#6B46C1]/25',
-      iconColor: 'text-[#6B46C1]',
-      cardBg: 'bg-gradient-to-br from-[#FAF5FF]/70 via-white to-[#F3E8FF]/30',
-      cardBorderHover: 'hover:border-[#7C3AED]/70',
-      hoverShadow: 'hover:shadow-[0_12px_28px_rgba(107,70,193,0.18)]',
-      badgeBg: 'bg-[#FAF5FF]',
-      badgeText: 'text-[#6B46C1]',
-      badgeBorder: 'border-[#DDD6FE]',
-      actionHoverBg: 'group-hover:bg-[#6B46C1] group-hover:text-white',
+      iconBg: 'bg-gradient-to-tr from-[#6B46C1] via-[#7C3AED] to-[#A855F7] text-white shadow-md shadow-purple-500/30',
+      iconColor: 'text-purple-400',
+      cardBg: 'bg-gradient-to-br from-[#1E1238] via-[#150D27] to-[#0D0819] border-purple-500/35',
+      cardBorderHover: 'hover:border-purple-400',
+      hoverShadow: 'hover:shadow-[0_12px_32px_rgba(168,85,247,0.25)]',
+      badgeBg: 'bg-purple-950/90',
+      badgeText: 'text-purple-300',
+      badgeBorder: 'border-purple-800/80',
+      actionHoverBg: 'group-hover:bg-[#7C3AED] group-hover:text-white',
       featuresEn: ['bKash / Nagad', 'Courier Tracking', 'Cart & Stock'],
       featuresBn: ['বিকাশ/নগদ অটো', 'কুরিয়ার ট্র্যাকিং', 'স্টক ইনভেন্টরি'],
       startingPrice: '৳১,৯৯০',
-      // #1 Top demand: highest converting store
       demandTier: 'most-demanded',
       demandBadgeEn: '🔥 Most Demanding',
       demandBadgeBn: '🔥 সর্বোচ্চ চাহিদা',
-      demandBadgeBg: 'bg-[#FAF5FF] text-[#6B46C1] border-[#DDD6FE] shadow-2xs',
+      demandBadgeBg: 'bg-purple-950/90 text-purple-300 border-purple-800/80 shadow-2xs',
       demandHighlightEn: 'Highest market demand • High-converting online storefront',
       demandHighlightBn: 'সর্বাধিক চাহিদাসম্পন্ন • হাই-কনভার্সন অনলাইন শপ'
     },
@@ -104,23 +103,22 @@ export default function DashboardView({
       tagBn: '⭐ ট্রেন্ডিং',
       demoId: 'rest-1',
       icon: UtensilsCrossed,
-      iconBg: 'bg-gradient-to-tr from-amber-500 to-orange-500 text-white shadow-md shadow-orange-500/20',
-      iconColor: 'text-amber-600',
-      cardBg: 'bg-gradient-to-br from-amber-50/60 via-white to-orange-50/30',
-      cardBorderHover: 'hover:border-amber-400/90',
-      hoverShadow: 'hover:shadow-[0_12px_28px_rgba(217,119,6,0.14)]',
-      badgeBg: 'bg-amber-100/90',
-      badgeText: 'text-amber-800',
-      badgeBorder: 'border-amber-200/80',
+      iconBg: 'bg-gradient-to-tr from-amber-500 to-orange-500 text-white shadow-md shadow-orange-500/30',
+      iconColor: 'text-amber-400',
+      cardBg: 'bg-gradient-to-br from-[#2D1B0D] via-[#1F1208] to-[#120A04] border-amber-500/35',
+      cardBorderHover: 'hover:border-amber-400',
+      hoverShadow: 'hover:shadow-[0_12px_32px_rgba(245,158,11,0.25)]',
+      badgeBg: 'bg-amber-950/90',
+      badgeText: 'text-amber-300',
+      badgeBorder: 'border-amber-800/80',
       actionHoverBg: 'group-hover:bg-amber-600 group-hover:text-white',
       featuresEn: ['Online Menu', 'Table Booking', 'Home Delivery'],
       featuresBn: ['ফুড মেনু', 'টেবিল বুকিং', 'হোম ডেলিভারি'],
       startingPrice: '৳১,৯৯০',
-      // High demand: continuous food orders & dining
       demandTier: 'high-demand',
       demandBadgeEn: '⚡ High Demand',
       demandBadgeBn: '⚡ ব্যাপক চাহিদা',
-      demandBadgeBg: 'bg-amber-50 text-amber-800 border-amber-200/90 shadow-2xs',
+      demandBadgeBg: 'bg-amber-950/90 text-amber-300 border-amber-800/80 shadow-2xs',
       demandHighlightEn: 'High daily demand • Table booking & live food ordering',
       demandHighlightBn: 'ব্যাপক চাহিদা • লাইভ ফুড মেনু ও কাস্টমার টেবিল বুকিং'
     },
@@ -136,23 +134,22 @@ export default function DashboardView({
       tagBn: '📈 হাই ট্রাফিক',
       demoId: 'blog-1',
       icon: Newspaper,
-      iconBg: 'bg-gradient-to-tr from-blue-600 to-indigo-600 text-white shadow-md shadow-indigo-500/20',
-      iconColor: 'text-indigo-600',
-      cardBg: 'bg-gradient-to-br from-blue-50/60 via-white to-indigo-50/30',
-      cardBorderHover: 'hover:border-indigo-400/90',
-      hoverShadow: 'hover:shadow-[0_12px_28px_rgba(79,70,229,0.14)]',
-      badgeBg: 'bg-indigo-100/90',
-      badgeText: 'text-indigo-700',
-      badgeBorder: 'border-indigo-200/80',
-      actionHoverBg: 'group-hover:bg-indigo-600 group-hover:text-white',
+      iconBg: 'bg-gradient-to-tr from-blue-600 to-indigo-600 text-white shadow-md shadow-indigo-500/30',
+      iconColor: 'text-indigo-400',
+      cardBg: 'bg-gradient-to-br from-[#0E1D38] via-[#0A1427] to-[#060D1A] border-blue-500/35',
+      cardBorderHover: 'hover:border-blue-400',
+      hoverShadow: 'hover:shadow-[0_12px_32px_rgba(59,130,246,0.25)]',
+      badgeBg: 'bg-blue-950/90',
+      badgeText: 'text-blue-300',
+      badgeBorder: 'border-blue-800/80',
+      actionHoverBg: 'group-hover:bg-blue-600 group-hover:text-white',
       featuresEn: ['Google SEO', 'AdSense Ready', 'Fast Articles'],
       featuresBn: ['গুগল এসইও', 'এডসেন্স রেডি', 'দ্রুত আর্টিকেল'],
       startingPrice: '৳১,৯৯০',
-      // Growing demand: traffic & monetization
       demandTier: 'growing',
       demandBadgeEn: '📈 Growing Demand',
       demandBadgeBn: '📈 ক্রমবর্ধমান চাহিদা',
-      demandBadgeBg: 'bg-indigo-50 text-indigo-700 border-indigo-200/90 shadow-2xs',
+      demandBadgeBg: 'bg-blue-950/90 text-blue-300 border-blue-800/80 shadow-2xs',
       demandHighlightEn: 'Steady traffic • Fast Google indexing & AdSense income',
       demandHighlightBn: 'গ্রোথ ও রেভিনিউ চাহিদা • দ্রুত গুগল র‍্যাংক ও অটো অ্যাডসেন্স'
     },
@@ -168,23 +165,22 @@ export default function DashboardView({
       tagBn: '🌿 ন্যাচারাল',
       demoId: 'groc-1',
       icon: Store,
-      iconBg: 'bg-gradient-to-tr from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-500/20',
-      iconColor: 'text-emerald-600',
-      cardBg: 'bg-gradient-to-br from-emerald-50/60 via-white to-teal-50/30',
-      cardBorderHover: 'hover:border-emerald-400/90',
-      hoverShadow: 'hover:shadow-[0_12px_28px_rgba(5,150,105,0.14)]',
-      badgeBg: 'bg-emerald-100/90',
-      badgeText: 'text-emerald-700',
-      badgeBorder: 'border-emerald-200/80',
+      iconBg: 'bg-gradient-to-tr from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-500/30',
+      iconColor: 'text-emerald-400',
+      cardBg: 'bg-gradient-to-br from-[#0D281E] via-[#091C15] to-[#05110D] border-emerald-500/35',
+      cardBorderHover: 'hover:border-emerald-400',
+      hoverShadow: 'hover:shadow-[0_12px_32px_rgba(16,185,129,0.25)]',
+      badgeBg: 'bg-emerald-950/90',
+      badgeText: 'text-emerald-300',
+      badgeBorder: 'border-emerald-800/80',
       actionHoverBg: 'group-hover:bg-emerald-600 group-hover:text-white',
       featuresEn: ['Weight Catalog', 'Local Express', 'Instant Reorder'],
       featuresBn: ['ওজন ক্যাটালগ', 'দ্রুত ডেলিভারি', 'সহজ রি-অর্ডার'],
       startingPrice: '৳১,৯৯০',
-      // Basic / Essential category: everyday foundational needs
       demandTier: 'basic',
       demandBadgeEn: '📦 Basic & Essential',
       demandBadgeBn: '📦 বেসিক ও এসেনশিয়াল',
-      demandBadgeBg: 'bg-emerald-50 text-emerald-700 border-emerald-200/90 shadow-2xs',
+      demandBadgeBg: 'bg-emerald-950/90 text-emerald-300 border-emerald-800/80 shadow-2xs',
       demandHighlightEn: 'Essential daily need • Weight-based catalog & express order',
       demandHighlightBn: 'নিত্যপ্রয়োজনীয় বেসিক • ওজনভিত্তিক পণ্য ও এক্সপ্রেস ডেলিভারি'
     }
@@ -249,31 +245,41 @@ export default function DashboardView({
 
   return (
     <div 
-      className="w-full h-[calc(100dvh-4rem-4rem)] sm:h-[calc(100vh-4.25rem-4.5rem)] max-h-[calc(100dvh-4rem-4rem)] sm:max-h-[calc(100vh-4.25rem-4.5rem)] lg:h-auto lg:min-h-[calc(100vh-4.75rem)] lg:max-h-none overflow-hidden lg:overflow-visible flex flex-col justify-between items-center px-4 sm:px-6 lg:px-8 xl:px-12 py-2.5 sm:py-4 lg:py-8 select-none bg-gradient-to-b from-slate-50/70 via-white to-slate-50/70 font-sans"
+      className="w-full h-[calc(100dvh-4rem-4rem)] sm:h-[calc(100vh-4.25rem-4.5rem)] max-h-[calc(100dvh-4rem-4rem)] sm:max-h-[calc(100vh-4.25rem-4.5rem)] lg:h-auto lg:min-h-[calc(100vh-4.75rem)] lg:max-h-none overflow-hidden lg:overflow-visible flex flex-col justify-between items-center px-4 sm:px-6 lg:px-8 xl:px-12 py-2.5 sm:py-4 lg:py-8 select-none bg-[#0B0F19] text-slate-100 font-sans"
     >
       {/* Main Targeted Section (section:nth-of-type(1)) */}
-      <section className="max-w-2xl sm:max-w-3xl lg:max-w-6xl xl:max-w-7xl w-full mx-auto h-full lg:h-auto my-auto flex flex-col justify-between lg:justify-center py-1.5 sm:py-2.5 lg:py-0 lg:gap-6 xl:gap-8">
+      <section className="max-w-2xl sm:max-w-3xl lg:max-w-6xl xl:max-w-7xl w-full mx-auto h-full lg:h-auto my-auto flex flex-col justify-between lg:justify-center py-1 sm:py-2.5 lg:py-0 lg:gap-6 xl:gap-8">
         
-        {/* Clean, Refined Header */}
+        {/* Clean, Easy-to-Understand Header with 3 Simple Steps */}
         <header className="shrink-0 text-center pt-0.5 pb-1 lg:pb-0">
-          <div className="inline-flex items-center gap-1.5 px-3 py-0.5 lg:px-3.5 lg:py-1 rounded-full bg-[#FAF5FF] text-[#6B46C1] text-[11px] lg:text-xs font-bold tracking-wide mb-1 lg:mb-2 border border-[#DDD6FE]/80 shadow-2xs">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#7C3AED] animate-pulse" />
-            <span>{language === 'en' ? 'Interactive Demos' : 'লাইভ ওয়েবসাইট ডেমো'}</span>
+          <div className="inline-flex items-center gap-1.5 px-3 py-0.5 lg:px-3.5 lg:py-1 rounded-full bg-purple-950/80 text-purple-300 text-[11px] lg:text-xs font-bold tracking-wide mb-1 lg:mb-1.5 border border-purple-800/80 shadow-2xs">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#A855F7] animate-pulse" />
+            <span>{language === 'en' ? 'Step 1 of 3: Choose Category' : '১ম ধাপ (মোট ৩টি ধাপ): ক্যাটাগরি বেছে নিন'}</span>
           </div>
-          <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-[32px] font-black text-slate-900 tracking-tight leading-tight">
-            {language === 'en' ? 'Website Categories' : 'ক্যাটাগরি নির্বাচন করুন'}
+          <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-[32px] font-black text-white tracking-tight leading-tight">
+            {language === 'en' ? 'Select Your Business Category' : 'আপনার ব্যবসার ক্যাটাগরি বেছে নিন'}
           </h1>
-          <p className="text-xs sm:text-sm lg:text-[15px] text-slate-500 mt-1 max-w-xl mx-auto leading-relaxed">
+          <p className="text-xs sm:text-sm lg:text-[15px] text-slate-400 mt-0.5 max-w-xl mx-auto leading-relaxed">
             {language === 'en' 
-              ? 'Choose a category to browse ready-to-launch website demos' 
-              : 'সবগুলো লাইভ ওয়েবসাইট ডেমো দেখতে একটি ক্যাটাগরি বেছে নিন'}
+              ? 'Click any category below to view live working website demos' 
+              : 'যেকোনো ক্যাটাগরিতে ক্লিক করলেই সরাসরি লাইভ ওয়েবসাইট ডেমো দেখতে পারবেন'}
           </p>
         </header>
 
-        {/* 1. Mobile Category List: Compact & Preserved for Mobile Screens (< lg) */}
-        <div className="flex-1 flex flex-col justify-between gap-3 sm:gap-3.5 my-auto w-full py-1.5 min-h-0 lg:hidden">
+        {/* 1. Mobile Category Grid: 2×2 Grid of Equal Square Cards (Mobile Only: < lg) */}
+        <div className="grid grid-cols-2 gap-2.5 sm:gap-3.5 my-auto w-full py-1 min-h-0 lg:hidden">
           {categoryContacts.map((cat) => {
             const IconComponent = cat.icon;
+            const shortSubBn = 
+              cat.id === 'ecommerce' ? 'অনলাইন শপ ও বিকাশ' :
+              cat.id === 'restaurant' ? 'ফুড মেনু ও বুকিং' :
+              cat.id === 'blogging' ? 'নিউজ ও এডসেন্স' :
+              'মুদি ও হোম ডেলিভারি';
+            const shortSubEn = 
+              cat.id === 'ecommerce' ? 'Online Shop & bKash' :
+              cat.id === 'restaurant' ? 'Food Menu & Orders' :
+              cat.id === 'blogging' ? 'News & AdSense' :
+              'Grocery & Express Delivery';
 
             return (
               <div
@@ -288,41 +294,42 @@ export default function DashboardView({
                   }
                 }}
                 aria-label={`Select ${language === 'en' ? cat.nameEn : cat.nameBn}`}
-                className={`group w-full flex-1 min-h-[74px] sm:min-h-[82px] max-h-[100px] px-3.5 sm:px-5 py-2.5 sm:py-3 rounded-2xl bg-white border border-slate-200/90 ${cat.cardBorderHover} shadow-xs ${cat.hoverShadow} transition-all duration-200 cursor-pointer flex items-center justify-between gap-3 sm:gap-4 hover:-translate-y-0.5 active:translate-y-0 outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED]`}
+                className={`group w-full aspect-square p-2.5 sm:p-4 rounded-2xl sm:rounded-3xl ${cat.cardBg} border ${cat.cardBorderHover} shadow-xs ${cat.hoverShadow} transition-all duration-200 cursor-pointer flex flex-col justify-between hover:-translate-y-0.5 active:scale-[0.98] outline-none focus-visible:ring-2 focus-visible:ring-purple-400 relative overflow-hidden`}
               >
-                {/* Left: Clean Icon & Perfectly Aligned 2-Row Category Hierarchy */}
-                <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
-                  <div className={`w-11 h-11 sm:w-12 sm:h-12 rounded-2xl ${cat.iconBg} flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-105 shadow-sm`}>
-                    <IconComponent className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.2]" />
+                {/* Top Row: Category Icon & Visual Tag */}
+                <div className="flex items-start justify-between gap-1.5">
+                  <div className={`w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl ${cat.iconBg} flex items-center justify-center shrink-0 shadow-sm transition-transform duration-200 group-hover:scale-105`}>
+                    <IconComponent className="w-4.5 h-4.5 sm:w-5.5 sm:h-5.5 stroke-[2.2]" />
                   </div>
-
-                  {/* Centered Structured Content */}
-                  <div className="min-w-0 flex-1 flex flex-col justify-center">
-                    <h2 className="text-[14.5px] sm:text-[16px] font-bold text-slate-900 group-hover:text-[#6B46C1] transition-colors leading-snug tracking-tight">
-                      {language === 'en' ? cat.nameEn : cat.nameBn}
-                    </h2>
-
-                    <div className="flex items-center gap-1.5 mt-1 min-w-0">
-                      <span className={`inline-flex items-center gap-1 text-[10px] sm:text-[10.5px] font-bold px-2.5 py-0.5 rounded-full border shrink-0 leading-none ${cat.demandBadgeBg}`}>
-                        <span>{language === 'en' ? cat.demandBadgeEn : cat.demandBadgeBn}</span>
-                      </span>
-                    </div>
-                  </div>
+                  <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-900/90 text-slate-200 border border-slate-700/80 shadow-2xs truncate max-w-[55%]">
+                    {language === 'en' ? cat.tagEn : cat.tagBn}
+                  </span>
                 </div>
 
-                {/* Right: Starting Price & Category Action Arrow */}
-                <div className="shrink-0 flex items-center gap-2.5 sm:gap-3.5 pl-1">
-                  <div className="text-right">
-                    <span className="text-[9.5px] sm:text-[10px] text-slate-400 block font-medium leading-none">
+                {/* Center Content: Title & Clear Business Descriptor */}
+                <div className="my-auto py-0.5 min-w-0">
+                  <h2 className="text-[13px] sm:text-[15px] font-bold text-white group-hover:text-purple-300 transition-colors leading-snug tracking-tight truncate">
+                    {language === 'en' ? cat.nameEn : cat.nameBn}
+                  </h2>
+                  <p className="text-[10px] sm:text-[11px] text-slate-400 font-medium mt-0.5 truncate leading-tight">
+                    {language === 'en' ? shortSubEn : shortSubBn}
+                  </p>
+                </div>
+
+                {/* Bottom Row: Starting Price & Explicit "ডেমো দেখুন" Button */}
+                <div className="pt-1.5 sm:pt-2 border-t border-slate-800/80 flex items-center justify-between gap-1">
+                  <div>
+                    <span className="text-[8px] sm:text-[9px] text-slate-400 block font-medium leading-none">
                       {language === 'en' ? 'Starts at' : 'শুরু মাত্র'}
                     </span>
-                    <span className="text-xs sm:text-sm font-bold text-slate-900 mt-0.5 block leading-tight">
+                    <span className="text-[11.5px] sm:text-sm font-bold text-white mt-0.5 block leading-tight font-mono">
                       {cat.startingPrice}
                     </span>
                   </div>
 
-                  <div className={`w-8 h-8 sm:w-8.5 sm:h-8.5 rounded-xl bg-slate-100/90 border border-slate-200/60 flex items-center justify-center text-slate-500 ${cat.actionHoverBg} transition-all duration-200 shadow-2xs group-hover:scale-105`}>
-                    <ChevronRight className="w-4 h-4 stroke-[2.2] group-hover:translate-x-0.5 transition-transform" />
+                  <div className="px-2 py-1 sm:px-2.5 sm:py-1 rounded-lg bg-slate-900 border border-slate-700/80 text-[10px] sm:text-[11px] font-bold text-purple-300 group-hover:bg-[#7C3AED] group-hover:text-white transition-all duration-200 shadow-2xs flex items-center gap-0.5 shrink-0">
+                    <span>{language === 'en' ? 'Demos' : 'ডেমো'}</span>
+                    <ChevronRight className="w-3 h-3 stroke-[2.5] group-hover:translate-x-0.5 transition-transform" />
                   </div>
                 </div>
               </div>
@@ -330,10 +337,11 @@ export default function DashboardView({
           })}
         </div>
 
-        {/* 2. Laptop / Desktop View: Clean, Minimalist 4-Card Deck (lg: & xl: screens) */}
+        {/* 2. Laptop / Desktop View: Clean, Informative 4-Card Deck (lg: & xl: screens) */}
         <div className="hidden lg:grid lg:grid-cols-4 lg:gap-4 xl:gap-5 w-full">
           {categoryContacts.map((cat) => {
             const IconComponent = cat.icon;
+            const features = language === 'en' ? cat.featuresEn : cat.featuresBn;
 
             return (
               <div
@@ -348,46 +356,56 @@ export default function DashboardView({
                   }
                 }}
                 aria-label={`Select ${language === 'en' ? cat.nameEn : cat.nameBn}`}
-                className={`group w-full p-5 xl:p-6 rounded-2xl xl:rounded-3xl bg-white border border-slate-200/90 ${cat.cardBorderHover} shadow-xs ${cat.hoverShadow} transition-all duration-200 cursor-pointer flex flex-col justify-between hover:-translate-y-1 outline-none focus-visible:ring-2 focus-visible:ring-[#7C3AED]`}
+                className={`group w-full p-5 xl:p-6 rounded-2xl xl:rounded-3xl ${cat.cardBg} border ${cat.cardBorderHover} shadow-xs ${cat.hoverShadow} transition-all duration-200 cursor-pointer flex flex-col justify-between hover:-translate-y-1 outline-none focus-visible:ring-2 focus-visible:ring-purple-400`}
               >
                 <div>
-                  {/* Top Row: Icon + Category Code */}
+                  {/* Top Row: Icon + Visual Tag */}
                   <div className="flex items-center justify-between gap-2">
                     <div className={`w-12 h-12 xl:w-13 xl:h-13 rounded-2xl ${cat.iconBg} flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-105 shadow-sm`}>
                       <IconComponent className="w-6 h-6 stroke-[2.2]" />
                     </div>
-                    <span className="font-mono text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-500 border border-slate-200/70 shadow-2xs">
-                      {cat.code}
+                    <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-slate-900/90 text-slate-200 border border-slate-700/80 shadow-2xs">
+                      {language === 'en' ? cat.tagEn : cat.tagBn}
                     </span>
                   </div>
 
-                  {/* Title + Demand Status Badge */}
-                  <div className="mt-4 xl:mt-5">
-                    <h2 className="text-[16px] xl:text-[17px] font-bold text-slate-900 group-hover:text-[#6B46C1] transition-colors leading-snug tracking-tight">
+                  {/* Title & Clear Description */}
+                  <div className="mt-4">
+                    <h2 className="text-[17px] xl:text-[18px] font-bold text-white group-hover:text-purple-300 transition-colors leading-snug tracking-tight">
                       {language === 'en' ? cat.nameEn : cat.nameBn}
                     </h2>
+                    <p className="text-xs xl:text-[13px] text-slate-400 mt-1 leading-relaxed line-clamp-2">
+                      {language === 'en' ? cat.descEn : cat.descBn}
+                    </p>
+                  </div>
 
-                    <div className="mt-2">
-                      <span className={`inline-flex items-center gap-1 text-[10.5px] font-bold px-2.5 py-0.5 rounded-full border leading-none ${cat.demandBadgeBg}`}>
-                        <span>{language === 'en' ? cat.demandBadgeEn : cat.demandBadgeBn}</span>
+                  {/* Feature Tags: Instantly Understand Capabilities */}
+                  <div className="flex flex-wrap gap-1.5 mt-3.5">
+                    {features.slice(0, 3).map((feat, idx) => (
+                      <span 
+                        key={idx}
+                        className="text-[10.5px] font-medium px-2 py-0.5 rounded-md bg-slate-900/80 text-slate-300 border border-slate-800"
+                      >
+                        {feat}
                       </span>
-                    </div>
+                    ))}
                   </div>
                 </div>
 
-                {/* Bottom Row: Starting Price & Action Arrow Button */}
-                <div className="pt-4 mt-5 border-t border-slate-100 flex items-center justify-between">
+                {/* Bottom Row: Starting Price & Clear "ডেমো দেখুন" Button */}
+                <div className="pt-4 mt-5 border-t border-slate-800/80 flex items-center justify-between">
                   <div>
                     <span className="text-[9.5px] xl:text-[10px] text-slate-400 block font-medium leading-none">
                       {language === 'en' ? 'Starts at' : 'শুরু মাত্র'}
                     </span>
-                    <span className="text-sm xl:text-base font-bold text-slate-900 mt-1 block leading-tight font-mono">
+                    <span className="text-sm xl:text-base font-bold text-white mt-1 block leading-tight font-mono">
                       {cat.startingPrice}
                     </span>
                   </div>
 
-                  <div className={`w-8.5 h-8.5 xl:w-9 xl:h-9 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-center text-slate-500 ${cat.actionHoverBg} transition-all duration-200 shadow-2xs group-hover:scale-105`}>
-                    <ChevronRight className="w-4 h-4 stroke-[2.2] group-hover:translate-x-0.5 transition-transform" />
+                  <div className="px-3.5 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-white group-hover:bg-[#7C3AED] transition-all duration-200 text-xs font-bold flex items-center gap-1.5 shadow-2xs">
+                    <span>{language === 'en' ? 'View Demos' : 'ডেমো দেখুন'}</span>
+                    <ChevronRight className="w-3.5 h-3.5 stroke-[2.5] group-hover:translate-x-0.5 transition-transform" />
                   </div>
                 </div>
               </div>
@@ -397,8 +415,8 @@ export default function DashboardView({
 
         {/* Clean, Subtle Micro Footer */}
         <footer className="shrink-0 text-center py-1">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-slate-200/80 shadow-2xs text-[11px] sm:text-xs lg:text-sm text-slate-600 font-medium">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/90 border border-slate-800 shadow-2xs text-[11px] sm:text-xs lg:text-sm text-slate-300 font-medium">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
             <span>
               {language === 'en' 
                 ? 'Ready in 24h • Domain & Hosting Included • 100% Responsive' 

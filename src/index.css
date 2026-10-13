@@ -23,40 +23,41 @@
     --color-rose: #E11D48;
     
     /* Typography Neutrals */
-    --color-text-primary: #0F172A;
-    --color-text-secondary: #334155;
-    --color-text-muted: #64748B;
-    --color-text-quiet: #94A3B8;
+    --color-text-primary: #F8FAFC;
+    --color-text-secondary: #CBD5E1;
+    --color-text-muted: #94A3B8;
+    --color-text-quiet: #64748B;
     --color-text-on-primary: #FFFFFF;
     
     /* Surface Backgrounds */
-    --color-bg-main: #FFFFFF;
-    --color-bg-quiet: #FAF5FF;
-    --color-bg-subdued: #F1F5F9;
-    --color-bg-accent-subdued: #F5F3FF;
-    --color-bg-soft-neutral: #E2E8F0;
+    --color-bg-main: #0B0F19;
+    --color-bg-quiet: #111827;
+    --color-bg-subdued: #151F33;
+    --color-bg-accent-subdued: #1E1B4B;
+    --color-bg-soft-neutral: #1E293B;
 
     /* Signature Gradients based on Official BongoWeb Logo */
     --gradient-flame: linear-gradient(135deg, #9F7AEA 0%, #805AD5 30%, #6B46C1 65%, #5521B5 100%);
     --gradient-ribbon: linear-gradient(135deg, #C084FC 0%, #7C3AED 40%, #6B46C1 75%, #5521B5 100%);
     --gradient-primary: linear-gradient(135deg, #7C3AED 0%, #6B46C1 50%, #5521B5 100%);
-    --gradient-royal-deep: linear-gradient(135deg, #1E1B4B 0%, #5521B5 55%, #6B46C1 100%);
+    --gradient-royal-deep: linear-gradient(135deg, #0B0F19 0%, #1E1B4B 55%, #311E63 100%);
     --gradient-emerald: linear-gradient(135deg, #10B981 0%, #059669 100%);
     --gradient-amber: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
   }
 
   * {
-    border-color: #E2E8F0;
+    border-color: #1E293B;
     box-sizing: border-box;
   }
 
   html {
     scroll-behavior: smooth;
-    background-color: #FFFFFF;
-    color: #0F172A;
+    background-color: #0B0F19;
+    color: #F8FAFC;
     overflow-x: hidden;
     width: 100%;
     font-size: 16px;
+    color-scheme: dark;
   }
 
   body {
@@ -65,8 +66,8 @@
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     -webkit-tap-highlight-color: transparent;
-    background-color: #FFFFFF;
-    color: #0F172A;
+    background-color: #0B0F19;
+    color: #F8FAFC;
     overflow-x: hidden;
     width: 100%;
     min-width: 320px;
@@ -86,8 +87,8 @@
   }
 
   ::selection {
-    background-color: #EDE9FE;
-    color: #6B46C1;
+    background-color: #7C3AED;
+    color: #FFFFFF;
   }
 }
 
@@ -203,10 +204,10 @@
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #FAF5FF;
+  background: #0B0F19;
 }
 ::-webkit-scrollbar-thumb {
-  background: #DDD6FE;
+  background: #334155;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {

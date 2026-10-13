@@ -2,11 +2,13 @@ import React from 'react';
 import { 
   PhoneCall, 
   FolderKanban, 
+  Palette, 
   Rocket, 
-  CheckCircle2,
-  Clock,
+  Clock, 
+  ShieldCheck, 
   ArrowRight,
-  ShieldCheck
+  MessageCircle,
+  LayoutGrid
 } from 'lucide-react';
 
 interface AfterOrderViewProps {
@@ -14,168 +16,190 @@ interface AfterOrderViewProps {
   onOpenLiveChat?: () => void;
 }
 
-export default function AfterOrderView({ onGoToDashboard: _onGoToDashboard, onOpenLiveChat: _onOpenLiveChat }: AfterOrderViewProps) {
-  // Professional sequential order workflow steps
-  const serialSteps = [
+export default function AfterOrderView({ onGoToDashboard, onOpenLiveChat }: AfterOrderViewProps) {
+  const steps = [
     {
       stepNum: '০১',
+      stepLabel: 'ধাপ ০১',
       tag: 'প্রথম পদক্ষেপ',
-      stage: 'রিকোয়ারমেন্ট',
       title: 'কনফার্মেশন ও রিকোয়ারমেন্ট কল',
-      highlight: '১৫ মিনিটের মধ্যে প্রজেক্ট ম্যানেজার কল করবেন',
-      timeEst: '১৫ মিনিট',
+      description: '১৫ মিনিটের মধ্যে প্রজেক্ট ম্যানেজার কল করবেন',
+      time: 'আনুমানিক সময়: ১৫ মিনিট',
       icon: PhoneCall,
-      iconBg: 'bg-blue-50 text-blue-600 border-blue-100',
-      tagBg: 'bg-blue-50 text-blue-700 border-blue-100',
-      cardHover: 'hover:border-blue-400 hover:shadow-[0_8px_24px_rgba(37,99,235,0.08)]'
+      cardBg: 'bg-gradient-to-br from-[#0E1E36] via-[#0A1628] to-[#070E1A]',
+      border: 'border-blue-500/35 hover:border-blue-400',
+      tagColor: 'bg-blue-950/90 text-blue-300 border-blue-800/80',
+      iconBg: 'bg-blue-600 text-white shadow-blue-500/30',
+      timeColor: 'text-blue-300',
+      badgeBg: 'bg-blue-600 text-white'
     },
     {
       stepNum: '০২',
+      stepLabel: 'ধাপ ০২',
       tag: 'তথ্য সংগ্রহ',
-      stage: 'ব্র্যান্ডিং',
       title: 'ব্র্যান্ডিং ও কনটেন্ট সংগ্রহ',
-      highlight: 'লোগো, ছবি ও প্রোডাক্ট তথ্য সহজ সংগ্রহ',
-      timeEst: '২-৪ ঘণ্টা',
+      description: 'লোগো, ছবি ও প্রোডাক্ট তথ্য সহজ সংগ্রহ',
+      time: 'আনুমানিক সময়: ২-৪ ঘণ্টা',
       icon: FolderKanban,
-      iconBg: 'bg-amber-50 text-amber-600 border-amber-100',
-      tagBg: 'bg-amber-50 text-amber-700 border-amber-100',
-      cardHover: 'hover:border-amber-400 hover:shadow-[0_8px_24px_rgba(217,119,6,0.08)]'
+      cardBg: 'bg-gradient-to-br from-[#2B1B0E] via-[#1E1309] to-[#120B05]',
+      border: 'border-amber-500/35 hover:border-amber-400',
+      tagColor: 'bg-amber-950/90 text-amber-300 border-amber-800/80',
+      iconBg: 'bg-amber-600 text-white shadow-amber-500/30',
+      timeColor: 'text-amber-300',
+      badgeBg: 'bg-amber-600 text-white'
     },
     {
       stepNum: '০৩',
+      stepLabel: 'ধাপ ০৩',
       tag: 'কাস্টমাইজেশন',
-      stage: 'ডেভেলপমেন্ট',
       title: 'ডিজাইন তৈরি ও ফিচার সেটআপ',
-      highlight: 'কালার থিম, ব্যানার ও পেমেন্ট গেটওয়ে ইন্টিগ্রেশন',
-      timeEst: '১২ ঘণ্টা',
-      icon: Rocket,
-      iconBg: 'bg-purple-50 text-purple-600 border-purple-100',
-      tagBg: 'bg-purple-50 text-purple-700 border-purple-100',
-      cardHover: 'hover:border-purple-400 hover:shadow-[0_8px_24px_rgba(147,51,234,0.08)]'
+      description: 'কালার থিম, ব্যানার ও পেমেন্ট গেটওয়ে ইন্টিগ্রেশন',
+      time: 'আনুমানিক সময়: ১২ ঘণ্টা',
+      icon: Palette,
+      cardBg: 'bg-gradient-to-br from-[#1E1338] via-[#150D27] to-[#0E081A]',
+      border: 'border-purple-500/35 hover:border-purple-400',
+      tagColor: 'bg-purple-950/90 text-purple-300 border-purple-800/80',
+      iconBg: 'bg-[#7C3AED] text-white shadow-purple-500/30',
+      timeColor: 'text-purple-300',
+      badgeBg: 'bg-[#7C3AED] text-white'
     },
     {
       stepNum: '০৪',
+      stepLabel: 'ধাপ ০৪',
       tag: 'লাইভ হ্যান্ডওভার',
-      stage: 'ডেলিভারি',
       title: 'ওয়েবসাইট ডেলিভারি ও সাপোর্ট',
-      highlight: 'ডোমেইন ও হোস্টিং সহ লাইভ সাইট হস্তান্তর',
-      timeEst: '২৪ ঘণ্টা',
-      icon: CheckCircle2,
-      iconBg: 'bg-emerald-50 text-emerald-600 border-emerald-100',
-      tagBg: 'bg-emerald-50 text-emerald-700 border-emerald-100',
-      cardHover: 'hover:border-emerald-400 hover:shadow-[0_8px_24px_rgba(16,185,129,0.08)]'
+      description: 'ডোমেইন ও হোস্টিং সহ লাইভ সাইট হস্তান্তর',
+      time: 'আনুমানিক সময়: ২৪ ঘণ্টা',
+      icon: Rocket,
+      cardBg: 'bg-gradient-to-br from-[#0E291F] via-[#0A1C15] to-[#06110D]',
+      border: 'border-emerald-500/35 hover:border-emerald-400',
+      tagColor: 'bg-emerald-950/90 text-emerald-300 border-emerald-800/80',
+      iconBg: 'bg-emerald-600 text-white shadow-emerald-500/30',
+      timeColor: 'text-emerald-300',
+      badgeBg: 'bg-emerald-600 text-white'
     }
   ];
 
   return (
-    <div className="w-full flex flex-col font-sans pb-28 lg:pb-12 pt-4 lg:pt-8">
-      {/* SECTION: SERIALIZED ORDER STEPS (অর্ডারের পর ধারাবাহিক পদক্ষেপসমূহ) */}
-      <section className="max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-        {/* Header (div:nth-of-type(1)) */}
-        <div className="text-center mb-8 lg:mb-10">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold border border-blue-100/80 mb-2.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
+    <div className="w-full flex flex-col font-sans pb-24 lg:pb-16 pt-3 sm:pt-6 lg:pt-8 select-none bg-[#0B0F19] text-slate-100">
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+        
+        {/* ================= CLEAN HEADER ================= */}
+        <header className="text-center mb-6 sm:mb-8 lg:mb-10">
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-purple-950/80 text-purple-300 text-xs font-bold border border-purple-800/80 mb-2.5 shadow-2xs">
+            <span className="w-2 h-2 rounded-full bg-[#A855F7] animate-pulse" />
             <span>অর্ডার প্রসেস • Order Workflow</span>
           </div>
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 tracking-tight">
+
+          <h1 className="text-2xl sm:text-3xl lg:text-[34px] font-black text-white tracking-tight leading-snug">
             অর্ডারের পর ধারাবাহিক ৪টি পদক্ষেপ
-          </h2>
-          <p className="text-xs sm:text-sm lg:text-base text-slate-500 mt-1.5 max-w-lg mx-auto">
+          </h1>
+
+          <p className="text-xs sm:text-sm lg:text-base text-slate-400 mt-2 max-w-xl mx-auto leading-relaxed">
             আপনার পছন্দের ডিজাইনটি বেছে অর্ডার করার পর আমাদের টিম যেভাবে আপনার ওয়েবসাইটটি রেডি করবে:
           </p>
-        </div>
+        </header>
 
-        {/* Targeted Order Steps Container (div:nth-of-type(2)) */}
-        <div className="w-full space-y-6">
-          {/* Visual Workflow Stepper Bar (Connected Progress Flow) */}
-          <div className="hidden sm:flex items-center justify-between p-3.5 lg:p-4 bg-slate-50/90 rounded-2xl border border-slate-200/80">
-            {serialSteps.map((s, idx) => (
-              <React.Fragment key={s.stepNum}>
-                <div className="flex items-center gap-2.5">
-                  <span className={`w-6 h-6 lg:w-7 lg:h-7 rounded-lg text-xs font-bold flex items-center justify-center shrink-0 ${
-                    idx === 0 
-                      ? 'bg-blue-600 text-white shadow-xs' 
-                      : 'bg-white border border-slate-200 text-slate-700'
-                  }`}>
-                    {s.stepNum}
-                  </span>
-                  <div className="text-left">
-                    <span className="text-[11px] lg:text-xs font-semibold text-slate-900 block leading-none">
-                      {s.stage}
-                    </span>
-                    <span className="text-[10px] lg:text-[11px] text-slate-400 font-medium leading-tight">
-                      {s.timeEst}
-                    </span>
+        {/* ================= 4 CLEAN STEPS GRID ================= */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-8">
+          {steps.map((step, idx) => {
+            const Icon = step.icon;
+            return (
+              <div
+                key={step.stepNum}
+                className={`relative p-5 rounded-2xl sm:rounded-3xl ${step.cardBg} border ${step.border} shadow-2xs hover:shadow-lg transition-all duration-200 flex flex-col justify-between`}
+              >
+                {/* Desktop subtle connector between steps 1-3 */}
+                {idx < steps.length - 1 && (
+                  <div className="hidden lg:flex absolute -right-3 top-1/2 -translate-y-1/2 z-10 w-6 h-6 rounded-full bg-slate-900 border border-slate-700 shadow-xs items-center justify-center text-slate-300">
+                    <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
                   </div>
-                </div>
-                {idx < serialSteps.length - 1 && (
-                  <ArrowRight className="w-3.5 h-3.5 text-slate-300 shrink-0 mx-1" />
                 )}
-              </React.Fragment>
-            ))}
-          </div>
 
-          {/* Executive Step Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4 lg:gap-5">
-            {serialSteps.map((step) => {
-              const Icon = step.icon;
-              return (
-                <div
-                  key={step.stepNum}
-                  className={`group relative p-4.5 sm:p-5 rounded-2xl bg-white border border-slate-200/90 ${step.cardHover} transition-all duration-200 flex flex-col justify-between gap-3 hover:-translate-y-0.5`}
-                >
-                  {/* Top Bar: Step Number + Tag + Icon */}
-                  <div className="flex items-center justify-between gap-3">
+                <div>
+                  {/* Top Row: Number, Tag, Icon */}
+                  <div className="flex items-center justify-between gap-2 mb-4">
                     <div className="flex items-center gap-2">
-                      <span className="w-7 h-7 rounded-lg bg-slate-900 text-white text-xs font-bold flex items-center justify-center shrink-0 tracking-tight shadow-xs">
+                      <span className={`w-8 h-8 rounded-xl ${step.badgeBg} text-xs font-black flex items-center justify-center shadow-xs`}>
                         {step.stepNum}
                       </span>
-                      <span className={`text-[10.5px] font-semibold px-2 py-0.5 rounded-full border ${step.tagBg}`}>
+                      <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${step.tagColor}`}>
                         {step.tag}
                       </span>
                     </div>
 
-                    <div className={`w-9 h-9 rounded-xl border flex items-center justify-center shrink-0 ${step.iconBg} group-hover:scale-105 transition-transform`}>
-                      <Icon className="w-4.5 h-4.5 stroke-[2.2]" />
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-sm ${step.iconBg}`}>
+                      <Icon className="w-5 h-5 stroke-[2.2]" />
                     </div>
                   </div>
 
-                  {/* Title & Concise Highlight */}
-                  <div>
-                    <h3 className="text-[15px] sm:text-base font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
-                      {step.title}
-                    </h3>
-                    <p className="text-xs text-slate-500 font-normal mt-1 leading-relaxed">
-                      {step.highlight}
-                    </p>
-                  </div>
+                  {/* Step Title */}
+                  <h3 className="text-base sm:text-[17px] font-black text-white leading-snug tracking-tight mb-2">
+                    {step.title}
+                  </h3>
 
-                  {/* Bottom Meta Pill: Timing */}
-                  <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px]">
-                    <div className="flex items-center gap-1.5 text-slate-500 font-medium">
-                      <Clock className="w-3.5 h-3.5 text-slate-400 stroke-[2.2]" />
-                      <span>আনুমানিক সময়: <strong className="text-slate-700">{step.timeEst}</strong></span>
-                    </div>
-                    <span className="text-[10px] font-semibold text-slate-400 group-hover:text-blue-600 transition-colors">
-                      ধাপ {step.stepNum}
-                    </span>
-                  </div>
+                  {/* Step Description */}
+                  <p className="text-xs sm:text-[13px] text-slate-300 leading-relaxed font-medium">
+                    {step.description}
+                  </p>
                 </div>
-              );
-            })}
+
+                {/* Bottom Timing and Step Label */}
+                <div className="pt-4 mt-5 border-t border-slate-800/80 flex items-center justify-between text-xs">
+                  <div className={`flex items-center gap-1.5 font-bold ${step.timeColor}`}>
+                    <Clock className="w-3.5 h-3.5 shrink-0 opacity-80" />
+                    <span className="text-[11px] sm:text-xs">{step.time}</span>
+                  </div>
+                  <span className="text-[11px] font-extrabold px-2 py-0.5 rounded-md bg-slate-900/90 text-slate-200 border border-slate-700/80 shadow-2xs">
+                    {step.stepLabel}
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* ================= CLEAN REASSURANCE & ACTION BAR ================= */}
+        <div className="p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-slate-900/90 border border-slate-800 text-white shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center shrink-0">
+              <ShieldCheck className="w-5 h-5 text-emerald-400" />
+            </div>
+            <div>
+              <p className="text-xs sm:text-sm font-bold text-white leading-snug">
+                ফ্রি ডোমেইন, এসএসএল ও ক্লাউড হোস্টিং প্রতিটি অর্ডারের সাথে অন্তর্ভুক্ত
+              </p>
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                লাইভ সাইট হস্তান্তর ও প্রজেক্ট সাপোর্ট নিশ্চিত
+              </p>
+            </div>
           </div>
 
-          {/* Reassurance Footer Banner */}
-          <div className="p-3 sm:p-3.5 rounded-2xl bg-slate-50/80 border border-slate-200/70 flex items-center justify-between gap-3 text-xs text-slate-600">
-            <div className="flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-              <span className="font-medium text-slate-700">ফ্রি ডোমেইন, এসএসএল ও ক্লাউড হোস্টিং প্রতিটি অর্ডারের সাথে অন্তর্ভুক্ত</span>
-            </div>
-            <span className="hidden sm:inline-block text-[11px] font-semibold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-100">
-              ২৪ ঘণ্টা এক্সপ্রেস ডেলিভারি
-            </span>
+          <div className="flex items-center gap-2.5 w-full md:w-auto shrink-0">
+            {onGoToDashboard && (
+              <button
+                type="button"
+                onClick={onGoToDashboard}
+                className="flex-1 md:flex-none px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 border border-slate-700 cursor-pointer active:scale-95"
+              >
+                <LayoutGrid className="w-3.5 h-3.5" />
+                <span>ড্যাশবোর্ড</span>
+              </button>
+            )}
+
+            {onOpenLiveChat && (
+              <button
+                type="button"
+                onClick={onOpenLiveChat}
+                className="flex-1 md:flex-none px-4 py-2 rounded-xl bg-[#7C3AED] hover:bg-[#6D28D9] text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer active:scale-95"
+              >
+                <MessageCircle className="w-3.5 h-3.5" />
+                <span>লাইভ চ্যাট</span>
+              </button>
+            )}
           </div>
         </div>
+
       </section>
     </div>
   );

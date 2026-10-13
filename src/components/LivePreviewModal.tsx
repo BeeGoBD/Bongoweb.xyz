@@ -27,33 +27,33 @@ export default function LivePreviewModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 lg:p-6 bg-[#0D253D]/70 backdrop-blur-sm animate-fadeIn">
-      <div className="w-full max-w-6xl h-[92vh] bg-[#FFFFFF] rounded-3xl border border-[#E5EDF5] shadow-2xl flex flex-col overflow-hidden animate-slideUpModal">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 lg:p-6 bg-black/75 backdrop-blur-sm animate-fadeIn">
+      <div className="w-full max-w-6xl h-[92vh] bg-[#0F172A] text-slate-100 rounded-3xl border border-slate-800 shadow-2xl flex flex-col overflow-hidden animate-slideUpModal">
         {/* Top Control Bar */}
-        <div className="p-3 sm:p-4 bg-[#F8FAFD] border-b border-[#E5EDF5] flex flex-wrap items-center justify-between gap-3">
+        <div className="p-3 sm:p-4 bg-[#111827] border-b border-slate-800 flex flex-wrap items-center justify-between gap-3">
           {/* Left Title & 4-Digit Code */}
           <div className="flex items-center gap-3">
-            <span className="px-2.5 py-1 rounded-lg bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] text-[#FFFFFF] text-xs font-mono font-bold">
+            <span className="px-2.5 py-1 rounded-lg bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] text-white text-xs font-mono font-bold shadow-xs">
               {demo.fourDigitCode}
             </span>
             <div>
-              <h3 className="text-sm font-black text-[#0D253D] line-clamp-1">
+              <h3 className="text-sm font-black text-white line-clamp-1">
                 {demo.title}
               </h3>
-              <p className="text-[11px] text-[#64748D] font-mono">
+              <p className="text-[11px] text-slate-400 font-mono">
                 https://{demo.demoUrl}
               </p>
             </div>
           </div>
 
           {/* Center Device Switcher */}
-          <div className="hidden sm:flex items-center bg-[#FFFFFF] p-1 rounded-xl border border-[#E5EDF5]">
+          <div className="hidden sm:flex items-center bg-slate-900 p-1 rounded-xl border border-slate-700">
             <button
               onClick={() => setDeviceMode('desktop')}
               className={`px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                 deviceMode === 'desktop'
-                  ? 'bg-[#6B46C1] text-[#FFFFFF] shadow-xs'
-                  : 'text-[#64748D] hover:text-[#0D253D]'
+                  ? 'bg-[#7C3AED] text-white shadow-xs'
+                  : 'text-slate-400 hover:text-white'
               }`}
             >
               <Laptop className="w-3.5 h-3.5" />
@@ -63,8 +63,8 @@ export default function LivePreviewModal({
               onClick={() => setDeviceMode('mobile')}
               className={`px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                 deviceMode === 'mobile'
-                  ? 'bg-[#6B46C1] text-[#FFFFFF] shadow-xs'
-                  : 'text-[#64748D] hover:text-[#0D253D]'
+                  ? 'bg-[#7C3AED] text-white shadow-xs'
+                  : 'text-slate-400 hover:text-white'
               }`}
             >
               <Smartphone className="w-3.5 h-3.5" />
@@ -83,7 +83,7 @@ export default function LivePreviewModal({
             </button>
             <button
               onClick={onClose}
-              className="p-2 rounded-xl text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-colors cursor-pointer"
+              className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -91,11 +91,11 @@ export default function LivePreviewModal({
         </div>
 
         {/* Live Simulator Body */}
-        <div className="flex-1 bg-slate-50 p-2 sm:p-4 overflow-y-auto flex items-center justify-center">
+        <div className="flex-1 bg-[#0B0F19] p-2 sm:p-4 overflow-y-auto flex items-center justify-center">
           <div
-            className={`transition-all duration-300 bg-[#FFFFFF] rounded-2xl border border-slate-200 shadow-lg overflow-y-auto max-h-full ${
+            className={`transition-all duration-300 bg-[#111827] rounded-2xl border border-slate-800 shadow-lg overflow-y-auto max-h-full ${
               deviceMode === 'mobile'
-                ? 'w-[360px] h-[640px] rounded-3xl border-4 border-slate-800'
+                ? 'w-[360px] h-[640px] rounded-3xl border-4 border-slate-700'
                 : 'w-full h-full'
             }`}
           >
@@ -106,32 +106,32 @@ export default function LivePreviewModal({
                 alt={demo.title}
                 className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent p-6 sm:p-8 flex flex-col justify-end text-white">
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-transparent p-6 sm:p-8 flex flex-col justify-end text-white">
                 <span className="px-3 py-1 rounded-full bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] text-white text-xs font-bold w-fit mb-2 shadow-xs">
                   {demo.categoryLabel} • Verified Template
                 </span>
                 <h2 className="text-xl sm:text-2xl md:text-3xl font-black leading-tight text-white mb-2">
                   {demo.heroHeadline}
                 </h2>
-                <p className="text-xs sm:text-sm text-white/90 max-w-xl">
+                <p className="text-xs sm:text-sm text-slate-200 max-w-xl">
                   {demo.mockData?.heroSub || demo.description}
                 </p>
               </div>
             </div>
 
             {/* Simulated Live Product Catalog */}
-            <div className="p-4 sm:p-6 bg-[#FFFFFF]">
+            <div className="p-4 sm:p-6 bg-[#111827]">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h4 className="text-sm sm:text-base font-black text-[#0F172A]">
+                  <h4 className="text-sm sm:text-base font-black text-white">
                     Featured Items & Interactive Demo
                   </h4>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-slate-400">
                     Click any item to test live customer cart action
                   </p>
                 </div>
                 {addedItem && (
-                  <span className="px-3 py-1 rounded-full bg-[#00B261]/10 text-[#00B261] text-xs font-bold border border-[#00B261]/20 animate-fadeIn">
+                  <span className="px-3 py-1 rounded-full bg-emerald-950/90 text-emerald-300 text-xs font-bold border border-emerald-800 animate-fadeIn">
                     ✓ Added to Cart!
                   </span>
                 )}
@@ -141,9 +141,9 @@ export default function LivePreviewModal({
                 {demo.mockData?.items.map((item, idx) => (
                   <div
                     key={idx}
-                    className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 hover:border-[#7C3AED] hover:shadow-xs transition-all flex flex-col justify-between"
+                    className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 hover:border-purple-500 hover:shadow-xs transition-all flex flex-col justify-between"
                   >
-                    <div className="aspect-[4/3] rounded-xl overflow-hidden mb-3 bg-slate-100">
+                    <div className="aspect-[4/3] rounded-xl overflow-hidden mb-3 bg-slate-950">
                       <img
                         src={item.image}
                         alt={item.name}
@@ -151,10 +151,10 @@ export default function LivePreviewModal({
                       />
                     </div>
                     <div>
-                      <p className="text-xs font-bold text-[#0F172A] line-clamp-1">
+                      <p className="text-xs font-bold text-white line-clamp-1">
                         {item.name}
                       </p>
-                      <p className="text-xs font-black text-[#6B46C1] mt-1">
+                      <p className="text-xs font-black text-purple-400 mt-1">
                         {item.price}
                       </p>
                     </div>
@@ -169,12 +169,12 @@ export default function LivePreviewModal({
               </div>
 
               {/* Bottom Reassurance in Simulator */}
-              <div className="mt-6 p-4 rounded-xl bg-[#FAF5FF] border border-[#DDD6FE] flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+              <div className="mt-6 p-4 rounded-xl bg-purple-950/40 border border-purple-800/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
                 <div>
-                  <h5 className="text-xs font-bold text-[#0F172A]">
+                  <h5 className="text-xs font-bold text-white">
                     পছন্দ হয়েছে? এই ডিজাইনটি দিয়ে আজই আপনার ওয়েবসাইট চালু করুন
                   </h5>
-                  <p className="text-[11px] text-slate-500">
+                  <p className="text-[11px] text-slate-300">
                     ২৪ ঘণ্টার মধ্যে .com ডোমেইন এবং বিকাশ পেমেন্ট সহ লাইভ করে দেওয়া হবে।
                   </p>
                 </div>
