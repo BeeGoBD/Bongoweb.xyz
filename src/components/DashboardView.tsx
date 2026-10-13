@@ -74,8 +74,8 @@ export default function DashboardView({
       icon: ShoppingBag,
       iconBg: 'bg-gradient-to-tr from-[#6B46C1] via-[#7C3AED] to-[#A855F7] text-white shadow-md shadow-purple-500/30',
       iconColor: 'text-purple-400',
-      cardBg: 'bg-gradient-to-br from-[#1E1238] via-[#150D27] to-[#0D0819] border-purple-500/35',
-      cardBorderHover: 'hover:border-purple-400',
+      cardBg: 'bg-gradient-to-br from-[#1E1238] via-[#150D27] to-[#0D0819]',
+      cardBorderHover: 'hover:border-white hover:shadow-[0_0_24px_rgba(255,255,255,0.25)]',
       hoverShadow: 'hover:shadow-[0_12px_32px_rgba(168,85,247,0.25)]',
       badgeBg: 'bg-purple-950/90',
       badgeText: 'text-purple-300',
@@ -105,8 +105,8 @@ export default function DashboardView({
       icon: UtensilsCrossed,
       iconBg: 'bg-gradient-to-tr from-amber-500 to-orange-500 text-white shadow-md shadow-orange-500/30',
       iconColor: 'text-amber-400',
-      cardBg: 'bg-gradient-to-br from-[#2D1B0D] via-[#1F1208] to-[#120A04] border-amber-500/35',
-      cardBorderHover: 'hover:border-amber-400',
+      cardBg: 'bg-gradient-to-br from-[#2D1B0D] via-[#1F1208] to-[#120A04]',
+      cardBorderHover: 'hover:border-white hover:shadow-[0_0_24px_rgba(255,255,255,0.25)]',
       hoverShadow: 'hover:shadow-[0_12px_32px_rgba(245,158,11,0.25)]',
       badgeBg: 'bg-amber-950/90',
       badgeText: 'text-amber-300',
@@ -136,8 +136,8 @@ export default function DashboardView({
       icon: Newspaper,
       iconBg: 'bg-gradient-to-tr from-blue-600 to-indigo-600 text-white shadow-md shadow-indigo-500/30',
       iconColor: 'text-indigo-400',
-      cardBg: 'bg-gradient-to-br from-[#0E1D38] via-[#0A1427] to-[#060D1A] border-blue-500/35',
-      cardBorderHover: 'hover:border-blue-400',
+      cardBg: 'bg-gradient-to-br from-[#0E1D38] via-[#0A1427] to-[#060D1A]',
+      cardBorderHover: 'hover:border-white hover:shadow-[0_0_24px_rgba(255,255,255,0.25)]',
       hoverShadow: 'hover:shadow-[0_12px_32px_rgba(59,130,246,0.25)]',
       badgeBg: 'bg-blue-950/90',
       badgeText: 'text-blue-300',
@@ -167,8 +167,8 @@ export default function DashboardView({
       icon: Store,
       iconBg: 'bg-gradient-to-tr from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-500/30',
       iconColor: 'text-emerald-400',
-      cardBg: 'bg-gradient-to-br from-[#0D281E] via-[#091C15] to-[#05110D] border-emerald-500/35',
-      cardBorderHover: 'hover:border-emerald-400',
+      cardBg: 'bg-gradient-to-br from-[#0D281E] via-[#091C15] to-[#05110D]',
+      cardBorderHover: 'hover:border-white hover:shadow-[0_0_24px_rgba(255,255,255,0.25)]',
       hoverShadow: 'hover:shadow-[0_12px_32px_rgba(16,185,129,0.25)]',
       badgeBg: 'bg-emerald-950/90',
       badgeText: 'text-emerald-300',
@@ -294,7 +294,7 @@ export default function DashboardView({
                   }
                 }}
                 aria-label={`Select ${language === 'en' ? cat.nameEn : cat.nameBn}`}
-                className={`group w-full aspect-square p-2.5 sm:p-4 rounded-2xl sm:rounded-3xl ${cat.cardBg} border ${cat.cardBorderHover} shadow-xs ${cat.hoverShadow} transition-all duration-200 cursor-pointer flex flex-col justify-between hover:-translate-y-0.5 active:scale-[0.98] outline-none focus-visible:ring-2 focus-visible:ring-purple-400 relative overflow-hidden`}
+                className={`group w-full aspect-square p-2.5 sm:p-4 rounded-2xl sm:rounded-3xl ${cat.cardBg} border-2 border-white shadow-[0_0_16px_rgba(255,255,255,0.14)] ${cat.cardBorderHover} ${cat.hoverShadow} transition-all duration-200 cursor-pointer flex flex-col justify-between hover:-translate-y-0.5 active:scale-[0.98] outline-none focus-visible:ring-2 focus-visible:ring-white relative overflow-hidden`}
               >
                 {/* Top Row: Category Icon & Visual Tag */}
                 <div className="flex items-start justify-between gap-1.5">
@@ -327,7 +327,7 @@ export default function DashboardView({
                     </span>
                   </div>
 
-                  <div className="px-2 py-1 sm:px-2.5 sm:py-1 rounded-lg bg-slate-900 border border-slate-700/80 text-[10px] sm:text-[11px] font-bold text-purple-300 group-hover:bg-[#7C3AED] group-hover:text-white transition-all duration-200 shadow-2xs flex items-center gap-0.5 shrink-0">
+                  <div className="px-2 py-1 sm:px-2.5 sm:py-1 rounded-lg bg-slate-900 border border-white/80 text-[10px] sm:text-[11px] font-bold text-purple-300 group-hover:bg-[#7C3AED] group-hover:text-white transition-all duration-200 shadow-2xs flex items-center gap-0.5 shrink-0">
                     <span>{language === 'en' ? 'Demos' : 'ডেমো'}</span>
                     <ChevronRight className="w-3 h-3 stroke-[2.5] group-hover:translate-x-0.5 transition-transform" />
                   </div>
@@ -356,7 +356,7 @@ export default function DashboardView({
                   }
                 }}
                 aria-label={`Select ${language === 'en' ? cat.nameEn : cat.nameBn}`}
-                className={`group w-full p-5 xl:p-6 rounded-2xl xl:rounded-3xl ${cat.cardBg} border ${cat.cardBorderHover} shadow-xs ${cat.hoverShadow} transition-all duration-200 cursor-pointer flex flex-col justify-between hover:-translate-y-1 outline-none focus-visible:ring-2 focus-visible:ring-purple-400`}
+                className={`group w-full p-5 xl:p-6 rounded-2xl xl:rounded-3xl ${cat.cardBg} border-2 border-white shadow-[0_0_16px_rgba(255,255,255,0.14)] ${cat.cardBorderHover} ${cat.hoverShadow} transition-all duration-200 cursor-pointer flex flex-col justify-between hover:-translate-y-1 outline-none focus-visible:ring-2 focus-visible:ring-white`}
               >
                 <div>
                   {/* Top Row: Icon + Visual Tag */}
