@@ -55,7 +55,7 @@ export default function FixedHeader({
     <div className="fixed top-0 left-0 right-0 z-40 w-full flex flex-col select-none">
       <header 
         id="fixed-main-header"
-        className="w-full bg-[#0B0F19]/90 backdrop-blur-xl border-b border-slate-800/80 shadow-[0_4px_24px_rgba(0,0,0,0.5)] h-16 sm:h-[68px] lg:h-[72px] flex items-center transition-all"
+        className="w-full bg-white/95 backdrop-blur-xl border-b border-slate-200/90 shadow-[0_2px_16px_rgba(15,23,42,0.04)] h-16 sm:h-[68px] lg:h-[72px] flex items-center transition-all"
       >
         <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4 h-full">
           {/* Top Left: Official BongoWeb Logo */}
@@ -72,10 +72,10 @@ export default function FixedHeader({
               <button
                 type="button"
                 onClick={onOpenLogoShowcase}
-                className="hidden xl:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-purple-950/70 hover:bg-purple-900/80 text-purple-300 text-xs font-bold border border-purple-800/60 transition-all cursor-pointer shadow-2xs"
+                className="hidden xl:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-bold border border-purple-200/80 transition-all cursor-pointer shadow-2xs"
                 title="View BongoWeb Logo Brand Versions (4:1 & 1:1)"
               >
-                <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+                <Sparkles className="w-3.5 h-3.5 text-purple-600" />
                 <span>Brand Logos</span>
               </button>
             )}
@@ -83,7 +83,7 @@ export default function FixedHeader({
 
           {/* Center: Desktop Navigation Tabs (Laptop/Desktop View) */}
           {onTabChange && (
-            <nav className="hidden lg:flex items-center gap-1.5 xl:gap-2 bg-slate-900/90 backdrop-blur-xs p-1.5 rounded-2xl border border-slate-800 shadow-xs">
+            <nav className="hidden lg:flex items-center gap-1.5 xl:gap-2 bg-slate-100/90 p-1.5 rounded-2xl border border-slate-200/80 shadow-2xs">
               {desktopTabs.map((tab) => {
                 const Icon = tab.icon;
                 const isActive = activeTab === tab.id;
@@ -94,14 +94,14 @@ export default function FixedHeader({
                     onClick={() => onTabChange(tab.id)}
                     className={`px-4 xl:px-4.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer relative ${
                       isActive
-                        ? 'bg-slate-800 text-purple-300 shadow-xs font-black ring-1 ring-purple-500/40'
-                        : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/60 active:scale-95'
+                        ? 'bg-white text-purple-700 shadow-xs font-black ring-1 ring-purple-200'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 active:scale-95'
                     }`}
                   >
-                    <Icon className={`w-4 h-4 ${isActive ? 'text-purple-400' : 'text-slate-400'}`} />
+                    <Icon className={`w-4 h-4 ${isActive ? 'text-purple-600' : 'text-slate-500'}`} />
                     <span>{tab.label}</span>
                     {tab.badge && tab.badge > 0 && (
-                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                     )}
                   </button>
                 );
@@ -117,14 +117,14 @@ export default function FixedHeader({
               id="header-notification-btn"
               aria-label="View Notifications"
               title="Notifications"
-              className="relative px-3 py-2 sm:px-3.5 sm:py-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 active:bg-slate-700 active:scale-95 text-slate-200 border border-slate-800 hover:border-purple-500/40 transition-all duration-200 cursor-pointer flex items-center gap-2 shadow-2xs group"
+              className="relative px-3 py-2 sm:px-3.5 sm:py-2 rounded-xl bg-slate-50 hover:bg-slate-100 active:bg-slate-200 active:scale-95 text-slate-700 border border-slate-200/90 hover:border-purple-300 transition-all duration-200 cursor-pointer flex items-center gap-2 shadow-2xs group"
             >
-              <Bell className="w-4.5 h-4.5 text-slate-400 group-hover:text-purple-400 group-hover:rotate-12 transition-all" />
-              <span className="hidden md:inline text-xs font-bold text-slate-200">
+              <Bell className="w-4.5 h-4.5 text-slate-500 group-hover:text-purple-600 group-hover:rotate-12 transition-all" />
+              <span className="hidden md:inline text-xs font-bold text-slate-700">
                 নোটিফিকেশন
               </span>
               {unreadCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 flex h-4.5 min-w-[18px] px-1 items-center justify-center rounded-full bg-gradient-to-r from-[#AB55F7] to-[#7C3AED] text-white text-[9.5px] font-black shadow-[0_2px_8px_rgba(171,85,247,0.4)] ring-2 ring-slate-900">
+                <span className="absolute -top-1.5 -right-1.5 flex h-4.5 min-w-[18px] px-1 items-center justify-center rounded-full bg-gradient-to-r from-[#AB55F7] to-[#7C3AED] text-white text-[9.5px] font-black shadow-[0_2px_8px_rgba(171,85,247,0.4)] ring-2 ring-white">
                   {unreadCount}
                 </span>
               )}

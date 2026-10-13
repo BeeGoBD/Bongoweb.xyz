@@ -112,22 +112,22 @@ export default function LandscapeOrderDetailsModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/75 backdrop-blur-sm animate-fadeIn overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-900/40 backdrop-blur-sm animate-fadeIn overflow-y-auto">
       <div 
-        className="w-full max-w-5xl bg-[#0F172A] text-slate-100 rounded-3xl border border-slate-800 shadow-2xl overflow-hidden flex flex-col max-h-[92vh] animate-slideUpModal relative"
+        className="w-full max-w-5xl bg-white text-slate-900 rounded-3xl border border-slate-200 shadow-2xl overflow-hidden flex flex-col max-h-[92vh] animate-slideUpModal relative"
         role="dialog"
       >
         {/* Top Header */}
-        <div className="px-5 py-4 sm:px-7 sm:py-5 border-b border-slate-800 bg-[#111827] flex items-center justify-between gap-3 shrink-0">
+        <div className="px-5 py-4 sm:px-7 sm:py-5 border-b border-slate-200 bg-slate-50 flex items-center justify-between gap-3 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-purple-950/90 text-purple-400 border border-purple-800/80 flex items-center justify-center font-black shadow-xs shrink-0">
+            <div className="w-10 h-10 rounded-2xl bg-purple-50 text-purple-600 border border-purple-200 flex items-center justify-center font-black shadow-xs shrink-0">
               <ShieldCheck className="w-5 h-5 stroke-[2.2]" />
             </div>
             <div>
-              <h2 className="text-base sm:text-lg font-black text-white">
+              <h2 className="text-base sm:text-lg font-black text-slate-900">
                 আপনার অর্ডারের বিবরণ ও লাইভ ট্র্যাকিং
               </h2>
-              <p className="text-[11px] sm:text-xs text-slate-400">
+              <p className="text-[11px] sm:text-xs text-slate-500">
                 পেন্ডিং, প্রসেসিং ও ডেলিভারিকৃত ওয়েবসাইট আইডি-পাসওয়ার্ড বিস্তারিত
               </p>
             </div>
@@ -135,7 +135,7 @@ export default function LandscapeOrderDetailsModal({
 
           <button
             onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+            className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
             aria-label="Close"
           >
             <X className="w-5 h-5" />
@@ -143,37 +143,37 @@ export default function LandscapeOrderDetailsModal({
         </div>
 
         {/* Quick Stat Chips Bar */}
-        <div className="px-5 py-3 sm:px-7 bg-slate-900 border-b border-slate-800 flex items-center gap-2 flex-wrap shrink-0">
-          <span className="px-3 py-1 rounded-xl bg-slate-800 border border-slate-700 text-xs font-bold text-slate-200">
-            মোট অর্ডার: <strong className="text-purple-400 font-mono">{relevantOrders.length}</strong>
+        <div className="px-5 py-3 sm:px-7 bg-slate-50 border-b border-slate-200 flex items-center gap-2 flex-wrap shrink-0">
+          <span className="px-3 py-1 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-700 shadow-2xs">
+            মোট অর্ডার: <strong className="text-purple-700 font-mono">{relevantOrders.length}</strong>
           </span>
-          <span className="px-3 py-1 rounded-xl bg-amber-950/80 border border-amber-800 text-xs font-bold text-amber-300">
+          <span className="px-3 py-1 rounded-xl bg-amber-50 border border-amber-200 text-xs font-bold text-amber-800 shadow-2xs">
             পেন্ডিং যাচাই: <strong className="font-mono">{pendingCount}</strong>
           </span>
-          <span className="px-3 py-1 rounded-xl bg-purple-950/80 border border-purple-800 text-xs font-bold text-purple-300">
+          <span className="px-3 py-1 rounded-xl bg-purple-50 border border-purple-200 text-xs font-bold text-purple-700 shadow-2xs">
             প্রসেসিং (সেটআপ): <strong className="font-mono">{processingCount}</strong>
           </span>
-          <span className="px-3 py-1 rounded-xl bg-emerald-950/80 border border-emerald-800 text-xs font-bold text-emerald-300">
+          <span className="px-3 py-1 rounded-xl bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-800 shadow-2xs">
             সম্পূর্ণ ও ডেলিভারি সম্পন্ন: <strong className="font-mono">{completedCount}</strong>
           </span>
         </div>
 
         {/* Modal Scrollable Body */}
-        <div className="flex-1 overflow-y-auto p-5 sm:p-7 space-y-5 bg-[#0B0F19]">
+        <div className="flex-1 overflow-y-auto p-5 sm:p-7 space-y-5 bg-slate-50/40">
           {loading ? (
-            <div className="py-16 text-center flex flex-col items-center justify-center gap-2 text-slate-400">
+            <div className="py-16 text-center flex flex-col items-center justify-center gap-2 text-slate-500">
               <RefreshCw className="w-6 h-6 animate-spin text-[#7C3AED]" />
               <p className="text-xs">অর্ডারের তথ্য লোড হচ্ছে...</p>
             </div>
           ) : relevantOrders.length === 0 ? (
-            <div className="py-16 text-center bg-[#111827] rounded-3xl border border-slate-800 p-8 space-y-3">
-              <div className="w-14 h-14 rounded-2xl bg-purple-950/90 text-purple-400 border border-purple-800 flex items-center justify-center mx-auto mb-2">
+            <div className="py-16 text-center bg-white rounded-3xl border border-slate-200 p-8 space-y-3 shadow-xs">
+              <div className="w-14 h-14 rounded-2xl bg-purple-50 text-purple-600 border border-purple-200 flex items-center justify-center mx-auto mb-2">
                 <Clock className="w-7 h-7" />
               </div>
-              <h3 className="text-base font-black text-white">
+              <h3 className="text-base font-black text-slate-900">
                 আপনি এখনো কোনো ওয়েবসাইট অর্ডার করেননি
               </h3>
-              <p className="text-xs text-slate-400 max-w-md mx-auto">
+              <p className="text-xs text-slate-500 max-w-md mx-auto">
                 আমাদের ড্যাশবোর্ডে গিয়ে মাত্র ১,৯৯০ টাকায় আপনার পছন্দের ক্যাটাগরি থেকে রেডি ওয়েবসাইট অর্ডার করতে পারেন।
               </p>
               {onGoToDashboard && (
@@ -225,12 +225,12 @@ export default function LandscapeOrderDetailsModal({
                 return (
                   <div
                     key={ord.orderId ? `order-card-${ord.orderId}` : `ord-idx-${idx}`}
-                    className={`p-5 sm:p-6 rounded-2xl sm:rounded-3xl border-2 transition-all shadow-xs space-y-4 bg-[#111827] ${
+                    className={`p-5 sm:p-6 rounded-2xl sm:rounded-3xl border-2 transition-all shadow-sm space-y-4 bg-white ${
                       isCompleted
-                        ? 'border-emerald-500/50 hover:border-emerald-400'
+                        ? 'border-emerald-300 hover:border-emerald-500'
                         : isProcessing
-                        ? 'border-purple-500/50 hover:border-purple-400'
-                        : 'border-amber-500/50 hover:border-amber-400'
+                        ? 'border-purple-300 hover:border-purple-500'
+                        : 'border-amber-300 hover:border-amber-500'
                     }`}
                   >
                     {/* Top Row: IDs, Website Title & Status Pill */}
@@ -239,14 +239,14 @@ export default function LandscapeOrderDetailsModal({
                         <span className="px-3 py-1 rounded-xl bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] text-white font-mono font-black text-xs shadow-2xs">
                           {ord.orderId}
                         </span>
-                        <span className="px-2.5 py-0.5 rounded-lg bg-purple-950/90 text-purple-300 text-xs font-bold font-mono border border-purple-800">
+                        <span className="px-2.5 py-0.5 rounded-lg bg-purple-50 text-purple-700 text-xs font-bold font-mono border border-purple-200">
                           {ord.demoCode}
                         </span>
-                        <h3 className="text-sm sm:text-base font-extrabold text-white">
+                        <h3 className="text-sm sm:text-base font-extrabold text-slate-900">
                           {ord.companyName || ord.clientName}
                         </h3>
                         {ord.customDomain && (
-                          <span className="text-[11px] text-emerald-300 font-mono bg-emerald-950/80 px-2 py-0.5 rounded-md border border-emerald-800">
+                          <span className="text-[11px] text-emerald-800 font-mono bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
                             {ord.customDomain}
                           </span>
                         )}
@@ -255,24 +255,24 @@ export default function LandscapeOrderDetailsModal({
                       <div className="flex items-center gap-2 shrink-0">
                         <span className={`px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 ${
                           isCompleted
-                            ? 'bg-emerald-950/90 text-emerald-300 border border-emerald-800'
+                            ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
                             : isProcessing
-                            ? 'bg-purple-950/90 text-purple-300 border border-purple-800'
-                            : 'bg-amber-950/90 text-amber-300 border border-amber-800'
+                            ? 'bg-purple-50 text-purple-700 border border-purple-200'
+                            : 'bg-amber-50 text-amber-800 border border-amber-200'
                         }`}>
                           {isCompleted ? (
                             <>
-                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                               <span>✓ সম্পূর্ণ (Live & Ready)</span>
                             </>
                           ) : isProcessing ? (
                             <>
-                              <span className="w-2 h-2 rounded-full bg-purple-400 animate-pulse" />
+                              <span className="w-2 h-2 rounded-full bg-purple-600 animate-pulse" />
                               <span>⚡ অনুমোদিত (প্রসেসিং)</span>
                             </>
                           ) : (
                             <>
-                              <span className="w-2 h-2 rounded-full bg-rose-400 animate-ping" />
+                              <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
                               <span>⏳ পেন্ডিং যাচাই</span>
                             </>
                           )}
@@ -281,7 +281,7 @@ export default function LandscapeOrderDetailsModal({
                         <button
                           type="button"
                           onClick={() => setSelectedReceiptOrder(ord)}
-                          className="px-3 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-purple-300 border border-slate-700 text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
+                          className="px-3 py-1 rounded-xl bg-slate-100 hover:bg-slate-200 text-purple-700 border border-slate-200 text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
                         >
                           <Eye className="w-3.5 h-3.5" />
                           <span>রসিদ দেখুন</span>
@@ -290,16 +290,16 @@ export default function LandscapeOrderDetailsModal({
                     </div>
 
                     {/* 3-Step Live Visual Lifecycle Pipeline */}
-                    <div className="bg-slate-950 p-3 sm:p-4 rounded-2xl border border-slate-800">
+                    <div className="bg-slate-50 p-3 sm:p-4 rounded-2xl border border-slate-200">
                       <div className="grid grid-cols-3 gap-2 text-center text-xs">
                         {/* Step 1: Pending */}
                         <div className={`p-2.5 rounded-xl flex flex-col items-center gap-1 transition-all ${
                           isPending 
-                            ? 'bg-amber-950/50 border border-amber-800 text-amber-300 font-bold shadow-2xs' 
-                            : 'bg-slate-900 border border-slate-800 text-emerald-400'
+                            ? 'bg-amber-100/80 border border-amber-300 text-amber-900 font-bold shadow-2xs' 
+                            : 'bg-white border border-slate-200 text-emerald-600'
                         }`}>
                           <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
-                            isPending ? 'bg-amber-500 text-slate-950' : 'bg-emerald-600 text-white'
+                            isPending ? 'bg-amber-500 text-white' : 'bg-emerald-600 text-white'
                           }`}>
                             {isPending ? '১' : '✓'}
                           </div>
@@ -309,13 +309,13 @@ export default function LandscapeOrderDetailsModal({
                         {/* Step 2: Processing */}
                         <div className={`p-2.5 rounded-xl flex flex-col items-center gap-1 transition-all ${
                           isProcessing 
-                            ? 'bg-purple-950/50 border border-purple-800 text-purple-300 font-bold shadow-2xs' 
+                            ? 'bg-purple-100/80 border border-purple-300 text-purple-900 font-bold shadow-2xs' 
                             : isCompleted 
-                            ? 'bg-slate-900 border border-slate-800 text-emerald-400'
-                            : 'bg-slate-900/40 border border-slate-800/80 text-slate-500'
+                            ? 'bg-white border border-slate-200 text-emerald-600'
+                            : 'bg-white/60 border border-slate-200 text-slate-400'
                         }`}>
                           <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
-                            isProcessing ? 'bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] text-white' : isCompleted ? 'bg-emerald-600 text-white' : 'bg-slate-800 text-slate-400'
+                            isProcessing ? 'bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] text-white' : isCompleted ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-600'
                           }`}>
                             {isCompleted ? '✓' : '২'}
                           </div>
@@ -325,11 +325,11 @@ export default function LandscapeOrderDetailsModal({
                         {/* Step 3: Completed */}
                         <div className={`p-2.5 rounded-xl flex flex-col items-center gap-1 transition-all ${
                           isCompleted 
-                            ? 'bg-emerald-950/50 border border-emerald-800 text-emerald-300 font-bold shadow-2xs' 
-                            : 'bg-slate-900/40 border border-slate-800/80 text-slate-500'
+                            ? 'bg-emerald-100/80 border border-emerald-300 text-emerald-900 font-bold shadow-2xs' 
+                            : 'bg-white/60 border border-slate-200 text-slate-400'
                         }`}>
                           <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
-                            isCompleted ? 'bg-emerald-600 text-white' : 'bg-slate-800 text-slate-500'
+                            isCompleted ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-500'
                           }`}>
                             {isCompleted ? '✓' : '৩'}
                           </div>
@@ -340,10 +340,10 @@ export default function LandscapeOrderDetailsModal({
 
                     {/* DELIVERED WEBSITE CREDENTIALS (ID & PASSWORD) SECTION */}
                     {matchingCred ? (
-                      <div className="p-4 sm:p-5 rounded-2xl bg-slate-950 border-2 border-emerald-500/70 shadow-xs space-y-3">
-                        <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
-                          <div className="flex items-center gap-2 text-xs font-black text-emerald-400">
-                            <Key className="w-4 h-4" />
+                      <div className="p-4 sm:p-5 rounded-2xl bg-emerald-50/50 border-2 border-emerald-300 shadow-xs space-y-3">
+                        <div className="flex items-center justify-between border-b border-emerald-200/60 pb-2.5">
+                          <div className="flex items-center gap-2 text-xs font-black text-emerald-800">
+                            <Key className="w-4 h-4 text-emerald-600" />
                             <span>আপনার ওয়েবসাইটের আইডি ও পাসওয়ার্ড (Website Admin Credentials)</span>
                           </div>
                           <span className="px-2 py-0.5 rounded-full bg-emerald-600 text-white text-[10px] font-bold">

@@ -26,11 +26,11 @@ export default function AfterOrderView({ onGoToDashboard, onOpenLiveChat }: Afte
       description: '১৫ মিনিটের মধ্যে প্রজেক্ট ম্যানেজার কল করবেন',
       time: 'আনুমানিক সময়: ১৫ মিনিট',
       icon: PhoneCall,
-      cardBg: 'bg-gradient-to-br from-[#0E1E36] via-[#0A1628] to-[#070E1A]',
-      border: 'border-blue-500/35 hover:border-blue-400',
-      tagColor: 'bg-blue-950/90 text-blue-300 border-blue-800/80',
-      iconBg: 'bg-blue-600 text-white shadow-blue-500/30',
-      timeColor: 'text-blue-300',
+      cardBg: 'bg-gradient-to-br from-blue-100/80 via-blue-50/50 to-white',
+      border: 'border-blue-200/90 hover:border-blue-400',
+      tagColor: 'bg-blue-100 text-blue-800 border-blue-200',
+      iconBg: 'bg-blue-600 text-white shadow-blue-500/20',
+      timeColor: 'text-blue-700',
       badgeBg: 'bg-blue-600 text-white'
     },
     {
@@ -41,11 +41,11 @@ export default function AfterOrderView({ onGoToDashboard, onOpenLiveChat }: Afte
       description: 'লোগো, ছবি ও প্রোডাক্ট তথ্য সহজ সংগ্রহ',
       time: 'আনুমানিক সময়: ২-৪ ঘণ্টা',
       icon: FolderKanban,
-      cardBg: 'bg-gradient-to-br from-[#2B1B0E] via-[#1E1309] to-[#120B05]',
-      border: 'border-amber-500/35 hover:border-amber-400',
-      tagColor: 'bg-amber-950/90 text-amber-300 border-amber-800/80',
-      iconBg: 'bg-amber-600 text-white shadow-amber-500/30',
-      timeColor: 'text-amber-300',
+      cardBg: 'bg-gradient-to-br from-amber-100/80 via-orange-50/50 to-white',
+      border: 'border-amber-200/90 hover:border-amber-400',
+      tagColor: 'bg-amber-100 text-amber-800 border-amber-200',
+      iconBg: 'bg-amber-600 text-white shadow-amber-500/20',
+      timeColor: 'text-amber-700',
       badgeBg: 'bg-amber-600 text-white'
     },
     {
@@ -56,11 +56,11 @@ export default function AfterOrderView({ onGoToDashboard, onOpenLiveChat }: Afte
       description: 'কালার থিম, ব্যানার ও পেমেন্ট গেটওয়ে ইন্টিগ্রেশন',
       time: 'আনুমানিক সময়: ১২ ঘণ্টা',
       icon: Palette,
-      cardBg: 'bg-gradient-to-br from-[#1E1338] via-[#150D27] to-[#0E081A]',
-      border: 'border-purple-500/35 hover:border-purple-400',
-      tagColor: 'bg-purple-950/90 text-purple-300 border-purple-800/80',
-      iconBg: 'bg-[#7C3AED] text-white shadow-purple-500/30',
-      timeColor: 'text-purple-300',
+      cardBg: 'bg-gradient-to-br from-purple-100/80 via-purple-50/50 to-white',
+      border: 'border-purple-200/90 hover:border-purple-400',
+      tagColor: 'bg-purple-100 text-purple-800 border-purple-200',
+      iconBg: 'bg-[#7C3AED] text-white shadow-purple-500/20',
+      timeColor: 'text-purple-700',
       badgeBg: 'bg-[#7C3AED] text-white'
     },
     {
@@ -71,31 +71,31 @@ export default function AfterOrderView({ onGoToDashboard, onOpenLiveChat }: Afte
       description: 'ডোমেইন ও হোস্টিং সহ লাইভ সাইট হস্তান্তর',
       time: 'আনুমানিক সময়: ২৪ ঘণ্টা',
       icon: Rocket,
-      cardBg: 'bg-gradient-to-br from-[#0E291F] via-[#0A1C15] to-[#06110D]',
-      border: 'border-emerald-500/35 hover:border-emerald-400',
-      tagColor: 'bg-emerald-950/90 text-emerald-300 border-emerald-800/80',
-      iconBg: 'bg-emerald-600 text-white shadow-emerald-500/30',
-      timeColor: 'text-emerald-300',
+      cardBg: 'bg-gradient-to-br from-emerald-100/80 via-teal-50/50 to-white',
+      border: 'border-emerald-200/90 hover:border-emerald-400',
+      tagColor: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+      iconBg: 'bg-emerald-600 text-white shadow-emerald-500/20',
+      timeColor: 'text-emerald-700',
       badgeBg: 'bg-emerald-600 text-white'
     }
   ];
 
   return (
-    <div className="w-full flex flex-col font-sans pb-24 lg:pb-16 pt-3 sm:pt-6 lg:pt-8 select-none bg-[#0B0F19] text-slate-100">
+    <div className="w-full flex flex-col font-sans pb-24 lg:pb-16 pt-3 sm:pt-6 lg:pt-8 select-none bg-[#F1F5F9] text-slate-900">
       <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         
         {/* ================= CLEAN HEADER ================= */}
         <header className="text-center mb-6 sm:mb-8 lg:mb-10">
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-purple-950/80 text-purple-300 text-xs font-bold border border-purple-800/80 mb-2.5 shadow-2xs">
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-purple-50 text-purple-700 text-xs font-bold border border-purple-200/90 mb-2.5 shadow-2xs">
             <span className="w-2 h-2 rounded-full bg-[#A855F7] animate-pulse" />
             <span>অর্ডার প্রসেস • Order Workflow</span>
           </div>
 
-          <h1 className="text-2xl sm:text-3xl lg:text-[34px] font-black text-white tracking-tight leading-snug">
+          <h1 className="text-2xl sm:text-3xl lg:text-[34px] font-black text-slate-900 tracking-tight leading-snug">
             অর্ডারের পর ধারাবাহিক ৪টি পদক্ষেপ
           </h1>
 
-          <p className="text-xs sm:text-sm lg:text-base text-slate-400 mt-2 max-w-xl mx-auto leading-relaxed">
+          <p className="text-xs sm:text-sm lg:text-base text-slate-600 mt-2 max-w-xl mx-auto leading-relaxed">
             আপনার পছন্দের ডিজাইনটি বেছে অর্ডার করার পর আমাদের টিম যেভাবে আপনার ওয়েবসাইটটি রেডি করবে:
           </p>
         </header>
@@ -107,11 +107,11 @@ export default function AfterOrderView({ onGoToDashboard, onOpenLiveChat }: Afte
             return (
               <div
                 key={step.stepNum}
-                className={`relative p-5 rounded-2xl sm:rounded-3xl ${step.cardBg} border ${step.border} shadow-2xs hover:shadow-lg transition-all duration-200 flex flex-col justify-between`}
+                className={`relative p-5 rounded-2xl sm:rounded-3xl ${step.cardBg} border ${step.border} shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between`}
               >
                 {/* Desktop subtle connector between steps 1-3 */}
                 {idx < steps.length - 1 && (
-                  <div className="hidden lg:flex absolute -right-3 top-1/2 -translate-y-1/2 z-10 w-6 h-6 rounded-full bg-slate-900 border border-slate-700 shadow-xs items-center justify-center text-slate-300">
+                  <div className="hidden lg:flex absolute -right-3 top-1/2 -translate-y-1/2 z-10 w-6 h-6 rounded-full bg-white border border-slate-200 shadow-xs items-center justify-center text-slate-600">
                     <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
                   </div>
                 )}
@@ -134,23 +134,23 @@ export default function AfterOrderView({ onGoToDashboard, onOpenLiveChat }: Afte
                   </div>
 
                   {/* Step Title */}
-                  <h3 className="text-base sm:text-[17px] font-black text-white leading-snug tracking-tight mb-2">
+                  <h3 className="text-base sm:text-[17px] font-black text-slate-900 leading-snug tracking-tight mb-2">
                     {step.title}
                   </h3>
 
                   {/* Step Description */}
-                  <p className="text-xs sm:text-[13px] text-slate-300 leading-relaxed font-medium">
+                  <p className="text-xs sm:text-[13px] text-slate-600 leading-relaxed font-medium">
                     {step.description}
                   </p>
                 </div>
 
                 {/* Bottom Timing and Step Label */}
-                <div className="pt-4 mt-5 border-t border-slate-800/80 flex items-center justify-between text-xs">
+                <div className="pt-4 mt-5 border-t border-slate-200/80 flex items-center justify-between text-xs">
                   <div className={`flex items-center gap-1.5 font-bold ${step.timeColor}`}>
                     <Clock className="w-3.5 h-3.5 shrink-0 opacity-80" />
                     <span className="text-[11px] sm:text-xs">{step.time}</span>
                   </div>
-                  <span className="text-[11px] font-extrabold px-2 py-0.5 rounded-md bg-slate-900/90 text-slate-200 border border-slate-700/80 shadow-2xs">
+                  <span className="text-[11px] font-extrabold px-2 py-0.5 rounded-md bg-white/95 text-slate-700 border border-slate-200/90 shadow-2xs">
                     {step.stepLabel}
                   </span>
                 </div>
@@ -160,16 +160,16 @@ export default function AfterOrderView({ onGoToDashboard, onOpenLiveChat }: Afte
         </div>
 
         {/* ================= CLEAN REASSURANCE & ACTION BAR ================= */}
-        <div className="p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-slate-900/90 border border-slate-800 text-white shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-white border border-slate-200 text-slate-900 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center shrink-0">
-              <ShieldCheck className="w-5 h-5 text-emerald-400" />
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center shrink-0">
+              <ShieldCheck className="w-5 h-5 text-emerald-600" />
             </div>
             <div>
-              <p className="text-xs sm:text-sm font-bold text-white leading-snug">
+              <p className="text-xs sm:text-sm font-bold text-slate-900 leading-snug">
                 ফ্রি ডোমেইন, এসএসএল ও ক্লাউড হোস্টিং প্রতিটি অর্ডারের সাথে অন্তর্ভুক্ত
               </p>
-              <p className="text-[11px] text-slate-400 mt-0.5">
+              <p className="text-[11px] text-slate-500 mt-0.5">
                 লাইভ সাইট হস্তান্তর ও প্রজেক্ট সাপোর্ট নিশ্চিত
               </p>
             </div>
@@ -180,7 +180,7 @@ export default function AfterOrderView({ onGoToDashboard, onOpenLiveChat }: Afte
               <button
                 type="button"
                 onClick={onGoToDashboard}
-                className="flex-1 md:flex-none px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 border border-slate-700 cursor-pointer active:scale-95"
+                className="flex-1 md:flex-none px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-all flex items-center justify-center gap-1.5 border border-slate-200 cursor-pointer active:scale-95"
               >
                 <LayoutGrid className="w-3.5 h-3.5" />
                 <span>ড্যাশবোর্ড</span>

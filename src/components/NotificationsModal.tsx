@@ -133,22 +133,22 @@ export default function NotificationsModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-end p-3 sm:p-6 bg-black/60 backdrop-blur-xs animate-fadeIn">
+    <div className="fixed inset-0 z-50 flex items-start justify-end p-3 sm:p-6 bg-slate-900/40 backdrop-blur-xs animate-fadeIn">
       <div 
-        className="w-full max-w-sm sm:max-w-md bg-[#0F172A] text-slate-100 rounded-3xl border border-slate-800 shadow-2xl overflow-hidden animate-slideUpModal mt-12 sm:mt-14"
+        className="w-full max-w-sm sm:max-w-md bg-white text-slate-900 rounded-3xl border border-slate-200 shadow-2xl overflow-hidden animate-slideUpModal mt-12 sm:mt-14"
         role="dialog"
       >
         {/* Header */}
-        <div className="p-4 sm:p-5 bg-[#111827] border-b border-slate-800 flex items-center justify-between">
+        <div className="p-4 sm:p-5 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-purple-950/80 text-purple-400 flex items-center justify-center font-bold border border-purple-800/80">
+            <div className="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center font-bold border border-purple-200">
               <Bell className="w-4 h-4 stroke-[2.2]" />
             </div>
             <div>
-              <h3 className="text-sm font-black text-white">
+              <h3 className="text-sm font-black text-slate-900">
                 সিস্টেম নোটিফিকেশন
               </h3>
-              <p className="text-[10px] text-slate-400">
+              <p className="text-[10px] text-slate-500">
                 Real-Time Updates & Alerts
               </p>
             </div>
@@ -161,7 +161,7 @@ export default function NotificationsModal({
                   setNotifications([]);
                   onClearAll();
                 }}
-                className="text-[11px] font-semibold text-purple-400 hover:text-purple-300 flex items-center gap-1 cursor-pointer"
+                className="text-[11px] font-semibold text-purple-700 hover:text-purple-800 flex items-center gap-1 cursor-pointer"
               >
                 <CheckCheck className="w-3.5 h-3.5" />
                 <span>ক্লিয়ার</span>
@@ -169,7 +169,7 @@ export default function NotificationsModal({
             )}
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 cursor-pointer"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
@@ -177,14 +177,14 @@ export default function NotificationsModal({
         </div>
 
         {/* Real Notifications List */}
-        <div className="p-3 sm:p-4 space-y-2.5 max-h-[380px] overflow-y-auto">
+        <div className="p-3 sm:p-4 space-y-2.5 max-h-[380px] overflow-y-auto bg-slate-50/60">
           {notifications.length === 0 ? (
             <div className="py-8 text-center px-4">
-              <div className="w-12 h-12 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center mx-auto mb-2 text-slate-400">
+              <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200 flex items-center justify-center mx-auto mb-2 text-slate-400 shadow-2xs">
                 <Bell className="w-5 h-5 text-slate-400" />
               </div>
-              <p className="text-xs font-bold text-white">কোনো নতুন নোটিফিকেশন নেই</p>
-              <p className="text-[11px] text-slate-400 mt-0.5">
+              <p className="text-xs font-bold text-slate-800">কোনো নতুন নোটিফিকেশন নেই</p>
+              <p className="text-[11px] text-slate-500 mt-0.5">
                 আপনার অর্ডার, পেমেন্ট, ডেলিভারি ও অভিযোগের উত্তর সংক্রান্ত সমস্ত রিয়েল-টাইম আপডেট এখানে প্রদর্শিত হবে।
               </p>
             </div>
@@ -198,26 +198,26 @@ export default function NotificationsModal({
                     onClose();
                   }
                 }}
-                className={`p-3.5 rounded-2xl border transition-all cursor-pointer hover:border-purple-500/50 ${
+                className={`p-3.5 rounded-2xl border transition-all cursor-pointer hover:border-purple-300 ${
                   item.isUnread
-                    ? 'bg-purple-950/60 border-purple-800/80 shadow-2xs'
-                    : 'bg-slate-900 border-slate-800'
+                    ? 'bg-purple-50/80 border-purple-200 shadow-2xs'
+                    : 'bg-white border-slate-200 shadow-2xs'
                 }`}
               >
                 <div className="flex items-start gap-2.5">
-                  <span className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${item.isUnread ? 'bg-[#A855F7]' : 'bg-slate-600'}`} />
+                  <span className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${item.isUnread ? 'bg-[#7C3AED]' : 'bg-slate-300'}`} />
                   <div className="flex-1">
-                    <p className="text-xs font-bold text-white leading-snug">
+                    <p className="text-xs font-bold text-slate-900 leading-snug">
                       {item.title}
                     </p>
-                    <p className="text-[11px] text-slate-400 mt-0.5 leading-snug">
+                    <p className="text-[11px] text-slate-600 mt-0.5 leading-snug">
                       {item.subtitle}
                     </p>
                     <div className="flex items-center justify-between mt-1.5">
-                      <span className="text-[10px] font-mono text-slate-500">
+                      <span className="text-[10px] font-mono text-slate-400">
                         {item.time}
                       </span>
-                      <span className="text-[10px] font-bold text-purple-400 hover:underline">
+                      <span className="text-[10px] font-bold text-purple-700 hover:underline">
                         বিস্তারিত দেখুন →
                       </span>
                     </div>
@@ -229,8 +229,8 @@ export default function NotificationsModal({
         </div>
 
         {/* Footer */}
-        <div className="p-3 bg-[#111827] border-t border-slate-800 text-center">
-          <p className="text-[11px] text-slate-400">
+        <div className="p-3 bg-slate-50 border-t border-slate-200 text-center">
+          <p className="text-[11px] text-slate-500">
             BongoWeb রিয়েল-টাইম এনক্রিপ্টেড নোটিফিকেশন সিস্টেম
           </p>
         </div>

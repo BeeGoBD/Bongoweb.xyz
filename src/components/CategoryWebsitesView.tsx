@@ -194,24 +194,24 @@ export default function CategoryWebsitesView({
   });
 
   return (
-    <div className="w-full min-h-[calc(100vh-4rem)] bg-[#0B0F19] text-slate-100 flex flex-col font-sans select-none pb-20 lg:pb-12">
+    <div className="w-full min-h-[calc(100vh-4rem)] bg-[#F1F5F9] text-slate-900 flex flex-col font-sans select-none pb-20 lg:pb-12">
       {/* Category Hero Banner */}
-      <section className="w-full bg-[#111827] border-b border-slate-800 shadow-xs">
+      <section className="w-full bg-white border-b border-slate-200/90 shadow-2xs">
         <div className="max-w-6xl xl:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
           {/* Top navigation row */}
           <div className="flex items-center justify-between gap-3 mb-4">
             <button
               type="button"
               onClick={onBackToDashboard}
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs sm:text-sm font-bold transition-all cursor-pointer border border-slate-700 active:scale-95 shadow-2xs"
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs sm:text-sm font-bold transition-all cursor-pointer border border-slate-200 active:scale-95 shadow-2xs"
             >
-              <ArrowLeft className="w-4 h-4 text-slate-200 stroke-[2.5]" />
+              <ArrowLeft className="w-4 h-4 text-slate-700 stroke-[2.5]" />
               <span>{language === 'en' ? 'Back to Categories' : 'ক্যাটাগরিতে ফিরে যান'}</span>
             </button>
 
             {/* Total count badge */}
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-800/90 border border-slate-700 text-xs font-bold text-slate-300">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-xs font-bold text-slate-700">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               <span>
                 {language === 'en' 
                   ? `${matchingWebsites.length} Websites Available` 
@@ -229,14 +229,14 @@ export default function CategoryWebsitesView({
 
               <div>
                 <div className="flex items-center gap-2">
-                  <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+                  <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
                     {language === 'en' ? meta.nameEn : meta.nameBn}
                   </h1>
                   <span className={`text-[10px] sm:text-xs font-bold px-2.5 py-0.5 rounded-full border ${meta.chipBg}`}>
                     {language === 'en' ? meta.badgeEn : meta.badgeBn}
                   </span>
                 </div>
-                <p className="text-xs sm:text-sm text-slate-400 font-medium mt-1 max-w-xl">
+                <p className="text-xs sm:text-sm text-slate-600 font-medium mt-1 max-w-xl">
                   {language === 'en' ? meta.descriptionEn : meta.descriptionBn}
                 </p>
               </div>
@@ -250,30 +250,30 @@ export default function CategoryWebsitesView({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={language === 'en' ? 'Search by code or keyword...' : 'কোড বা নাম দিয়ে খুঁজুন (#1042)...'}
-                className="w-full pl-9 pr-3.5 py-2 text-xs sm:text-sm bg-slate-900 border border-slate-700 rounded-xl focus:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500 transition-all text-white placeholder:text-slate-400"
+                className="w-full pl-9 pr-3.5 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500 transition-all text-slate-900 placeholder:text-slate-400"
               />
             </div>
           </div>
 
           {/* Transparent Financial Architecture Notice: Setup & Monthly Hosting */}
-          <div className="mt-4 pt-3.5 border-t border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs">
+          <div className="mt-4 pt-3.5 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs">
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="font-bold text-slate-200">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="font-bold text-slate-900">
                 {language === 'en' ? 'Transparent Financial Architecture:' : 'স্বচ্ছ মূল্য ও মাসিক ক্লাউড সার্ভার তথ্য:'}
               </span>
-              <span className="text-slate-400">
+              <span className="text-slate-600">
                 {language === 'en' 
                   ? 'One-Time Setup ৳1,990 · Monthly Cloud Server ৳120/mo · 100% Lifetime Ownership & Free SSL' 
                   : 'এককালীন সেটআপ শুরু মাত্র ৳১,৯৯০ • মাসিক ক্লাউড সার্ভার খরচ ৳১২০/মাস • আজীবন মালিকানা ও ফ্রি SSL'}
               </span>
             </div>
 
-            <div className="flex items-center gap-2 text-[11px] font-semibold text-slate-400">
-              <span className="bg-slate-800 px-2.5 py-0.5 rounded-md border border-slate-700 text-slate-300">
+            <div className="flex items-center gap-2 text-[11px] font-semibold text-slate-600">
+              <span className="bg-slate-100 px-2.5 py-0.5 rounded-md border border-slate-200 text-slate-700">
                 {language === 'en' ? 'Zero Hidden Fees' : 'কোনো গোপন চার্জ নেই'}
               </span>
-              <span className="bg-slate-800 px-2.5 py-0.5 rounded-md border border-slate-700 text-slate-300">
+              <span className="bg-slate-100 px-2.5 py-0.5 rounded-md border border-slate-200 text-slate-700">
                 {language === 'en' ? '24h Express Launch' : '২৪ ঘণ্টায় রেডি'}
               </span>
             </div>
@@ -284,19 +284,19 @@ export default function CategoryWebsitesView({
       {/* Main Grid of Websites */}
       <main className="max-w-6xl xl:max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8 flex-1">
         {matchingWebsites.length === 0 ? (
-          <div className="text-center py-16 px-4 bg-[#111827] rounded-3xl border border-slate-800 shadow-xs max-w-md mx-auto my-6">
+          <div className="text-center py-16 px-4 bg-white rounded-3xl border border-slate-200 shadow-sm max-w-md mx-auto my-6">
             <Search className="w-10 h-10 text-slate-400 mx-auto mb-3" />
-            <h3 className="text-base font-bold text-slate-200">
+            <h3 className="text-base font-bold text-slate-800">
               {language === 'en' ? 'No Websites Found' : 'কোনো ওয়েবসাইট পাওয়া যায়নি'}
             </h3>
-            <p className="text-xs text-slate-400 mt-1 mb-4">
+            <p className="text-xs text-slate-500 mt-1 mb-4">
               {language === 'en' 
                 ? 'Try searching with another keyword or code.' 
                 : 'অন্য কোনো নাম বা কোড দিয়ে চেষ্টা করুন।'}
             </p>
             <button
               onClick={() => setSearchQuery('')}
-              className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold transition-colors cursor-pointer border border-slate-700"
+              className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold transition-colors cursor-pointer border border-slate-300"
             >
               {language === 'en' ? 'Reset Search' : 'সার্চ রিসেট করুন'}
             </button>
@@ -307,41 +307,41 @@ export default function CategoryWebsitesView({
               <div
                 key={demo.id}
                 onClick={() => onOpenWebsiteDetail(demo)}
-                className="group bg-[#131D31] rounded-2xl border border-slate-800 hover:border-purple-500/70 shadow-md hover:shadow-[0_12px_32px_rgba(124,58,237,0.2)] transition-all duration-200 overflow-hidden flex flex-col justify-between cursor-pointer hover:-translate-y-1"
+                className="group bg-white rounded-2xl border border-slate-200 hover:border-purple-400 shadow-sm hover:shadow-[0_12px_32px_rgba(124,58,237,0.12)] transition-all duration-200 overflow-hidden flex flex-col justify-between cursor-pointer hover:-translate-y-1"
               >
                 <div>
                   {/* Top bar with serial code */}
-                  <div className="px-3.5 py-2 bg-[#0F172A] border-b border-slate-800 flex items-center justify-between text-xs">
+                  <div className="px-3.5 py-2 bg-slate-50 border-b border-slate-200 flex items-center justify-between text-xs">
                     <div className="flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-full bg-slate-600" />
-                      <span className="w-2 h-2 rounded-full bg-[#9F7AEA]/50" />
+                      <span className="w-2 h-2 rounded-full bg-slate-300" />
+                      <span className="w-2 h-2 rounded-full bg-purple-300" />
                       <span className="w-2 h-2 rounded-full bg-[#7C3AED]" />
                     </div>
 
-                    <span className="font-mono text-xs font-black px-2 py-0.5 rounded-md bg-slate-900 text-purple-300 border border-slate-700 shadow-2xs">
+                    <span className="font-mono text-xs font-black px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 border border-purple-200 shadow-2xs">
                       {demo.fourDigitCode}
                     </span>
                   </div>
 
                   {/* Thumbnail Banner with Clean Hover State */}
-                  <div className="relative aspect-[16/10] overflow-hidden bg-slate-900">
+                  <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
                     <img
                       src={demo.previewImage}
                       alt={demo.title}
                       loading="lazy"
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 opacity-90 group-hover:opacity-100"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
 
-                    <div className="absolute inset-0 bg-slate-950/0 group-hover:bg-slate-950/30 transition-colors flex items-center justify-center">
-                      <span className="opacity-0 group-hover:opacity-100 transition-opacity px-3.5 py-1.5 rounded-lg bg-slate-900/95 text-purple-300 border border-slate-700 font-bold text-xs shadow-md flex items-center gap-1.5 transform translate-y-1 group-hover:translate-y-0 duration-200">
-                        <Eye className="w-3.5 h-3.5 text-purple-400" />
+                    <div className="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/20 transition-colors flex items-center justify-center">
+                      <span className="opacity-0 group-hover:opacity-100 transition-opacity px-3.5 py-1.5 rounded-lg bg-white/95 text-purple-700 border border-purple-200 font-bold text-xs shadow-md flex items-center gap-1.5 transform translate-y-1 group-hover:translate-y-0 duration-200">
+                        <Eye className="w-3.5 h-3.5 text-purple-600" />
                         <span>{language === 'en' ? 'Live Preview' : 'লাইভ প্রিভিউ'}</span>
                       </span>
                     </div>
 
                     {/* Category Label Chip */}
                     <div className="absolute top-2.5 left-2.5">
-                      <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-slate-900/95 text-slate-200 shadow-xs backdrop-blur-xs border border-slate-700">
+                      <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-white/95 text-slate-800 shadow-xs backdrop-blur-xs border border-slate-200">
                         {demo.categoryLabel}
                       </span>
                     </div>
@@ -350,33 +350,33 @@ export default function CategoryWebsitesView({
                   {/* Body Content - Clean & Structured */}
                   <div className="p-4 sm:p-5">
                     {/* Prominent Website Name */}
-                    <h3 className="text-base sm:text-lg font-bold text-white group-hover:text-purple-300 transition-colors leading-snug line-clamp-1">
+                    <h3 className="text-base sm:text-lg font-bold text-slate-900 group-hover:text-purple-700 transition-colors leading-snug line-clamp-1">
                       {demo.title}
                     </h3>
 
-                    <p className="text-xs text-slate-400 font-normal mt-1 line-clamp-2 leading-relaxed">
+                    <p className="text-xs text-slate-600 font-normal mt-1 line-clamp-2 leading-relaxed">
                       {demo.description}
                     </p>
 
                     {/* Clean Pricing & Monthly Details Box */}
-                    <div className="mt-4 p-3 rounded-xl bg-slate-900/90 border border-slate-800">
-                      <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+                    <div className="mt-4 p-3 rounded-xl bg-slate-50 border border-slate-200/90">
+                      <div className="flex items-center justify-between pb-2 border-b border-slate-200">
                         <div>
-                          <span className="text-[11px] font-semibold text-slate-400 block">
+                          <span className="text-[11px] font-semibold text-slate-500 block">
                             {language === 'en' ? 'Setup Price' : 'এককালীন সেটআপ'}
                           </span>
-                          <span className="text-base sm:text-lg font-black text-white font-mono">
+                          <span className="text-base sm:text-lg font-black text-slate-900 font-mono">
                             {demo.priceTag || '৳১,৯৯০'}
                           </span>
                         </div>
                         <div className="text-right">
-                          <span className="text-[11px] font-semibold text-slate-400 flex items-center justify-end gap-1">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                          <span className="text-[11px] font-semibold text-slate-500 flex items-center justify-end gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                             {language === 'en' ? 'Monthly Upkeep' : 'মাসিক সার্ভিস চার্জ'}
                           </span>
                           <div className="flex items-baseline justify-end gap-0.5 font-mono">
-                            <span className="text-sm sm:text-base font-extrabold text-purple-400">৳১২০</span>
-                            <span className="text-[11px] text-slate-400 font-medium">
+                            <span className="text-sm sm:text-base font-extrabold text-purple-700">৳১২০</span>
+                            <span className="text-[11px] text-slate-500 font-medium">
                               {language === 'en' ? '/mo' : '/মাস'}
                             </span>
                           </div>
@@ -384,12 +384,12 @@ export default function CategoryWebsitesView({
                       </div>
 
                       {/* Clean Monthly Inclusions */}
-                      <div className="pt-2 flex items-center justify-between text-[11px] text-slate-300 font-medium">
-                        <span className="flex items-center gap-1.5 text-slate-300">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                      <div className="pt-2 flex items-center justify-between text-[11px] text-slate-600 font-medium">
+                        <span className="flex items-center gap-1.5 text-slate-700">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                           <span>{language === 'en' ? 'Domain, Hosting & 99.9% Cloud SLA' : 'ডোমেন, ক্লাউড হোস্টিং ও সাপোর্ট অন্তর্ভুক্ত'}</span>
                         </span>
-                        <span className="text-[10px] text-slate-500 font-mono">
+                        <span className="text-[10px] text-slate-400 font-mono">
                           {demo.fourDigitCode}
                         </span>
                       </div>
@@ -405,9 +405,9 @@ export default function CategoryWebsitesView({
                       e.stopPropagation();
                       onOpenWebsiteDetail(demo);
                     }}
-                    className="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer border border-slate-700 shadow-2xs"
+                    className="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer border border-slate-200 shadow-2xs"
                   >
-                    <Eye className="w-3.5 h-3.5 text-slate-400 group-hover:text-purple-300" />
+                    <Eye className="w-3.5 h-3.5 text-slate-500 group-hover:text-purple-600" />
                     <span>{language === 'en' ? 'Preview Demo' : 'প্রিভিউ দেখুন'}</span>
                   </button>
 
@@ -417,7 +417,7 @@ export default function CategoryWebsitesView({
                       e.stopPropagation();
                       onOpenOrder(demo);
                     }}
-                    className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-[#7C3AED] via-[#9333EA] to-[#6B46C1] hover:from-[#8B5CF6] hover:to-[#7C3AED] text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-[0_2px_10px_rgba(124,58,237,0.35)] cursor-pointer hover:scale-[1.02] active:scale-95"
+                    className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-[#7C3AED] via-[#9333EA] to-[#6B46C1] hover:from-[#8B5CF6] hover:to-[#7C3AED] text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-[0_2px_10px_rgba(124,58,237,0.25)] cursor-pointer hover:scale-[1.02] active:scale-95"
                   >
                     <span>{language === 'en' ? 'Order Website' : 'অর্ডার করুন'}</span>
                     <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />

@@ -1686,28 +1686,26 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
   // ==========================================
   if (!isAdminLoggedIn) {
     return (
-      <div className="min-h-screen w-full bg-[#090D16] text-[#FFFFFF] flex flex-col items-center justify-center p-4 font-sans select-none relative overflow-hidden">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#7C3AED]/12 rounded-full blur-[140px] pointer-events-none" />
-
-        <div className="w-full max-w-md bg-[#111827]/90 backdrop-blur-xl border border-[#1E293B] rounded-3xl p-6 sm:p-9 shadow-[0_20px_60px_rgba(0,0,0,0.6)] relative z-10">
+      <div className="min-h-screen w-full bg-[#F1F5F9] text-slate-900 flex flex-col items-center justify-center p-4 font-sans select-none relative overflow-hidden">
+        <div className="w-full max-w-md bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-9 shadow-xl relative z-10">
           <div className="text-center mb-7">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#6B46C1] to-[#7C3AED] text-white flex items-center justify-center mx-auto mb-3.5 shadow-[0_6px_24px_rgba(124,58,237,0.4)]">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#6B46C1] to-[#7C3AED] text-white flex items-center justify-center mx-auto mb-3.5 shadow-md shadow-purple-500/25">
               <ShieldCheck className="w-9 h-9 stroke-[2.2]" />
             </div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#1E1B4B] border border-[#7C3AED]/30 text-[#A5B4FC] text-[11px] font-mono font-bold tracking-wider mb-2">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-50 border border-purple-200 text-purple-700 text-[11px] font-mono font-bold tracking-wider mb-2">
               <span className="w-1.5 h-1.5 rounded-full bg-[#7C3AED] animate-ping" />
               <span>BONGOWEB EXECUTIVE SUITE</span>
             </div>
-            <h1 className="text-2xl font-black text-white tracking-tight">
+            <h1 className="text-2xl font-black text-slate-900 tracking-tight">
               Executive Admin Control
             </h1>
-            <p className="text-xs text-[#94A3B8] mt-1 font-medium">
+            <p className="text-xs text-slate-500 mt-1 font-medium">
               সুপার-অ্যাডমিন এক্সেসের জন্য আইডি ও পাসওয়ার্ড লিখুন
             </p>
           </div>
 
           {loginError && (
-            <div className="mb-4 p-3.5 rounded-xl bg-[#E53935]/15 border border-[#E53935]/40 text-xs font-bold text-[#FF8A80] flex items-center gap-2 animate-shake">
+            <div className="mb-4 p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-xs font-bold text-rose-700 flex items-center gap-2 animate-shake">
               <AlertTriangle className="w-4 h-4 shrink-0" />
               <span>{loginError}</span>
             </div>
@@ -1715,7 +1713,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
 
           <form onSubmit={handleAdminLogin} className="space-y-4">
             <div>
-              <label className="block text-xs font-bold text-[#CBD5E1] mb-1.5 uppercase tracking-wider text-[10px]">
+              <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider text-[10px]">
                 অ্যাডমিন ইউজারনেম
               </label>
               <input
@@ -1724,12 +1722,12 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                 placeholder="admin"
                 value={adminInputId}
                 onChange={(e) => setAdminInputId(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-white text-xs sm:text-sm font-mono placeholder-[#64748D] focus:outline-none focus:border-[#7C3AED] focus:ring-1 focus:ring-[#7C3AED] transition-all"
+                className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 text-xs sm:text-sm font-mono placeholder-slate-400 focus:outline-none focus:border-[#7C3AED] focus:bg-white focus:ring-1 focus:ring-[#7C3AED] transition-all"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-[#CBD5E1] mb-1.5 uppercase tracking-wider text-[10px]">
+              <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider text-[10px]">
                 অ্যাডমিন এন্ট্রি পাসওয়ার্ড
               </label>
               <input
@@ -1738,14 +1736,14 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                 placeholder="••••••••"
                 value={adminInputPass}
                 onChange={(e) => setAdminInputPass(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-white text-xs sm:text-sm placeholder-[#64748D] focus:outline-none focus:border-[#7C3AED] focus:ring-1 focus:ring-[#7C3AED] transition-all font-mono"
+                className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-300 text-slate-900 text-xs sm:text-sm placeholder-slate-400 focus:outline-none focus:border-[#7C3AED] focus:bg-white focus:ring-1 focus:ring-[#7C3AED] transition-all font-mono"
               />
             </div>
 
             <div className="pt-2">
               <button
                 type="submit"
-                className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] hover:from-[#5B21B6] hover:to-[#6D28D9] active:scale-[0.98] text-white text-xs sm:text-sm font-black shadow-[0_6px_24px_rgba(124,58,237,0.4)] transition-all flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] hover:from-[#5B21B6] hover:to-[#6D28D9] active:scale-[0.98] text-white text-xs sm:text-sm font-black shadow-[0_6px_24px_rgba(124,58,237,0.3)] transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Lock className="w-4 h-4" />
                 <span>লগইন করুন (Unlock Console)</span>
@@ -1754,17 +1752,17 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
           </form>
 
           {/* Master Key Emergency Reset Link */}
-          <div className="mt-6 pt-5 border-t border-[#1E293B] flex items-center justify-between text-xs">
+          <div className="mt-6 pt-5 border-t border-slate-200 flex items-center justify-between text-xs">
             <button
               onClick={() => setShowMasterKeyModal(true)}
-              className="text-[#818CF8] hover:text-white font-semibold transition-colors cursor-pointer flex items-center gap-1"
+              className="text-purple-700 hover:text-purple-900 font-semibold transition-colors cursor-pointer flex items-center gap-1"
             >
               <Key className="w-3.5 h-3.5" />
               <span>মাস্টার কি রিকভারি</span>
             </button>
             <button
               onClick={onBackToApp}
-              className="text-[#94A3B8] hover:text-white flex items-center gap-1 cursor-pointer transition-colors"
+              className="text-slate-500 hover:text-slate-800 flex items-center gap-1 cursor-pointer transition-colors"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>ওয়েবসাইটে ফিরুন</span>
