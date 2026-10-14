@@ -5,9 +5,9 @@ import {
   ChevronDown, Layers, Sparkles, Box
 } from 'lucide-react';
 import { WebsiteDemo } from '../types';
-import Tilt3D from './Tilt3D';
-import ThreeCanvas from './ThreeCanvas';
-import { spatialAudio } from '../utils/audio3D';
+import Card3D from './Card3D';
+import ThreeCanvas3D from './ThreeCanvas3D';
+import { playClickSound } from '../utils/sound';
 
 interface WebsiteDetailPageProps {
   demo: WebsiteDemo;
@@ -141,7 +141,7 @@ export default function WebsiteDetailPage({
               type="button"
               onClick={() => {
                 setShow3DStage(false);
-                spatialAudio.playHover();
+                playClickSound();
               }}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                 !show3DStage
@@ -156,7 +156,7 @@ export default function WebsiteDetailPage({
               type="button"
               onClick={() => {
                 setShow3DStage(true);
-                spatialAudio.playChime(780);
+                playClickSound();
               }}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                 show3DStage
@@ -174,7 +174,7 @@ export default function WebsiteDetailPage({
         <section className="w-full bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
           {show3DStage ? (
             <div className="w-full h-[450px] sm:h-[550px] bg-slate-950 relative overflow-hidden animate-fadeIn">
-              <ThreeCanvas currentCategory={demo.category} />
+              <ThreeCanvas3D intensity={1} />
             </div>
           ) : (
             /* Hero Banner Section */
@@ -231,12 +231,11 @@ export default function WebsiteDetailPage({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {demo.mockData?.items?.map((item, idx) => (
-                <Tilt3D
+                <Card3D
                   key={idx}
                   maxTilt={10}
                   scale={1.02}
                   glare={true}
-                  glareOpacity={0.15}
                   className="p-4 rounded-2xl bg-slate-50 border border-slate-200 hover:border-purple-400 transition-all flex flex-col justify-between shadow-2xs"
                 >
                   <div className="flex items-start gap-3 mb-3" style={{ transform: 'translateZ(18px)' }}>
@@ -264,7 +263,7 @@ export default function WebsiteDetailPage({
 
                   <button
                     onClick={() => {
-                      spatialAudio.playHover();
+                      playClickSound();
                       handleTestAddToCart(item.name);
                     }}
                     style={{ transform: 'translateZ(22px)' }}
@@ -273,7 +272,7 @@ export default function WebsiteDetailPage({
                     <ShoppingBag className="w-3.5 h-3.5" />
                     <span>কার্ট টেস্ট করুন</span>
                   </button>
-                </Tilt3D>
+                </Card3D>
               ))}
             </div>
           </div>
