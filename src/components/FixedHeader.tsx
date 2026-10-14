@@ -9,6 +9,8 @@ interface FixedHeaderProps {
   onOpenNotifications: () => void;
   onOpenMenu: () => void;
   onOpenLogoShowcase?: () => void;
+  onToggleStudio3D?: () => void;
+  isStudio3DActive?: boolean;
   unreadCount?: number;
   currentCategory?: WebsiteCategory | string;
   activeTab?: BottomTabType;
@@ -21,6 +23,8 @@ export default function FixedHeader({
   onOpenNotifications,
   onOpenMenu,
   onOpenLogoShowcase,
+  onToggleStudio3D,
+  isStudio3DActive = false,
   unreadCount = 0,
   currentCategory = 'all',
   activeTab = 'dashboard',
@@ -109,8 +113,26 @@ export default function FixedHeader({
             </nav>
           )}
 
-          {/* Top Right: Notifications Icon & 3-line Menu Icon */}
+          {/* Top Right: 3D Studio Button, Notifications Icon & 3-line Menu Icon */}
           <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+            {/* 3D Interactive Spatial Studio Button */}
+            {onToggleStudio3D && (
+              <button
+                type="button"
+                onClick={onToggleStudio3D}
+                id="header-3d-studio-btn"
+                title="৩ডি স্পেশাল স্টুডিও ও লেয়ার পৃথকীকরণ"
+                className={`px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs border ${
+                  isStudio3DActive
+                    ? 'bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] text-white border-purple-400 shadow-[0_2px_12px_rgba(124,58,237,0.35)]'
+                    : 'bg-purple-50/90 hover:bg-purple-100/90 text-purple-700 border-purple-200/90 hover:scale-[1.02]'
+                }`}
+              >
+                <Sparkles className="w-3.5 h-3.5 text-[#7C3AED]" />
+                <span className="font-black">৩ডি স্টুডিও</span>
+              </button>
+            )}
+
             {/* Notification Bell Button */}
             <button
               onClick={onOpenNotifications}

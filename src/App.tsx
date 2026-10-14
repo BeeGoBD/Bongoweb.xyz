@@ -15,6 +15,7 @@ import AdminPanelView from './components/AdminPanelView';
 import LandscapeOrderDetailsModal from './components/LandscapeOrderDetailsModal';
 import WebsiteCredentialsModal from './components/WebsiteCredentialsModal';
 import CategoryWebsitesView from './components/CategoryWebsitesView';
+import ThreeCanvas from './components/ThreeCanvas';
 
 type ViewMode = 
   | 'dashboard' 
@@ -56,6 +57,7 @@ export default function App() {
   const [sideMenuOpen, setSideMenuOpen] = useState(false);
   const [landscapeOrderModalOpen, setLandscapeOrderModalOpen] = useState(false);
   const [websiteCredentialsModalOpen, setWebsiteCredentialsModalOpen] = useState(false);
+  const [isStudio3DOpen, setIsStudio3DOpen] = useState(false);
 
   // Helper to extract demo by code (e.g. 1042 or #1042 or custom uploaded websites)
   const findDemoByCode = (rawCode: string): WebsiteDemo | null => {
@@ -334,6 +336,8 @@ export default function App() {
             onBackToCategoryPicker={handleReturnToDashboard}
             onOpenNotifications={() => setNotificationsOpen(true)}
             onOpenMenu={() => setSideMenuOpen(true)}
+            onToggleStudio3D={() => setIsStudio3DOpen(prev => !prev)}
+            isStudio3DActive={isStudio3DOpen}
             unreadCount={unreadNotifications}
             currentCategory={selectedCategory}
             activeTab={getActiveBottomTab()}
@@ -445,6 +449,19 @@ export default function App() {
           handleTabChange('live-chat');
         }}
       />
+
+      {/* Interactive Full Screen 3D Spatial Studio Overlay */}
+      {isStudio3DOpen && (
+        <ThreeCanvas
+          isStudioMode={true}
+          currentCategory={selectedCategory}
+          onToggleStudioMode={() => setIsStudio3DOpen(false)}
+          onSelectCategory={(cat) => {
+            setSelectedCategory(cat);
+            handleOpenCategoryWebsites(cat);
+          }}
+        />
+      )}
     </div>
   );
 }

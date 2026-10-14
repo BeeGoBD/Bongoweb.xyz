@@ -195,42 +195,42 @@ export default function PhotoShowcasePage({
   return (
     <div 
       id="photo-showcase-page"
-      className="min-h-screen w-full bg-[#0A0A0A] text-[#F5F5F5] flex flex-col font-sans transition-colors duration-300"
+      className="min-h-screen w-full bg-[#F1F5F9] text-slate-900 flex flex-col font-sans transition-colors duration-300"
     >
       {/* 1. SURVEY STEP 1: CATEGORY */}
       {viewState === 'survey-cat' && (
         <div className="flex-1 flex flex-col items-center justify-center py-10 px-4 max-w-4xl mx-auto w-full animate-fadeIn">
-          <div className="w-full flex items-center justify-between mb-8 pb-4 border-b border-white/10">
+          <div className="w-full flex items-center justify-between mb-8 pb-4 border-b border-slate-200">
             <button
               onClick={onBack}
-              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-[#141414] hover:bg-white hover:text-black text-white text-xs sm:text-sm font-semibold transition-all border border-white/15 cursor-pointer shadow-xs active:scale-[0.99]"
+              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs sm:text-sm font-semibold transition-all border border-slate-200 cursor-pointer shadow-xs active:scale-[0.99]"
             >
-              <ArrowLeft className="w-4 h-4" />
+              <ArrowLeft className="w-4 h-4 text-slate-600" />
               <span>← Return to Dashboard</span>
             </button>
             <div className="flex items-center gap-1.5 text-xs font-mono">
-              <span className="font-bold text-white bg-white/10 px-2 py-0.5 rounded-md border border-white/20">01</span>
-              <span className="text-neutral-600">/</span>
-              <span className="text-neutral-400 font-medium">02</span>
+              <span className="font-bold text-purple-700 bg-purple-50 px-2 py-0.5 rounded-md border border-purple-200">01</span>
+              <span className="text-slate-400">/</span>
+              <span className="text-slate-500 font-medium">02</span>
             </div>
           </div>
 
-          <div className="w-full bg-[#141414] rounded-3xl border border-white/10 shadow-xl p-6 sm:p-10 relative overflow-hidden text-white">
-            {/* Jewel Top Bar: Crisp white accent */}
-            <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-white/80 to-transparent" />
+          <div className="w-full bg-white rounded-3xl border border-slate-200 shadow-xl p-6 sm:p-10 relative overflow-hidden text-slate-900">
+            {/* Jewel Top Bar: Crisp purple accent */}
+            <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-purple-500 via-indigo-500 to-purple-500" />
 
             <div className="text-center max-w-xl mx-auto mb-8">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#0A0A0A] text-white border border-white/20 mb-3 shadow-2xs">
-                <Image className="w-3.5 h-3.5 text-white" />
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-purple-50 text-purple-700 border border-purple-200 mb-3 shadow-2xs">
+                <Image className="w-3.5 h-3.5 text-purple-600" />
                 <span>Photo Gallery · Step 1</span>
               </span>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-tight">
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-tight">
                 Select industry{' '}
-                <span className="text-white underline decoration-white/40 underline-offset-8">
+                <span className="text-purple-700 underline decoration-purple-300 underline-offset-8">
                   photo collection
                 </span>
               </h2>
-              <p className="text-xs sm:text-sm text-neutral-400 mt-2">
+              <p className="text-xs sm:text-sm text-slate-600 mt-2">
                 Browse high-resolution editorial design collections ready for high-conversion brands.
               </p>
             </div>
@@ -246,24 +246,24 @@ export default function PhotoShowcasePage({
                     onClick={() => handleSelectCategory(cat.id)}
                     className={`group p-5 sm:p-6 rounded-2xl border text-left transition-all duration-200 cursor-pointer flex items-start gap-4 ${
                       isSelected
-                        ? 'border-2 border-white bg-white/10 shadow-[0_8px_24px_rgba(255,255,255,0.08)] scale-[1.01]'
-                        : 'border-white/10 bg-[#0A0A0A] hover:border-white/30 hover:bg-[#141414] shadow-2xs hover:-translate-y-0.5'
+                        ? 'border-2 border-purple-600 bg-purple-50/50 shadow-md scale-[1.01]'
+                        : 'border-slate-200 bg-white hover:border-purple-300 hover:bg-slate-50 shadow-2xs hover:-translate-y-0.5'
                     }`}
                   >
-                    <div className="w-11 h-11 rounded-xl bg-white/10 text-white border border-white/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                    <div className="w-11 h-11 rounded-xl bg-purple-50 text-purple-600 border border-purple-200 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                       <Icon className="w-5 h-5 stroke-[2]" />
                     </div>
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-sm font-bold text-white transition-colors">
+                        <span className="text-sm font-bold text-slate-900 group-hover:text-purple-700 transition-colors">
                           {cat.title}
                         </span>
-                        <span className="text-[10px] font-bold text-black bg-white px-2 py-0.5 rounded-full font-mono">
+                        <span className="text-[10px] font-bold text-purple-700 bg-purple-50 border border-purple-200 px-2 py-0.5 rounded-full font-mono">
                           {cat.tag}
                         </span>
                       </div>
-                      <p className="text-xs text-neutral-400 leading-relaxed font-normal">
+                      <p className="text-xs text-slate-500 leading-relaxed font-normal">
                         {cat.desc}
                       </p>
                     </div>
@@ -278,37 +278,37 @@ export default function PhotoShowcasePage({
       {/* 2. SURVEY STEP 2: PLAN CHOICE */}
       {viewState === 'survey-sub' && (
         <div className="flex-1 flex flex-col items-center justify-center py-10 px-4 max-w-4xl mx-auto w-full animate-fadeIn">
-          <div className="w-full flex items-center justify-between mb-8 pb-4 border-b border-white/10">
+          <div className="w-full flex items-center justify-between mb-8 pb-4 border-b border-slate-200">
             <button
               onClick={() => setViewState('survey-cat')}
-              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-[#141414] hover:bg-white hover:text-black text-white text-xs sm:text-sm font-semibold transition-all border border-white/15 cursor-pointer shadow-xs active:scale-[0.99]"
+              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs sm:text-sm font-semibold transition-all border border-slate-200 cursor-pointer shadow-xs active:scale-[0.99]"
             >
-              <ArrowLeft className="w-4 h-4" />
+              <ArrowLeft className="w-4 h-4 text-slate-600" />
               <span>← Back to Categories</span>
             </button>
             <div className="flex items-center gap-1.5 text-xs font-mono">
-              <span className="font-bold text-white bg-white/10 px-2 py-0.5 rounded-md border border-white/20">02</span>
-              <span className="text-neutral-600">/</span>
-              <span className="text-neutral-400 font-medium">02</span>
+              <span className="font-bold text-purple-700 bg-purple-50 px-2 py-0.5 rounded-md border border-purple-200">02</span>
+              <span className="text-slate-400">/</span>
+              <span className="text-slate-500 font-medium">02</span>
             </div>
           </div>
 
-          <div className="w-full bg-[#141414] rounded-3xl border border-white/10 shadow-xl p-6 sm:p-10 relative overflow-hidden text-white">
-            {/* Jewel Top Bar: Crisp white accent */}
-            <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-white/80 to-transparent" />
+          <div className="w-full bg-white rounded-3xl border border-slate-200 shadow-xl p-6 sm:p-10 relative overflow-hidden text-slate-900">
+            {/* Jewel Top Bar: Crisp purple accent */}
+            <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-purple-500 via-indigo-500 to-purple-500" />
 
             <div className="text-center max-w-xl mx-auto mb-8">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/10 text-white border border-white/20 mb-3 shadow-2xs">
-                <ShieldCheck className="w-3.5 h-3.5 text-white" />
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-purple-50 text-purple-700 border border-purple-200 mb-3 shadow-2xs">
+                <ShieldCheck className="w-3.5 h-3.5 text-purple-600" />
                 <span>Photo Gallery · Step 2</span>
               </span>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-tight">
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-tight">
                 One flat setup fee.{' '}
-                <span className="text-white underline decoration-white/40 underline-offset-8">
+                <span className="text-purple-700 underline decoration-purple-300 underline-offset-8">
                   Predictable monthly upkeep.
                 </span>
               </h2>
-              <p className="text-xs sm:text-sm text-neutral-400 mt-2">
+              <p className="text-xs sm:text-sm text-slate-600 mt-2">
                 All photos are delivered as fully functioning websites with your custom branding.
               </p>
             </div>
@@ -323,15 +323,15 @@ export default function PhotoShowcasePage({
                     onClick={() => handleSelectPlan(plan.id)}
                     className={`p-5 rounded-2xl border text-left transition-all duration-200 cursor-pointer flex flex-col justify-between relative overflow-hidden ${
                       isSelected
-                        ? 'border-2 border-white bg-white/10 shadow-[0_8px_24px_rgba(255,255,255,0.08)] scale-[1.01]'
-                        : 'border-white/10 bg-[#0A0A0A] hover:border-white/30 hover:bg-[#141414] shadow-2xs hover:-translate-y-0.5'
+                        ? 'border-2 border-purple-600 bg-purple-50/50 shadow-md scale-[1.01]'
+                        : 'border-slate-200 bg-white hover:border-purple-300 hover:bg-slate-50 shadow-2xs hover:-translate-y-0.5'
                     }`}
                   >
                     {/* Top Left Most Popular Badge */}
                     {plan.popular && (
                       <div className="absolute top-3.5 left-3.5 z-10">
-                        <span className="text-[10px] font-bold text-black bg-white px-2.5 py-1 rounded-xl shadow-2xs flex items-center gap-1">
-                          <Sparkles className="w-3 h-3 text-black" />
+                        <span className="text-[10px] font-bold text-white bg-purple-600 px-2.5 py-1 rounded-xl shadow-2xs flex items-center gap-1">
+                          <Sparkles className="w-3 h-3 text-white" />
                           <span>Most Popular</span>
                         </span>
                       </div>
@@ -350,7 +350,7 @@ export default function PhotoShowcasePage({
                             detailsRef.current?.scrollIntoView({ behavior: 'smooth' });
                           }, 50);
                         }}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-white bg-white/10 hover:bg-white hover:text-black border border-white/20 shadow-2xs transition-all cursor-pointer hover:-translate-y-0.5 active:translate-y-0"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700 bg-slate-50 hover:bg-purple-50 hover:text-purple-700 border border-slate-200 shadow-2xs transition-all cursor-pointer hover:-translate-y-0.5 active:translate-y-0"
                         title={`View all specifications for ${plan.name}`}
                       >
                         <span>View Details</span>
@@ -359,30 +359,30 @@ export default function PhotoShowcasePage({
                     </div>
 
                     <div className="pt-7">
-                      <div className="flex items-center justify-between text-xs font-semibold text-neutral-400 mb-2">
-                        <span className="text-white font-bold">{plan.englishName}</span>
+                      <div className="flex items-center justify-between text-xs font-semibold text-slate-500 mb-2">
+                        <span className="text-slate-900 font-bold">{plan.englishName}</span>
                         {isSelected && (
-                          <span className="w-5 h-5 rounded-full bg-white text-black flex items-center justify-center text-[10px] font-bold">
+                          <span className="w-5 h-5 rounded-full bg-purple-600 text-white flex items-center justify-center text-[10px] font-bold">
                             ✓
                           </span>
                         )}
                       </div>
-                      <h3 className="text-lg font-bold text-white mb-1">
+                      <h3 className="text-lg font-bold text-slate-900 mb-1">
                         {plan.name}
                       </h3>
-                      <p className="text-xs text-neutral-400 mb-4 line-clamp-2">
+                      <p className="text-xs text-slate-500 mb-4 line-clamp-2">
                         {plan.tagline}
                       </p>
                     </div>
 
-                    <div className="pt-3 border-t border-white/10">
+                    <div className="pt-3 border-t border-slate-200">
                       <div className="flex items-baseline justify-between mb-1">
-                        <span className="text-xs text-neutral-400 font-medium">Setup:</span>
-                        <span className="text-xl font-bold font-mono text-white">{plan.oneTimeFee}</span>
+                        <span className="text-xs text-slate-500 font-medium">Setup:</span>
+                        <span className="text-xl font-bold font-mono text-slate-900">{plan.oneTimeFee}</span>
                       </div>
                       <div className="flex items-baseline justify-between text-xs">
-                        <span className="text-neutral-400 font-medium">Monthly Upkeep:</span>
-                        <span className="font-bold text-white font-mono">{plan.monthly}/mo</span>
+                        <span className="text-slate-500 font-medium">Monthly Upkeep:</span>
+                        <span className="font-bold text-purple-700 font-mono">{plan.monthly}/mo</span>
                       </div>
                     </div>
                   </button>
@@ -397,10 +397,10 @@ export default function PhotoShowcasePage({
                   type="button"
                   id="btn-photo-continue-with-plan"
                   onClick={handleProceedToCatalog}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl btn-rgb text-black text-xs sm:text-sm font-extrabold transition-all shadow-md cursor-pointer hover:-translate-y-0.5 active:translate-y-0"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs sm:text-sm font-extrabold transition-all shadow-md cursor-pointer hover:-translate-y-0.5 active:translate-y-0"
                 >
                   <span>Continue with this Plan</span>
-                  <ArrowRight className="w-4 h-4 text-black stroke-[2.5]" />
+                  <ArrowRight className="w-4 h-4 text-white stroke-[2.5]" />
                 </button>
               </div>
             )}
@@ -409,20 +409,20 @@ export default function PhotoShowcasePage({
             {isDetailsExpanded && activePlan && (
               <div 
                 ref={detailsRef}
-                className="p-6 rounded-2xl bg-[#0A0A0A] border border-white/10 mb-6 animate-fadeIn shadow-xs"
+                className="p-6 rounded-2xl bg-slate-50 border border-slate-200 mb-6 animate-fadeIn shadow-xs"
               >
-                <div className="flex items-center justify-between pb-3 border-b border-white/10 mb-4">
+                <div className="flex items-center justify-between pb-3 border-b border-slate-200 mb-4">
                   <div>
-                    <h3 className="text-base font-bold text-white mb-1">
+                    <h3 className="text-base font-bold text-slate-900 mb-1">
                       {activePlan.name} Specifications
                     </h3>
-                    <p className="text-xs text-neutral-400 font-medium">
+                    <p className="text-xs text-slate-500 font-medium">
                       {activePlan.oneTimeFee} setup fee · {activePlan.monthly}/month cloud upkeep
                     </p>
                   </div>
                   <button
                     onClick={() => setIsDetailsExpanded(false)}
-                    className="text-xs text-neutral-400 hover:text-white font-semibold cursor-pointer"
+                    className="text-xs text-slate-500 hover:text-slate-900 font-semibold cursor-pointer"
                   >
                     Close
                   </button>
@@ -430,23 +430,23 @@ export default function PhotoShowcasePage({
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
                   {activePlan.features.map((feat, idx) => (
-                    <div key={idx} className="flex items-center gap-2 text-xs text-[#00FF88]">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-[#00FF88] shrink-0" />
+                    <div key={idx} className="flex items-center gap-2 text-xs text-emerald-700 font-medium">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                       <span>{feat}</span>
                     </div>
                   ))}
                 </div>
 
-                <div className="text-[11px] text-neutral-500 font-mono pt-3 border-t border-white/10 mb-5">
+                <div className="text-[11px] text-slate-500 font-mono pt-3 border-t border-slate-200 mb-5">
                   {activePlan.serverSpecs}
                 </div>
 
                 {/* Bottom Action inside Details Section */}
-                <div className="pt-4 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div className="pt-4 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3">
                   <button
                     type="button"
                     onClick={() => setIsDetailsExpanded(false)}
-                    className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-white/20 bg-[#141414] hover:bg-[#1A1A1A] text-white text-xs font-semibold transition-all cursor-pointer shadow-xs"
+                    className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-all cursor-pointer shadow-xs"
                   >
                     Close Specifications
                   </button>
@@ -454,10 +454,10 @@ export default function PhotoShowcasePage({
                   <button
                     type="button"
                     onClick={handleProceedToCatalog}
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-2.5 rounded-xl btn-rgb text-black text-xs sm:text-sm font-extrabold transition-all shadow-md cursor-pointer hover:-translate-y-0.5 active:translate-y-0"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs sm:text-sm font-extrabold transition-all shadow-md cursor-pointer hover:-translate-y-0.5 active:translate-y-0"
                   >
                     <span>Continue with this Plan</span>
-                    <ArrowRight className="w-4 h-4 text-black stroke-[2.5]" />
+                    <ArrowRight className="w-4 h-4 text-white stroke-[2.5]" />
                   </button>
                 </div>
               </div>
@@ -469,24 +469,24 @@ export default function PhotoShowcasePage({
       {/* 3. PHOTO CATALOG GRID */}
       {viewState === 'catalog' && (
         <div className="flex-1 flex flex-col">
-          <header className="sticky top-0 z-30 w-full bg-[#0A0A0A]/90 backdrop-blur-xl border-b border-white/10 shadow-xs">
+          <header className="sticky top-0 z-30 w-full bg-white/95 backdrop-blur-xl border-b border-slate-200 shadow-xs">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
               <button
                 onClick={onBack}
-                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-[#141414] hover:bg-white hover:text-black text-white text-xs sm:text-sm font-semibold transition-all border border-white/15 cursor-pointer shadow-xs active:scale-[0.99] shrink-0"
+                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs sm:text-sm font-semibold transition-all border border-slate-200 cursor-pointer shadow-xs active:scale-[0.99] shrink-0"
               >
-                <ArrowLeft className="w-4 h-4" />
+                <ArrowLeft className="w-4 h-4 text-slate-600" />
                 <span>← Return to Dashboard</span>
               </button>
 
               <div className="relative w-64 sm:w-80">
-                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500" />
+                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search photo collections by code or title..."
-                  className="w-full pl-9 pr-3.5 py-2 bg-[#141414] border border-white/15 rounded-xl text-xs sm:text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-white transition-all shadow-xs"
+                  className="w-full pl-9 pr-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-purple-500 transition-all shadow-xs"
                 />
               </div>
             </div>
@@ -497,19 +497,19 @@ export default function PhotoShowcasePage({
                 type="button"
                 onClick={() => setIsOrderProcessExpanded(prev => !prev)}
                 id="btn-what-we-do-after-order"
-                className="w-full relative group inline-flex items-center justify-between px-6 sm:px-8 py-3.5 sm:py-4 rounded-2xl bg-[#0A0A0A] hover:bg-[#141414] text-[#00FF88] cursor-pointer shadow-md border border-[#00FF88]/30 hover:border-[#00FF88]/60 transition-all duration-200 overflow-hidden"
+                className="w-full relative group inline-flex items-center justify-between px-6 sm:px-8 py-3.5 sm:py-4 rounded-2xl bg-white hover:bg-slate-50 text-purple-700 cursor-pointer shadow-sm border border-purple-200 hover:border-purple-400 transition-all duration-200 overflow-hidden"
               >
                 <div className="flex items-center gap-3">
                   <span className="relative flex h-2.5 w-2.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00FF88] opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#00FF88]"></span>
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-600 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-purple-600"></span>
                   </span>
-                  <span className="text-xs sm:text-sm md:text-base font-bold tracking-tight text-[#00FF88] select-none">
+                  <span className="text-xs sm:text-sm md:text-base font-bold tracking-tight text-slate-900 select-none">
                     অর্ডার করার পর আমরা আপনার জন্য কী কী করব (নির্দেশনা ও ধাপসমূহ)
                   </span>
                 </div>
 
-                <div className="w-8 h-8 rounded-xl bg-[#0A0A0A] text-[#00FF88] flex items-center justify-center border border-[#00FF88]/30 group-hover:border-[#00FF88] transition-all duration-200 shrink-0">
+                <div className="w-8 h-8 rounded-xl bg-purple-50 text-purple-700 flex items-center justify-center border border-purple-200 group-hover:border-purple-400 transition-all duration-200 shrink-0">
                   {isOrderProcessExpanded ? (
                     <ChevronUp className="w-4 h-4 stroke-[2.5]" />
                   ) : (
@@ -524,52 +524,52 @@ export default function PhotoShowcasePage({
             {isOrderProcessExpanded && (
               <div 
                 id="order-process-inline-details"
-                className="p-6 rounded-3xl bg-[#141414] border border-white/10 shadow-md mb-8 animate-fadeIn"
+                className="p-6 rounded-3xl bg-white border border-slate-200 shadow-md mb-8 animate-fadeIn"
               >
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
-                  <div className="p-4 rounded-2xl bg-[#0A0A0A] border border-white/10 flex items-center gap-3 shadow-2xs">
-                    <div className="w-8 h-8 rounded-xl bg-white text-black flex items-center justify-center shrink-0 font-mono font-bold text-xs shadow-xs">
+                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex items-center gap-3 shadow-2xs">
+                    <div className="w-8 h-8 rounded-xl bg-purple-600 text-white flex items-center justify-center shrink-0 font-mono font-bold text-xs shadow-xs">
                       01
                     </div>
                     <div className="flex items-center gap-2">
-                      <PhoneCall className="w-4 h-4 text-white shrink-0" />
-                      <span className="text-xs sm:text-sm font-semibold text-white leading-snug">
+                      <PhoneCall className="w-4 h-4 text-purple-600 shrink-0" />
+                      <span className="text-xs sm:text-sm font-semibold text-slate-800 leading-snug">
                         সরাসরি ফোন কল বা হোয়াটসঅ্যাপে কথা বলে আপনার প্ল্যান চূড়ান্ত করা হবে (আপনার সাথে কথা বলেই কাজ শুরু হবে)
                       </span>
                     </div>
                   </div>
 
-                  <div className="p-4 rounded-2xl bg-[#0A0A0A] border border-white/10 flex items-center gap-3 shadow-2xs">
-                    <div className="w-8 h-8 rounded-xl bg-white text-black flex items-center justify-center shrink-0 font-mono font-bold text-xs shadow-xs">
+                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex items-center gap-3 shadow-2xs">
+                    <div className="w-8 h-8 rounded-xl bg-purple-600 text-white flex items-center justify-center shrink-0 font-mono font-bold text-xs shadow-xs">
                       02
                     </div>
                     <div className="flex items-center gap-2">
-                      <Sparkles className="w-4 h-4 text-white shrink-0" />
-                      <span className="text-xs sm:text-sm font-semibold text-white leading-snug">
+                      <Sparkles className="w-4 h-4 text-purple-600 shrink-0" />
+                      <span className="text-xs sm:text-sm font-semibold text-slate-800 leading-snug">
                         আপনার ব্র্যান্ডের লোগো, স্লোগান, নাম এবং ডোমেন সংগ্রহ করা হবে
                       </span>
                     </div>
                   </div>
 
-                  <div className="p-4 rounded-2xl bg-[#0A0A0A] border border-white/10 flex items-center gap-3 shadow-2xs">
-                    <div className="w-8 h-8 rounded-xl bg-white text-black flex items-center justify-center shrink-0 font-mono font-bold text-xs shadow-xs">
+                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex items-center gap-3 shadow-2xs">
+                    <div className="w-8 h-8 rounded-xl bg-purple-600 text-white flex items-center justify-center shrink-0 font-mono font-bold text-xs shadow-xs">
                       03
                     </div>
                     <div className="flex items-center gap-2">
-                      <Rocket className="w-4 h-4 text-white shrink-0" />
-                      <span className="text-xs sm:text-sm font-semibold text-white leading-snug">
+                      <Rocket className="w-4 h-4 text-purple-600 shrink-0" />
+                      <span className="text-xs sm:text-sm font-semibold text-slate-800 leading-snug">
                         ডোমেন কানেকশন করে মাত্র ২৪ ঘণ্টার মধ্যে সম্পূর্ণ লাইভ ওয়েবসাইট ডেলিভারি
                       </span>
                     </div>
                   </div>
 
-                  <div className="p-4 rounded-2xl bg-[#0A0A0A] border border-white/10 flex items-center gap-3 shadow-2xs">
-                    <div className="w-8 h-8 rounded-xl bg-white text-black flex items-center justify-center shrink-0 font-mono font-bold text-xs shadow-xs">
+                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex items-center gap-3 shadow-2xs">
+                    <div className="w-8 h-8 rounded-xl bg-purple-600 text-white flex items-center justify-center shrink-0 font-mono font-bold text-xs shadow-xs">
                       04
                     </div>
                     <div className="flex items-center gap-2">
-                      <MessageCircle className="w-4 h-4 text-white shrink-0" />
-                      <span className="text-xs sm:text-sm font-semibold text-white leading-snug">
+                      <MessageCircle className="w-4 h-4 text-purple-600 shrink-0" />
+                      <span className="text-xs sm:text-sm font-semibold text-slate-800 leading-snug">
                         যেকোনো প্রয়োজনে আমাদের অফিসিয়াল হোয়াটসঅ্যাপে আজীবন নিরবচ্ছিন্ন সাপোর্ট
                       </span>
                     </div>
@@ -580,7 +580,7 @@ export default function PhotoShowcasePage({
                   <button
                     type="button"
                     onClick={() => setIsOrderProcessExpanded(false)}
-                    className="px-3.5 py-1.5 rounded-lg bg-[#0A0A0A] hover:bg-[#1A1A1A] text-white text-xs font-semibold cursor-pointer transition-colors border border-white/15"
+                    className="px-3.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold cursor-pointer transition-colors border border-slate-200"
                   >
                     Hide Details
                   </button>
@@ -594,43 +594,43 @@ export default function PhotoShowcasePage({
                 <div
                   key={mockup.id}
                   onClick={() => handleOpenMockup(mockup)}
-                  className="group bg-[#141414] rounded-3xl border border-white/10 shadow-sm hover:border-white hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col justify-between cursor-pointer hover:-translate-y-1"
+                  className="group bg-white rounded-3xl border border-slate-200 shadow-sm hover:border-purple-400 hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col justify-between cursor-pointer hover:-translate-y-1"
                 >
                   <div>
-                    <div className="px-4 py-2.5 bg-[#0A0A0A] border-b border-white/10 flex items-center justify-between">
-                      <span className="text-xs font-bold text-white">
+                    <div className="px-4 py-2.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+                      <span className="text-xs font-bold text-slate-800">
                         {mockup.category}
                       </span>
-                      <span className="font-mono text-xs font-bold px-2 py-0.5 rounded-md bg-[#141414] text-white tracking-wider border border-white/20 shadow-2xs">
+                      <span className="font-mono text-xs font-bold px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 tracking-wider border border-purple-200 shadow-2xs">
                         {mockup.fourDigitCode}
                       </span>
                     </div>
 
-                    <div className="relative overflow-hidden aspect-16/10 bg-[#0A0A0A]">
+                    <div className="relative overflow-hidden aspect-16/10 bg-slate-100">
                       <img
                         src={mockup.imageUrl}
                         alt={mockup.title}
                         className="w-full h-full object-cover group-hover:scale-104 transition-transform duration-500"
                       />
-                      <div className="absolute inset-0 bg-[#000000]/0 group-hover:bg-[#000000]/50 transition-colors flex items-center justify-center">
-                        <span className="opacity-0 group-hover:opacity-100 transition-opacity px-4 py-2 rounded-xl bg-white text-black font-bold text-xs shadow-lg flex items-center gap-1.5 transform translate-y-2 group-hover:translate-y-0 transition-transform">
+                      <div className="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/30 transition-colors flex items-center justify-center">
+                        <span className="opacity-0 group-hover:opacity-100 transition-opacity px-4 py-2 rounded-xl bg-white text-slate-900 font-bold text-xs shadow-lg flex items-center gap-1.5 transform translate-y-2 group-hover:translate-y-0 transition-transform">
                           <span>Inspect Mockup</span>
-                          <ZoomIn className="w-3.5 h-3.5 text-black" />
+                          <ZoomIn className="w-3.5 h-3.5 text-purple-600" />
                         </span>
                       </div>
                     </div>
 
                     <div className="p-5">
-                      <h3 className="text-base font-bold text-white transition-colors leading-snug">
+                      <h3 className="text-base font-bold text-slate-900 group-hover:text-purple-700 transition-colors leading-snug">
                         {mockup.title}
                       </h3>
-                      <p className="text-xs text-neutral-400 mt-1 line-clamp-2 leading-relaxed">
+                      <p className="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">
                         {mockup.description || 'Turnkey digital storefront built for high performance.'}
                       </p>
 
                       <div className="mt-3 flex flex-wrap gap-1.5">
                         {(mockup.features || []).slice(0, 3).map((feat, idx) => (
-                          <span key={idx} className="text-[10px] font-medium bg-white/10 text-white border border-white/20 px-2 py-0.5 rounded-md">
+                          <span key={idx} className="text-[10px] font-medium bg-slate-50 text-slate-700 border border-slate-200 px-2 py-0.5 rounded-md">
                             ✓ {feat}
                           </span>
                         ))}
@@ -644,7 +644,7 @@ export default function PhotoShowcasePage({
                         e.stopPropagation();
                         handleOpenMockup(mockup);
                       }}
-                      className="w-full py-2.5 px-4 rounded-xl bg-white/10 hover:bg-white hover:text-black text-white text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer border border-white/15"
+                      className="w-full py-2.5 px-4 rounded-xl bg-slate-50 hover:bg-purple-50 text-slate-700 hover:text-purple-700 text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer border border-slate-200 hover:border-purple-300"
                     >
                       <span>Open Full Photo Spec</span>
                       <ArrowRight className="w-3.5 h-3.5" />
@@ -661,24 +661,24 @@ export default function PhotoShowcasePage({
       {viewState === 'preview' && (
         <div id="preview-simulator-active" className="flex-1 flex flex-col relative pb-28 animate-fadeIn">
           {/* Top Sticky Bar */}
-          <header className="sticky top-0 z-50 w-full bg-[#0A0A0A] border-b border-white/10 shadow-md">
+          <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-xl border-b border-slate-200 shadow-sm">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-3">
               {/* Left Side: Return to Dashboard */}
               <button
                 onClick={onBack}
                 id="photo-return-to-dashboard-btn"
-                className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-[#141414] hover:bg-white hover:text-black text-white transition-all cursor-pointer border border-white/20 shadow-xs flex items-center justify-center hover:-translate-x-0.5 active:translate-x-0 shrink-0"
+                className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-slate-50 hover:bg-slate-100 text-slate-700 transition-all cursor-pointer border border-slate-200 shadow-xs flex items-center justify-center hover:-translate-x-0.5 active:translate-x-0 shrink-0"
                 title="Return to Dashboard"
                 aria-label="Return to Dashboard"
               >
                 <ArrowLeft className="w-5 h-5 text-current shrink-0" />
               </button>
 
-              {/* Right Side: Zoom and Monochrome Checkout Button */}
+              {/* Right Side: Zoom and Checkout Button */}
               <div className="flex items-center gap-2 sm:gap-3">
                 <button
                   onClick={() => setIsZoomed(!isZoomed)}
-                  className="hidden md:inline-flex px-3.5 py-2.5 rounded-2xl border border-white/20 bg-[#141414] hover:bg-[#1A1A1A] text-white text-xs font-semibold items-center gap-1.5 cursor-pointer shadow-xs transition-colors"
+                  className="hidden md:inline-flex px-3.5 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold items-center gap-1.5 cursor-pointer shadow-xs transition-colors"
                   title="Toggle Zoom"
                 >
                   {isZoomed ? <ZoomOut className="w-4 h-4 text-current" /> : <ZoomIn className="w-4 h-4 text-current" />}
@@ -689,36 +689,36 @@ export default function PhotoShowcasePage({
                   type="button"
                   onClick={() => onSelectForOrder(selectedMockup.title)}
                   id="photo-header-checkout-btn"
-                  className="group relative inline-flex items-center gap-2 sm:gap-2.5 px-4 sm:px-6 py-2.5 sm:py-3 rounded-2xl btn-rgb text-black text-xs sm:text-sm font-black transition-all duration-200 cursor-pointer shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] shrink-0 overflow-hidden"
+                  className="group relative inline-flex items-center gap-2 sm:gap-2.5 px-4 sm:px-6 py-2.5 sm:py-3 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs sm:text-sm font-black transition-all duration-200 cursor-pointer shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] shrink-0 overflow-hidden"
                   title={`ওয়েবসাইট কিনুন ${selectedMockup.fourDigitCode}`}
                 >
                   {/* Live pulsing radar beacon */}
                   <span className="relative flex h-2 w-2 shrink-0">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-black opacity-85"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-black"></span>
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-85"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
                   </span>
 
                   {/* Shopping Bag Icon */}
-                  <ShoppingBag className="w-4 h-4 text-black shrink-0" />
+                  <ShoppingBag className="w-4 h-4 text-white shrink-0" />
 
                   {/* Action Title with Hashtag Code in Bangla */}
-                  <span className="tracking-tight font-black whitespace-nowrap text-black">
+                  <span className="tracking-tight font-black whitespace-nowrap text-white">
                     <span className="hidden sm:inline">এই ওয়েবসাইটটি কিনুন </span>
                     <span className="sm:hidden">ওয়েবসাইট কিনুন </span>
-                    <span className="font-mono text-xs font-black bg-black/15 text-black px-1.5 py-0.5 rounded-md border border-black/30 ml-1">
+                    <span className="font-mono text-xs font-black bg-white/20 text-white px-1.5 py-0.5 rounded-md border border-white/30 ml-1">
                       {selectedMockup.fourDigitCode}
                     </span>
                   </span>
 
                   {/* Forward Arrow with glide animation */}
-                  <ArrowRight className="w-4 h-4 text-black group-hover:translate-x-1 transition-transform shrink-0 stroke-[2.5]" />
+                  <ArrowRight className="w-4 h-4 text-white group-hover:translate-x-1 transition-transform shrink-0 stroke-[2.5]" />
                 </button>
               </div>
             </div>
           </header>
 
           <main className="flex-1 max-w-5xl w-full mx-auto p-4 sm:p-8 flex flex-col items-center">
-            <div className={`w-full bg-[#141414] rounded-3xl border border-white/10 shadow-lg overflow-hidden transition-all duration-300 ${
+            <div className={`w-full bg-white rounded-3xl border border-slate-200 shadow-lg overflow-hidden transition-all duration-300 ${
               isZoomed ? 'scale-105' : ''
             }`}>
               <img
@@ -728,14 +728,14 @@ export default function PhotoShowcasePage({
               />
             </div>
 
-            <div className="w-full mt-6 p-6 rounded-2xl bg-[#141414] border border-white/10 shadow-xs">
-              <h3 className="text-lg font-bold text-white mb-2">
+            <div className="w-full mt-6 p-6 rounded-2xl bg-white border border-slate-200 shadow-xs">
+              <h3 className="text-lg font-bold text-slate-900 mb-2">
                 Delivered Features for {selectedMockup.title}
               </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-neutral-400">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-600">
                 {selectedMockup.features.map((feat, idx) => (
                   <div key={idx} className="flex items-center gap-2">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-white shrink-0" />
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                     <span>{feat}</span>
                   </div>
                 ))}

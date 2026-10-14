@@ -2,9 +2,12 @@ import React, { useState, useRef } from 'react';
 import { 
   ArrowLeft, ArrowRight, ShoppingBag, CheckCircle2, 
   ShieldCheck, Zap, Headphones, Globe, MessageCircle, 
-  ChevronDown, Layers, Sparkles
+  ChevronDown, Layers, Sparkles, Box
 } from 'lucide-react';
 import { WebsiteDemo } from '../types';
+import Tilt3D from './Tilt3D';
+import ThreeCanvas from './ThreeCanvas';
+import { spatialAudio } from '../utils/audio3D';
 
 interface WebsiteDetailPageProps {
   demo: WebsiteDemo;
@@ -18,6 +21,7 @@ export default function WebsiteDetailPage({
   onGoToOrder
 }: WebsiteDetailPageProps) {
   const [detailsExpanded, setDetailsExpanded] = useState(false);
+  const [show3DStage, setShow3DStage] = useState(false);
   const [addedItem, setAddedItem] = useState<string | null>(null);
   const detailsRef = useRef<HTMLDivElement>(null);
 
@@ -121,28 +125,78 @@ export default function WebsiteDetailPage({
       <div className="h-2 bg-[#F1F5F9]" />
 
       {/* 2. Main Live Website Content */}
-      <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-8 bg-[#F1F5F9]">
+      <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6 bg-[#F1F5F9]">
+        
+        {/* Showcase Mode Header */}
+        <div className="flex items-center justify-between gap-3 px-1">
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#7C3AED] animate-pulse" />
+            <h2 className="text-sm sm:text-base font-black text-slate-800">
+              {show3DStage ? 'ইন্টারেক্টিভ ৩ডি ডিভাইস স্টুডিও (3D Device Stage)' : 'লাইভ ওয়েবসাইট ইন্টারফেস'}
+            </h2>
+          </div>
+
+          <div className="inline-flex items-center p-0.5 rounded-xl bg-white border border-slate-200/90 shadow-2xs">
+            <button
+              type="button"
+              onClick={() => {
+                setShow3DStage(false);
+                spatialAudio.playHover();
+              }}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                !show3DStage
+                  ? 'bg-purple-100 text-purple-800 shadow-2xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Box className="w-3.5 h-3.5" />
+              <span>ইন্টারফেস ভিউ</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setShow3DStage(true);
+                spatialAudio.playChime(780);
+              }}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                show3DStage
+                  ? 'bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] text-white shadow-2xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Layers className="w-3.5 h-3.5" />
+              <span>🧊 ৩ডি ডিভাইস মডেল</span>
+            </button>
+          </div>
+        </div>
+
         {/* Real Live Website Showcase Area */}
         <section className="w-full bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
-          {/* Hero Banner Section */}
-          <div className="relative w-full aspect-[16/7] min-h-[240px] sm:min-h-[360px] overflow-hidden">
-            <img
-              src={demo.previewImage}
-              alt={demo.title}
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 to-transparent flex flex-col justify-end p-5 sm:p-8 md:p-10 text-white">
-              <span className="px-3 py-1 rounded-full bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] text-white text-xs font-bold w-fit mb-2 shadow-xs">
-                {demo.categoryLabel}
-              </span>
-              <h2 className="text-xl sm:text-3xl md:text-4xl font-black leading-tight max-w-2xl drop-shadow-sm text-white">
-                {demo.heroHeadline || demo.title}
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-200 mt-2 max-w-xl hidden sm:block">
-                {demo.mockData?.heroSub || demo.description}
-              </p>
+          {show3DStage ? (
+            <div className="w-full h-[450px] sm:h-[550px] bg-slate-950 relative overflow-hidden animate-fadeIn">
+              <ThreeCanvas currentCategory={demo.category} />
             </div>
-          </div>
+          ) : (
+            /* Hero Banner Section */
+            <div className="relative w-full aspect-[16/7] min-h-[240px] sm:min-h-[360px] overflow-hidden">
+              <img
+                src={demo.previewImage}
+                alt={demo.title}
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 to-transparent flex flex-col justify-end p-5 sm:p-8 md:p-10 text-white">
+                <span className="px-3 py-1 rounded-full bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] text-white text-xs font-bold w-fit mb-2 shadow-xs">
+                  {demo.categoryLabel}
+                </span>
+                <h2 className="text-xl sm:text-3xl md:text-4xl font-black leading-tight max-w-2xl drop-shadow-sm text-white">
+                  {demo.heroHeadline || demo.title}
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-200 mt-2 max-w-xl hidden sm:block">
+                  {demo.mockData?.heroSub || demo.description}
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* Interactive Products / Menu Simulation */}
           <div className="p-5 sm:p-8 bg-white">
@@ -177,11 +231,15 @@ export default function WebsiteDetailPage({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {demo.mockData?.items?.map((item, idx) => (
-                <div
+                <Tilt3D
                   key={idx}
+                  maxTilt={10}
+                  scale={1.02}
+                  glare={true}
+                  glareOpacity={0.15}
                   className="p-4 rounded-2xl bg-slate-50 border border-slate-200 hover:border-purple-400 transition-all flex flex-col justify-between shadow-2xs"
                 >
-                  <div className="flex items-start gap-3 mb-3">
+                  <div className="flex items-start gap-3 mb-3" style={{ transform: 'translateZ(18px)' }}>
                     {item.image && (
                       <img
                         src={item.image}
@@ -205,13 +263,17 @@ export default function WebsiteDetailPage({
                   </div>
 
                   <button
-                    onClick={() => handleTestAddToCart(item.name)}
+                    onClick={() => {
+                      spatialAudio.playHover();
+                      handleTestAddToCart(item.name);
+                    }}
+                    style={{ transform: 'translateZ(22px)' }}
                     className="w-full py-2.5 rounded-xl bg-white hover:bg-[#7C3AED] hover:text-white text-slate-700 border border-slate-200 hover:border-transparent text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
                   >
                     <ShoppingBag className="w-3.5 h-3.5" />
                     <span>কার্ট টেস্ট করুন</span>
                   </button>
-                </div>
+                </Tilt3D>
               ))}
             </div>
           </div>

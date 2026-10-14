@@ -250,20 +250,11 @@ export default function DashboardView({
       {/* Main Targeted Section (section:nth-of-type(1)) */}
       <section className="max-w-2xl sm:max-w-3xl lg:max-w-6xl xl:max-w-7xl w-full mx-auto h-full lg:h-auto my-auto flex flex-col justify-between lg:justify-center py-1 sm:py-2.5 lg:py-0 lg:gap-6 xl:gap-8">
         
-        {/* Clean, Easy-to-Understand Header with 3 Simple Steps */}
-        <header className="shrink-0 text-center pt-0.5 pb-1 lg:pb-0">
-          <div className="inline-flex items-center gap-1.5 px-3 py-0.5 lg:px-3.5 lg:py-1 rounded-full bg-purple-50 text-purple-700 text-[11px] lg:text-xs font-bold tracking-wide mb-1 lg:mb-1.5 border border-purple-200/90 shadow-2xs">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#A855F7] animate-pulse" />
-            <span>{language === 'en' ? 'Step 1 of 3: Choose Category' : '১ম ধাপ (মোট ৩টি ধাপ): ক্যাটাগরি বেছে নিন'}</span>
-          </div>
-          <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-[32px] font-black text-slate-900 tracking-tight leading-tight">
-            {language === 'en' ? 'Select Your Business Category' : 'আপনার ব্যবসার ক্যাটাগরি বেছে নিন'}
+        {/* Simple Minimal Header */}
+        <header className="shrink-0 text-center py-1 sm:py-2">
+          <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-slate-900 tracking-tight">
+            {language === 'en' ? 'Select Category' : 'ক্যাটাগরি বেছে নিন'}
           </h1>
-          <p className="text-xs sm:text-sm lg:text-[15px] text-slate-600 mt-0.5 max-w-xl mx-auto leading-relaxed">
-            {language === 'en' 
-              ? 'Click any category below to view live working website demos' 
-              : 'যেকোনো ক্যাটাগরিতে ক্লিক করলেই সরাসরি লাইভ ওয়েবসাইট ডেমো দেখতে পারবেন'}
-          </p>
         </header>
 
         {/* 1. Mobile Category Grid: 2×2 Grid of Equal Square Cards (Mobile Only: < lg) */}
