@@ -192,7 +192,11 @@ export default function CategoryWebsitesView({
   });
 
   return (
-    <div className="w-full min-h-[calc(100vh-4rem)] bg-slate-50 text-slate-900 flex flex-col font-sans select-none pb-20 lg:pb-12">
+    <div 
+      id="category-websites-view"
+      data-view="category-websites"
+      className="w-full min-h-[calc(100vh-4rem)] bg-slate-50 text-slate-900 flex flex-col font-sans select-none pb-20 lg:pb-12"
+    >
       {/* Category Navigation Bar */}
       <section className="w-full bg-white border-b border-slate-200 shadow-2xs sticky top-16 sm:top-[72px] lg:top-[76px] z-10">
         <div className="max-w-6xl xl:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">

@@ -6,10 +6,10 @@ import {
   Rocket, 
   Clock, 
   ShieldCheck, 
-  ArrowRight,
   MessageCircle,
   LayoutGrid
 } from 'lucide-react';
+import { useLanguage } from '../utils/LanguageContext';
 
 interface AfterOrderViewProps {
   onGoToDashboard?: () => void;
@@ -17,173 +17,129 @@ interface AfterOrderViewProps {
 }
 
 export default function AfterOrderView({ onGoToDashboard, onOpenLiveChat }: AfterOrderViewProps) {
+  const { language } = useLanguage();
+
   const steps = [
     {
-      stepNum: '০১',
-      stepLabel: 'ধাপ ০১',
-      tag: 'প্রথম পদক্ষেপ',
-      title: 'কনফার্মেশন ও রিকোয়ারমেন্ট কল',
-      description: '১৫ মিনিটের মধ্যে প্রজেক্ট ম্যানেজার কল করবেন',
-      time: 'আনুমানিক সময়: ১৫ মিনিট',
-      icon: PhoneCall,
-      cardBg: 'bg-gradient-to-br from-blue-100/80 via-blue-50/50 to-white',
-      border: 'border-blue-200/90 hover:border-blue-400',
-      tagColor: 'bg-blue-100 text-blue-800 border-blue-200',
-      iconBg: 'bg-blue-600 text-white shadow-blue-500/20',
-      timeColor: 'text-blue-700',
-      badgeBg: 'bg-blue-600 text-white'
+      stepNum: '1',
+      titleEn: 'Confirmation Call',
+      titleBn: 'কনফার্মেশন কল',
+      descEn: 'Project manager calls within 15 minutes to confirm requirements',
+      descBn: '১৫ মিনিটের মধ্যে প্রজেক্ট ম্যানেজার কল করে রিকোয়ারমেন্ট বুঝে নেবেন',
+      timeEn: '15 mins',
+      timeBn: '১৫ মিনিট',
+      icon: PhoneCall
     },
     {
-      stepNum: '০২',
-      stepLabel: 'ধাপ ০২',
-      tag: 'তথ্য সংগ্রহ',
-      title: 'ব্র্যান্ডিং ও কনটেন্ট সংগ্রহ',
-      description: 'লোগো, ছবি ও প্রোডাক্ট তথ্য সহজ সংগ্রহ',
-      time: 'আনুমানিক সময়: ২-৪ ঘণ্টা',
-      icon: FolderKanban,
-      cardBg: 'bg-gradient-to-br from-amber-100/80 via-orange-50/50 to-white',
-      border: 'border-amber-200/90 hover:border-amber-400',
-      tagColor: 'bg-amber-100 text-amber-800 border-amber-200',
-      iconBg: 'bg-amber-600 text-white shadow-amber-500/20',
-      timeColor: 'text-amber-700',
-      badgeBg: 'bg-amber-600 text-white'
+      stepNum: '2',
+      titleEn: 'Content & Logo',
+      titleBn: 'ব্র্যান্ডিং ও কনটেন্ট',
+      descEn: 'Send your logo, pictures & product details, or let us provide templates',
+      descBn: 'লোগো, ছবি ও প্রোডাক্টের তথ্য সহজে শেয়ার করুন',
+      timeEn: '2-4 hrs',
+      timeBn: '২-৪ ঘণ্টা',
+      icon: FolderKanban
     },
     {
-      stepNum: '০৩',
-      stepLabel: 'ধাপ ০৩',
-      tag: 'কাস্টমাইজেশন',
-      title: 'ডিজাইন তৈরি ও ফিচার সেটআপ',
-      description: 'কালার থিম, ব্যানার ও পেমেন্ট গেটওয়ে ইন্টিগ্রেশন',
-      time: 'আনুমানিক সময়: ১২ ঘণ্টা',
-      icon: Palette,
-      cardBg: 'bg-gradient-to-br from-purple-100/80 via-purple-50/50 to-white',
-      border: 'border-purple-200/90 hover:border-purple-400',
-      tagColor: 'bg-purple-100 text-purple-800 border-purple-200',
-      iconBg: 'bg-[#7C3AED] text-white shadow-purple-500/20',
-      timeColor: 'text-purple-700',
-      badgeBg: 'bg-[#7C3AED] text-white'
+      stepNum: '3',
+      titleEn: 'Setup & Customization',
+      titleBn: 'সেটআপ ও ডিজাইন',
+      descEn: 'Theme colors, banners, bKash/Nagad & courier integration ready',
+      descBn: 'কালার থিম, ব্যানার, বিকাশ/নগদ পেমেন্ট ও কুরিয়ার ইন্টিগ্রেশন',
+      timeEn: '12 hrs',
+      timeBn: '১২ ঘণ্টা',
+      icon: Palette
     },
     {
-      stepNum: '০৪',
-      stepLabel: 'ধাপ ০৪',
-      tag: 'লাইভ হ্যান্ডওভার',
-      title: 'ওয়েবসাইট ডেলিভারি ও সাপোর্ট',
-      description: 'ডোমেইন ও হোস্টিং সহ লাইভ সাইট হস্তান্তর',
-      time: 'আনুমানিক সময়: ২৪ ঘণ্টা',
-      icon: Rocket,
-      cardBg: 'bg-gradient-to-br from-emerald-100/80 via-teal-50/50 to-white',
-      border: 'border-emerald-200/90 hover:border-emerald-400',
-      tagColor: 'bg-emerald-100 text-emerald-800 border-emerald-200',
-      iconBg: 'bg-emerald-600 text-white shadow-emerald-500/20',
-      timeColor: 'text-emerald-700',
-      badgeBg: 'bg-emerald-600 text-white'
+      stepNum: '4',
+      titleEn: 'Live Delivery',
+      titleBn: 'লাইভ ডেলিভারি',
+      descEn: 'Live website handover with domain, cloud hosting & admin access',
+      descBn: 'ডোমেন, ক্লাউড হোস্টিং ও সম্পূর্ণ এডমিন এক্সেস সহ সাইট হস্তান্তর',
+      timeEn: '24 hrs',
+      timeBn: '২৪ ঘণ্টা',
+      icon: Rocket
     }
   ];
 
   return (
-    <div className="w-full flex flex-col font-sans pb-24 lg:pb-16 pt-3 sm:pt-6 lg:pt-8 select-none bg-[#F1F5F9] text-slate-900">
+    <div 
+      id="after-order-view"
+      data-view="after-order"
+      className="w-full flex flex-col font-sans pb-24 lg:pb-16 pt-3 sm:pt-6 lg:pt-8 select-none bg-slate-50 text-slate-900"
+    >
+      {/* Main Targeted Section */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         
-        {/* ================= CLEAN HEADER ================= */}
-        <header className="text-center mb-6 sm:mb-8 lg:mb-10">
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-purple-50 text-purple-700 text-xs font-bold border border-purple-200/90 mb-2.5 shadow-2xs">
-            <span className="w-2 h-2 rounded-full bg-[#A855F7] animate-pulse" />
-            <span>অর্ডার প্রসেস • Order Workflow</span>
-          </div>
-
-          <h1 className="text-2xl sm:text-3xl lg:text-[34px] font-black text-slate-900 tracking-tight leading-snug">
-            অর্ডারের পর ধারাবাহিক ৪টি পদক্ষেপ
+        {/* Simple Header */}
+        <header className="text-center mb-6 sm:mb-8">
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+            {language === 'en' ? 'How Order Process Works' : 'অর্ডার প্রসেস কিভাবে কাজ করে'}
           </h1>
-
-          <p className="text-xs sm:text-sm lg:text-base text-slate-600 mt-2 max-w-xl mx-auto leading-relaxed">
-            আপনার পছন্দের ডিজাইনটি বেছে অর্ডার করার পর আমাদের টিম যেভাবে আপনার ওয়েবসাইটটি রেডি করবে:
+          <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-md mx-auto">
+            {language === 'en' 
+              ? 'Simple 4-step workflow from confirmation to live website' 
+              : 'কনফার্মেশন থেকে লাইভ সাইট হস্তান্তরের ৪টি সহজ ধাপ'}
           </p>
         </header>
 
-        {/* ================= 4 CLEAN STEPS GRID ================= */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-8">
-          {steps.map((step, idx) => {
+        {/* 4 Simple Step Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          {steps.map((step) => {
             const Icon = step.icon;
             return (
               <div
                 key={step.stepNum}
-                className={`relative p-5 rounded-2xl sm:rounded-3xl ${step.cardBg} border ${step.border} shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between`}
+                className="p-5 rounded-xl bg-white border border-slate-200 shadow-2xs hover:border-slate-300 transition-all flex flex-col justify-between"
               >
-                {/* Desktop subtle connector between steps 1-3 */}
-                {idx < steps.length - 1 && (
-                  <div className="hidden lg:flex absolute -right-3 top-1/2 -translate-y-1/2 z-10 w-6 h-6 rounded-full bg-white border border-slate-200 shadow-xs items-center justify-center text-slate-600">
-                    <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
-                  </div>
-                )}
-
                 <div>
-                  {/* Top Row: Number, Tag, Icon */}
-                  <div className="flex items-center justify-between gap-2 mb-4">
-                    <div className="flex items-center gap-2">
-                      <span className={`w-8 h-8 rounded-xl ${step.badgeBg} text-xs font-black flex items-center justify-center shadow-xs`}>
-                        {step.stepNum}
-                      </span>
-                      <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${step.tagColor}`}>
-                        {step.tag}
-                      </span>
-                    </div>
-
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-sm ${step.iconBg}`}>
-                      <Icon className="w-5 h-5 stroke-[2.2]" />
-                    </div>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="w-7 h-7 rounded-lg bg-slate-100 text-slate-800 text-xs font-bold flex items-center justify-center font-mono">
+                      {step.stepNum}
+                    </span>
+                    <Icon className="w-5 h-5 text-purple-600" />
                   </div>
 
-                  {/* Step Title */}
-                  <h3 className="text-base sm:text-[17px] font-black text-slate-900 leading-snug tracking-tight mb-2">
-                    {step.title}
+                  <h3 className="text-sm sm:text-base font-bold text-slate-900 mb-1">
+                    {language === 'en' ? step.titleEn : step.titleBn}
                   </h3>
 
-                  {/* Step Description */}
-                  <p className="text-xs sm:text-[13px] text-slate-600 leading-relaxed font-medium">
-                    {step.description}
+                  <p className="text-xs text-slate-500 leading-relaxed">
+                    {language === 'en' ? step.descEn : step.descBn}
                   </p>
                 </div>
 
-                {/* Bottom Timing and Step Label */}
-                <div className="pt-4 mt-5 border-t border-slate-200/80 flex items-center justify-between text-xs">
-                  <div className={`flex items-center gap-1.5 font-bold ${step.timeColor}`}>
-                    <Clock className="w-3.5 h-3.5 shrink-0 opacity-80" />
-                    <span className="text-[11px] sm:text-xs">{step.time}</span>
-                  </div>
-                  <span className="text-[11px] font-extrabold px-2 py-0.5 rounded-md bg-white/95 text-slate-700 border border-slate-200/90 shadow-2xs">
-                    {step.stepLabel}
-                  </span>
+                <div className="pt-3 mt-4 border-t border-slate-100 flex items-center gap-1.5 text-[11px] text-slate-400 font-medium">
+                  <Clock className="w-3.5 h-3.5" />
+                  <span>{language === 'en' ? `Est: ${step.timeEn}` : `সময়: ${step.timeBn}`}</span>
                 </div>
               </div>
             );
           })}
         </div>
 
-        {/* ================= CLEAN REASSURANCE & ACTION BAR ================= */}
-        <div className="p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-white border border-slate-200 text-slate-900 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center shrink-0">
-              <ShieldCheck className="w-5 h-5 text-emerald-600" />
-            </div>
-            <div>
-              <p className="text-xs sm:text-sm font-bold text-slate-900 leading-snug">
-                ফ্রি ডোমেইন, এসএসএল ও ক্লাউড হোস্টিং প্রতিটি অর্ডারের সাথে অন্তর্ভুক্ত
-              </p>
-              <p className="text-[11px] text-slate-500 mt-0.5">
-                লাইভ সাইট হস্তান্তর ও প্রজেক্ট সাপোর্ট নিশ্চিত
-              </p>
-            </div>
+        {/* Simple Bottom Banner */}
+        <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0" />
+            <p className="text-xs sm:text-sm text-slate-700 font-medium">
+              {language === 'en' 
+                ? 'Free Domain, SSL & Cloud Hosting included with 24/7 support' 
+                : 'ফ্রি ডোমেইন, এসএসএল ও ক্লাউড হোস্টিং সহ সার্বক্ষণিক সাপোর্ট অন্তর্ভুক্ত'}
+            </p>
           </div>
 
-          <div className="flex items-center gap-2.5 w-full md:w-auto shrink-0">
+          <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
             {onGoToDashboard && (
               <button
                 type="button"
                 onClick={onGoToDashboard}
-                className="flex-1 md:flex-none px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-all flex items-center justify-center gap-1.5 border border-slate-200 cursor-pointer active:scale-95"
+                className="flex-1 sm:flex-none px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200 transition-colors cursor-pointer"
               >
-                <LayoutGrid className="w-3.5 h-3.5" />
-                <span>ড্যাশবোর্ড</span>
+                <span className="flex items-center justify-center gap-1.5">
+                  <LayoutGrid className="w-3.5 h-3.5" />
+                  {language === 'en' ? 'Dashboard' : 'ড্যাশবোর্ড'}
+                </span>
               </button>
             )}
 
@@ -191,10 +147,12 @@ export default function AfterOrderView({ onGoToDashboard, onOpenLiveChat }: Afte
               <button
                 type="button"
                 onClick={onOpenLiveChat}
-                className="flex-1 md:flex-none px-4 py-2 rounded-xl bg-[#7C3AED] hover:bg-[#6D28D9] text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer active:scale-95"
+                className="flex-1 sm:flex-none px-3.5 py-1.5 rounded-lg text-xs font-semibold text-white bg-purple-600 hover:bg-purple-700 transition-colors cursor-pointer shadow-2xs"
               >
-                <MessageCircle className="w-3.5 h-3.5" />
-                <span>লাইভ চ্যাট</span>
+                <span className="flex items-center justify-center gap-1.5">
+                  <MessageCircle className="w-3.5 h-3.5" />
+                  {language === 'en' ? 'Live Chat' : 'লাইভ চ্যাট'}
+                </span>
               </button>
             )}
           </div>
