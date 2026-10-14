@@ -19,6 +19,7 @@ import { auth, googleProvider } from '../firebase';
 import { signInWithPopup } from 'firebase/auth';
 import BongoWebLogo from './BongoWebLogo';
 import EmailRecoveryPage from './EmailRecoveryPage';
+import ThreeCanvas3D from './ThreeCanvas3D';
 
 // Official Colored Google Logo Icon
 function GoogleLogoIcon({ className = "w-5 h-5 shrink-0" }: { className?: string }) {
@@ -1614,15 +1615,18 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
   // VIEW: MAIN LOGGED-IN ACCOUNT OVERVIEW
   // ==========================================
   return (
-    <div className="w-full flex flex-col font-sans pb-28 lg:pb-12 pt-2 sm:pt-4 lg:pt-6 animate-fadeIn bg-[#F1F5F9] text-slate-900">
+    <div className="relative w-full flex flex-col font-sans pb-28 lg:pb-12 pt-2 sm:pt-4 lg:pt-6 animate-fadeIn bg-slate-50/70 text-slate-900 perspective-1000">
+      {/* 3D Ambient Universe Background */}
+      <ThreeCanvas3D intensity={0.7} />
+
       {/* 3. SECTION: CLIENT ACCOUNT / PROFILE SECTION (Requirement 2) */}
-      <section className="max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto px-4 sm:px-6 w-full mb-6">
-        <div className="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-7 shadow-sm space-y-6">
+      <section className="max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto px-4 sm:px-6 w-full mb-6 preserve-3d">
+        <div className="bg-white/95 backdrop-blur-md border border-slate-200/90 border-b-[5px] border-b-purple-400/80 rounded-3xl p-5 sm:p-7 shadow-[0_6px_0_0_#DDD6FE,0_16px_30px_-6px_rgba(124,58,237,0.14)] space-y-6">
           {/* Header Profile Section */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-5">
             <div className="flex items-center gap-3.5">
               <div className="relative">
-                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-600 text-white flex items-center justify-center font-bold text-lg sm:text-xl shadow-md shadow-purple-500/20">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-600 text-white flex items-center justify-center font-bold text-lg sm:text-xl shadow-[0_4px_12px_rgba(124,58,237,0.35),inset_0_1.5px_1px_rgba(255,255,255,0.7)] border border-white/40">
                   {(currentUser.name || 'U').charAt(0).toUpperCase()}
                 </div>
                 <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-white flex items-center justify-center shadow-xs border border-slate-200">

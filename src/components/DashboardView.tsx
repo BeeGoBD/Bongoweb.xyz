@@ -10,6 +10,8 @@ import { WebsiteCategory, WebsiteDemo } from '../types';
 import { WEBSITE_DEMOS } from '../data/mockData';
 import { useLanguage } from '../utils/LanguageContext';
 import { apiGetWebsites } from '../utils/api';
+import Card3D from './Card3D';
+import ThreeCanvas3D from './ThreeCanvas3D';
 
 interface DashboardViewProps {
   initialCategory?: WebsiteCategory;
@@ -262,25 +264,30 @@ export default function DashboardView({
     <div 
       id="dashboard-view"
       data-view="dashboard"
-      className="w-full h-[calc(100dvh-4rem-4rem)] sm:h-[calc(100vh-4.25rem-4.5rem)] max-h-[calc(100dvh-4rem-4rem)] sm:max-h-[calc(100vh-4.25rem-4.5rem)] lg:h-auto lg:min-h-[calc(100vh-4.75rem)] lg:max-h-none overflow-hidden lg:overflow-visible flex flex-col justify-between items-center px-4 sm:px-6 lg:px-8 xl:px-12 py-2.5 sm:py-4 lg:py-8 select-none bg-[#F1F5F9] text-slate-900 font-sans"
+      className="relative w-full h-[calc(100dvh-4rem-4rem)] sm:h-[calc(100vh-4.25rem-4.5rem)] max-h-[calc(100dvh-4rem-4rem)] sm:max-h-[calc(100vh-4.25rem-4.5rem)] lg:h-auto lg:min-h-[calc(100vh-4.75rem)] lg:max-h-none overflow-hidden lg:overflow-visible flex flex-col justify-between items-center px-4 sm:px-6 lg:px-8 xl:px-12 py-2.5 sm:py-4 lg:py-8 select-none bg-slate-50/70 text-slate-900 font-sans perspective-1500"
     >
+      {/* 3D Interactive Three.js WebGL Universe in Background */}
+      <ThreeCanvas3D intensity={1.1} />
+
       {/* Main Targeted Section (section:nth-of-type(1)) */}
-      <section className="max-w-2xl sm:max-w-3xl lg:max-w-6xl xl:max-w-7xl w-full mx-auto h-full lg:h-auto my-auto flex flex-col justify-between lg:justify-center py-1 sm:py-2.5 lg:py-0 lg:gap-6 xl:gap-8">
+      <section className="max-w-2xl sm:max-w-3xl lg:max-w-6xl xl:max-w-7xl w-full mx-auto h-full lg:h-auto my-auto flex flex-col justify-between lg:justify-center py-1 sm:py-2.5 lg:py-0 lg:gap-6 xl:gap-8 preserve-3d">
         
-        {/* Simple Dashboard Header */}
-        <header className="shrink-0 text-center py-1 sm:py-2">
-          <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-slate-900 tracking-tight">
-            {language === 'en' ? 'Select Your Business Category' : 'আপনার ব্যবসার ক্যাটাগরি বেছে নিন'}
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-md mx-auto">
+        {/* Simple 3D Dashboard Header */}
+        <header className="shrink-0 text-center py-1 sm:py-2 preserve-3d">
+          <div className="inline-block translate-z-sm">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-slate-900 tracking-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.06)]">
+              {language === 'en' ? 'Select Your Business Category' : 'আপনার ব্যবসার ক্যাটাগরি বেছে নিন'}
+            </h1>
+          </div>
+          <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-md mx-auto translate-z-xs font-medium">
             {language === 'en' 
-              ? 'Click any category to explore live website demos' 
+              ? 'Click any 3D category card to explore live website demos' 
               : 'যেকোনো ক্যাটাগরিতে ক্লিক করে সরাসরি লাইভ ওয়েবসাইট ডেমো দেখুন'}
           </p>
         </header>
 
         {/* 1. Mobile Category Grid: 2×2 3D Grid of Cards (Mobile Only: < lg) */}
-        <div className="grid grid-cols-2 gap-3 sm:gap-4 my-auto w-full py-2 min-h-0 lg:hidden">
+        <div className="grid grid-cols-2 gap-3.5 sm:gap-4 my-auto w-full py-2 min-h-0 lg:hidden perspective-1000 preserve-3d">
           {categoryContacts.map((cat) => {
             const IconComponent = cat.icon;
             const shortSubBn = 
@@ -295,32 +302,28 @@ export default function DashboardView({
               'Grocery & Express Delivery';
 
             return (
-              <div
+              <Card3D
                 key={cat.id}
+                maxTilt={12}
+                scale={1.03}
+                onClick={() => handleSelectCategory(cat)}
                 role="button"
                 tabIndex={0}
-                onClick={() => handleSelectCategory(cat)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    handleSelectCategory(cat);
-                  }
-                }}
                 aria-label={`Select ${language === 'en' ? cat.nameEn : cat.nameBn}`}
-                className={`group w-full aspect-square p-2.5 sm:p-4 rounded-2xl sm:rounded-3xl ${cat.cardBg} ${cat.card3d} transition-all duration-200 cursor-pointer flex flex-col justify-between hover:-translate-y-1 outline-none focus-visible:ring-2 focus-visible:ring-purple-400 relative overflow-hidden`}
+                className={`group w-full aspect-square p-2.5 sm:p-4 rounded-2xl sm:rounded-3xl ${cat.cardBg} ${cat.card3d} cursor-pointer flex flex-col justify-between outline-none focus-visible:ring-2 focus-visible:ring-purple-400`}
               >
                 {/* Top Row: 3D Category Icon & Visual Tag */}
-                <div className="flex items-start justify-between gap-1.5">
-                  <div className={`w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl ${cat.icon3d} flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-105 group-hover:-translate-y-0.5`}>
+                <div className="flex items-start justify-between gap-1.5 translate-z-md">
+                  <div className={`w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl ${cat.icon3d} flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-110 shadow-lg`}>
                     <IconComponent className="w-4.5 h-4.5 sm:w-5.5 sm:h-5.5 stroke-[2.2]" />
                   </div>
-                  <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/95 text-slate-700 border border-slate-200/90 shadow-2xs truncate max-w-[55%]">
+                  <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/95 text-slate-700 border border-slate-200/90 shadow-2xs truncate max-w-[55%] translate-z-sm">
                     {language === 'en' ? cat.tagEn : cat.tagBn}
                   </span>
                 </div>
 
                 {/* Center Content: Title & Clear Business Descriptor */}
-                <div className="my-auto py-0.5 min-w-0">
+                <div className="my-auto py-0.5 min-w-0 translate-z-sm">
                   <h2 className="text-[13px] sm:text-[15px] font-bold text-slate-900 group-hover:text-purple-700 transition-colors leading-snug tracking-tight truncate">
                     {language === 'en' ? cat.nameEn : cat.nameBn}
                   </h2>
@@ -330,7 +333,7 @@ export default function DashboardView({
                 </div>
 
                 {/* Bottom Row: Starting Price & 3D "ডেমো" Button */}
-                <div className="pt-1.5 sm:pt-2 border-t border-slate-200/80 flex items-center justify-between gap-1">
+                <div className="pt-1.5 sm:pt-2 border-t border-slate-200/80 flex items-center justify-between gap-1 translate-z-md">
                   <div>
                     <span className="text-[8px] sm:text-[9px] text-slate-500 block font-medium leading-none">
                       {language === 'en' ? 'Starts at' : 'শুরু মাত্র'}
@@ -340,50 +343,46 @@ export default function DashboardView({
                     </span>
                   </div>
 
-                  <div className={`px-2 py-1 sm:px-2.5 sm:py-1 rounded-lg ${cat.btn3d} text-[10px] sm:text-[11px] font-bold transition-all duration-200 flex items-center gap-0.5 shrink-0`}>
+                  <div className={`px-2 py-1 sm:px-2.5 sm:py-1 rounded-lg ${cat.btn3d} text-[10px] sm:text-[11px] font-bold transition-all duration-200 flex items-center gap-0.5 shrink-0 btn-3d-tactile`}>
                     <span>{language === 'en' ? 'Demos' : 'ডেমো'}</span>
                     <ChevronRight className="w-3 h-3 stroke-[2.5] group-hover:translate-x-0.5 transition-transform" />
                   </div>
                 </div>
-              </div>
+              </Card3D>
             );
           })}
         </div>
 
-        {/* 2. Laptop / Desktop View: 3D 4-Card Deck (lg: & xl: screens) */}
-        <div className="hidden lg:grid lg:grid-cols-4 lg:gap-5 xl:gap-6 w-full py-2">
+        {/* 2. Laptop / Desktop View: 3D 4-Card Deck with Mouse Tilt Physics (lg: & xl: screens) */}
+        <div className="hidden lg:grid lg:grid-cols-4 lg:gap-5 xl:gap-6 w-full py-2 perspective-1500 preserve-3d">
           {categoryContacts.map((cat) => {
             const IconComponent = cat.icon;
             const features = language === 'en' ? cat.featuresEn : cat.featuresBn;
 
             return (
-              <div
+              <Card3D
                 key={cat.id}
+                maxTilt={14}
+                scale={1.035}
+                onClick={() => handleSelectCategory(cat)}
                 role="button"
                 tabIndex={0}
-                onClick={() => handleSelectCategory(cat)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    handleSelectCategory(cat);
-                  }
-                }}
                 aria-label={`Select ${language === 'en' ? cat.nameEn : cat.nameBn}`}
-                className={`group w-full p-5 xl:p-6 rounded-2xl xl:rounded-3xl ${cat.cardBg} ${cat.card3d} transition-all duration-200 cursor-pointer flex flex-col justify-between hover:-translate-y-1.5 outline-none focus-visible:ring-2 focus-visible:ring-purple-400`}
+                className={`group w-full p-5 xl:p-6 rounded-2xl xl:rounded-3xl ${cat.cardBg} ${cat.card3d} cursor-pointer flex flex-col justify-between outline-none focus-visible:ring-2 focus-visible:ring-purple-400`}
               >
                 <div>
-                  {/* Top Row: 3D Icon + Visual Tag */}
-                  <div className="flex items-center justify-between gap-2">
-                    <div className={`w-12 h-12 xl:w-13 xl:h-13 rounded-2xl ${cat.icon3d} flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-105 group-hover:-translate-y-0.5`}>
+                  {/* Top Row: 3D Elevated Icon + Visual Tag */}
+                  <div className="flex items-center justify-between gap-2 translate-z-lg">
+                    <div className={`w-12 h-12 xl:w-13 xl:h-13 rounded-2xl ${cat.icon3d} flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-110 shadow-lg`}>
                       <IconComponent className="w-6 h-6 stroke-[2.2]" />
                     </div>
-                    <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-white/95 text-slate-700 border border-slate-200/90 shadow-2xs">
+                    <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-white/95 text-slate-700 border border-slate-200/90 shadow-2xs translate-z-sm">
                       {language === 'en' ? cat.tagEn : cat.tagBn}
                     </span>
                   </div>
 
-                  {/* Title & Clear Description */}
-                  <div className="mt-4">
+                  {/* Title & Clear Description with 3D Depth */}
+                  <div className="mt-4 translate-z-md">
                     <h2 className="text-[17px] xl:text-[18px] font-bold text-slate-900 group-hover:text-purple-700 transition-colors leading-snug tracking-tight">
                       {language === 'en' ? cat.nameEn : cat.nameBn}
                     </h2>
@@ -392,12 +391,12 @@ export default function DashboardView({
                     </p>
                   </div>
 
-                  {/* Feature Tags: Instantly Understand Capabilities */}
-                  <div className="flex flex-wrap gap-1.5 mt-3.5">
+                  {/* Feature Tags with Subtle Elevation */}
+                  <div className="flex flex-wrap gap-1.5 mt-3.5 translate-z-sm">
                     {features.slice(0, 3).map((feat, idx) => (
                       <span 
                         key={idx}
-                        className="text-[10.5px] font-medium px-2 py-0.5 rounded-md bg-white/90 text-slate-700 border border-slate-200/90 shadow-2xs"
+                        className="text-[10.5px] font-medium px-2 py-0.5 rounded-md bg-white/95 text-slate-700 border border-slate-200/90 shadow-2xs"
                       >
                         {feat}
                       </span>
@@ -405,8 +404,8 @@ export default function DashboardView({
                   </div>
                 </div>
 
-                {/* Bottom Row: Starting Price & 3D "View Demos" Button */}
-                <div className="pt-4 mt-5 border-t border-slate-200/70 flex items-center justify-between">
+                {/* Bottom Row: Starting Price & 3D View Demos Button */}
+                <div className="pt-4 mt-5 border-t border-slate-200/70 flex items-center justify-between translate-z-lg">
                   <div>
                     <span className="text-[9.5px] xl:text-[10px] text-slate-500 block font-medium leading-none">
                       {language === 'en' ? 'Starts at' : 'শুরু মাত্র'}
@@ -416,20 +415,20 @@ export default function DashboardView({
                     </span>
                   </div>
 
-                  <div className={`px-3.5 py-1.5 rounded-xl ${cat.btn3d} text-xs font-bold flex items-center gap-1.5 transition-all duration-200`}>
+                  <div className={`px-3.5 py-1.5 rounded-xl ${cat.btn3d} text-xs font-bold flex items-center gap-1.5 transition-all duration-200 btn-3d-tactile`}>
                     <span>{language === 'en' ? 'View Demos' : 'ডেমো দেখুন'}</span>
                     <ChevronRight className="w-3.5 h-3.5 stroke-[2.5] group-hover:translate-x-0.5 transition-transform" />
                   </div>
                 </div>
-              </div>
+              </Card3D>
             );
           })}
         </div>
 
         {/* Clean, Subtle Micro Footer */}
-        <footer className="shrink-0 text-center py-1">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/95 border border-slate-200 shadow-2xs text-[11px] sm:text-xs lg:text-sm text-slate-700 font-medium">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+        <footer className="shrink-0 text-center py-1 preserve-3d">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/95 border border-slate-200 shadow-[0_3px_0_0_#CBD5E1,0_6px_12px_rgba(0,0,0,0.05)] text-[11px] sm:text-xs lg:text-sm text-slate-700 font-medium translate-z-sm">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-xs" />
             <span>
               {language === 'en' 
                 ? 'Ready in 24h • Domain & Hosting Included • 100% Responsive' 

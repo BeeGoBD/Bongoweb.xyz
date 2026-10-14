@@ -175,8 +175,8 @@ export default function SideMenuDrawer({
             </button>
           </div>
 
-          {/* Navigation Links */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-2">
+          {/* Navigation Links with 3D Depth */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-2.5 perspective-1000">
             {/* 1. আপনার Order এর বিস্তারিত */}
             <button
               onClick={() => {
@@ -187,10 +187,10 @@ export default function SideMenuDrawer({
                   onSelectTab('after-order');
                 }
               }}
-              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl bg-slate-50 hover:bg-purple-50/70 text-slate-700 hover:text-purple-700 transition-all text-xs font-bold text-left cursor-pointer group border border-slate-200 hover:border-purple-300 shadow-xs"
+              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl bg-white hover:bg-purple-50/70 text-slate-700 hover:text-purple-700 transition-all text-xs font-bold text-left cursor-pointer group border border-slate-200 border-b-[3.5px] border-b-slate-300 hover:border-b-purple-400 shadow-[0_3px_0_0_#CBD5E1] hover:shadow-[0_3px_0_0_#C084FC] active:border-b active:translate-y-[2px] active:shadow-none btn-3d-tactile"
             >
-              <div className="w-9 h-9 rounded-xl bg-white group-hover:bg-purple-100 flex items-center justify-center text-purple-600 border border-slate-200 shadow-xs shrink-0 transition-colors">
-                <ClipboardCheck className="w-5 h-5" />
+              <div className="w-10 h-10 rounded-xl bg-purple-50 group-hover:bg-purple-100 flex items-center justify-center text-purple-600 border border-purple-200 shadow-xs shrink-0 transition-colors">
+                <ClipboardCheck className="w-5 h-5 stroke-[2.2]" />
               </div>
               <div className="flex-1 min-w-0">
                 <span className="block text-sm font-black text-slate-900 group-hover:text-purple-700">
@@ -212,10 +212,10 @@ export default function SideMenuDrawer({
                   onSelectTab('account');
                 }
               }}
-              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl bg-slate-50 hover:bg-purple-50/70 text-slate-700 hover:text-purple-700 transition-all text-xs font-bold text-left cursor-pointer group border border-slate-200 hover:border-purple-300 shadow-xs"
+              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl bg-white hover:bg-purple-50/70 text-slate-700 hover:text-purple-700 transition-all text-xs font-bold text-left cursor-pointer group border border-slate-200 border-b-[3.5px] border-b-slate-300 hover:border-b-purple-400 shadow-[0_3px_0_0_#CBD5E1] hover:shadow-[0_3px_0_0_#C084FC] active:border-b active:translate-y-[2px] active:shadow-none btn-3d-tactile"
             >
-              <div className="w-9 h-9 rounded-xl bg-white group-hover:bg-[#7C3AED] flex items-center justify-center text-purple-600 group-hover:text-white border border-slate-200 shadow-xs shrink-0 transition-colors">
-                <Key className="w-5 h-5" />
+              <div className="w-10 h-10 rounded-xl bg-purple-50 group-hover:bg-[#7C3AED] flex items-center justify-center text-purple-600 group-hover:text-white border border-purple-200 shadow-xs shrink-0 transition-colors">
+                <Key className="w-5 h-5 stroke-[2.2]" />
               </div>
               <div className="flex-1 min-w-0">
                 <span className="block text-sm font-black text-slate-900 group-hover:text-purple-700">
@@ -233,10 +233,10 @@ export default function SideMenuDrawer({
                 onSelectTab('live-chat');
                 onClose();
               }}
-              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl bg-slate-50 hover:bg-purple-50/70 text-slate-700 hover:text-purple-700 transition-all text-xs font-bold text-left cursor-pointer group border border-slate-200 hover:border-purple-300 shadow-xs"
+              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl bg-white hover:bg-purple-50/70 text-slate-700 hover:text-purple-700 transition-all text-xs font-bold text-left cursor-pointer group border border-slate-200 border-b-[3.5px] border-b-slate-300 hover:border-b-purple-400 shadow-[0_3px_0_0_#CBD5E1] hover:shadow-[0_3px_0_0_#C084FC] active:border-b active:translate-y-[2px] active:shadow-none btn-3d-tactile"
             >
-              <div className="w-9 h-9 rounded-xl bg-white group-hover:bg-purple-100 flex items-center justify-center text-purple-600 border border-slate-200 shadow-xs shrink-0 transition-colors">
-                <MessageCircle className="w-5 h-5" />
+              <div className="w-10 h-10 rounded-xl bg-purple-50 group-hover:bg-purple-100 flex items-center justify-center text-purple-600 border border-purple-200 shadow-xs shrink-0 transition-colors">
+                <MessageCircle className="w-5 h-5 stroke-[2.2]" />
               </div>
               <div className="flex-1 min-w-0">
                 <span className="block text-sm font-black text-slate-900 group-hover:text-purple-700">
@@ -251,10 +251,10 @@ export default function SideMenuDrawer({
             {/* 4. Support Ticket */}
             <button
               onClick={handleOpenTicket}
-              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl bg-slate-50 hover:bg-purple-50/70 text-slate-700 hover:text-purple-700 transition-all text-xs font-bold text-left cursor-pointer group border border-slate-200 hover:border-purple-300 shadow-xs"
+              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl bg-white hover:bg-purple-50/70 text-slate-700 hover:text-purple-700 transition-all text-xs font-bold text-left cursor-pointer group border border-slate-200 border-b-[3.5px] border-b-slate-300 hover:border-b-purple-400 shadow-[0_3px_0_0_#CBD5E1] hover:shadow-[0_3px_0_0_#C084FC] active:border-b active:translate-y-[2px] active:shadow-none btn-3d-tactile"
             >
-              <div className="w-9 h-9 rounded-xl bg-white group-hover:bg-purple-100 flex items-center justify-center text-purple-600 border border-slate-200 shadow-xs shrink-0 transition-colors">
-                <Ticket className="w-5 h-5" />
+              <div className="w-10 h-10 rounded-xl bg-purple-50 group-hover:bg-purple-100 flex items-center justify-center text-purple-600 border border-purple-200 shadow-xs shrink-0 transition-colors">
+                <Ticket className="w-5 h-5 stroke-[2.2]" />
               </div>
               <div className="flex-1 min-w-0">
                 <span className="block text-sm font-black text-slate-900 group-hover:text-purple-700">
@@ -269,13 +269,13 @@ export default function SideMenuDrawer({
             {/* 5. Testimonials (Client Reviews & Ratings) */}
             <button
               onClick={() => setTestimonialsModalOpen(true)}
-              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl bg-slate-50 hover:bg-purple-50/70 text-slate-700 hover:text-purple-700 transition-all text-xs font-bold text-left cursor-pointer group border border-slate-200 hover:border-purple-300 shadow-xs"
+              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl bg-white hover:bg-amber-50/70 text-slate-700 hover:text-amber-700 transition-all text-xs font-bold text-left cursor-pointer group border border-slate-200 border-b-[3.5px] border-b-slate-300 hover:border-b-amber-400 shadow-[0_3px_0_0_#CBD5E1] hover:shadow-[0_3px_0_0_#FBBF24] active:border-b active:translate-y-[2px] active:shadow-none btn-3d-tactile"
             >
-              <div className="w-9 h-9 rounded-xl bg-white group-hover:bg-amber-50 flex items-center justify-center text-amber-500 border border-slate-200 shadow-xs shrink-0 transition-colors">
+              <div className="w-10 h-10 rounded-xl bg-amber-50 group-hover:bg-amber-100 flex items-center justify-center text-amber-500 border border-amber-200 shadow-xs shrink-0 transition-colors">
                 <Star className="w-5 h-5 fill-amber-500" />
               </div>
               <div className="flex-1 min-w-0">
-                <span className="block text-sm font-black text-slate-900 group-hover:text-purple-700">
+                <span className="block text-sm font-black text-slate-900 group-hover:text-amber-700">
                   ৫. Testimonials (Client Reviews & Ratings)
                 </span>
                 <span className="text-[11px] text-slate-500 font-normal block truncate">
@@ -287,10 +287,10 @@ export default function SideMenuDrawer({
             {/* 6. Call Back Button (Menu Option for all users) */}
             <button
               onClick={handleOpenCallBack}
-              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl bg-slate-50 hover:bg-emerald-50/70 text-slate-700 hover:text-emerald-700 transition-all text-xs font-bold text-left cursor-pointer group border border-slate-200 hover:border-emerald-300 shadow-xs relative"
+              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl bg-white hover:bg-emerald-50/70 text-slate-700 hover:text-emerald-700 transition-all text-xs font-bold text-left cursor-pointer group border border-slate-200 border-b-[3.5px] border-b-slate-300 hover:border-b-emerald-400 shadow-[0_3px_0_0_#CBD5E1] hover:shadow-[0_3px_0_0_#34D399] active:border-b active:translate-y-[2px] active:shadow-none btn-3d-tactile relative"
             >
-              <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center border border-emerald-500 shadow-xs shrink-0">
-                <PhoneCall className="w-5 h-5" />
+              <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center border border-emerald-500 shadow-xs shrink-0">
+                <PhoneCall className="w-5 h-5 stroke-[2.2]" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">

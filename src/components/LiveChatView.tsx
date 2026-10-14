@@ -17,6 +17,7 @@ import { SupportChatThread, SupportChatMessage, UserAccount } from '../types';
 import { getClientSecurityCode, getSecurityCodeRemainingSeconds, formatRemainingTime } from '../utils/securityCode';
 import { useLanguage } from '../utils/LanguageContext';
 import { realtimeManager } from '../utils/realtime';
+import ThreeCanvas3D from './ThreeCanvas3D';
 
 export default function LiveChatView() {
   const { t, language } = useLanguage();
@@ -315,12 +316,15 @@ export default function LiveChatView() {
     : 5;
 
   return (
-    <div className="w-full max-w-4xl lg:max-w-5xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8 lg:py-10 pb-28 lg:pb-12 font-sans animate-fadeIn">
+    <div className="relative w-full max-w-4xl lg:max-w-5xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8 lg:py-10 pb-28 lg:pb-12 font-sans animate-fadeIn perspective-1000">
+      {/* 3D Ambient Universe Background */}
+      <ThreeCanvas3D intensity={0.8} />
+
       {/* Main Content: Chat View or Start Form */}
       {!isChatActive ? (
         /* STEP 1: INITIAL CHAT REGISTRATION / START FORM */
-        <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-10 lg:p-12 shadow-xl max-w-xl lg:max-w-2xl mx-auto text-slate-900">
-          <div className="w-14 h-14 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center mx-auto mb-4 border border-purple-200 shadow-xs">
+        <div className="bg-white/95 backdrop-blur-md border border-slate-200/90 border-b-[5px] border-b-purple-400/80 rounded-3xl p-6 sm:p-10 lg:p-12 shadow-[0_8px_0_0_#DDD6FE,0_20px_35px_-6px_rgba(124,58,237,0.18)] max-w-xl lg:max-w-2xl mx-auto text-slate-900 preserve-3d">
+          <div className="w-14 h-14 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center mx-auto mb-4 border border-purple-200 border-b-2 border-b-purple-300 shadow-sm translate-z-md">
             <MessageSquare className="w-7 h-7 stroke-[2.2]" />
           </div>
 
