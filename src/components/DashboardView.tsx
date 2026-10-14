@@ -275,15 +275,10 @@ export default function DashboardView({
         {/* Simple 3D Dashboard Header */}
         <header className="shrink-0 text-center py-1 sm:py-2 preserve-3d">
           <div className="inline-block translate-z-sm">
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-slate-900 tracking-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.06)]">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-slate-900 tracking-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.06)] underline underline-offset-8 decoration-purple-600 decoration-2 sm:decoration-[3px]">
               {language === 'en' ? 'Select Your Business Category' : 'আপনার ব্যবসার ক্যাটাগরি বেছে নিন'}
             </h1>
           </div>
-          <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-md mx-auto translate-z-xs font-medium">
-            {language === 'en' 
-              ? 'Click any 3D category card to explore live website demos' 
-              : 'যেকোনো ক্যাটাগরিতে ক্লিক করে সরাসরি লাইভ ওয়েবসাইট ডেমো দেখুন'}
-          </p>
         </header>
 
         {/* 1. Mobile Category Grid: 2×2 3D Grid of Cards (Mobile Only: < lg) */}

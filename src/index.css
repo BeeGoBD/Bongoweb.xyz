@@ -274,3 +274,29 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   box-shadow: 0 4px 0 0 #34D399, 0 8px 16px -2px rgba(16, 185, 129, 0.18);
 }
 
+/* Typewriter & Sequential Walkthrough Animations */
+@keyframes cursorBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes wordReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(4px) scale(0.97);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-cursor-blink {
+  animation: cursorBlink 0.7s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-word-pop {
+  animation: wordReveal 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+

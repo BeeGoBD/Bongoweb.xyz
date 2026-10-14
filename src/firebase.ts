@@ -1,24 +1,24 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { initializeFirestore, getFirestore, setLogLevel } from 'firebase/firestore';
+import { initializeFirestore, getFirestore, setLogLevel, doc, getDocFromServer } from 'firebase/firestore';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 import firebaseConfig from '../firebase-applet-config.json';
 
 // Initialize Firebase App
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
-// Use error log level to avoid verbose connection retry warnings in console
+// Set silent log level so Firestore connection retries/offline warnings do not pollute console
 try {
-  setLogLevel('error');
+  setLogLevel('silent');
 } catch (_) {}
 
-// Initialize Cloud Firestore using experimentalForceLongPolling to avoid 10-second backend connection timeouts in cloud sandboxes & proxies
+// Initialize Cloud Firestore with auto-detect long polling and ignore undefined properties
 let firestoreInstance;
 try {
   firestoreInstance = initializeFirestore(
     app,
     {
       ignoreUndefinedProperties: true,
-      experimentalForceLongPolling: true,
+      experimentalAutoDetectLongPolling: true,
     },
     firebaseConfig.firestoreDatabaseId || undefined
   );
@@ -29,6 +29,21 @@ try {
 }
 
 export const db = firestoreInstance;
+
+// Validate Connection to Firestore (Per Firebase Integration Skill)
+async function testConnection() {
+  try {
+    await getDocFromServer(doc(db, 'test', 'connection'));
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('the client is offline')) {
+      // Graceful offline operation
+    }
+  }
+}
+
+if (typeof window !== 'undefined') {
+  testConnection();
+}
 
 // Initialize Firebase Auth & Google Auth Provider
 export const auth = getAuth(app);

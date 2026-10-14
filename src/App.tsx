@@ -15,7 +15,6 @@ import AdminPanelView from './components/AdminPanelView';
 import LandscapeOrderDetailsModal from './components/LandscapeOrderDetailsModal';
 import WebsiteCredentialsModal from './components/WebsiteCredentialsModal';
 import CategoryWebsitesView from './components/CategoryWebsitesView';
-import ThreeCanvas from './components/ThreeCanvas';
 
 type ViewMode = 
   | 'dashboard' 
@@ -50,6 +49,7 @@ export default function App() {
   });
   const [selectedCategory, setSelectedCategory] = useState<WebsiteCategory>('ecommerce');
   const [activeDemo, setActiveDemo] = useState<WebsiteDemo | null>(null);
+  const [afterOrderKey, setAfterOrderKey] = useState(0);
 
   // Modals state
   const [notificationsOpen, setNotificationsOpen] = useState(false);
@@ -57,7 +57,6 @@ export default function App() {
   const [sideMenuOpen, setSideMenuOpen] = useState(false);
   const [landscapeOrderModalOpen, setLandscapeOrderModalOpen] = useState(false);
   const [websiteCredentialsModalOpen, setWebsiteCredentialsModalOpen] = useState(false);
-  const [isStudio3DOpen, setIsStudio3DOpen] = useState(false);
 
   // Helper to extract demo by code (e.g. 1042 or #1042 or custom uploaded websites)
   const findDemoByCode = (rawCode: string): WebsiteDemo | null => {
@@ -272,6 +271,7 @@ export default function App() {
       setViewMode('dashboard');
       window.history.pushState({}, '', '/');
     } else if (tab === 'after-order') {
+      setAfterOrderKey((prev) => prev + 1);
       setViewMode('after-order');
       window.history.pushState({}, '', '/after-order');
     } else if (tab === 'live-chat') {
@@ -336,8 +336,6 @@ export default function App() {
             onBackToCategoryPicker={handleReturnToDashboard}
             onOpenNotifications={() => setNotificationsOpen(true)}
             onOpenMenu={() => setSideMenuOpen(true)}
-            onToggleStudio3D={() => setIsStudio3DOpen(prev => !prev)}
-            isStudio3DActive={isStudio3DOpen}
             unreadCount={unreadNotifications}
             currentCategory={selectedCategory}
             activeTab={getActiveBottomTab()}
@@ -371,6 +369,7 @@ export default function App() {
             {/* After Order (URL: "/after-order") */}
             {viewMode === 'after-order' && (
               <AfterOrderView
+                key={afterOrderKey}
                 onGoToDashboard={() => handleTabChange('dashboard')}
                 onOpenLiveChat={() => handleTabChange('live-chat')}
               />
@@ -449,19 +448,6 @@ export default function App() {
           handleTabChange('live-chat');
         }}
       />
-
-      {/* Interactive Full Screen 3D Spatial Studio Overlay */}
-      {isStudio3DOpen && (
-        <ThreeCanvas
-          isStudioMode={true}
-          currentCategory={selectedCategory}
-          onToggleStudioMode={() => setIsStudio3DOpen(false)}
-          onSelectCategory={(cat) => {
-            setSelectedCategory(cat);
-            handleOpenCategoryWebsites(cat);
-          }}
-        />
-      )}
     </div>
   );
 }
