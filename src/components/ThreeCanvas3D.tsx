@@ -7,6 +7,11 @@ interface ThreeCanvas3DProps {
   interactive?: boolean;
 }
 
+/**
+ * High-performance, elegant 3D live background.
+ * Completely free of big bulky shapes or dark circles.
+ * Features a silky-smooth, interactive cosmic particle constellation & ambient stardust web.
+ */
 export default function ThreeCanvas3D({
   className = "fixed inset-0 pointer-events-none -z-10 overflow-hidden",
   intensity = 1.0,
@@ -21,8 +26,8 @@ export default function ThreeCanvas3D({
     // 1. Scene, Camera, Renderer
     const scene = new THREE.Scene();
     
-    // Subtle fog for infinite depth
-    scene.fog = new THREE.FogExp2(0xF1F5F9, 0.035);
+    // Subtle fog for infinite depth with light atmospheric tone
+    scene.fog = new THREE.FogExp2(0xF8FAFC, 0.025);
 
     const camera = new THREE.PerspectiveCamera(
       50,
@@ -40,152 +45,146 @@ export default function ThreeCanvas3D({
     });
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.15;
+    renderer.toneMappingExposure = 1.1;
     renderer.setPixelRatio(isHeadless ? 1 : Math.min(window.devicePixelRatio, 2));
     renderer.setSize(container.clientWidth || window.innerWidth, container.clientHeight || window.innerHeight);
     renderer.setClearColor(0x000000, 0);
 
     container.appendChild(renderer.domElement);
 
-    // 2. Lighting Rig (Studio 3-Point Lighting)
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.4 * intensity);
+    // 2. Ambient & Responsive Pointer Lighting
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.2 * intensity);
     scene.add(ambientLight);
 
-    const keyLight = new THREE.DirectionalLight(0x9333EA, 2.5 * intensity);
-    keyLight.position.set(6, 8, 8);
-    scene.add(keyLight);
-
-    const fillLight = new THREE.DirectionalLight(0x3B82F6, 1.8 * intensity);
-    fillLight.position.set(-8, -4, 6);
-    scene.add(fillLight);
-
-    const rimLight = new THREE.DirectionalLight(0xF59E0B, 1.5 * intensity);
-    rimLight.position.set(0, -6, -4);
-    scene.add(rimLight);
-
-    // Mouse-following point light
-    const pointerLight = new THREE.PointLight(0xA855F7, 2.0 * intensity, 25);
-    pointerLight.position.set(0, 0, 5);
+    const pointerLight = new THREE.PointLight(0x9333EA, 2.2 * intensity, 22);
+    pointerLight.position.set(0, 0, 6);
     scene.add(pointerLight);
 
-    // 3. Floating 3D Geometries with PBR Metallic & Crystal Materials
-    const objectsGroup = new THREE.Group();
-    scene.add(objectsGroup);
+    const accentLight = new THREE.PointLight(0x06B6D4, 1.6 * intensity, 20);
+    accentLight.position.set(-6, -4, 4);
+    scene.add(accentLight);
 
-    // Materials
-    const purpleCrystalMat = new THREE.MeshPhysicalMaterial({
-      color: 0x7C3AED,
-      emissive: 0x4C1D95,
-      emissiveIntensity: 0.15,
-      metalness: 0.85,
-      roughness: 0.2,
-      clearcoat: 1.0,
-      clearcoatRoughness: 0.1,
-      reflectivity: 0.9,
-      transmission: 0.15,
-      thickness: 1.2
-    });
-
-    const goldMetalMat = new THREE.MeshStandardMaterial({
-      color: 0xF59E0B,
-      metalness: 0.9,
-      roughness: 0.25
-    });
-
-    const cyanGemMat = new THREE.MeshPhysicalMaterial({
-      color: 0x06B6D4,
-      emissive: 0x0891B2,
-      emissiveIntensity: 0.2,
-      metalness: 0.75,
-      roughness: 0.15,
-      clearcoat: 0.9
-    });
-
-    const emeraldMat = new THREE.MeshStandardMaterial({
-      color: 0x10B981,
-      metalness: 0.8,
-      roughness: 0.3
-    });
-
-    const violetMat = new THREE.MeshStandardMaterial({
-      color: 0xC084FC,
-      metalness: 0.6,
-      roughness: 0.4
-    });
-
-    // Mesh 1: Torus Knot (Center-top-right ambient sculpture)
-    const torusKnotGeo = new THREE.TorusKnotGeometry(1.6, 0.42, 100, 16);
-    const torusKnot = new THREE.Mesh(torusKnotGeo, purpleCrystalMat);
-    torusKnot.position.set(6.5, 3.2, -3);
-    torusKnot.scale.set(0.85, 0.85, 0.85);
-    objectsGroup.add(torusKnot);
-
-    // Mesh 2: Icosahedron Crystal (Left side)
-    const icosaGeo = new THREE.IcosahedronGeometry(1.5, 0);
-    const icosa = new THREE.Mesh(icosaGeo, cyanGemMat);
-    icosa.position.set(-7, 2, -2);
-    objectsGroup.add(icosa);
-
-    // Mesh 3: Beveled Octahedron (Bottom-right)
-    const octaGeo = new THREE.OctahedronGeometry(1.4, 0);
-    const octa = new THREE.Mesh(octaGeo, goldMetalMat);
-    octa.position.set(7.2, -4.2, -2.5);
-    objectsGroup.add(octa);
-
-    // Mesh 4: Dodecahedron (Bottom-left)
-    const dodecaGeo = new THREE.DodecahedronGeometry(1.3, 0);
-    const dodeca = new THREE.Mesh(dodecaGeo, emeraldMat);
-    dodeca.position.set(-6.8, -4.0, -3.5);
-    objectsGroup.add(dodeca);
-
-    // Mesh 5: Floating Ring (Top-left orbit)
-    const ringGeo = new THREE.TorusGeometry(1.8, 0.12, 16, 64);
-    const ring = new THREE.Mesh(ringGeo, violetMat);
-    ring.position.set(-4.5, 4.5, -4);
-    ring.rotation.x = Math.PI / 3;
-    objectsGroup.add(ring);
-
-    // Mesh 6: Small floating rounded cubes scattered
-    const cubeGeo = new THREE.BoxGeometry(0.8, 0.8, 0.8);
-    const floatingCubes: THREE.Mesh[] = [];
-    const cubeCoords = [
-      [3.5, -2, -1],
-      [-2.8, -3.5, -2],
-      [-4.2, 0.5, -2.5],
-      [4.2, 1.2, -2]
+    // 3. Delicate Constellation Network (Micro-Nodes & Dynamic Connection Lines)
+    const nodeCount = 95;
+    const nodeCoords: THREE.Vector3[] = [];
+    const nodeVelocities: THREE.Vector3[] = [];
+    const nodeColors = [
+      new THREE.Color(0x7C3AED), // Brand Purple
+      new THREE.Color(0xA855F7), // Lilac
+      new THREE.Color(0x3B82F6), // Sky Blue
+      new THREE.Color(0x06B6D4), // Cyan
+      new THREE.Color(0xF59E0B)  // Warm Amber
     ];
-    cubeCoords.forEach(([x, y, z], idx) => {
-      const mat = idx % 2 === 0 ? purpleCrystalMat : goldMetalMat;
-      const c = new THREE.Mesh(cubeGeo, mat);
-      c.position.set(x, y, z);
-      c.scale.set(0.65, 0.65, 0.65);
-      objectsGroup.add(c);
-      floatingCubes.push(c);
-    });
 
-    // 4. Procedural 3D Star & Particle Dust Field
-    const particleCount = 220;
-    const particleGeo = new THREE.BufferGeometry();
-    const particlePositions = new Float32Array(particleCount * 3);
-    const particleScales = new Float32Array(particleCount);
+    const nodePositions = new Float32Array(nodeCount * 3);
+    const nodeColorArray = new Float32Array(nodeCount * 3);
 
-    for (let i = 0; i < particleCount; i++) {
-      particlePositions[i * 3] = (Math.random() - 0.5) * 36;
-      particlePositions[i * 3 + 1] = (Math.random() - 0.5) * 26;
-      particlePositions[i * 3 + 2] = (Math.random() - 0.5) * 16 - 2;
-      particleScales[i] = Math.random() * 0.8 + 0.2;
+    const spreadX = 28;
+    const spreadY = 18;
+    const spreadZ = 12;
+
+    for (let i = 0; i < nodeCount; i++) {
+      const pos = new THREE.Vector3(
+        (Math.random() - 0.5) * spreadX,
+        (Math.random() - 0.5) * spreadY,
+        (Math.random() - 0.5) * spreadZ - 2
+      );
+      nodeCoords.push(pos);
+      nodeVelocities.push(
+        new THREE.Vector3(
+          (Math.random() - 0.5) * 0.008,
+          (Math.random() - 0.5) * 0.008,
+          (Math.random() - 0.5) * 0.004
+        )
+      );
+
+      nodePositions[i * 3] = pos.x;
+      nodePositions[i * 3 + 1] = pos.y;
+      nodePositions[i * 3 + 2] = pos.z;
+
+      const c = nodeColors[i % nodeColors.length];
+      nodeColorArray[i * 3] = c.r;
+      nodeColorArray[i * 3 + 1] = c.g;
+      nodeColorArray[i * 3 + 2] = c.b;
     }
 
-    particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
-    const particleMat = new THREE.PointsMaterial({
-      color: 0x9333EA,
-      size: 0.14,
+    const nodeGeometry = new THREE.BufferGeometry();
+    nodeGeometry.setAttribute('position', new THREE.BufferAttribute(nodePositions, 3));
+    nodeGeometry.setAttribute('color', new THREE.BufferAttribute(nodeColorArray, 3));
+
+    // Canvas texture for smooth circular glowing particles
+    const createParticleTexture = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = 32;
+      canvas.height = 32;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        const gradient = ctx.createRadialGradient(16, 16, 0, 16, 16, 16);
+        gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+        gradient.addColorStop(0.35, 'rgba(192, 132, 252, 0.85)');
+        gradient.addColorStop(0.7, 'rgba(124, 58, 237, 0.35)');
+        gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, 32, 32);
+      }
+      return new THREE.CanvasTexture(canvas);
+    };
+
+    const particleTexture = createParticleTexture();
+
+    const nodeMaterial = new THREE.PointsMaterial({
+      size: 0.32,
+      map: particleTexture,
+      vertexColors: true,
       transparent: true,
-      opacity: 0.6,
-      blending: THREE.AdditiveBlending
+      opacity: 0.75,
+      blending: THREE.NormalBlending,
+      depthWrite: false
     });
-    const particles = new THREE.Points(particleGeo, particleMat);
-    scene.add(particles);
+
+    const nodePoints = new THREE.Points(nodeGeometry, nodeMaterial);
+    scene.add(nodePoints);
+
+    // Dynamic Line Segments connecting nearby nodes (Plexus effect, max 180 lines)
+    const maxLines = 180;
+    const linePositions = new Float32Array(maxLines * 6);
+    const lineColors = new Float32Array(maxLines * 6);
+
+    const lineGeometry = new THREE.BufferGeometry();
+    lineGeometry.setAttribute('position', new THREE.BufferAttribute(linePositions, 3));
+    lineGeometry.setAttribute('color', new THREE.BufferAttribute(lineColors, 3));
+
+    const lineMaterial = new THREE.LineBasicMaterial({
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.28,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false
+    });
+
+    const lineSegments = new THREE.LineSegments(lineGeometry, lineMaterial);
+    scene.add(lineSegments);
+
+    // 4. Ambient Deep Stardust Field (faint, gentle, uniform)
+    const dustCount = 260;
+    const dustPositions = new Float32Array(dustCount * 3);
+    for (let i = 0; i < dustCount; i++) {
+      dustPositions[i * 3] = (Math.random() - 0.5) * 40;
+      dustPositions[i * 3 + 1] = (Math.random() - 0.5) * 30;
+      dustPositions[i * 3 + 2] = (Math.random() - 0.5) * 20 - 4;
+    }
+    const dustGeometry = new THREE.BufferGeometry();
+    dustGeometry.setAttribute('position', new THREE.BufferAttribute(dustPositions, 3));
+    const dustMaterial = new THREE.PointsMaterial({
+      color: 0xA855F7,
+      size: 0.08,
+      transparent: true,
+      opacity: 0.38,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false
+    });
+    const dustParticles = new THREE.Points(dustGeometry, dustMaterial);
+    scene.add(dustParticles);
 
     // 5. Smooth Mouse Parallax Tracking
     let targetMouseX = 0;
@@ -233,46 +232,107 @@ export default function ThreeCanvas3D({
       const elapsedTime = clock.getElapsedTime();
 
       // Smooth camera parallax damping
-      currentMouseX += (targetMouseX - currentMouseX) * 0.05;
-      currentMouseY += (targetMouseY - currentMouseY) * 0.05;
+      currentMouseX += (targetMouseX - currentMouseX) * 0.04;
+      currentMouseY += (targetMouseY - currentMouseY) * 0.04;
 
-      camera.position.x = currentMouseX * 1.5;
-      camera.position.y = -currentMouseY * 1.2;
+      camera.position.x = currentMouseX * 1.8;
+      camera.position.y = -currentMouseY * 1.4;
       camera.lookAt(0, 0, 0);
 
-      // Move point light with mouse
-      pointerLight.position.x = currentMouseX * 8;
-      pointerLight.position.y = -currentMouseY * 6;
+      // Move subtle lights with mouse
+      pointerLight.position.x = currentMouseX * 9;
+      pointerLight.position.y = -currentMouseY * 7;
 
-      // Rotate 3D floating crystals gracefully
-      torusKnot.rotation.x = elapsedTime * 0.35;
-      torusKnot.rotation.y = elapsedTime * 0.45;
-      torusKnot.position.y = 3.2 + Math.sin(elapsedTime * 1.2) * 0.3;
+      accentLight.position.x = -6 + Math.sin(elapsedTime * 0.5) * 2;
+      accentLight.position.y = -4 + Math.cos(elapsedTime * 0.6) * 2;
 
-      icosa.rotation.x = elapsedTime * 0.4;
-      icosa.rotation.z = elapsedTime * 0.3;
-      icosa.position.y = 2.0 + Math.sin(elapsedTime * 1.4 + 1) * 0.25;
+      // Update node positions with gentle floating movement
+      const posAttr = nodeGeometry.getAttribute('position') as THREE.BufferAttribute;
+      const posArr = posAttr.array as Float32Array;
 
-      octa.rotation.y = elapsedTime * 0.45;
-      octa.rotation.x = elapsedTime * 0.3;
-      octa.position.y = -4.2 + Math.cos(elapsedTime * 1.1) * 0.3;
+      for (let i = 0; i < nodeCount; i++) {
+        const p = nodeCoords[i];
+        const v = nodeVelocities[i];
 
-      dodeca.rotation.z = elapsedTime * 0.35;
-      dodeca.rotation.y = elapsedTime * 0.4;
-      dodeca.position.y = -4.0 + Math.sin(elapsedTime * 1.3 + 2) * 0.25;
+        p.x += v.x + Math.sin(elapsedTime * 0.4 + i) * 0.003;
+        p.y += v.y + Math.cos(elapsedTime * 0.35 + i) * 0.003;
+        p.z += v.z;
 
-      ring.rotation.z = elapsedTime * 0.25;
-      ring.rotation.x = Math.PI / 3 + Math.sin(elapsedTime * 0.8) * 0.2;
+        // Bounce back within bounds
+        const halfX = spreadX / 2;
+        const halfY = spreadY / 2;
+        if (p.x > halfX || p.x < -halfX) v.x = -v.x;
+        if (p.y > halfY || p.y < -halfY) v.y = -v.y;
+        if (p.z > 2 || p.z < -10) v.z = -v.z;
 
-      floatingCubes.forEach((c, idx) => {
-        c.rotation.x = elapsedTime * (0.3 + idx * 0.1);
-        c.rotation.y = elapsedTime * (0.4 + idx * 0.1);
-        c.position.y += Math.sin(elapsedTime * 1.5 + idx) * 0.003;
-      });
+        posArr[i * 3] = p.x;
+        posArr[i * 3 + 1] = p.y;
+        posArr[i * 3 + 2] = p.z;
+      }
+      posAttr.needsUpdate = true;
 
-      // Slowly rotate particle field
-      particles.rotation.y = elapsedTime * 0.03;
-      particles.rotation.x = elapsedTime * 0.015;
+      // Update dynamic connecting lines between close nodes
+      let lineIndex = 0;
+      const linePosAttr = lineGeometry.getAttribute('position') as THREE.BufferAttribute;
+      const lineColorAttr = lineGeometry.getAttribute('color') as THREE.BufferAttribute;
+      const lPosArr = linePosAttr.array as Float32Array;
+      const lColorArr = lineColorAttr.array as Float32Array;
+
+      const connectionDist = 4.2;
+
+      for (let i = 0; i < nodeCount && lineIndex < maxLines; i++) {
+        for (let j = i + 1; j < nodeCount && lineIndex < maxLines; j++) {
+          const p1 = nodeCoords[i];
+          const p2 = nodeCoords[j];
+          const dist = p1.distanceTo(p2);
+
+          if (dist < connectionDist) {
+            const alpha = 1.0 - dist / connectionDist;
+            
+            // Start point
+            lPosArr[lineIndex * 6] = p1.x;
+            lPosArr[lineIndex * 6 + 1] = p1.y;
+            lPosArr[lineIndex * 6 + 2] = p1.z;
+
+            // End point
+            lPosArr[lineIndex * 6 + 3] = p2.x;
+            lPosArr[lineIndex * 6 + 4] = p2.y;
+            lPosArr[lineIndex * 6 + 5] = p2.z;
+
+            // Line color with alpha fade
+            const c1 = nodeColors[i % nodeColors.length];
+            const c2 = nodeColors[j % nodeColors.length];
+
+            lColorArr[lineIndex * 6] = c1.r * alpha * 0.7;
+            lColorArr[lineIndex * 6 + 1] = c1.g * alpha * 0.7;
+            lColorArr[lineIndex * 6 + 2] = c1.b * alpha * 0.7;
+
+            lColorArr[lineIndex * 6 + 3] = c2.r * alpha * 0.7;
+            lColorArr[lineIndex * 6 + 4] = c2.g * alpha * 0.7;
+            lColorArr[lineIndex * 6 + 5] = c2.b * alpha * 0.7;
+
+            lineIndex++;
+          }
+        }
+      }
+
+      // Zero out unused line segments
+      for (let k = lineIndex; k < maxLines; k++) {
+        lPosArr[k * 6] = 0;
+        lPosArr[k * 6 + 1] = 0;
+        lPosArr[k * 6 + 2] = 0;
+        lPosArr[k * 6 + 3] = 0;
+        lPosArr[k * 6 + 4] = 0;
+        lPosArr[k * 6 + 5] = 0;
+      }
+
+      linePosAttr.needsUpdate = true;
+      lineColorAttr.needsUpdate = true;
+      lineGeometry.setDrawRange(0, lineIndex * 2);
+
+      // Rotate stardust layer gently
+      dustParticles.rotation.y = elapsedTime * 0.02;
+      dustParticles.rotation.x = elapsedTime * 0.01;
 
       renderer.render(scene, camera);
     };
@@ -287,21 +347,15 @@ export default function ThreeCanvas3D({
       window.removeEventListener('resize', handleResize);
 
       // Dispose geometries
-      torusKnotGeo.dispose();
-      icosaGeo.dispose();
-      octaGeo.dispose();
-      dodecaGeo.dispose();
-      ringGeo.dispose();
-      cubeGeo.dispose();
-      particleGeo.dispose();
+      nodeGeometry.dispose();
+      lineGeometry.dispose();
+      dustGeometry.dispose();
 
-      // Dispose materials
-      purpleCrystalMat.dispose();
-      goldMetalMat.dispose();
-      cyanGemMat.dispose();
-      emeraldMat.dispose();
-      violetMat.dispose();
-      particleMat.dispose();
+      // Dispose materials & textures
+      nodeMaterial.dispose();
+      lineMaterial.dispose();
+      dustMaterial.dispose();
+      particleTexture.dispose();
 
       // Dispose renderer
       renderer.dispose();
