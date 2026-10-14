@@ -257,19 +257,20 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   transform: translateZ(4px) translateY(3px) !important;
 }
 
-/* 3D Extruded Box Shadow Styles */
+/* 3D Extruded Box Shadow Styles (Softened by 50%) */
 .shadow-3d-purple {
-  box-shadow: 0 8px 0 0 #C084FC, 0 16px 28px -4px rgba(124, 58, 237, 0.28);
+  box-shadow: 0 4px 0 0 #C084FC, 0 8px 16px -2px rgba(124, 58, 237, 0.18);
 }
 .shadow-3d-purple-lg {
-  box-shadow: 0 12px 0 0 #C084FC, 0 24px 36px -6px rgba(124, 58, 237, 0.35);
+  box-shadow: 0 6px 0 0 #C084FC, 0 12px 20px -3px rgba(124, 58, 237, 0.22);
 }
 .shadow-3d-amber {
-  box-shadow: 0 8px 0 0 #FBBF24, 0 16px 28px -4px rgba(245, 158, 11, 0.28);
+  box-shadow: 0 4px 0 0 #FBBF24, 0 8px 16px -2px rgba(245, 158, 11, 0.18);
 }
 .shadow-3d-blue {
-  box-shadow: 0 8px 0 0 #60A5FA, 0 16px 28px -4px rgba(37, 99, 235, 0.28);
+  box-shadow: 0 4px 0 0 #60A5FA, 0 8px 16px -2px rgba(37, 99, 235, 0.18);
 }
 .shadow-3d-emerald {
-  box-shadow: 0 8px 0 0 #34D399, 0 16px 28px -4px rgba(16, 185, 129, 0.28);
+  box-shadow: 0 4px 0 0 #34D399, 0 8px 16px -2px rgba(16, 185, 129, 0.18);
 }
+

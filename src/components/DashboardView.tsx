@@ -78,13 +78,13 @@ export default function DashboardView({
       demoId: 'ecom-1',
       icon: ShoppingBag,
       iconBg: 'bg-gradient-to-tr from-[#6B46C1] via-[#7C3AED] to-[#A855F7] text-white shadow-md shadow-purple-500/20',
-      icon3d: 'bg-gradient-to-tr from-[#6B46C1] via-[#7C3AED] to-[#A855F7] text-white shadow-[0_5px_12px_rgba(124,58,237,0.35),inset_0_1.5px_1px_rgba(255,255,255,0.7),inset_0_-1.5px_1px_rgba(0,0,0,0.2)] border border-white/50',
+      icon3d: 'bg-gradient-to-tr from-[#6B46C1] via-[#7C3AED] to-[#A855F7] text-white shadow-[0_3px_8px_rgba(124,58,237,0.25),inset_0_1px_1px_rgba(255,255,255,0.7),inset_0_-1px_1px_rgba(0,0,0,0.15)] border border-white/50',
       iconColor: 'text-purple-600',
       cardBg: 'bg-gradient-to-b from-white via-purple-50/70 to-purple-100/50',
-      card3d: 'border border-purple-200 border-b-[5px] sm:border-b-[6px] border-b-purple-500/90 shadow-[0_8px_0_0_#C084FC,0_16px_25px_-5px_rgba(124,58,237,0.25)] hover:shadow-[0_12px_0_0_#C084FC,0_22px_32px_-6px_rgba(124,58,237,0.35)] active:translate-y-[4px] active:border-b-[2px] active:shadow-[0_2px_0_0_#C084FC,0_6px_12px_rgba(124,58,237,0.18)]',
-      btn3d: 'border border-purple-200 border-b-2 border-b-purple-400 text-purple-700 bg-white group-hover:bg-[#7C3AED] group-hover:text-white group-hover:border-b-purple-700 shadow-2xs active:border-b-0 active:translate-y-[2px]',
+      card3d: 'border border-purple-200 border-b-[2.5px] sm:border-b-[3px] border-b-purple-500/80 shadow-[0_4px_0_0_#C084FC,0_8px_16px_-3px_rgba(124,58,237,0.18)] hover:shadow-[0_6px_0_0_#C084FC,0_12px_20px_-4px_rgba(124,58,237,0.25)] active:translate-y-[2px] active:border-b-[1px] active:shadow-[0_1px_0_0_#C084FC,0_4px_8px_rgba(124,58,237,0.14)]',
+      btn3d: 'border border-purple-200 border-b border-b-purple-400 text-purple-700 bg-white group-hover:bg-[#7C3AED] group-hover:text-white group-hover:border-b-purple-700 shadow-2xs active:border-b-0 active:translate-y-[1px]',
       cardBorderHover: 'hover:border-purple-400',
-      hoverShadow: 'hover:shadow-[0_10px_30px_rgba(147,51,234,0.12)]',
+      hoverShadow: 'hover:shadow-[0_6px_20px_rgba(147,51,234,0.10)]',
       badgeBg: 'bg-purple-100/90',
       badgeText: 'text-purple-800',
       badgeBorder: 'border-purple-200',
@@ -112,13 +112,13 @@ export default function DashboardView({
       demoId: 'rest-1',
       icon: UtensilsCrossed,
       iconBg: 'bg-gradient-to-tr from-amber-500 to-orange-500 text-white shadow-md shadow-orange-500/20',
-      icon3d: 'bg-gradient-to-tr from-amber-500 to-orange-500 text-white shadow-[0_5px_12px_rgba(245,158,11,0.35),inset_0_1.5px_1px_rgba(255,255,255,0.7),inset_0_-1.5px_1px_rgba(0,0,0,0.2)] border border-white/50',
+      icon3d: 'bg-gradient-to-tr from-amber-500 to-orange-500 text-white shadow-[0_3px_8px_rgba(245,158,11,0.25),inset_0_1px_1px_rgba(255,255,255,0.7),inset_0_-1px_1px_rgba(0,0,0,0.15)] border border-white/50',
       iconColor: 'text-amber-600',
       cardBg: 'bg-gradient-to-b from-white via-amber-50/70 to-amber-100/50',
-      card3d: 'border border-amber-200 border-b-[5px] sm:border-b-[6px] border-b-amber-500/90 shadow-[0_8px_0_0_#FBBF24,0_16px_25px_-5px_rgba(245,158,11,0.25)] hover:shadow-[0_12px_0_0_#FBBF24,0_22px_32px_-6px_rgba(245,158,11,0.35)] active:translate-y-[4px] active:border-b-[2px] active:shadow-[0_2px_0_0_#FBBF24,0_6px_12px_rgba(245,158,11,0.18)]',
-      btn3d: 'border border-amber-200 border-b-2 border-b-amber-400 text-amber-700 bg-white group-hover:bg-amber-600 group-hover:text-white group-hover:border-b-amber-700 shadow-2xs active:border-b-0 active:translate-y-[2px]',
+      card3d: 'border border-amber-200 border-b-[2.5px] sm:border-b-[3px] border-b-amber-500/80 shadow-[0_4px_0_0_#FBBF24,0_8px_16px_-3px_rgba(245,158,11,0.18)] hover:shadow-[0_6px_0_0_#FBBF24,0_12px_20px_-4px_rgba(245,158,11,0.25)] active:translate-y-[2px] active:border-b-[1px] active:shadow-[0_1px_0_0_#FBBF24,0_4px_8px_rgba(245,158,11,0.14)]',
+      btn3d: 'border border-amber-200 border-b border-b-amber-400 text-amber-700 bg-white group-hover:bg-amber-600 group-hover:text-white group-hover:border-b-amber-700 shadow-2xs active:border-b-0 active:translate-y-[1px]',
       cardBorderHover: 'hover:border-amber-400',
-      hoverShadow: 'hover:shadow-[0_10px_30px_rgba(245,158,11,0.12)]',
+      hoverShadow: 'hover:shadow-[0_6px_20px_rgba(245,158,11,0.10)]',
       badgeBg: 'bg-amber-100/90',
       badgeText: 'text-amber-800',
       badgeBorder: 'border-amber-200',
@@ -146,13 +146,13 @@ export default function DashboardView({
       demoId: 'blog-1',
       icon: Newspaper,
       iconBg: 'bg-gradient-to-tr from-blue-600 to-indigo-600 text-white shadow-md shadow-indigo-500/20',
-      icon3d: 'bg-gradient-to-tr from-blue-600 to-indigo-600 text-white shadow-[0_5px_12px_rgba(59,130,246,0.35),inset_0_1.5px_1px_rgba(255,255,255,0.7),inset_0_-1.5px_1px_rgba(0,0,0,0.2)] border border-white/50',
+      icon3d: 'bg-gradient-to-tr from-blue-600 to-indigo-600 text-white shadow-[0_3px_8px_rgba(59,130,246,0.25),inset_0_1px_1px_rgba(255,255,255,0.7),inset_0_-1px_1px_rgba(0,0,0,0.15)] border border-white/50',
       iconColor: 'text-blue-600',
       cardBg: 'bg-gradient-to-b from-white via-blue-50/70 to-indigo-100/50',
-      card3d: 'border border-blue-200 border-b-[5px] sm:border-b-[6px] border-b-blue-500/90 shadow-[0_8px_0_0_#60A5FA,0_16px_25px_-5px_rgba(59,130,246,0.25)] hover:shadow-[0_12px_0_0_#60A5FA,0_22px_32px_-6px_rgba(59,130,246,0.35)] active:translate-y-[4px] active:border-b-[2px] active:shadow-[0_2px_0_0_#60A5FA,0_6px_12px_rgba(59,130,246,0.18)]',
-      btn3d: 'border border-blue-200 border-b-2 border-b-blue-400 text-blue-700 bg-white group-hover:bg-blue-600 group-hover:text-white group-hover:border-b-blue-700 shadow-2xs active:border-b-0 active:translate-y-[2px]',
+      card3d: 'border border-blue-200 border-b-[2.5px] sm:border-b-[3px] border-b-blue-500/80 shadow-[0_4px_0_0_#60A5FA,0_8px_16px_-3px_rgba(59,130,246,0.18)] hover:shadow-[0_6px_0_0_#60A5FA,0_12px_20px_-4px_rgba(59,130,246,0.25)] active:translate-y-[2px] active:border-b-[1px] active:shadow-[0_1px_0_0_#60A5FA,0_4px_8px_rgba(59,130,246,0.14)]',
+      btn3d: 'border border-blue-200 border-b border-b-blue-400 text-blue-700 bg-white group-hover:bg-blue-600 group-hover:text-white group-hover:border-b-blue-700 shadow-2xs active:border-b-0 active:translate-y-[1px]',
       cardBorderHover: 'hover:border-blue-400',
-      hoverShadow: 'hover:shadow-[0_10px_30px_rgba(59,130,246,0.12)]',
+      hoverShadow: 'hover:shadow-[0_6px_20px_rgba(59,130,246,0.10)]',
       badgeBg: 'bg-blue-100/90',
       badgeText: 'text-blue-800',
       badgeBorder: 'border-blue-200',
@@ -180,13 +180,13 @@ export default function DashboardView({
       demoId: 'groc-1',
       icon: Store,
       iconBg: 'bg-gradient-to-tr from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-500/20',
-      icon3d: 'bg-gradient-to-tr from-emerald-600 to-teal-600 text-white shadow-[0_5px_12px_rgba(16,185,129,0.35),inset_0_1.5px_1px_rgba(255,255,255,0.7),inset_0_-1.5px_1px_rgba(0,0,0,0.2)] border border-white/50',
+      icon3d: 'bg-gradient-to-tr from-emerald-600 to-teal-600 text-white shadow-[0_3px_8px_rgba(16,185,129,0.25),inset_0_1px_1px_rgba(255,255,255,0.7),inset_0_-1px_1px_rgba(0,0,0,0.15)] border border-white/50',
       iconColor: 'text-emerald-600',
       cardBg: 'bg-gradient-to-b from-white via-emerald-50/70 to-emerald-100/50',
-      card3d: 'border border-emerald-200 border-b-[5px] sm:border-b-[6px] border-b-emerald-500/90 shadow-[0_8px_0_0_#34D399,0_16px_25px_-5px_rgba(16,185,129,0.25)] hover:shadow-[0_12px_0_0_#34D399,0_22px_32px_-6px_rgba(16,185,129,0.35)] active:translate-y-[4px] active:border-b-[2px] active:shadow-[0_2px_0_0_#34D399,0_6px_12px_rgba(16,185,129,0.18)]',
-      btn3d: 'border border-emerald-200 border-b-2 border-b-emerald-400 text-emerald-700 bg-white group-hover:bg-emerald-600 group-hover:text-white group-hover:border-b-emerald-700 shadow-2xs active:border-b-0 active:translate-y-[2px]',
+      card3d: 'border border-emerald-200 border-b-[2.5px] sm:border-b-[3px] border-b-emerald-500/80 shadow-[0_4px_0_0_#34D399,0_8px_16px_-3px_rgba(16,185,129,0.18)] hover:shadow-[0_6px_0_0_#34D399,0_12px_20px_-4px_rgba(16,185,129,0.25)] active:translate-y-[2px] active:border-b-[1px] active:shadow-[0_1px_0_0_#34D399,0_4px_8px_rgba(16,185,129,0.14)]',
+      btn3d: 'border border-emerald-200 border-b border-b-emerald-400 text-emerald-700 bg-white group-hover:bg-emerald-600 group-hover:text-white group-hover:border-b-emerald-700 shadow-2xs active:border-b-0 active:translate-y-[1px]',
       cardBorderHover: 'hover:border-emerald-400',
-      hoverShadow: 'hover:shadow-[0_10px_30px_rgba(16,185,129,0.12)]',
+      hoverShadow: 'hover:shadow-[0_6px_20px_rgba(16,185,129,0.10)]',
       badgeBg: 'bg-emerald-100/90',
       badgeText: 'text-emerald-800',
       badgeBorder: 'border-emerald-200',
@@ -304,8 +304,8 @@ export default function DashboardView({
             return (
               <Card3D
                 key={cat.id}
-                maxTilt={12}
-                scale={1.03}
+                maxTilt={6}
+                scale={1.015}
                 onClick={() => handleSelectCategory(cat)}
                 role="button"
                 tabIndex={0}
@@ -313,17 +313,17 @@ export default function DashboardView({
                 className={`group w-full aspect-square p-2.5 sm:p-4 rounded-2xl sm:rounded-3xl ${cat.cardBg} ${cat.card3d} cursor-pointer flex flex-col justify-between outline-none focus-visible:ring-2 focus-visible:ring-purple-400`}
               >
                 {/* Top Row: 3D Category Icon & Visual Tag */}
-                <div className="flex items-start justify-between gap-1.5 translate-z-md">
-                  <div className={`w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl ${cat.icon3d} flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-110 shadow-lg`}>
-                    <IconComponent className="w-4.5 h-4.5 sm:w-5.5 sm:h-5.5 stroke-[2.2]" />
+                <div className="flex items-start justify-between gap-1.5 translate-z-sm">
+                  <div className={`w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl ${cat.icon3d} flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-105 shadow-sm`}>
+                    <IconComponent className="w-4.5 h-4.5 sm:w-5.5 sm:h-5.5 stroke-[2]" />
                   </div>
-                  <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/95 text-slate-700 border border-slate-200/90 shadow-2xs truncate max-w-[55%] translate-z-sm">
+                  <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/95 text-slate-700 border border-slate-200/90 shadow-2xs truncate max-w-[55%]">
                     {language === 'en' ? cat.tagEn : cat.tagBn}
                   </span>
                 </div>
 
                 {/* Center Content: Title & Clear Business Descriptor */}
-                <div className="my-auto py-0.5 min-w-0 translate-z-sm">
+                <div className="my-auto py-0.5 min-w-0">
                   <h2 className="text-[13px] sm:text-[15px] font-bold text-slate-900 group-hover:text-purple-700 transition-colors leading-snug tracking-tight truncate">
                     {language === 'en' ? cat.nameEn : cat.nameBn}
                   </h2>
@@ -333,7 +333,7 @@ export default function DashboardView({
                 </div>
 
                 {/* Bottom Row: Starting Price & 3D "ডেমো" Button */}
-                <div className="pt-1.5 sm:pt-2 border-t border-slate-200/80 flex items-center justify-between gap-1 translate-z-md">
+                <div className="pt-1.5 sm:pt-2 border-t border-slate-200/80 flex items-center justify-between gap-1 translate-z-xs">
                   <div>
                     <span className="text-[8px] sm:text-[9px] text-slate-500 block font-medium leading-none">
                       {language === 'en' ? 'Starts at' : 'শুরু মাত্র'}
@@ -345,7 +345,7 @@ export default function DashboardView({
 
                   <div className={`px-2 py-1 sm:px-2.5 sm:py-1 rounded-lg ${cat.btn3d} text-[10px] sm:text-[11px] font-bold transition-all duration-200 flex items-center gap-0.5 shrink-0 btn-3d-tactile`}>
                     <span>{language === 'en' ? 'Demos' : 'ডেমো'}</span>
-                    <ChevronRight className="w-3 h-3 stroke-[2.5] group-hover:translate-x-0.5 transition-transform" />
+                    <ChevronRight className="w-3 h-3 stroke-[2.2] group-hover:translate-x-0.5 transition-transform" />
                   </div>
                 </div>
               </Card3D>
@@ -354,7 +354,7 @@ export default function DashboardView({
         </div>
 
         {/* 2. Laptop / Desktop View: 3D 4-Card Deck with Mouse Tilt Physics (lg: & xl: screens) */}
-        <div className="hidden lg:grid lg:grid-cols-4 lg:gap-5 xl:gap-6 w-full py-2 perspective-1500 preserve-3d">
+        <div className="hidden lg:grid lg:grid-cols-4 lg:gap-5 xl:gap-6 w-full py-2 perspective-1000 preserve-3d">
           {categoryContacts.map((cat) => {
             const IconComponent = cat.icon;
             const features = language === 'en' ? cat.featuresEn : cat.featuresBn;
@@ -362,8 +362,8 @@ export default function DashboardView({
             return (
               <Card3D
                 key={cat.id}
-                maxTilt={14}
-                scale={1.035}
+                maxTilt={7}
+                scale={1.018}
                 onClick={() => handleSelectCategory(cat)}
                 role="button"
                 tabIndex={0}

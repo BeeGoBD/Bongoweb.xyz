@@ -50,7 +50,7 @@ export default function Card3D({
       setGlarePos({
         x: (x / rect.width) * 100,
         y: (y / rect.height) * 100,
-        opacity: 0.35
+        opacity: 0.18
       });
     }
   }, [maxTilt, scale, glare]);
