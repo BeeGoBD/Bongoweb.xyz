@@ -300,7 +300,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#09090b] text-[#f5f5f7] antialiased selection:bg-[#3b5bff] selection:text-white flex flex-col justify-between font-sans">
+    <div className="min-h-screen bg-[#F1F5F9] text-slate-900 antialiased selection:bg-[#EDE9FE] selection:text-[#6B46C1] flex flex-col justify-between font-sans">
       {/* 1. Standalone Executive Admin Panel */}
       {viewMode === 'admin' && (
         <AdminPanelView onBackToApp={handleReturnToDashboard} />
@@ -330,7 +330,7 @@ export default function App() {
 
       {/* 4. Main App Container (Dashboard, After Order, Live Chat, Account) */}
       {viewMode !== 'admin' && viewMode !== 'website-detail' && viewMode !== 'order-page' && (
-        <div className="w-full min-h-screen flex flex-col bg-[#09090b] text-[#f5f5f7] selection:bg-[#3b5bff] selection:text-white">
+        <div className="w-full min-h-screen flex flex-col bg-[#F8FAFC] text-slate-900 selection:bg-[#EDE9FE] selection:text-[#6B46C1]">
           {/* Fixed Header */}
           <FixedHeader
             onBackToCategoryPicker={handleReturnToDashboard}
