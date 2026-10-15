@@ -137,14 +137,32 @@ export default function CategoryWebsitesView({
     };
 
     window.addEventListener('bongoweb_websites_updated', handleUpdate);
+    window.addEventListener('bongoweb_custom_websites_updated', handleUpdate);
     window.addEventListener('storage', handleUpdate);
     return () => {
       window.removeEventListener('bongoweb_websites_updated', handleUpdate);
+      window.removeEventListener('bongoweb_custom_websites_updated', handleUpdate);
       window.removeEventListener('storage', handleUpdate);
     };
   }, []);
 
-  const allAvailableWebsites = [...WEBSITE_DEMOS, ...customWebsites];
+  const allAvailableWebsites = React.useMemo(() => {
+    const map = new Map<string, WebsiteDemo>();
+    WEBSITE_DEMOS.forEach(d => {
+      const codeKey = String(d.fourDigitCode || d.id).replace('#', '').trim().toLowerCase();
+      map.set(codeKey, d);
+    });
+    customWebsites.forEach(cw => {
+      const codeKey = String(cw.fourDigitCode || cw.id).replace('#', '').trim().toLowerCase();
+      const existing = map.get(codeKey);
+      if (existing) {
+        map.set(codeKey, { ...existing, ...cw });
+      } else {
+        map.set(codeKey, cw);
+      }
+    });
+    return Array.from(map.values());
+  }, [customWebsites]);
 
   // Filter demos matching this specific category
   const matchingWebsites = allAvailableWebsites.filter((demo) => {

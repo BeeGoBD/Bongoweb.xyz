@@ -58,27 +58,29 @@ export default function App() {
   const [landscapeOrderModalOpen, setLandscapeOrderModalOpen] = useState(false);
   const [websiteCredentialsModalOpen, setWebsiteCredentialsModalOpen] = useState(false);
 
-  // Helper to extract demo by code (e.g. 1042 or #1042 or custom uploaded websites)
+  // Helper to extract demo by code (e.g. 1042 or #1042 or custom uploaded/edited websites)
   const findDemoByCode = (rawCode: string): WebsiteDemo | null => {
     const clean = decodeURIComponent(String(rawCode || '')).replace('#', '').trim().toLowerCase();
     
-    // 1. Search in static mock data
-    const foundStatic = WEBSITE_DEMOS.find(
-      (d) => String(d?.fourDigitCode || '').replace('#', '').toLowerCase() === clean
-    );
-    if (foundStatic) return foundStatic;
-
-    // 2. Search in custom websites from storage/vault
+    // 1. Search in custom / edited websites from storage/vault FIRST so edits take immediate effect!
     try {
-      const storedCustom = localStorage.getItem('bongoweb_custom_websites');
+      const storedCustom = localStorage.getItem('bongoweb_custom_websites') || localStorage.getItem('bongoweb_custom_catalog');
       if (storedCustom) {
         const parsed: WebsiteDemo[] = JSON.parse(storedCustom);
-        const foundCustom = parsed.find(
-          (d) => String(d?.fourDigitCode || '').replace('#', '').toLowerCase() === clean
-        );
-        if (foundCustom) return foundCustom;
+        if (Array.isArray(parsed)) {
+          const foundCustom = parsed.find(
+            (d) => String(d?.fourDigitCode || d?.id || '').replace('#', '').trim().toLowerCase() === clean
+          );
+          if (foundCustom) return foundCustom;
+        }
       }
     } catch (_) {}
+
+    // 2. Fallback to static mock data
+    const foundStatic = WEBSITE_DEMOS.find(
+      (d) => String(d?.fourDigitCode || d?.id || '').replace('#', '').trim().toLowerCase() === clean
+    );
+    if (foundStatic) return foundStatic;
 
     return WEBSITE_DEMOS[0];
   };
@@ -208,10 +210,14 @@ export default function App() {
     window.addEventListener('popstate', handleNavigation);
     window.addEventListener('hashchange', handleNavigation);
     window.addEventListener('bongoweb_websites_updated', handleWebsitesUpdated);
+    window.addEventListener('bongoweb_custom_websites_updated', handleWebsitesUpdated);
+    window.addEventListener('storage', handleWebsitesUpdated);
     return () => {
       window.removeEventListener('popstate', handleNavigation);
       window.removeEventListener('hashchange', handleNavigation);
       window.removeEventListener('bongoweb_websites_updated', handleWebsitesUpdated);
+      window.removeEventListener('bongoweb_custom_websites_updated', handleWebsitesUpdated);
+      window.removeEventListener('storage', handleWebsitesUpdated);
     };
   }, [parseCurrentUrl]);
 
