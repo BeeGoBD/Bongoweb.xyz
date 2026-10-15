@@ -316,29 +316,29 @@ export default function LiveChatView() {
     : 5;
 
   return (
-    <div className="relative w-full max-w-4xl lg:max-w-5xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8 lg:py-10 pb-28 lg:pb-12 font-sans animate-fadeIn perspective-1000">
+    <div className="relative w-full max-w-4xl lg:max-w-5xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8 lg:py-10 pb-28 lg:pb-12 font-sans animate-fadeIn text-[#f5f5f7]">
       {/* 3D Ambient Universe Background */}
       <ThreeCanvas3D intensity={0.8} />
 
       {/* Main Content: Chat View or Start Form */}
       {!isChatActive ? (
         /* STEP 1: INITIAL CHAT REGISTRATION / START FORM */
-        <div className="bg-white/95 backdrop-blur-md border border-slate-200/90 border-b-[5px] border-b-purple-400/80 rounded-3xl p-6 sm:p-10 lg:p-12 shadow-[0_8px_0_0_#DDD6FE,0_20px_35px_-6px_rgba(124,58,237,0.18)] max-w-xl lg:max-w-2xl mx-auto text-slate-900 preserve-3d">
-          <div className="w-14 h-14 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center mx-auto mb-4 border border-purple-200 border-b-2 border-b-purple-300 shadow-sm translate-z-md">
-            <MessageSquare className="w-7 h-7 stroke-[2.2]" />
+        <div className="bg-[#0e0e12]/95 backdrop-blur-xl border border-white/[0.08] rounded-2xl p-6 sm:p-10 lg:p-12 shadow-dark-card max-w-xl lg:max-w-2xl mx-auto text-[#f5f5f7]">
+          <div className="w-12 h-12 rounded-xl bg-white/[0.05] text-[#3b5bff] border border-white/[0.08] flex items-center justify-center mx-auto mb-4">
+            <MessageSquare className="w-6 h-6 stroke-[2]" />
           </div>
 
           <div className="text-center mb-6">
-            <h2 className="text-lg sm:text-xl font-black text-slate-900">
+            <h2 className="text-lg sm:text-xl font-semibold text-[#f5f5f7]">
               {t('অ্যাডমিনের সাথে সরাসরি চ্যাট শুরু করুন', 'Start Direct Chat with Support Admin')}
             </h2>
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-xs text-[#a1a1b0] mt-1.5 font-normal">
               {t('তাৎক্ষণিক প্রশ্নের উত্তর ও প্রযুক্তিগত সহায়তার জন্য আপনার তথ্য দিন', 'Provide your information for immediate support')}
             </p>
           </div>
 
           {errorMessage && (
-            <div className="mb-4 p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
+            <div className="mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs flex items-center gap-2">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{errorMessage}</span>
             </div>
@@ -346,8 +346,8 @@ export default function LiveChatView() {
 
           <form onSubmit={handleStartChat} className="space-y-4">
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                {t('আপনার নাম', 'Your Full Name')} <span className="text-rose-500">*</span>
+              <label className="block text-xs font-medium text-[#a1a1b0] mb-1.5">
+                {t('আপনার নাম', 'Your Full Name')} <span className="text-[#3b5bff]">*</span>
               </label>
               <div className="relative">
                 <input
@@ -356,14 +356,14 @@ export default function LiveChatView() {
                   placeholder={t('যেমন: মো: তানভীর আহমেদ', 'e.g. Tanvir Ahmed')}
                   value={clientName}
                   onChange={(e) => setClientName(e.target.value)}
-                  className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-300 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-purple-500 focus:bg-white transition-all"
+                  className="w-full px-4 py-2.5 sm:py-3 rounded-xl bg-white/[0.04] border border-white/[0.08] text-xs sm:text-sm text-[#f5f5f7] placeholder-[#71717a] focus:outline-none focus:border-[#3b5bff] transition-all"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                {t('মোবাইল / হোয়াটসঅ্যাপ নম্বর', 'Mobile / WhatsApp Number')} <span className="text-rose-500">*</span>
+              <label className="block text-xs font-medium text-[#a1a1b0] mb-1.5">
+                {t('মোবাইল / হোয়াটসঅ্যাপ নম্বর', 'Mobile / WhatsApp Number')} <span className="text-[#3b5bff]">*</span>
               </label>
               <div className="relative">
                 <input
@@ -372,7 +372,7 @@ export default function LiveChatView() {
                   placeholder="017xxxxxxxx"
                   value={clientPhone}
                   onChange={(e) => setClientPhone(e.target.value)}
-                  className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-300 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 font-mono focus:outline-none focus:border-purple-500 focus:bg-white transition-all"
+                  className="w-full px-4 py-2.5 sm:py-3 rounded-xl bg-white/[0.04] border border-white/[0.08] text-xs sm:text-sm text-[#f5f5f7] placeholder-[#71717a] font-mono focus:outline-none focus:border-[#3b5bff] transition-all"
                 />
               </div>
             </div>
@@ -380,7 +380,7 @@ export default function LiveChatView() {
             <button
               type="submit"
               disabled={initialLoading}
-              className="w-full mt-4 py-3.5 px-6 rounded-2xl bg-gradient-to-r from-[#6B46C1] via-[#7C3AED] to-[#5521B5] hover:from-[#5B21B6] hover:to-[#4C1D95] active:scale-[0.99] text-white text-xs sm:text-sm font-bold shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+              className="w-full mt-4 py-3 px-6 rounded-full bg-[#3b5bff] hover:bg-[#324ecc] active:scale-[0.98] text-white text-xs sm:text-sm font-medium shadow-lg shadow-[#3b5bff]/25 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
             >
               {initialLoading ? (
                 <span>{t('সংযুক্ত হচ্ছে...', 'Connecting to Support...')}</span>
@@ -396,28 +396,28 @@ export default function LiveChatView() {
         </div>
       ) : (
         /* STEP 2: ACTIVE CONVERSATION INTERFACE */
-        <div className="bg-white border border-slate-200/90 rounded-3xl shadow-xl overflow-hidden flex flex-col h-[75vh] min-h-[560px] max-h-[820px] text-slate-900">
+        <div className="bg-[#0e0e12] border border-white/[0.08] rounded-2xl shadow-dark-card overflow-hidden flex flex-col h-[75vh] min-h-[560px] max-h-[820px] text-[#f5f5f7]">
           {/* Active Chat Top Bar */}
-          <div className="p-3.5 sm:p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between shrink-0">
+          <div className="p-3.5 sm:p-4 bg-[#14141a]/80 border-b border-white/[0.08] flex items-center justify-between shrink-0">
             <div className="flex items-center gap-2.5 sm:gap-3">
               <div className="relative">
-                <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#6B46C1] to-[#7C3AED] text-white flex items-center justify-center font-bold text-sm shadow-xs">
+                <div className="w-10 h-10 rounded-xl bg-[#3b5bff] text-white flex items-center justify-center font-bold text-sm shadow-xs">
                   BW
                 </div>
-                <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-white" />
+                <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-[#0e0e12]" />
               </div>
 
               <div>
                 <div className="flex items-center gap-1.5">
-                  <h3 className="text-xs sm:text-sm font-black text-slate-900">
+                  <h3 className="text-xs sm:text-sm font-semibold text-[#f5f5f7]">
                     {t('BongoWeb টেকনিক্যাল সাপোর্ট', 'BongoWeb Technical Support')}
                   </h3>
-                  <span className="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-200 text-[10px] font-bold">
+                  <span className="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 text-[10px] font-medium">
                     {t('অফিসিয়াল', 'Official')}
                   </span>
                 </div>
-                <p className="text-[10px] sm:text-[11px] text-slate-500 flex items-center gap-1 mt-0.5 font-medium">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <p className="text-[10px] sm:text-[11px] text-[#a1a1b0] flex items-center gap-1 mt-0.5 font-normal">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                   <span>{t('অ্যাডমিন প্যানেলে সরাসরি কানেক্টেড', 'Directly connected with admin panel')}</span>
                 </p>
               </div>
@@ -428,17 +428,17 @@ export default function LiveChatView() {
               {/* Synchronized 5-Min Rotating Security Code */}
               {clientPhone && (
                 <div 
-                  className="px-2.5 py-1 rounded-xl bg-purple-50 border border-purple-200 text-purple-700 text-[11px] font-bold flex items-center gap-1.5 select-none"
+                  className="px-2.5 py-1 rounded-full bg-white/[0.04] border border-white/[0.08] text-[#3b5bff] text-[11px] font-medium flex items-center gap-1.5 select-none"
                   title={t('আপনার ৫-মিনিটের সিকিউরিটি কোড (অ্যাডমিন প্যানেলের সাথে সিঙ্ক করা)', 'Your 5-min synchronized security code')}
                 >
-                  <ShieldCheck className="w-3.5 h-3.5 text-purple-600" />
-                  <span className="text-[10px] text-slate-600 hidden md:inline">
+                  <ShieldCheck className="w-3.5 h-3.5 text-[#3b5bff]" />
+                  <span className="text-[10px] text-[#a1a1b0] hidden md:inline">
                     {t('সিকিউরিটি কোড:', 'Security Code:')}
                   </span>
-                  <span className="font-mono font-black text-xs text-purple-700 px-1 bg-white rounded border border-purple-200">
+                  <span className="font-mono font-semibold text-xs text-[#f5f5f7] px-1.5 py-0.2 bg-white/[0.06] rounded border border-white/[0.1]">
                     {currentSecurityCode || getClientSecurityCode(clientPhone)}
                   </span>
-                  <span className="text-[10px] font-mono text-slate-500">
+                  <span className="text-[10px] font-mono text-[#71717a]">
                     ({formatRemainingTime(codeCountdown)})
                   </span>
                 </div>
@@ -446,10 +446,10 @@ export default function LiveChatView() {
 
               {/* Inactivity Session Remaining */}
               <div 
-                className="px-2.5 py-1 rounded-xl bg-slate-100 border border-slate-200 text-slate-700 text-[11px] font-mono font-bold flex items-center gap-1"
+                className="px-2.5 py-1 rounded-full bg-white/[0.04] border border-white/[0.08] text-[#a1a1b0] text-[11px] font-mono font-medium flex items-center gap-1"
                 title={t('সেশনের মেয়াদ', 'Session expiry countdown')}
               >
-                <Clock className="w-3 h-3 text-purple-600" />
+                <Clock className="w-3 h-3 text-[#3b5bff]" />
                 <span>{remainingMinutes} {t('মি.', 'min')}</span>
               </div>
 
@@ -457,7 +457,7 @@ export default function LiveChatView() {
               <button
                 type="button"
                 onClick={handleEndChat}
-                className="p-1.5 sm:px-2.5 sm:py-1 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
+                className="p-1.5 sm:px-2.5 sm:py-1 rounded-full bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 text-xs font-medium transition-all flex items-center gap-1 cursor-pointer"
                 title={t('চ্যাট সমাপ্ত করুন', 'End chat session')}
               >
                 <X className="w-3.5 h-3.5" />
@@ -469,12 +469,12 @@ export default function LiveChatView() {
           {/* Chat Messages Stream */}
           <div 
             ref={chatScrollContainerRef}
-            className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 bg-slate-50/70"
+            className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 bg-[#09090b]"
           >
             {/* Security Verification Banner */}
-            <div className="p-3 rounded-2xl bg-purple-50 border border-purple-200 text-xs text-purple-800 flex items-center justify-between gap-2 shadow-2xs">
+            <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.08] text-xs text-[#a1a1b0] flex items-center justify-between gap-2 shadow-xs">
               <div className="flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-purple-600 shrink-0" />
+                <ShieldCheck className="w-4 h-4 text-[#3b5bff] shrink-0" />
                 <span className="text-[11px] leading-relaxed">
                   {t(
                     'আপনার কথোপকথন সরাসরি সুরক্ষিত ও এনক্রিপ্টেড। অ্যাডমিন প্যানেল থেকে সিনিয়র ইঞ্জিনিয়ার উত্তর দিচ্ছেন।',
@@ -486,15 +486,15 @@ export default function LiveChatView() {
 
             {/* Closed Thread Notice */}
             {thread && thread.isClosed && (
-              <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs animate-fadeIn">
-                <div className="flex items-center gap-2 text-amber-800">
-                  <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+              <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs animate-fadeIn">
+                <div className="flex items-center gap-2 text-amber-400">
+                  <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
                   <span>{t('এই চ্যাট সেশনটি সমাপ্ত করা হয়েছে।', 'This support chat session has ended.')}</span>
                 </div>
                 <button
                   type="button"
                   onClick={handleReopen}
-                  className="px-3 py-1 rounded-xl bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] hover:from-[#5B21B6] hover:to-[#6B46C1] text-white font-bold text-xs flex items-center gap-1 cursor-pointer shadow-xs"
+                  className="px-3.5 py-1.5 rounded-full bg-[#3b5bff] hover:bg-[#324ecc] text-white font-medium text-xs flex items-center gap-1 cursor-pointer"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
                   <span>{t('পুনরায় চালু করুন', 'Reopen Chat')}</span>
@@ -512,12 +512,12 @@ export default function LiveChatView() {
                   className={`flex flex-col ${isAdmin ? 'items-start' : 'items-end'} max-w-full`}
                 >
                   {/* Sender Header Badge */}
-                  <div className={`flex items-center gap-1 mb-1 px-1 text-[11px] font-bold ${
-                    isAdmin ? 'text-purple-700' : 'text-slate-500'
+                  <div className={`flex items-center gap-1 mb-1 px-1 text-[11px] font-medium ${
+                    isAdmin ? 'text-[#3b5bff]' : 'text-[#71717a]'
                   }`}>
                     {isAdmin ? (
                       <>
-                        <ShieldCheck className="w-3.5 h-3.5 text-purple-600" />
+                        <ShieldCheck className="w-3.5 h-3.5 text-[#3b5bff]" />
                         <span>BongoWeb সাপোর্ট ইঞ্জিনিয়ার</span>
                       </>
                     ) : (
@@ -531,17 +531,17 @@ export default function LiveChatView() {
                   <div
                     className={`max-w-[88%] sm:max-w-[78%] p-3.5 sm:p-4 rounded-2xl text-xs sm:text-sm leading-relaxed ${
                       isAdmin
-                        ? 'bg-white border border-slate-200/90 text-slate-900 rounded-tl-xs shadow-xs'
-                        : 'bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] text-white rounded-tr-xs shadow-md'
+                        ? 'bg-[#14141a] border border-white/[0.08] text-[#f5f5f7] rounded-tl-xs shadow-dark-card'
+                        : 'bg-[#3b5bff] text-white rounded-tr-xs shadow-md shadow-[#3b5bff]/20'
                     }`}
                   >
                     <p className="whitespace-pre-wrap select-text font-sans">{msg.text}</p>
                   </div>
 
                   {/* Message Timestamp */}
-                  <span className={`text-[10px] font-mono mt-1 px-1 flex items-center gap-1 text-slate-500`}>
+                  <span className={`text-[10px] font-mono mt-1 px-1 flex items-center gap-1 text-[#71717a]`}>
                     <span>{msg.timestamp}</span>
-                    {!isAdmin && <CheckCheck className="w-3 h-3 text-purple-600" />}
+                    {!isAdmin && <CheckCheck className="w-3 h-3 text-[#3b5bff]" />}
                   </span>
                 </div>
               );
@@ -551,8 +551,8 @@ export default function LiveChatView() {
           </div>
 
           {/* Quick Suggestion Chips */}
-          <div className="px-3 sm:px-4 py-2 border-t border-slate-200 bg-slate-50 flex items-center gap-1.5 overflow-x-auto scrollbar-none shrink-0">
-            <span className="text-[10px] text-slate-500 font-bold shrink-0">
+          <div className="px-3 sm:px-4 py-2 border-t border-white/[0.06] bg-[#0e0e12] flex items-center gap-1.5 overflow-x-auto scrollbar-none shrink-0">
+            <span className="text-[10px] text-[#71717a] font-medium shrink-0">
               {t('দ্রুত প্রশ্ন:', 'Suggestions:')}
             </span>
             {quickQuestions.map((q, idx) => (
@@ -561,7 +561,7 @@ export default function LiveChatView() {
                 type="button"
                 onClick={() => handleSendMessage(q)}
                 disabled={thread?.isClosed || isSending}
-                className="px-2.5 py-1 rounded-xl bg-white hover:bg-purple-50 hover:border-purple-300 text-slate-700 hover:text-purple-700 text-[10px] font-medium border border-slate-200 transition-all shrink-0 cursor-pointer disabled:opacity-50 shadow-2xs"
+                className="px-2.5 py-1 rounded-full bg-white/[0.03] hover:bg-white/[0.08] hover:text-white text-[#a1a1b0] text-[10px] font-medium border border-white/[0.06] transition-all shrink-0 cursor-pointer disabled:opacity-50"
               >
                 {q}
               </button>
@@ -569,7 +569,7 @@ export default function LiveChatView() {
           </div>
 
           {/* Input Box Footer */}
-          <div className="p-3 sm:p-4 border-t border-slate-200 bg-white shrink-0">
+          <div className="p-3 sm:p-4 border-t border-white/[0.08] bg-[#0e0e12] shrink-0">
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -587,13 +587,13 @@ export default function LiveChatView() {
                 }
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
-                className="flex-1 px-4 py-2.5 sm:py-3 rounded-2xl bg-slate-50 border border-slate-300 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-purple-500 focus:bg-white transition-all disabled:opacity-60"
+                className="flex-1 px-4 py-2.5 sm:py-3 rounded-full bg-white/[0.04] border border-white/[0.08] text-xs sm:text-sm text-[#f5f5f7] placeholder-[#71717a] focus:outline-none focus:border-[#3b5bff] transition-all disabled:opacity-60"
               />
 
               <button
                 type="submit"
                 disabled={!inputMessage.trim() || thread?.isClosed || isSending}
-                className="px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] hover:from-[#5B21B6] hover:to-[#6B46C1] active:bg-[#4C1D95] text-white text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-md disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+                className="px-4 sm:px-5 py-2.5 sm:py-3 rounded-full bg-[#3b5bff] hover:bg-[#324ecc] text-white text-xs sm:text-sm font-medium transition-all flex items-center gap-1.5 cursor-pointer shadow-md shadow-[#3b5bff]/25 disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
               >
                 <Send className="w-4 h-4" />
                 <span className="hidden sm:inline">{t('পাঠান', 'Send')}</span>

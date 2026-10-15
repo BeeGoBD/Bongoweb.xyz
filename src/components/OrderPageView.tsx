@@ -370,9 +370,9 @@ export default function OrderPageView({
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#F1F5F9] text-slate-900 flex flex-col font-sans">
+    <div className="min-h-screen w-full bg-[#09090b] text-[#f5f5f7] flex flex-col font-sans">
       {/* Top Header */}
-      <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-xl border-b border-slate-200/90 shadow-[0_2px_12px_rgba(15,23,42,0.04)]">
+      <header className="sticky top-0 z-40 w-full bg-[#0e0e12]/90 backdrop-blur-xl border-b border-white/[0.08]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5 sm:gap-3">
             <button
@@ -387,21 +387,21 @@ export default function OrderPageView({
                   onBackToDashboard();
                 }
               }}
-              className="px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200/90 hover:border-purple-400 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
+              className="px-3 py-1.5 rounded-full bg-white/[0.05] hover:bg-white/[0.1] text-[#f5f5f7] border border-white/[0.08] text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
             >
-              <ArrowLeft className="w-4 h-4 text-slate-600" />
+              <ArrowLeft className="w-3.5 h-3.5 text-[#a1a1b0]" />
               <span>পেছনে ফিরুন</span>
             </button>
 
-            <span className="px-3 py-1 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs font-mono font-black shadow-xs">
+            <span className="px-3 py-0.5 rounded-full bg-[#3b5bff] text-white text-xs font-mono font-medium">
               {demoCode}
             </span>
-            <span className="text-xs sm:text-sm font-black text-slate-900 hidden xs:inline">
+            <span className="text-xs sm:text-sm font-medium text-[#f5f5f7] hidden xs:inline">
               চেকআউট ও অর্ডার
             </span>
           </div>
 
-          <div className="flex items-center gap-2 text-xs font-bold text-emerald-600">
+          <div className="flex items-center gap-2 text-xs font-medium text-emerald-400">
             <Lock className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">১০০% নিরাপদ SSL চেকআউট</span>
           </div>
@@ -411,7 +411,7 @@ export default function OrderPageView({
       {/* Floating Notification */}
       {emailNotification && (
         <div className="sticky top-16 z-50 max-w-xl mx-auto px-4 py-2 animate-slideDown">
-          <div className="p-3 sm:p-4 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs sm:text-sm font-bold shadow-xl flex items-center gap-2.5 border border-purple-400/30">
+          <div className="p-3 sm:p-4 rounded-xl bg-[#3b5bff] text-white text-xs sm:text-sm font-medium shadow-xl flex items-center gap-2.5">
             <Sparkles className="w-5 h-5 text-amber-300 shrink-0" />
             <div className="flex-1">
               <span>ইমেইল সফলভাবে ভেরিফাইড হয়েছে!</span>
@@ -429,30 +429,30 @@ export default function OrderPageView({
       <main className="flex-1 w-full max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
         {/* Easy-to-Understand 3-Step Order Progress Bar */}
         <div className="mb-6 sm:mb-8 max-w-xl mx-auto">
-          <div className="grid grid-cols-3 gap-1.5 sm:gap-3 p-1.5 sm:p-2 rounded-2xl bg-white border border-slate-200/90 shadow-md">
+          <div className="grid grid-cols-3 gap-1.5 sm:gap-2 p-1.5 rounded-2xl bg-[#0e0e12] border border-white/[0.08] shadow-dark-card">
             {/* Step 1 */}
             <div className={`flex items-center gap-1.5 sm:gap-2 p-2 rounded-xl transition-all ${
               currentStep === 1 || currentStep === 'otp'
-                ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md shadow-purple-500/20'
+                ? 'bg-[#3b5bff] text-white shadow-md shadow-[#3b5bff]/25'
                 : (currentStep === 2 || currentStep === 3)
-                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                  : 'bg-slate-50 text-slate-500 border border-slate-200'
+                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                  : 'bg-white/[0.03] text-[#71717a] border border-white/[0.06]'
             }`}>
-              <span className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-black shrink-0 ${
+              <span className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-bold shrink-0 ${
                 currentStep === 1 || currentStep === 'otp'
                   ? 'bg-white/20 text-white'
                   : (currentStep === 2 || currentStep === 3)
-                    ? 'bg-emerald-600 text-white'
-                    : 'bg-slate-200 text-slate-600'
+                    ? 'bg-emerald-500 text-white'
+                    : 'bg-white/[0.08] text-[#71717a]'
               }`}>
                 {(currentStep === 2 || currentStep === 3) ? '✓' : '১'}
               </span>
               <div className="min-w-0">
-                <span className="block text-[11px] sm:text-xs font-bold truncate leading-tight">
+                <span className="block text-[11px] sm:text-xs font-medium truncate leading-tight">
                   ১. গ্রাহকের তথ্য
                 </span>
                 <span className={`text-[9px] sm:text-[10px] block truncate leading-none mt-0.5 ${
-                  currentStep === 1 || currentStep === 'otp' ? 'text-white/85' : 'text-slate-500'
+                  currentStep === 1 || currentStep === 'otp' ? 'text-white/85' : 'text-[#71717a]'
                 }`}>
                   নাম ও মোবাইল
                 </span>
@@ -462,26 +462,26 @@ export default function OrderPageView({
             {/* Step 2 */}
             <div className={`flex items-center gap-1.5 sm:gap-2 p-2 rounded-xl transition-all ${
               currentStep === 2
-                ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md shadow-purple-500/20'
+                ? 'bg-[#3b5bff] text-white shadow-md shadow-[#3b5bff]/25'
                 : currentStep === 3
-                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                  : 'bg-slate-50 text-slate-500 border border-slate-200'
+                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                  : 'bg-white/[0.03] text-[#71717a] border border-white/[0.06]'
             }`}>
-              <span className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-black shrink-0 ${
+              <span className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-bold shrink-0 ${
                 currentStep === 2
                   ? 'bg-white/20 text-white'
                   : currentStep === 3
-                    ? 'bg-emerald-600 text-white'
-                    : 'bg-slate-200 text-slate-600'
+                    ? 'bg-emerald-500 text-white'
+                    : 'bg-white/[0.08] text-[#71717a]'
               }`}>
                 {currentStep === 3 ? '✓' : '২'}
               </span>
               <div className="min-w-0">
-                <span className="block text-[11px] sm:text-xs font-bold truncate leading-tight">
+                <span className="block text-[11px] sm:text-xs font-medium truncate leading-tight">
                   ২. পেমেন্ট ও TrxID
                 </span>
                 <span className={`text-[9px] sm:text-[10px] block truncate leading-none mt-0.5 ${
-                  currentStep === 2 ? 'text-white/85' : 'text-slate-500'
+                  currentStep === 2 ? 'text-white/85' : 'text-[#71717a]'
                 }`}>
                   বিকাশ/নগদ ১,৯৯০৳
                 </span>
@@ -491,22 +491,22 @@ export default function OrderPageView({
             {/* Step 3 */}
             <div className={`flex items-center gap-1.5 sm:gap-2 p-2 rounded-xl transition-all ${
               currentStep === 3
-                ? 'bg-emerald-600 text-white shadow-md shadow-emerald-500/20'
-                : 'bg-slate-50 text-slate-500 border border-slate-200'
+                ? 'bg-emerald-500 text-white shadow-md'
+                : 'bg-white/[0.03] text-[#71717a] border border-white/[0.06]'
             }`}>
-              <span className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-black shrink-0 ${
+              <span className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-bold shrink-0 ${
                 currentStep === 3
                   ? 'bg-white/20 text-white'
-                  : 'bg-slate-200 text-slate-600'
+                  : 'bg-white/[0.08] text-[#71717a]'
               }`}>
                 ৩
               </span>
               <div className="min-w-0">
-                <span className="block text-[11px] sm:text-xs font-bold truncate leading-tight">
+                <span className="block text-[11px] sm:text-xs font-medium truncate leading-tight">
                   ৩. ২৪ঘন্টায় রেডি
                 </span>
                 <span className={`text-[9px] sm:text-[10px] block truncate leading-none mt-0.5 ${
-                  currentStep === 3 ? 'text-white/85' : 'text-slate-500'
+                  currentStep === 3 ? 'text-white/85' : 'text-[#71717a]'
                 }`}>
                   লাইভ ডেলিভারি
                 </span>
@@ -517,22 +517,22 @@ export default function OrderPageView({
 
         {/* ----------------- STEP 1: Client Information (No Password) ----------------- */}
         {currentStep === 1 && (
-          <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-10 shadow-lg max-w-2xl mx-auto animate-fadeIn text-slate-900">
+          <div className="bg-[#0e0e12] border border-white/[0.08] rounded-2xl p-6 sm:p-10 shadow-dark-card max-w-2xl mx-auto animate-fadeIn text-[#f5f5f7]">
             <div className="text-center mb-6">
-              <span className="px-3.5 py-1 rounded-full bg-purple-100 text-purple-700 text-xs font-bold inline-flex items-center gap-1.5 mb-2 border border-purple-200">
-                <span className="w-1.5 h-1.5 rounded-full bg-purple-600 animate-pulse" />
+              <span className="px-3.5 py-1 rounded-full bg-[#3b5bff]/10 text-[#3b5bff] text-xs font-medium inline-flex items-center gap-1.5 mb-2 border border-[#3b5bff]/20">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#3b5bff] animate-pulse" />
                 ১ম ধাপ: আপনার মৌলিক তথ্য দিন
               </span>
-              <h1 className="text-xl sm:text-2xl font-black text-slate-900">
+              <h1 className="text-xl sm:text-2xl font-semibold text-[#f5f5f7]">
                 কোনো পাসওয়ার্ড ছাড়াই সহজ ও নিরাপদ চেকআউট
               </h1>
-              <p className="text-xs text-slate-600 mt-1 max-w-md mx-auto leading-relaxed">
+              <p className="text-xs text-[#a1a1b0] mt-1 max-w-md mx-auto leading-relaxed">
                 আপনার নাম, মোবাইল ও ইমেইল লিখুন। এরপরের ধাপে বিকাশ বা নগদে পেমেন্ট সম্পন্ন করবেন।
               </p>
             </div>
 
             {step1Error && (
-              <div className="mb-4 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold flex items-center gap-2 animate-shake">
+              <div className="mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-medium flex items-center gap-2 animate-shake">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>{step1Error}</span>
               </div>
@@ -540,67 +540,67 @@ export default function OrderPageView({
 
             <form onSubmit={handleStep1Submit} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  আপনার পুরো নাম <span className="text-rose-500">*</span>
+                <label className="block text-xs font-medium text-[#a1a1b0] mb-1">
+                  আপনার পুরো নাম <span className="text-[#3b5bff]">*</span>
                 </label>
                 <div className="relative">
-                  <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <User className="w-4 h-4 text-[#71717a] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <input
                     type="text"
                     required
                     placeholder="যেমন: মোঃ সাকিব হাসান"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 border border-slate-300 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-purple-600 focus:ring-1 focus:ring-purple-600 transition-all"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-xs sm:text-sm text-[#f5f5f7] placeholder-[#71717a] focus:outline-none focus:border-[#3b5bff] transition-all"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  মোবাইল নম্বর <span className="text-rose-500">*</span>
+                <label className="block text-xs font-medium text-[#a1a1b0] mb-1">
+                  মোবাইল নম্বর <span className="text-[#3b5bff]">*</span>
                 </label>
                 <div className="relative">
-                  <Phone className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <Phone className="w-4 h-4 text-[#71717a] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <input
                     type="tel"
                     required
                     placeholder="017xxxxxxxx"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 border border-slate-300 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-purple-600 focus:ring-1 focus:ring-purple-600 transition-all font-mono"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-xs sm:text-sm text-[#f5f5f7] placeholder-[#71717a] focus:outline-none focus:border-[#3b5bff] transition-all font-mono"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  ইমেইল এড্রেস <span className="text-rose-500">*</span>
+                <label className="block text-xs font-medium text-[#a1a1b0] mb-1">
+                  ইমেইল এড্রেস <span className="text-[#3b5bff]">*</span>
                 </label>
                 <div className="relative">
-                  <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <Mail className="w-4 h-4 text-[#71717a] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <input
                     type="email"
                     required
                     placeholder="name@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 border border-slate-300 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-purple-600 focus:ring-1 focus:ring-purple-600 transition-all font-mono"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-xs sm:text-sm text-[#f5f5f7] placeholder-[#71717a] focus:outline-none focus:border-[#3b5bff] transition-all font-mono"
                   />
                 </div>
               </div>
 
               {/* Price Reminder */}
-              <div className="p-3 rounded-2xl bg-purple-50/80 border border-purple-200 flex items-center justify-between text-xs mt-3 text-slate-700">
-                <span>এককালীন সেটআপ চার্জ: <strong className="text-purple-700 font-mono">১,৯৯০ ৳</strong></span>
-                <span>মাসিক ক্লাউড: <strong className="text-purple-700 font-mono">১২০ টাকা</strong></span>
+              <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.08] flex items-center justify-between text-xs mt-3 text-[#a1a1b0]">
+                <span>এককালীন সেটআপ চার্জ: <strong className="text-[#f5f5f7] font-mono">১,৯৯০ ৳</strong></span>
+                <span>মাসিক ক্লাউড: <strong className="text-[#3b5bff] font-mono">১২০ টাকা</strong></span>
               </div>
 
               <div className="pt-3">
                 <button
                   type="submit"
                   disabled={step1Loading}
-                  className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 hover:from-purple-500 hover:to-indigo-500 text-white text-xs sm:text-sm font-bold shadow-md shadow-purple-500/25 transition-all flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.01] disabled:opacity-60"
+                  className="w-full py-3 px-4 rounded-full bg-[#3b5bff] hover:bg-[#324ecc] text-white text-xs sm:text-sm font-medium shadow-lg shadow-[#3b5bff]/25 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95 disabled:opacity-60"
                 >
                   {step1Loading ? (
                     <span className="flex items-center gap-2">

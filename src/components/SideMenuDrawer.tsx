@@ -162,21 +162,21 @@ export default function SideMenuDrawer({
         />
 
         {/* Drawer Content */}
-        <div className="relative w-full max-w-sm sm:max-w-md bg-white text-slate-900 h-full shadow-2xl flex flex-col justify-between z-10 animate-slideLeft border-l border-slate-200">
+        <div className="relative w-full max-w-sm sm:max-w-md bg-[#0e0e12] text-[#f5f5f7] h-full shadow-2xl flex flex-col justify-between z-10 animate-slideLeft border-l border-white/[0.08]">
           {/* Drawer Top Header */}
-          <div className="p-4 sm:p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+          <div className="p-4 sm:p-5 border-b border-white/[0.08] flex items-center justify-between bg-[#14141a]/80">
             <BongoWebLogo size="sm" />
 
             <button
               onClick={onClose}
-              className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition-colors cursor-pointer"
+              className="p-2 rounded-xl text-[#a1a1b0] hover:text-[#f5f5f7] hover:bg-white/[0.06] transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
 
           {/* Navigation Links with 3D Depth */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-2.5 perspective-1000">
+          <div className="flex-1 overflow-y-auto p-4 space-y-2.5">
             {/* 1. আপনার Order এর বিস্তারিত */}
             <button
               onClick={() => {
@@ -187,16 +187,16 @@ export default function SideMenuDrawer({
                   onSelectTab('after-order');
                 }
               }}
-              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl bg-white hover:bg-purple-50/70 text-slate-700 hover:text-purple-700 transition-all text-xs font-bold text-left cursor-pointer group border border-slate-200 border-b-[3.5px] border-b-slate-300 hover:border-b-purple-400 shadow-[0_3px_0_0_#CBD5E1] hover:shadow-[0_3px_0_0_#C084FC] active:border-b active:translate-y-[2px] active:shadow-none btn-3d-tactile"
+              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.06] text-[#f5f5f7] transition-all text-xs font-medium text-left cursor-pointer group border border-white/[0.06] hover:border-[#3b5bff]/40"
             >
-              <div className="w-10 h-10 rounded-xl bg-purple-50 group-hover:bg-purple-100 flex items-center justify-center text-purple-600 border border-purple-200 shadow-xs shrink-0 transition-colors">
-                <ClipboardCheck className="w-5 h-5 stroke-[2.2]" />
+              <div className="w-10 h-10 rounded-xl bg-white/[0.05] group-hover:bg-[#3b5bff]/15 flex items-center justify-center text-[#3b5bff] border border-white/[0.08] shrink-0 transition-colors">
+                <ClipboardCheck className="w-5 h-5 stroke-[2]" />
               </div>
               <div className="flex-1 min-w-0">
-                <span className="block text-sm font-black text-slate-900 group-hover:text-purple-700">
+                <span className="block text-sm font-semibold text-[#f5f5f7] group-hover:text-white">
                   ১. আপনার Order এর বিস্তারিত
                 </span>
-                <span className="text-[11px] text-slate-500 font-normal block truncate">
+                <span className="text-[11px] text-[#a1a1b0] font-normal block truncate mt-0.5">
                   পেন্ডিং, অনুমোদিত ও সম্পূর্ণ অর্ডারের লাইভ স্ট্যাটাস
                 </span>
               </div>
@@ -212,16 +212,16 @@ export default function SideMenuDrawer({
                   onSelectTab('account');
                 }
               }}
-              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl bg-white hover:bg-purple-50/70 text-slate-700 hover:text-purple-700 transition-all text-xs font-bold text-left cursor-pointer group border border-slate-200 border-b-[3.5px] border-b-slate-300 hover:border-b-purple-400 shadow-[0_3px_0_0_#CBD5E1] hover:shadow-[0_3px_0_0_#C084FC] active:border-b active:translate-y-[2px] active:shadow-none btn-3d-tactile"
+              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.06] text-[#f5f5f7] transition-all text-xs font-medium text-left cursor-pointer group border border-white/[0.06] hover:border-[#3b5bff]/40"
             >
-              <div className="w-10 h-10 rounded-xl bg-purple-50 group-hover:bg-[#7C3AED] flex items-center justify-center text-purple-600 group-hover:text-white border border-purple-200 shadow-xs shrink-0 transition-colors">
-                <Key className="w-5 h-5 stroke-[2.2]" />
+              <div className="w-10 h-10 rounded-xl bg-white/[0.05] group-hover:bg-[#3b5bff]/15 flex items-center justify-center text-[#3b5bff] border border-white/[0.08] shrink-0 transition-colors">
+                <Key className="w-5 h-5 stroke-[2]" />
               </div>
               <div className="flex-1 min-w-0">
-                <span className="block text-sm font-black text-slate-900 group-hover:text-purple-700">
+                <span className="block text-sm font-semibold text-[#f5f5f7] group-hover:text-white">
                   ২. ওয়েবসাইট আইডি ও পাসওয়ার্ড
                 </span>
-                <span className="text-[11px] text-slate-500 font-normal block truncate">
+                <span className="text-[11px] text-[#a1a1b0] font-normal block truncate mt-0.5">
                   অ্যাডমিন আইডি ও পাসওয়ার্ড বিস্তারিত দেখুন
                 </span>
               </div>
@@ -233,16 +233,16 @@ export default function SideMenuDrawer({
                 onSelectTab('live-chat');
                 onClose();
               }}
-              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl bg-white hover:bg-purple-50/70 text-slate-700 hover:text-purple-700 transition-all text-xs font-bold text-left cursor-pointer group border border-slate-200 border-b-[3.5px] border-b-slate-300 hover:border-b-purple-400 shadow-[0_3px_0_0_#CBD5E1] hover:shadow-[0_3px_0_0_#C084FC] active:border-b active:translate-y-[2px] active:shadow-none btn-3d-tactile"
+              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.06] text-[#f5f5f7] transition-all text-xs font-medium text-left cursor-pointer group border border-white/[0.06] hover:border-[#3b5bff]/40"
             >
-              <div className="w-10 h-10 rounded-xl bg-purple-50 group-hover:bg-purple-100 flex items-center justify-center text-purple-600 border border-purple-200 shadow-xs shrink-0 transition-colors">
-                <MessageCircle className="w-5 h-5 stroke-[2.2]" />
+              <div className="w-10 h-10 rounded-xl bg-white/[0.05] group-hover:bg-[#3b5bff]/15 flex items-center justify-center text-[#3b5bff] border border-white/[0.08] shrink-0 transition-colors">
+                <MessageCircle className="w-5 h-5 stroke-[2]" />
               </div>
               <div className="flex-1 min-w-0">
-                <span className="block text-sm font-black text-slate-900 group-hover:text-purple-700">
+                <span className="block text-sm font-semibold text-[#f5f5f7] group-hover:text-white">
                   ৩. BongoWeb Live Support (২৪/৭)
                 </span>
-                <span className="text-[11px] text-slate-500 font-normal block truncate">
+                <span className="text-[11px] text-[#a1a1b0] font-normal block truncate mt-0.5">
                   সরাসরি আমাদের টিমের সাথে লাইভ চ্যাট
                 </span>
               </div>
@@ -251,16 +251,16 @@ export default function SideMenuDrawer({
             {/* 4. Support Ticket */}
             <button
               onClick={handleOpenTicket}
-              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl bg-white hover:bg-purple-50/70 text-slate-700 hover:text-purple-700 transition-all text-xs font-bold text-left cursor-pointer group border border-slate-200 border-b-[3.5px] border-b-slate-300 hover:border-b-purple-400 shadow-[0_3px_0_0_#CBD5E1] hover:shadow-[0_3px_0_0_#C084FC] active:border-b active:translate-y-[2px] active:shadow-none btn-3d-tactile"
+              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.06] text-[#f5f5f7] transition-all text-xs font-medium text-left cursor-pointer group border border-white/[0.06] hover:border-[#3b5bff]/40"
             >
-              <div className="w-10 h-10 rounded-xl bg-purple-50 group-hover:bg-purple-100 flex items-center justify-center text-purple-600 border border-purple-200 shadow-xs shrink-0 transition-colors">
-                <Ticket className="w-5 h-5 stroke-[2.2]" />
+              <div className="w-10 h-10 rounded-xl bg-white/[0.05] group-hover:bg-[#3b5bff]/15 flex items-center justify-center text-[#3b5bff] border border-white/[0.08] shrink-0 transition-colors">
+                <Ticket className="w-5 h-5 stroke-[2]" />
               </div>
               <div className="flex-1 min-w-0">
-                <span className="block text-sm font-black text-slate-900 group-hover:text-purple-700">
+                <span className="block text-sm font-semibold text-[#f5f5f7] group-hover:text-white">
                   ৪. Support Ticket
                 </span>
-                <span className="text-[11px] text-slate-500 font-normal block truncate">
+                <span className="text-[11px] text-[#a1a1b0] font-normal block truncate mt-0.5">
                   যেকোনো সমস্যায় সাপোর্ট টিকিট জমা দিন
                 </span>
               </div>
@@ -269,16 +269,16 @@ export default function SideMenuDrawer({
             {/* 5. Testimonials (Client Reviews & Ratings) */}
             <button
               onClick={() => setTestimonialsModalOpen(true)}
-              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl bg-white hover:bg-amber-50/70 text-slate-700 hover:text-amber-700 transition-all text-xs font-bold text-left cursor-pointer group border border-slate-200 border-b-[3.5px] border-b-slate-300 hover:border-b-amber-400 shadow-[0_3px_0_0_#CBD5E1] hover:shadow-[0_3px_0_0_#FBBF24] active:border-b active:translate-y-[2px] active:shadow-none btn-3d-tactile"
+              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.06] text-[#f5f5f7] transition-all text-xs font-medium text-left cursor-pointer group border border-white/[0.06] hover:border-amber-500/40"
             >
-              <div className="w-10 h-10 rounded-xl bg-amber-50 group-hover:bg-amber-100 flex items-center justify-center text-amber-500 border border-amber-200 shadow-xs shrink-0 transition-colors">
-                <Star className="w-5 h-5 fill-amber-500" />
+              <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-400 border border-amber-500/20 shrink-0">
+                <Star className="w-5 h-5 fill-amber-400" />
               </div>
               <div className="flex-1 min-w-0">
-                <span className="block text-sm font-black text-slate-900 group-hover:text-amber-700">
+                <span className="block text-sm font-semibold text-[#f5f5f7] group-hover:text-amber-400">
                   ৫. Testimonials (Client Reviews & Ratings)
                 </span>
-                <span className="text-[11px] text-slate-500 font-normal block truncate">
+                <span className="text-[11px] text-[#a1a1b0] font-normal block truncate mt-0.5">
                   গ্রাহকদের মতামত ও ৫-স্টার রেটিং দেখুন
                 </span>
               </div>
@@ -287,28 +287,28 @@ export default function SideMenuDrawer({
             {/* 6. Call Back Button (Menu Option for all users) */}
             <button
               onClick={handleOpenCallBack}
-              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl bg-white hover:bg-emerald-50/70 text-slate-700 hover:text-emerald-700 transition-all text-xs font-bold text-left cursor-pointer group border border-slate-200 border-b-[3.5px] border-b-slate-300 hover:border-b-emerald-400 shadow-[0_3px_0_0_#CBD5E1] hover:shadow-[0_3px_0_0_#34D399] active:border-b active:translate-y-[2px] active:shadow-none btn-3d-tactile relative"
+              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.06] text-[#f5f5f7] transition-all text-xs font-medium text-left cursor-pointer group border border-white/[0.06] hover:border-emerald-500/40 relative"
             >
-              <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center border border-emerald-500 shadow-xs shrink-0">
-                <PhoneCall className="w-5 h-5 stroke-[2.2]" />
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20 shrink-0">
+                <PhoneCall className="w-5 h-5 stroke-[2]" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="block text-sm font-black text-slate-900 group-hover:text-emerald-700">
+                  <span className="block text-sm font-semibold text-[#f5f5f7] group-hover:text-emerald-400">
                     ৬. Call Back (কল ব্যাক রিকোয়েস্ট)
                   </span>
                   {myCallBackRequest?.status === 'pending' && (
-                    <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-bold border border-amber-200 shrink-0 animate-pulse">
+                    <span className="px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 text-[10px] font-medium border border-amber-500/20 shrink-0 animate-pulse">
                       পেন্ডিং
                     </span>
                   )}
                   {myCallBackRequest?.status === 'approved' && (
-                    <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold border border-emerald-200 shrink-0">
+                    <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-medium border border-emerald-500/20 shrink-0">
                       ✓ অনুমোদিত
                     </span>
                   )}
                 </div>
-                <span className="text-[11px] text-slate-500 font-normal block truncate">
+                <span className="text-[11px] text-[#a1a1b0] font-normal block truncate mt-0.5">
                   {myCallBackRequest?.status === 'pending'
                     ? 'আপনার কল ব্যাক রিকোয়েস্ট অপেক্ষমান রয়েছে'
                     : myCallBackRequest?.status === 'approved'
@@ -319,12 +319,12 @@ export default function SideMenuDrawer({
             </button>
           </div>
 
-          {/* Drawer Clean Footer (No WhatsApp button) */}
-          <div className="p-4 border-t border-slate-200 bg-slate-50 text-center">
-            <p className="text-[11px] font-bold text-slate-900">
+          {/* Drawer Clean Footer */}
+          <div className="p-4 border-t border-white/[0.08] bg-[#14141a]/60 text-center">
+            <p className="text-[11px] font-medium text-[#f5f5f7]">
               BongoWeb • Enterprise Solutions
             </p>
-            <p className="text-[10px] text-slate-500 mt-0.5">
+            <p className="text-[10px] text-[#71717a] mt-0.5">
               ২৪ ঘণ্টা লাইভ ডেলিভারি ও সাপোর্ট সিস্টেম
             </p>
           </div>
