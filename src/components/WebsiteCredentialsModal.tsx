@@ -173,22 +173,22 @@ export default function WebsiteCredentialsModal({
   );
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/60 backdrop-blur-sm animate-fadeIn">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-900/40 backdrop-blur-md animate-fadeIn">
       <div 
-        className="w-full max-w-2xl bg-[#0e0e12] text-[#f5f5f7] rounded-2xl shadow-dark-card border border-white/[0.08] overflow-hidden flex flex-col max-h-[90vh] animate-slideUpModal"
+        className="w-full max-w-2xl bg-white text-slate-900 rounded-[28px] shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh] animate-scaleUp"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
-        <div className="px-5 py-4 sm:px-6 sm:py-5 border-b border-white/[0.08] flex items-center justify-between bg-[#14141a]/80">
+        <div className="px-5 py-4 sm:px-6 sm:py-5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white/[0.05] text-[#3b5bff] border border-white/[0.08] flex items-center justify-center shadow-xs">
-              <Key className="w-5 h-5 stroke-[2]" />
+            <div className="w-10 h-10 rounded-2xl bg-purple-50 text-purple-600 border border-purple-200 flex items-center justify-center shadow-xs">
+              <Key className="w-5 h-5 stroke-[2.2]" />
             </div>
             <div>
-              <h2 className="text-base sm:text-lg font-semibold text-[#f5f5f7]">
+              <h2 className="text-base sm:text-lg font-black text-slate-900">
                 আপনার Website আইডি ও পাসওয়ার্ড
               </h2>
-              <p className="text-xs text-[#a1a1b0] font-normal">
+              <p className="text-xs text-slate-500 font-medium">
                 প্রস্তুতকৃত ওয়েবসাইটের অ্যাডমিন অ্যাক্সেস ক্রেডেনশিয়াল
               </p>
             </div>
@@ -197,7 +197,7 @@ export default function WebsiteCredentialsModal({
           <button
             type="button"
             onClick={onClose}
-            className="w-9 h-9 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-[#a1a1b0] hover:text-[#f5f5f7] flex items-center justify-center transition-colors cursor-pointer"
+            className="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-colors cursor-pointer"
             aria-label="বন্ধ করুন"
           >
             <X className="w-5 h-5" />
@@ -205,21 +205,21 @@ export default function WebsiteCredentialsModal({
         </div>
 
         {/* Modal Content */}
-        <div className="p-5 sm:p-6 overflow-y-auto space-y-4 bg-[#09090b]">
+        <div className="p-5 sm:p-6 overflow-y-auto space-y-4 bg-slate-50/50">
           {loading ? (
-            <div className="py-16 text-center text-xs text-[#a1a1b0] space-y-2">
-              <div className="w-8 h-8 mx-auto border-2 border-[#3b5bff] border-t-transparent rounded-full animate-spin" />
-              <p className="font-medium">তথ্য লোড হচ্ছে...</p>
+            <div className="py-16 text-center text-xs text-slate-500 space-y-2">
+              <div className="w-8 h-8 mx-auto border-3 border-[#6B46C1] border-t-transparent rounded-full animate-spin" />
+              <p className="font-bold">তথ্য লোড হচ্ছে...</p>
             </div>
           ) : credentialsList.length > 0 ? (
             /* CASE 1: Credentials Delivered and Ready */
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-[#a1a1b0]">
-                  মোট ডেলিভারিকৃত ওয়েবসাইট: <strong className="text-[#f5f5f7]">{credentialsList.length} টি</strong>
+                <span className="text-xs font-bold text-slate-600">
+                  মোট ডেলিভারিকৃত ওয়েবসাইট: <strong className="text-slate-900">{credentialsList.length} টি</strong>
                 </span>
-                <span className="px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-medium inline-flex items-center gap-1">
-                  <Check className="w-3.5 h-3.5 text-emerald-400" />
+                <span className="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-black inline-flex items-center gap-1">
+                  <Check className="w-3.5 h-3.5 text-emerald-600" />
                   <span>লাইভ অ্যাক্সেস প্রস্তুত</span>
                 </span>
               </div>
@@ -227,19 +227,19 @@ export default function WebsiteCredentialsModal({
               {credentialsList.map((cred, idx) => (
                 <div
                   key={cred.id || idx}
-                  className="p-5 sm:p-6 rounded-2xl bg-[#0e0e12] border border-white/[0.08] shadow-dark-card space-y-4"
+                  className="p-5 sm:p-6 rounded-3xl bg-white border border-emerald-300 shadow-sm space-y-4"
                 >
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/[0.06] pb-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 pb-3">
                     <div className="flex items-center gap-2.5">
-                      <span className="px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 text-xs font-medium shadow-xs">
+                      <span className="px-2.5 py-1 rounded-xl bg-emerald-600 text-white text-xs font-black shadow-xs">
                         ✓ ওয়েবসাইট #{idx + 1}
                       </span>
-                      <h3 className="text-base font-semibold text-[#f5f5f7]">
+                      <h3 className="text-base font-black text-slate-900">
                         {cred.websiteTitle}
                       </h3>
                     </div>
                     {cred.websiteCode && (
-                      <span className="px-2.5 py-0.5 rounded-full bg-white/[0.05] text-[#3b5bff] border border-white/[0.08] font-mono text-xs font-medium">
+                      <span className="px-2.5 py-0.5 rounded-lg bg-purple-50 text-purple-700 border border-purple-200 font-mono text-xs font-bold">
                         {cred.websiteCode}
                       </span>
                     )}
@@ -248,25 +248,25 @@ export default function WebsiteCredentialsModal({
                   {/* ID & Password Display */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {/* Admin ID */}
-                    <div className="bg-white/[0.03] p-3.5 rounded-xl border border-white/[0.06] flex items-center justify-between">
+                    <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 shadow-2xs flex items-center justify-between">
                       <div className="min-w-0 pr-2">
-                        <span className="text-[10px] font-medium text-[#71717a] uppercase tracking-wider block">
+                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
                           অ্যাডমিন ইউজারনেম / আইডি
                         </span>
-                        <span className="text-sm font-mono font-medium text-[#f5f5f7] select-all truncate block">
+                        <span className="text-sm font-mono font-black text-slate-900 select-all truncate block">
                           {cred.websiteAdminId}
                         </span>
                       </div>
                       <button
                         type="button"
                         onClick={() => handleCopy(cred.websiteAdminId, `id-${cred.id}`)}
-                        className="px-2.5 py-1.5 rounded-full bg-white/[0.05] hover:bg-white/[0.1] text-[#3b5bff] border border-white/[0.08] text-xs font-medium transition-all flex items-center gap-1 cursor-pointer shrink-0"
+                        className="px-2.5 py-1.5 rounded-xl bg-white hover:bg-slate-100 text-purple-700 border border-slate-200 text-xs font-bold transition-all flex items-center gap-1 cursor-pointer shrink-0 shadow-2xs"
                         title="আইডি কপি করুন"
                       >
                         {copiedKey === `id-${cred.id}` ? (
                           <>
-                            <Check className="w-3.5 h-3.5 text-emerald-400" />
-                            <span className="text-emerald-400">কপি হয়েছে</span>
+                            <Check className="w-3.5 h-3.5 text-emerald-600" />
+                            <span className="text-emerald-600">কপি হয়েছে</span>
                           </>
                         ) : (
                           <>
@@ -278,25 +278,25 @@ export default function WebsiteCredentialsModal({
                     </div>
 
                     {/* Admin Password */}
-                    <div className="bg-white/[0.03] p-3.5 rounded-xl border border-white/[0.06] flex items-center justify-between">
+                    <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 shadow-2xs flex items-center justify-between">
                       <div className="min-w-0 pr-2">
-                        <span className="text-[10px] font-medium text-[#71717a] uppercase tracking-wider block">
+                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
                           অ্যাডমিন পাসওয়ার্ড
                         </span>
-                        <span className="text-sm font-mono font-medium text-[#3b5bff] select-all truncate block">
+                        <span className="text-sm font-mono font-black text-purple-700 select-all truncate block">
                           {cred.websiteAdminPass}
                         </span>
                       </div>
                       <button
                         type="button"
                         onClick={() => handleCopy(cred.websiteAdminPass, `pass-${cred.id}`)}
-                        className="px-2.5 py-1.5 rounded-full bg-white/[0.05] hover:bg-white/[0.1] text-[#3b5bff] border border-white/[0.08] text-xs font-medium transition-all flex items-center gap-1 cursor-pointer shrink-0"
+                        className="px-2.5 py-1.5 rounded-xl bg-white hover:bg-slate-100 text-purple-700 border border-slate-200 text-xs font-bold transition-all flex items-center gap-1 cursor-pointer shrink-0 shadow-2xs"
                         title="পাসওয়ার্ড কপি করুন"
                       >
                         {copiedKey === `pass-${cred.id}` ? (
                           <>
-                            <Check className="w-3.5 h-3.5 text-emerald-400" />
-                            <span className="text-emerald-400">কপি হয়েছে</span>
+                            <Check className="w-3.5 h-3.5 text-emerald-600" />
+                            <span className="text-emerald-600">কপি হয়েছে</span>
                           </>
                         ) : (
                           <>
@@ -310,13 +310,13 @@ export default function WebsiteCredentialsModal({
 
                   {/* Engineer Notes */}
                   {cred.notes && (
-                    <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.06] text-xs text-[#a1a1b0]">
-                      <strong className="text-[#f5f5f7] block mb-0.5">ইঞ্জিনিয়ার নির্দেশনা:</strong>
+                    <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-700">
+                      <strong className="text-slate-900 block mb-0.5">ইঞ্জিনিয়ার নির্দেশনা:</strong>
                       <p className="leading-relaxed">{cred.notes}</p>
                     </div>
                   )}
 
-                  <div className="text-[11px] text-[#71717a] text-right font-mono">
+                  <div className="text-[11px] text-slate-500 text-right font-mono">
                     ডেলিভারির তারিখ: {cred.deliveredAt}
                   </div>
                 </div>
@@ -324,19 +324,19 @@ export default function WebsiteCredentialsModal({
             </div>
           ) : pendingOrProcessingOrders.length > 0 ? (
             /* CASE 2: Order Placed and In-Progress */
-            <div className="py-8 px-4 text-center space-y-4 bg-[#0e0e12] rounded-2xl border border-white/[0.08]">
-              <div className="w-14 h-14 mx-auto rounded-2xl bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center shadow-xs">
+            <div className="py-8 px-4 text-center space-y-4 bg-amber-50 rounded-3xl border border-amber-200">
+              <div className="w-14 h-14 mx-auto rounded-3xl bg-amber-100 text-amber-700 border border-amber-300 flex items-center justify-center shadow-xs">
                 <Clock className="w-7 h-7" />
               </div>
               <div className="max-w-md mx-auto space-y-2">
-                <h3 className="text-base sm:text-lg font-semibold text-[#f5f5f7]">
+                <h3 className="text-base sm:text-lg font-black text-slate-900">
                   আপনার অর্ডারটি প্রক্রিয়াধীন রয়েছে
                 </h3>
-                <p className="text-xs sm:text-sm text-[#a1a1b0] leading-relaxed">
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
                   আমাদের ইঞ্জিনিয়ার টিম আপনার ওয়েবসাইটটি প্রস্তুত করছেন। কাজ সম্পূর্ণ হওয়ার সাথে সাথেই আপনার ওয়েবসাইটের অ্যাডমিন আইডি ও পাসওয়ার্ড সরাসরি এখানে দেখতে পাবেন।
                 </p>
                 <div className="pt-2">
-                  <span className="inline-block px-3 py-1 rounded-full bg-white/[0.05] text-amber-400 border border-amber-500/20 text-xs font-medium">
+                  <span className="inline-block px-3 py-1 rounded-full bg-white text-amber-800 border border-amber-200 text-xs font-bold shadow-2xs">
                     অর্ডারের স্ট্যাটাস: অপেক্ষমাণ ও প্রসেসিং
                   </span>
                 </div>
@@ -345,14 +345,14 @@ export default function WebsiteCredentialsModal({
           ) : (
             /* CASE 3: No Website & No Order */
             <div className="py-12 px-4 text-center space-y-4">
-              <div className="w-16 h-16 mx-auto rounded-2xl bg-white/[0.03] border border-white/[0.08] text-[#71717a] flex items-center justify-center">
+              <div className="w-16 h-16 mx-auto rounded-3xl bg-slate-100 border border-slate-200 text-slate-500 flex items-center justify-center shadow-2xs">
                 <Globe className="w-8 h-8" />
               </div>
               <div className="max-w-sm mx-auto space-y-2">
-                <h3 className="text-base sm:text-lg font-semibold text-[#f5f5f7]">
+                <h3 className="text-base sm:text-lg font-black text-slate-900">
                   আপনার কোনো ওয়েবসাইট নেই
                 </h3>
-                <p className="text-xs sm:text-sm text-[#a1a1b0] leading-relaxed">
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
                   আপনি এখনও কোনো ওয়েবসাইট ক্রয় বা অর্ডার করেননি। ওয়েবসাইট কেনার পর এখানে আপনার প্রস্তুতকৃত ওয়েবসাইটের অ্যাডমিন আইডি ও পাসওয়ার্ড দেখতে পাবেন।
                 </p>
               </div>
@@ -364,7 +364,7 @@ export default function WebsiteCredentialsModal({
                     onClose();
                     if (onGoToDashboard) onGoToDashboard();
                   }}
-                  className="px-5 py-2.5 rounded-full bg-[#3b5bff] hover:bg-[#324ecc] text-white text-xs sm:text-sm font-medium transition-all inline-flex items-center gap-2 shadow-md shadow-[#3b5bff]/25 cursor-pointer"
+                  className="px-5 py-3 rounded-2xl bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] hover:from-[#5B21B6] hover:to-[#6D28D9] text-white text-xs sm:text-sm font-black transition-all inline-flex items-center gap-2 shadow-md hover:shadow-lg cursor-pointer"
                 >
                   <Laptop className="w-4 h-4" />
                   <span>ড্যাশবোর্ডে ওয়েবসাইট দেখুন</span>
@@ -376,12 +376,12 @@ export default function WebsiteCredentialsModal({
         </div>
 
         {/* Footer */}
-        <div className="px-5 py-3.5 sm:px-6 border-t border-white/[0.08] bg-[#14141a]/80 flex items-center justify-between text-xs text-[#71717a]">
+        <div className="px-5 py-3.5 sm:px-6 border-t border-slate-200 bg-slate-50 flex items-center justify-between text-xs text-slate-600">
           <span className="font-medium">BongoWeb Secure Delivery</span>
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-1.5 rounded-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-[#f5f5f7] font-medium transition-all cursor-pointer"
+            className="px-4 py-2 rounded-xl bg-white hover:bg-slate-100 border border-slate-200 text-slate-800 font-bold transition-all cursor-pointer shadow-2xs"
           >
             বন্ধ করুন
           </button>
