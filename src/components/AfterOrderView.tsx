@@ -164,7 +164,6 @@ export default function AfterOrderView({ onGoToDashboard, onOpenLiveChat }: Afte
   const currentStep = steps[currentStepIndex] || steps[0];
   const titleText = language === 'en' ? currentStep.titleEn : currentStep.titleBn;
   const descText = language === 'en' ? currentStep.descEn : currentStep.descBn;
-  const highlights = language === 'en' ? currentStep.highlightsEn : currentStep.highlightsBn;
 
   const titleWords = titleText.trim().split(/\s+/);
   const descWords = descText.trim().split(/\s+/);
@@ -469,23 +468,6 @@ export default function AfterOrderView({ onGoToDashboard, onOpenLiveChat }: Afte
                         <span className="inline-block w-2 h-4 sm:h-5 bg-indigo-500 rounded-xs animate-cursor-blink ml-0.5 align-middle shadow-xs" />
                       )}
                     </div>
-
-                    {/* Feature Highlights Pills (Fade in smoothly once description is done) */}
-                    <div 
-                      className={`flex flex-wrap items-center gap-2 pt-1 pb-3 transition-opacity duration-300 translate-z-sm ${
-                        subPhase === 'reading' || subPhase === 'exit' ? 'opacity-100' : 'opacity-0'
-                      }`}
-                    >
-                      {highlights.map((item, hIdx) => (
-                        <span 
-                          key={hIdx}
-                          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-semibold bg-slate-100/90 text-slate-800 border border-slate-200 border-b-2 border-b-slate-300 shadow-2xs"
-                        >
-                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                          <span>{item}</span>
-                        </span>
-                      ))}
-                    </div>
                   </div>
 
                   {/* Bottom Footer: Time Estimate + Next Step Control */}
@@ -603,18 +585,6 @@ export default function AfterOrderView({ onGoToDashboard, onOpenLiveChat }: Afte
                         <p className="text-xs text-slate-600 leading-relaxed mb-3">
                           {language === 'en' ? step.descEn : step.descBn}
                         </p>
-                      </div>
-
-                      {/* Highlights */}
-                      <div className="flex flex-wrap gap-1.5 mb-2 translate-z-xs">
-                        {(language === 'en' ? step.highlightsEn : step.highlightsBn).map((h, i) => (
-                          <span 
-                            key={i}
-                            className="text-[10.5px] px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-medium border border-slate-200"
-                          >
-                            ✓ {h}
-                          </span>
-                        ))}
                       </div>
                     </div>
 
