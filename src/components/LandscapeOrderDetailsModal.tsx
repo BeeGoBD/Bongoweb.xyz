@@ -112,22 +112,22 @@ export default function LandscapeOrderDetailsModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-900/40 backdrop-blur-sm animate-fadeIn overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/70 backdrop-blur-sm animate-fadeIn overflow-y-auto">
       <div 
-        className="w-full max-w-5xl bg-white text-slate-900 rounded-3xl border border-slate-200 shadow-2xl overflow-hidden flex flex-col max-h-[92vh] animate-slideUpModal relative"
+        className="w-full max-w-5xl bg-[#0e0e12] text-[#f5f5f7] rounded-2xl border border-white/[0.08] shadow-dark-card overflow-hidden flex flex-col max-h-[92vh] animate-slideUpModal relative"
         role="dialog"
       >
         {/* Top Header */}
-        <div className="px-5 py-4 sm:px-7 sm:py-5 border-b border-slate-200 bg-slate-50 flex items-center justify-between gap-3 shrink-0">
+        <div className="px-5 py-4 sm:px-7 sm:py-5 border-b border-white/[0.08] bg-[#14141a]/80 flex items-center justify-between gap-3 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-purple-50 text-purple-600 border border-purple-200 flex items-center justify-center font-black shadow-xs shrink-0">
-              <ShieldCheck className="w-5 h-5 stroke-[2.2]" />
+            <div className="w-10 h-10 rounded-xl bg-white/[0.05] text-[#3b5bff] border border-white/[0.08] flex items-center justify-center font-bold shrink-0">
+              <ShieldCheck className="w-5 h-5 stroke-[2]" />
             </div>
             <div>
-              <h2 className="text-base sm:text-lg font-black text-slate-900">
+              <h2 className="text-base sm:text-lg font-semibold text-[#f5f5f7]">
                 আপনার অর্ডারের বিবরণ ও লাইভ ট্র্যাকিং
               </h2>
-              <p className="text-[11px] sm:text-xs text-slate-500">
+              <p className="text-[11px] sm:text-xs text-[#a1a1b0]">
                 পেন্ডিং, প্রসেসিং ও ডেলিভারিকৃত ওয়েবসাইট আইডি-পাসওয়ার্ড বিস্তারিত
               </p>
             </div>
@@ -135,7 +135,7 @@ export default function LandscapeOrderDetailsModal({
 
           <button
             onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+            className="p-2 rounded-xl text-[#a1a1b0] hover:text-[#f5f5f7] hover:bg-white/[0.06] transition-colors cursor-pointer"
             aria-label="Close"
           >
             <X className="w-5 h-5" />
@@ -143,37 +143,37 @@ export default function LandscapeOrderDetailsModal({
         </div>
 
         {/* Quick Stat Chips Bar */}
-        <div className="px-5 py-3 sm:px-7 bg-slate-50 border-b border-slate-200 flex items-center gap-2 flex-wrap shrink-0">
-          <span className="px-3 py-1 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-700 shadow-2xs">
-            মোট অর্ডার: <strong className="text-purple-700 font-mono">{relevantOrders.length}</strong>
+        <div className="px-5 py-3 sm:px-7 bg-[#14141a]/50 border-b border-white/[0.06] flex items-center gap-2 flex-wrap shrink-0">
+          <span className="px-3 py-1 rounded-full bg-white/[0.03] border border-white/[0.08] text-xs font-medium text-[#f5f5f7]">
+            মোট অর্ডার: <strong className="text-[#3b5bff] font-mono">{relevantOrders.length}</strong>
           </span>
-          <span className="px-3 py-1 rounded-xl bg-amber-50 border border-amber-200 text-xs font-bold text-amber-800 shadow-2xs">
+          <span className="px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-xs font-medium text-amber-400">
             পেন্ডিং যাচাই: <strong className="font-mono">{pendingCount}</strong>
           </span>
-          <span className="px-3 py-1 rounded-xl bg-purple-50 border border-purple-200 text-xs font-bold text-purple-700 shadow-2xs">
+          <span className="px-3 py-1 rounded-full bg-[#3b5bff]/10 border border-[#3b5bff]/20 text-xs font-medium text-[#3b5bff]">
             প্রসেসিং (সেটআপ): <strong className="font-mono">{processingCount}</strong>
           </span>
-          <span className="px-3 py-1 rounded-xl bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-800 shadow-2xs">
+          <span className="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-medium text-emerald-400">
             সম্পূর্ণ ও ডেলিভারি সম্পন্ন: <strong className="font-mono">{completedCount}</strong>
           </span>
         </div>
 
         {/* Modal Scrollable Body */}
-        <div className="flex-1 overflow-y-auto p-5 sm:p-7 space-y-5 bg-slate-50/40">
+        <div className="flex-1 overflow-y-auto p-5 sm:p-7 space-y-5 bg-[#09090b]">
           {loading ? (
-            <div className="py-16 text-center flex flex-col items-center justify-center gap-2 text-slate-500">
-              <RefreshCw className="w-6 h-6 animate-spin text-[#7C3AED]" />
+            <div className="py-16 text-center flex flex-col items-center justify-center gap-2 text-[#a1a1b0]">
+              <RefreshCw className="w-6 h-6 animate-spin text-[#3b5bff]" />
               <p className="text-xs">অর্ডারের তথ্য লোড হচ্ছে...</p>
             </div>
           ) : relevantOrders.length === 0 ? (
-            <div className="py-16 text-center bg-white rounded-3xl border border-slate-200 p-8 space-y-3 shadow-xs">
-              <div className="w-14 h-14 rounded-2xl bg-purple-50 text-purple-600 border border-purple-200 flex items-center justify-center mx-auto mb-2">
+            <div className="py-16 text-center bg-[#0e0e12] rounded-2xl border border-white/[0.08] p-8 space-y-3 shadow-dark-card">
+              <div className="w-14 h-14 rounded-2xl bg-white/[0.04] text-[#3b5bff] border border-white/[0.08] flex items-center justify-center mx-auto mb-2">
                 <Clock className="w-7 h-7" />
               </div>
-              <h3 className="text-base font-black text-slate-900">
+              <h3 className="text-base font-semibold text-[#f5f5f7]">
                 আপনি এখনো কোনো ওয়েবসাইট অর্ডার করেননি
               </h3>
-              <p className="text-xs text-slate-500 max-w-md mx-auto">
+              <p className="text-xs text-[#a1a1b0] max-w-md mx-auto">
                 আমাদের ড্যাশবোর্ডে গিয়ে মাত্র ১,৯৯০ টাকায় আপনার পছন্দের ক্যাটাগরি থেকে রেডি ওয়েবসাইট অর্ডার করতে পারেন।
               </p>
               {onGoToDashboard && (
@@ -182,7 +182,7 @@ export default function LandscapeOrderDetailsModal({
                     onClose();
                     onGoToDashboard();
                   }}
-                  className="mt-3 px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] hover:from-[#5B21B6] hover:to-[#6D28D9] text-white text-xs font-bold shadow-md cursor-pointer inline-flex items-center gap-1.5 transition-all"
+                  className="mt-3 px-6 py-2.5 rounded-full bg-[#3b5bff] hover:bg-[#324ecc] text-white text-xs font-medium shadow-md shadow-[#3b5bff]/25 cursor-pointer inline-flex items-center gap-1.5 transition-all"
                 >
                   <span>ওয়েবসাইট ব্রাউজ করুন</span>
                   <ArrowRight className="w-4 h-4" />
@@ -225,49 +225,43 @@ export default function LandscapeOrderDetailsModal({
                 return (
                   <div
                     key={ord.orderId ? `order-card-${ord.orderId}` : `ord-idx-${idx}`}
-                    className={`p-5 sm:p-6 rounded-2xl sm:rounded-3xl border-2 transition-all shadow-sm space-y-4 bg-white ${
-                      isCompleted
-                        ? 'border-emerald-300 hover:border-emerald-500'
-                        : isProcessing
-                        ? 'border-purple-300 hover:border-purple-500'
-                        : 'border-amber-300 hover:border-amber-500'
-                    }`}
+                    className="p-5 sm:p-6 rounded-2xl border border-white/[0.08] shadow-dark-card space-y-4 bg-[#0e0e12]"
                   >
                     {/* Top Row: IDs, Website Title & Status Pill */}
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3.5">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/[0.06] pb-3.5">
                       <div className="flex items-center gap-2.5 flex-wrap">
-                        <span className="px-3 py-1 rounded-xl bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] text-white font-mono font-black text-xs shadow-2xs">
+                        <span className="px-3 py-1 rounded-full bg-[#3b5bff] text-white font-mono font-medium text-xs shadow-xs">
                           {ord.orderId}
                         </span>
-                        <span className="px-2.5 py-0.5 rounded-lg bg-purple-50 text-purple-700 text-xs font-bold font-mono border border-purple-200">
+                        <span className="px-2.5 py-0.5 rounded-full bg-white/[0.05] text-[#3b5bff] text-xs font-mono font-medium border border-white/[0.08]">
                           {ord.demoCode}
                         </span>
-                        <h3 className="text-sm sm:text-base font-extrabold text-slate-900">
+                        <h3 className="text-sm sm:text-base font-bold text-[#f5f5f7]">
                           {ord.companyName || ord.clientName}
                         </h3>
                         {ord.customDomain && (
-                          <span className="text-[11px] text-emerald-800 font-mono bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                          <span className="text-[11px] text-emerald-400 font-mono bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
                             {ord.customDomain}
                           </span>
                         )}
                       </div>
 
                       <div className="flex items-center gap-2 shrink-0">
-                        <span className={`px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 ${
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1.5 ${
                           isCompleted
-                            ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                            ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
                             : isProcessing
-                            ? 'bg-purple-50 text-purple-700 border border-purple-200'
-                            : 'bg-amber-50 text-amber-800 border border-amber-200'
+                            ? 'bg-[#3b5bff]/10 text-[#3b5bff] border border-[#3b5bff]/20'
+                            : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
                         }`}>
                           {isCompleted ? (
                             <>
-                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
                               <span>✓ সম্পূর্ণ (Live & Ready)</span>
                             </>
                           ) : isProcessing ? (
                             <>
-                              <span className="w-2 h-2 rounded-full bg-purple-600 animate-pulse" />
+                              <span className="w-2 h-2 rounded-full bg-[#3b5bff] animate-pulse" />
                               <span>⚡ অনুমোদিত (প্রসেসিং)</span>
                             </>
                           ) : (
@@ -281,25 +275,25 @@ export default function LandscapeOrderDetailsModal({
                         <button
                           type="button"
                           onClick={() => setSelectedReceiptOrder(ord)}
-                          className="px-3 py-1 rounded-xl bg-slate-100 hover:bg-slate-200 text-purple-700 border border-slate-200 text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
+                          className="px-3 py-1 rounded-full bg-white/[0.05] hover:bg-white/[0.1] text-[#f5f5f7] border border-white/[0.08] text-xs font-medium transition-all flex items-center gap-1 cursor-pointer"
                         >
-                          <Eye className="w-3.5 h-3.5" />
+                          <Eye className="w-3.5 h-3.5 text-[#3b5bff]" />
                           <span>রসিদ দেখুন</span>
                         </button>
                       </div>
                     </div>
 
                     {/* 3-Step Live Visual Lifecycle Pipeline */}
-                    <div className="bg-slate-50 p-3 sm:p-4 rounded-2xl border border-slate-200">
+                    <div className="bg-white/[0.02] p-3 sm:p-4 rounded-xl border border-white/[0.06]">
                       <div className="grid grid-cols-3 gap-2 text-center text-xs">
                         {/* Step 1: Pending */}
-                        <div className={`p-2.5 rounded-xl flex flex-col items-center gap-1 transition-all ${
+                        <div className={`p-2.5 rounded-lg flex flex-col items-center gap-1 transition-all ${
                           isPending 
-                            ? 'bg-amber-100/80 border border-amber-300 text-amber-900 font-bold shadow-2xs' 
-                            : 'bg-white border border-slate-200 text-emerald-600'
+                            ? 'bg-amber-500/10 border border-amber-500/30 text-amber-400 font-medium' 
+                            : 'bg-white/[0.02] border border-white/[0.06] text-emerald-400'
                         }`}>
                           <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
-                            isPending ? 'bg-amber-500 text-white' : 'bg-emerald-600 text-white'
+                            isPending ? 'bg-amber-500 text-black' : 'bg-emerald-500 text-black'
                           }`}>
                             {isPending ? '১' : '✓'}
                           </div>
@@ -307,15 +301,15 @@ export default function LandscapeOrderDetailsModal({
                         </div>
 
                         {/* Step 2: Processing */}
-                        <div className={`p-2.5 rounded-xl flex flex-col items-center gap-1 transition-all ${
+                        <div className={`p-2.5 rounded-lg flex flex-col items-center gap-1 transition-all ${
                           isProcessing 
-                            ? 'bg-purple-100/80 border border-purple-300 text-purple-900 font-bold shadow-2xs' 
+                            ? 'bg-[#3b5bff]/10 border border-[#3b5bff]/30 text-[#3b5bff] font-medium' 
                             : isCompleted 
-                            ? 'bg-white border border-slate-200 text-emerald-600'
-                            : 'bg-white/60 border border-slate-200 text-slate-400'
+                            ? 'bg-white/[0.02] border border-white/[0.06] text-emerald-400'
+                            : 'bg-white/[0.01] border border-white/[0.04] text-[#71717a]'
                         }`}>
                           <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
-                            isProcessing ? 'bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] text-white' : isCompleted ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-600'
+                            isProcessing ? 'bg-[#3b5bff] text-white' : isCompleted ? 'bg-emerald-500 text-black' : 'bg-white/[0.1] text-[#71717a]'
                           }`}>
                             {isCompleted ? '✓' : '২'}
                           </div>
@@ -323,13 +317,13 @@ export default function LandscapeOrderDetailsModal({
                         </div>
 
                         {/* Step 3: Completed */}
-                        <div className={`p-2.5 rounded-xl flex flex-col items-center gap-1 transition-all ${
+                        <div className={`p-2.5 rounded-lg flex flex-col items-center gap-1 transition-all ${
                           isCompleted 
-                            ? 'bg-emerald-100/80 border border-emerald-300 text-emerald-900 font-bold shadow-2xs' 
-                            : 'bg-white/60 border border-slate-200 text-slate-400'
+                            ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-medium' 
+                            : 'bg-white/[0.01] border border-white/[0.04] text-[#71717a]'
                         }`}>
                           <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
-                            isCompleted ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-500'
+                            isCompleted ? 'bg-emerald-500 text-black' : 'bg-white/[0.1] text-[#71717a]'
                           }`}>
                             {isCompleted ? '✓' : '৩'}
                           </div>
@@ -340,37 +334,37 @@ export default function LandscapeOrderDetailsModal({
 
                     {/* DELIVERED WEBSITE CREDENTIALS (ID & PASSWORD) SECTION */}
                     {matchingCred ? (
-                      <div className="p-4 sm:p-5 rounded-2xl bg-emerald-50/50 border-2 border-emerald-300 shadow-xs space-y-3">
-                        <div className="flex items-center justify-between border-b border-emerald-200/60 pb-2.5">
-                          <div className="flex items-center gap-2 text-xs font-black text-emerald-800">
-                            <Key className="w-4 h-4 text-emerald-600" />
+                      <div className="p-4 sm:p-5 rounded-xl bg-emerald-500/[0.04] border border-emerald-500/20 space-y-3">
+                        <div className="flex items-center justify-between border-b border-emerald-500/20 pb-2.5">
+                          <div className="flex items-center gap-2 text-xs font-semibold text-emerald-400">
+                            <Key className="w-4 h-4 text-emerald-400" />
                             <span>আপনার ওয়েবসাইটের আইডি ও পাসওয়ার্ড (Website Admin Credentials)</span>
                           </div>
-                          <span className="px-2 py-0.5 rounded-full bg-emerald-600 text-white text-[10px] font-bold">
+                          <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-medium border border-emerald-500/30">
                             ডেলিভারি সম্পন্ন
                           </span>
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           {/* Username / Admin ID */}
-                          <div className="p-3 bg-white rounded-xl border border-[#00B261]/30 flex items-center justify-between gap-2 shadow-2xs">
+                          <div className="p-3 bg-[#14141a] rounded-xl border border-white/[0.08] flex items-center justify-between gap-2">
                             <div className="min-w-0">
-                              <span className="text-[10px] text-[#64748D] block uppercase font-bold">
+                              <span className="text-[10px] text-[#a1a1b0] block uppercase font-medium">
                                 অ্যাডমিন ইউজারনেম / ID
                               </span>
-                              <span className="text-xs sm:text-sm font-black font-mono text-[#0D253D] truncate block">
+                              <span className="text-xs sm:text-sm font-semibold font-mono text-[#f5f5f7] truncate block">
                                 {matchingCred.websiteAdminId}
                               </span>
                             </div>
                             <button
                               type="button"
                               onClick={() => handleCopy(matchingCred.websiteAdminId, `user-${ord.orderId}`)}
-                              className="px-2.5 py-1 rounded-lg bg-slate-50 hover:bg-[#FAF5FF] text-[#6B46C1] border border-slate-200 text-xs font-bold flex items-center gap-1 cursor-pointer shrink-0 transition-colors"
+                              className="px-2.5 py-1 rounded-full bg-white/[0.05] hover:bg-white/[0.1] text-[#3b5bff] border border-white/[0.08] text-xs font-medium flex items-center gap-1 cursor-pointer shrink-0 transition-colors"
                               title="কপি করুন"
                             >
                               {copiedId === `user-${ord.orderId}` ? (
                                  <>
-                                   <Check className="w-3.5 h-3.5 text-[#00B261]" />
+                                   <Check className="w-3.5 h-3.5 text-emerald-400" />
                                    <span>কপি হয়েছে</span>
                                  </>
                               ) : (
@@ -383,12 +377,12 @@ export default function LandscapeOrderDetailsModal({
                           </div>
 
                           {/* Password */}
-                          <div className="p-3 bg-white rounded-xl border border-[#00B261]/30 flex items-center justify-between gap-2 shadow-2xs">
+                          <div className="p-3 bg-[#14141a] rounded-xl border border-white/[0.08] flex items-center justify-between gap-2">
                             <div className="min-w-0">
-                              <span className="text-[10px] text-slate-500 block uppercase font-bold">
+                              <span className="text-[10px] text-[#a1a1b0] block uppercase font-medium">
                                 অ্যাডমিন পাসওয়ার্ড
                               </span>
-                              <span className="text-xs sm:text-sm font-black font-mono text-[#0F172A] truncate block">
+                              <span className="text-xs sm:text-sm font-semibold font-mono text-[#f5f5f7] truncate block">
                                 {revealedPass[ord.orderId] ? matchingCred.websiteAdminPass : '••••••••••••'}
                               </span>
                             </div>
@@ -396,19 +390,19 @@ export default function LandscapeOrderDetailsModal({
                               <button
                                 type="button"
                                 onClick={() => toggleRevealPass(ord.orderId)}
-                                className="px-2 py-1 rounded-lg text-slate-500 hover:text-slate-800 text-[11px] font-bold"
+                                className="px-2 py-1 rounded-lg text-[#a1a1b0] hover:text-[#f5f5f7] text-[11px] font-medium"
                               >
                                 {revealedPass[ord.orderId] ? 'লুকান' : 'দেখুন'}
                               </button>
                               <button
                                 type="button"
                                 onClick={() => handleCopy(matchingCred.websiteAdminPass, `pass-${ord.orderId}`)}
-                                className="px-2.5 py-1 rounded-lg bg-slate-50 hover:bg-[#FAF5FF] text-[#6B46C1] border border-slate-200 text-xs font-bold flex items-center gap-1 cursor-pointer transition-colors"
+                                className="px-2.5 py-1 rounded-full bg-white/[0.05] hover:bg-white/[0.1] text-[#3b5bff] border border-white/[0.08] text-xs font-medium flex items-center gap-1 cursor-pointer transition-colors"
                                 title="কপি করুন"
                               >
                                 {copiedId === `pass-${ord.orderId}` ? (
                                   <>
-                                    <Check className="w-3.5 h-3.5 text-[#00B261]" />
+                                    <Check className="w-3.5 h-3.5 text-emerald-400" />
                                     <span>কপি হয়েছে</span>
                                   </>
                                 ) : (
@@ -422,13 +416,13 @@ export default function LandscapeOrderDetailsModal({
                           </div>
                         </div>
 
-                        <p className="text-[11px] text-[#008A4B] font-medium pt-0.5">
+                        <p className="text-[11px] text-emerald-400 font-medium pt-0.5">
                           ✓ নোট: {matchingCred.notes || 'আপনার ওয়েবসাইট সম্পূর্ণ তৈরি ও রেডি। অ্যাডমিন প্যানেলে লগইন করে কাস্টমাইজ করুন।'}
                         </p>
                       </div>
                     ) : isProcessing ? (
-                      <div className="p-3.5 rounded-2xl bg-[#FAF5FF] border border-[#DDD6FE] text-[#6B46C1] text-xs font-medium flex items-center gap-2.5">
-                        <Clock className="w-4 h-4 shrink-0 text-[#6B46C1] animate-spin" />
+                      <div className="p-3.5 rounded-xl bg-[#3b5bff]/10 border border-[#3b5bff]/20 text-[#3b5bff] text-xs font-medium flex items-center gap-2.5">
+                        <Clock className="w-4 h-4 shrink-0 text-[#3b5bff] animate-spin" />
                         <span>
                           আমাদের ইঞ্জিনিয়ার টিম আপনার ওয়েবসাইট দ্রুত কনফিগার করছেন। সেটআপ সম্পন্ন হওয়া মাত্রই এখানে আপনার অ্যাডমিন আইডি ও পাসওয়ার্ড ভেসে উঠবে।
                         </span>
@@ -436,14 +430,14 @@ export default function LandscapeOrderDetailsModal({
                     ) : null}
 
                     {/* Metadata summary line */}
-                    <div className="flex items-center justify-between text-[11px] text-[#64748D] pt-1 flex-wrap gap-2 border-t border-[#F1F5F9]">
+                    <div className="flex items-center justify-between text-[11px] text-[#71717a] pt-1 flex-wrap gap-2 border-t border-white/[0.06]">
                       <div className="flex items-center gap-3">
-                        <span>তারিখ: <strong className="text-[#0D253D]">{ord.createdAt || 'N/A'}</strong></span>
-                        <span>TrxID: <strong className="font-mono text-[#00B261]">{ord.transactionId || 'N/A'}</strong></span>
-                        <span>মেকিং চার্জ: <strong className="text-[#9333EA]">১,৯৯০ ৳</strong></span>
-                        <span><strong className="text-[#9333EA]">মাসিক খরচ ২৫০ টাকা</strong></span>
+                        <span>তারিখ: <strong className="text-[#f5f5f7]">{ord.createdAt || 'N/A'}</strong></span>
+                        <span>TrxID: <strong className="font-mono text-emerald-400">{ord.transactionId || 'N/A'}</strong></span>
+                        <span>মেকিং চার্জ: <strong className="text-[#3b5bff]">১,৯৯০ ৳</strong></span>
+                        <span><strong className="text-[#3b5bff]">মাসিক খরচ ২৫০ টাকা</strong></span>
                       </div>
-                      <span className="text-[10px] font-mono bg-[#F8FAFD] px-2 py-0.5 rounded border border-[#E5EDF5]">
+                      <span className="text-[10px] font-mono bg-white/[0.03] text-[#a1a1b0] px-2 py-0.5 rounded-full border border-white/[0.06]">
                         পেমেন্ট: {String(ord.paymentMethod || 'bKash').toUpperCase()}
                       </span>
                     </div>
@@ -455,14 +449,14 @@ export default function LandscapeOrderDetailsModal({
         </div>
 
         {/* Footer */}
-        <div className="px-5 py-3 sm:px-7 border-t border-[#E5EDF5] bg-[#F8FAFD] flex items-center justify-between gap-3 shrink-0">
-          <p className="text-[11px] text-[#64748D]">
+        <div className="px-5 py-3 sm:px-7 border-t border-white/[0.06] bg-[#0e0e12] flex items-center justify-between gap-3 shrink-0">
+          <p className="text-[11px] text-[#71717a]">
             BongoWeb • ২৪ ঘণ্টা এক্সপ্রেস ডেলিভারি ও আজীবন টেকনিক্যাল সাপোর্ট
           </p>
 
           <button
             onClick={onClose}
-            className="px-5 py-2 rounded-xl bg-[#0D253D] hover:bg-[#1E293B] text-white text-xs font-bold cursor-pointer transition-colors"
+            className="px-5 py-2 rounded-full bg-white/[0.05] hover:bg-white/[0.1] text-[#f5f5f7] border border-white/[0.08] text-xs font-medium cursor-pointer transition-colors"
           >
             বন্ধ করুন
           </button>
@@ -471,66 +465,66 @@ export default function LandscapeOrderDetailsModal({
 
       {/* Official Receipt Modal Nested */}
       {selectedReceiptOrder && (
-        <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-[#0D253D]/70 backdrop-blur-sm animate-fadeIn">
-          <div className="w-full max-w-lg bg-[#FFFFFF] rounded-3xl border border-[#E5EDF5] shadow-2xl p-6 sm:p-8 animate-slideUpModal relative space-y-4 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+          <div className="w-full max-w-lg bg-[#0e0e12] text-[#f5f5f7] rounded-2xl border border-white/[0.08] shadow-dark-card p-6 sm:p-8 animate-slideUpModal relative space-y-4 max-h-[90vh] overflow-y-auto">
             <button
               onClick={() => setSelectedReceiptOrder(null)}
-              className="absolute top-4 right-4 p-2 rounded-xl text-[#64748D] hover:text-[#0D253D] hover:bg-[#F8FAFD] cursor-pointer"
+              className="absolute top-4 right-4 p-2 rounded-xl text-[#a1a1b0] hover:text-[#f5f5f7] hover:bg-white/[0.06] cursor-pointer transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
 
-            <div className="text-center pb-4 border-b border-slate-200">
-              <span className="px-3 py-1 rounded-full bg-[#FAF5FF] text-[#6B46C1] border border-[#DDD6FE] text-xs font-mono font-black inline-block mb-1">
+            <div className="text-center pb-4 border-b border-white/[0.06]">
+              <span className="px-3 py-1 rounded-full bg-[#3b5bff] text-white text-xs font-mono font-medium inline-block mb-1 shadow-xs">
                 {selectedReceiptOrder.orderId}
               </span>
-              <h3 className="text-lg font-black text-[#0F172A]">অফিসিয়াল অর্ডার রসিদ (Receipt)</h3>
-              <p className="text-[11px] text-slate-500">BongoWeb — ২৪ ঘণ্টা এক্সপ্রেস ডেলিভারি</p>
+              <h3 className="text-lg font-bold text-[#f5f5f7]">অফিসিয়াল অর্ডার রসিদ (Receipt)</h3>
+              <p className="text-[11px] text-[#71717a]">BongoWeb — ২৪ ঘণ্টা এক্সপ্রেস ডেলিভারি</p>
             </div>
 
             <div className="space-y-2 text-xs">
-              <div className="flex justify-between py-1.5 border-b border-slate-100">
-                <span className="text-slate-500">গ্রাহকের নাম:</span>
-                <span className="font-bold text-[#0F172A]">{selectedReceiptOrder.clientName}</span>
+              <div className="flex justify-between py-1.5 border-b border-white/[0.06]">
+                <span className="text-[#a1a1b0]">গ্রাহকের নাম:</span>
+                <span className="font-semibold text-[#f5f5f7]">{selectedReceiptOrder.clientName}</span>
               </div>
-              <div className="flex justify-between py-1.5 border-b border-slate-100">
-                <span className="text-slate-500">ব্যবসা/কোম্পানি:</span>
-                <span className="font-bold text-[#0F172A]">{selectedReceiptOrder.companyName}</span>
+              <div className="flex justify-between py-1.5 border-b border-white/[0.06]">
+                <span className="text-[#a1a1b0]">ব্যবসা/কোম্পানি:</span>
+                <span className="font-semibold text-[#f5f5f7]">{selectedReceiptOrder.companyName}</span>
               </div>
-              <div className="flex justify-between py-1.5 border-b border-slate-100">
-                <span className="text-slate-500">মোবাইল নম্বর:</span>
-                <span className="font-bold font-mono text-[#0F172A]">{selectedReceiptOrder.phone}</span>
+              <div className="flex justify-between py-1.5 border-b border-white/[0.06]">
+                <span className="text-[#a1a1b0]">মোবাইল নম্বর:</span>
+                <span className="font-semibold font-mono text-[#f5f5f7]">{selectedReceiptOrder.phone}</span>
               </div>
-              <div className="flex justify-between py-1.5 border-b border-slate-100">
-                <span className="text-slate-500">ইমেইল এড্রেস:</span>
-                <span className="font-bold font-mono text-[#0F172A]">{selectedReceiptOrder.email || 'N/A'}</span>
+              <div className="flex justify-between py-1.5 border-b border-white/[0.06]">
+                <span className="text-[#a1a1b0]">ইমেইল এড্রেস:</span>
+                <span className="font-semibold font-mono text-[#f5f5f7]">{selectedReceiptOrder.email || 'N/A'}</span>
               </div>
-              <div className="flex justify-between py-1.5 border-b border-slate-100">
-                <span className="text-slate-500">পেমেন্ট মাধ্যম:</span>
-                <span className="font-bold text-[#0F172A] uppercase">{selectedReceiptOrder.paymentMethod}</span>
+              <div className="flex justify-between py-1.5 border-b border-white/[0.06]">
+                <span className="text-[#a1a1b0]">পেমেন্ট মাধ্যম:</span>
+                <span className="font-semibold text-[#f5f5f7] uppercase">{selectedReceiptOrder.paymentMethod}</span>
               </div>
-              <div className="flex justify-between py-1.5 border-b border-slate-100">
-                <span className="text-slate-500">ট্রানজেকশন TrxID:</span>
-                <span className="font-bold font-mono text-[#00B261]">{selectedReceiptOrder.transactionId}</span>
+              <div className="flex justify-between py-1.5 border-b border-white/[0.06]">
+                <span className="text-[#a1a1b0]">ট্রানজেকশন TrxID:</span>
+                <span className="font-semibold font-mono text-emerald-400">{selectedReceiptOrder.transactionId}</span>
               </div>
-              <div className="flex justify-between py-1.5 border-b border-slate-100">
-                <span className="text-slate-500">এককালীন চার্জ:</span>
-                <span className="font-black text-sm text-[#0F172A]">১,৯৯০ ৳</span>
+              <div className="flex justify-between py-1.5 border-b border-white/[0.06]">
+                <span className="text-[#a1a1b0]">এককালীন চার্জ:</span>
+                <span className="font-bold text-sm text-[#f5f5f7]">১,৯৯০ ৳</span>
               </div>
-              <div className="flex justify-between py-1.5 border-b border-slate-100">
-                <span className="text-slate-500">মাসিক খরচ:</span>
-                <span className="font-bold text-[#6B46C1]">মাসিক খরচ ২৫০ টাকা</span>
+              <div className="flex justify-between py-1.5 border-b border-white/[0.06]">
+                <span className="text-[#a1a1b0]">মাসিক খরচ:</span>
+                <span className="font-semibold text-[#3b5bff]">মাসিক খরচ ২৫০ টাকা</span>
               </div>
               <div className="flex justify-between py-1.5">
-                <span className="text-slate-500">স্ট্যাটাস:</span>
-                <span className={`font-bold flex items-center gap-1 ${
+                <span className="text-[#a1a1b0]">স্ট্যাটাস:</span>
+                <span className={`font-semibold flex items-center gap-1 ${
                   selectedReceiptOrder.status === 'completed'
-                    ? 'text-[#008A4B]'
+                    ? 'text-emerald-400'
                     : selectedReceiptOrder.status === 'processing' || selectedReceiptOrder.status === 'verified'
-                    ? 'text-[#6B46C1]'
+                    ? 'text-[#3b5bff]'
                     : selectedReceiptOrder.status === 'cancelled'
-                    ? 'text-[#E53935]'
-                    : 'text-[#D8351E]'
+                    ? 'text-rose-400'
+                    : 'text-amber-400'
                 }`}>
                   {selectedReceiptOrder.status === 'completed'
                     ? '✓ সম্পূর্ণ (Completed)'
@@ -546,14 +540,14 @@ export default function LandscapeOrderDetailsModal({
             <div className="pt-2 flex gap-2">
               <button
                 onClick={() => window.print()}
-                className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] hover:from-[#5B21B6] hover:to-[#6D28D9] text-white text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer shadow-md transition-all"
+                className="flex-1 py-2.5 rounded-xl bg-[#3b5bff] hover:bg-[#324ecc] text-white text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer shadow-blue-glow transition-all"
               >
                 <Printer className="w-3.5 h-3.5" />
                 <span>প্রিন্ট / ডাউনলোড</span>
               </button>
               <button
                 onClick={() => setSelectedReceiptOrder(null)}
-                className="px-4 py-2.5 rounded-xl bg-slate-50 hover:bg-[#FAF5FF] text-[#6B46C1] border border-slate-200 hover:border-[#DDD6FE] text-xs font-bold cursor-pointer transition-colors"
+                className="px-4 py-2.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-[#f5f5f7] border border-white/[0.08] text-xs font-medium cursor-pointer transition-colors"
               >
                 বন্ধ করুন
               </button>

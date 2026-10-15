@@ -604,22 +604,22 @@ export default function LiveChatView() {
       )}
 
       {/* Floating Emergency WhatsApp & Direct Call Footer */}
-      <div className="mt-5 text-center text-xs text-slate-500 flex flex-wrap items-center justify-center gap-4">
+      <div className="mt-5 text-center text-xs text-[#71717a] flex flex-wrap items-center justify-center gap-4">
         <a
           href="https://wa.me/8801819847250"
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 text-emerald-600 hover:text-emerald-700 font-bold transition-colors"
+          className="inline-flex items-center gap-1.5 text-emerald-400 hover:text-emerald-300 font-medium transition-colors"
         >
           <MessageCircle className="w-3.5 h-3.5" />
           <span>{t('হোয়াটসঅ্যাপে মেসেজ পাঠান', 'Chat on WhatsApp')}</span>
         </a>
 
-        <span className="text-slate-300">•</span>
+        <span className="text-[#52525b]">•</span>
 
         <a
           href="tel:+8801819847250"
-          className="inline-flex items-center gap-1.5 text-[#6B46C1] hover:text-[#5B21B6] font-bold transition-colors font-mono"
+          className="inline-flex items-center gap-1.5 text-[#3b5bff] hover:text-[#5d77ff] font-medium transition-colors font-mono"
         >
           <Phone className="w-3.5 h-3.5" />
           <span>+880 1819-847250</span>
