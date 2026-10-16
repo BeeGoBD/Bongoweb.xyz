@@ -7,20 +7,22 @@ interface BongoWebLogoProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';
   showText?: boolean;
   textColor?: string;
+  variant?: 'default' | 'white';
 }
 
 /**
  * Official BongoWeb Logo Component
  * - Dual Engine: Supports both Official Image Logo (SVG insignia / custom image upload)
  *   and Dynamic Typed Text Logo (controlled from Admin Settings)
- * - Universal Cloud Sync: Real-time synchronization across all devices and all visitors via Cloud Firestore
- * - Auto-perfect responsive scaling for mobile, tablet, and desktop screens
+ * - White Variant: White circular “B” logo + “BongoWeb” text for solid purple header
+ * - Universal Cloud Sync: Real-time synchronization across all devices
  */
 export default function BongoWebLogo({
   className = '',
   size = 'md',
   showText = true,
-  textColor
+  textColor,
+  variant = 'default'
 }: BongoWebLogoProps) {
   const [config, setConfig] = useState<BrandLogoConfig>(() => {
     try {
@@ -194,21 +196,32 @@ export default function BongoWebLogo({
 
           {/* Circular Emblem with Stylized Geometric 'B' Monogram */}
           <g id="emblem-inline" transform="translate(10, 8)">
-            <circle cx="47" cy="47" r="45" fill="url(#bwCircleGradientInline)" />
-            <circle cx="47" cy="47" r="44.25" stroke="rgba(255, 255, 255, 0.25)" strokeWidth="1.5" />
+            <circle 
+              cx="47" 
+              cy="47" 
+              r="45" 
+              fill={variant === 'white' ? '#FFFFFF' : 'url(#bwCircleGradientInline)'} 
+            />
+            <circle 
+              cx="47" 
+              cy="47" 
+              r="44.25" 
+              stroke={variant === 'white' ? 'rgba(255, 255, 255, 0.4)' : 'rgba(255, 255, 255, 0.25)'} 
+              strokeWidth="1.5" 
+            />
             <path
               d="M 23 25 C 23 23.34 24.34 22 26 22 L 48.5 C 59.8 22 69 31.2 69 42.5 C 69 49.6 65.3 55.8 59.5 59.3 C 57.2 60.7 54.3 61.5 51 61.5 L 34.5 61.5 L 43.5 45 L 30 45 L 23 25 Z"
-              fill="#FFFFFF"
+              fill={variant === 'white' ? '#5B2C8A' : '#FFFFFF'}
             />
             <path
               d="M 23 70 C 23 71.66 24.34 73 26 73 L 53 C 65.2 73 74 63.8 74 52 C 74 46.5 71.8 41.5 68 38 L 57.5 48 C 59.5 50 61 52.8 61 56 C 61 62.5 55.5 67 48.5 67 L 33 67 L 40 54 L 27.5 54 L 23 70 Z"
-              fill="#FFFFFF"
+              fill={variant === 'white' ? '#5B2C8A' : '#FFFFFF'}
             />
             <path
               d="M 37.5 31 L 47.5 31 C 53.5 31 58 35.5 58 41.5 C 58 47.5 53.5 52 47.5 52 L 40.5 52 L 37.5 31 Z"
-              fill="url(#bwCircleGradientInline)"
+              fill={variant === 'white' ? '#FFFFFF' : 'url(#bwCircleGradientInline)'}
             />
-            <circle cx="34" cy="47" r="3.5" fill="#FFFFFF" opacity="0.9" />
+            <circle cx="34" cy="47" r="3.5" fill={variant === 'white' ? '#5B2C8A' : '#FFFFFF'} opacity="0.9" />
           </g>
 
           {/* Typographic Wordmark: BongoWeb */}
@@ -220,16 +233,16 @@ export default function BongoWebLogo({
               fontWeight="900"
               fontSize="62"
               letterSpacing="-1.8px"
-              fill={textColor || "url(#bwTextGradientInline)"}
+              fill={variant === 'white' ? '#FFFFFF' : (textColor || "url(#bwTextGradientInline)")}
             >BongoWeb</text>
             <path
               d="M 76 81 C 76 88 94 88 94 81"
-              stroke={textColor || "#6B46C1"}
+              stroke={variant === 'white' ? '#EDE4F5' : (textColor || "#6B46C1")}
               strokeWidth="4.5"
               strokeLinecap="round"
               fill="none"
             />
-            <circle cx="85" cy="27" r="4.5" fill="#9F7AEA" />
+            <circle cx="85" cy="27" r="4.5" fill={variant === 'white' ? '#FFFFFF' : '#9F7AEA'} />
           </g>
         </svg>
       )}

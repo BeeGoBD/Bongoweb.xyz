@@ -1,8 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
-  ArrowLeft, Search, Star, ArrowRight, Eye, CheckCircle2, 
-  Sparkles, ExternalLink, ShieldCheck, ShoppingBag, 
-  UtensilsCrossed, Newspaper, Store, Laptop
+  Search, 
+  SlidersHorizontal, 
+  ArrowRight, 
+  Eye, 
+  CheckCircle2,
+  Sparkles,
+  ShoppingBag,
+  UtensilsCrossed,
+  BookOpen,
+  ShoppingCart,
+  Briefcase
 } from 'lucide-react';
 import { WebsiteCategory, WebsiteDemo } from '../types';
 import { WEBSITE_DEMOS } from '../data/mockData';
@@ -17,127 +25,36 @@ interface CategoryWebsitesViewProps {
 }
 
 export default function CategoryWebsitesView({
-  category,
-  onBackToDashboard,
+  category: initialCategory,
+  onBackToDashboard: _onBackToDashboard,
   onOpenWebsiteDetail,
   onOpenOrder
 }: CategoryWebsitesViewProps) {
   const { language } = useLanguage();
-  const [searchQuery, setSearchQuery] = useState('');
-
-  // Category metadata & styling
-  const categoryMeta: Record<WebsiteCategory, {
-    nameEn: string;
-    nameBn: string;
-    badgeEn: string;
-    badgeBn: string;
-    descriptionEn: string;
-    descriptionBn: string;
-    icon: React.ComponentType<{ className?: string }>;
-    accentColor: string;
-    gradientBg: string;
-    chipBg: string;
-  }> = {
-    ecommerce: {
-      nameEn: 'E-Commerce Stores',
-      nameBn: 'ই-কমার্স শপসমূহ',
-      badgeEn: '🔥 Most Demanding',
-      badgeBn: '🔥 সর্বোচ্চ চাহিদা',
-      descriptionEn: 'Browse all live high-converting ecommerce online store templates ready with payment & courier integration.',
-      descriptionBn: 'অটো বিকাশ/নগদ পেমেন্ট ও রিয়েল-টাইম কুরিয়ার সংযুক্ত সকল রেডিমেড ই-কমার্স ওয়েবসাইট এক্সপ্লোর করুন।',
-      icon: ShoppingBag,
-      accentColor: '#6B46C1',
-      gradientBg: 'from-[#5521B5] via-[#6B46C1] to-[#7C3AED]',
-      chipBg: 'bg-[#FAF5FF] text-[#6B46C1] border-[#DDD6FE]'
-    },
-    restaurant: {
-      nameEn: 'Restaurant & Cafe',
-      nameBn: 'রেস্তোরাঁ ও ক্যাফে',
-      badgeEn: '⚡ High Demand',
-      badgeBn: '⚡ ব্যাপক চাহিদা',
-      descriptionEn: 'Browse delicious restaurant, cafe, and dine-in food ordering templates with digital menus and table booking.',
-      descriptionBn: 'ডিজিটাল ফুড মেনু, টেবিল বুকিং ও অনলাইন পার্সেল ডেলিভারি সুবিধাসম্পন্ন রেস্তোরাঁ ওয়েবসাইটসমূহ।',
-      icon: UtensilsCrossed,
-      accentColor: '#EA580C',
-      gradientBg: 'from-orange-600 via-amber-600 to-orange-700',
-      chipBg: 'bg-amber-50 text-amber-800 border-amber-200'
-    },
-    blogging: {
-      nameEn: 'Blog & Media Portals',
-      nameBn: 'ব্লগ ও অনলাইন মিডিয়া',
-      badgeEn: '📈 Growing Demand',
-      badgeBn: '📈 ক্রমবর্ধমান চাহিদা',
-      descriptionEn: 'Modern news portals, magazine publishers, and article showcase platforms optimized for fast Google indexing.',
-      descriptionBn: 'দ্রুত গুগল ইনডেক্সিং ও অটো এডসেন্স অনুমোদিত আধুনিক নিউজ ও ম্যাগাজিন পোর্টালসমূহ।',
-      icon: Newspaper,
-      accentColor: '#7C3AED',
-      gradientBg: 'from-purple-600 via-violet-600 to-purple-700',
-      chipBg: 'bg-purple-50 text-purple-700 border-purple-200'
-    },
-    grocery: {
-      nameEn: 'Grocery & Supermarket',
-      nameBn: 'মুদি ও সুপারশপ',
-      badgeEn: '📦 Basic & Essential',
-      badgeBn: '📦 বেসিক ও নিত্যপ্রয়োজনীয়',
-      descriptionEn: 'Daily essentials, organic foods, and weight-based grocery ordering templates with instant checkout.',
-      descriptionBn: 'ওজন অনুযায়ী পণ্যের হিসাব ও দ্রুত হোম ডেলিভারি সমৃদ্ধ কাঁচাবাজার ও সুপারশপ ওয়েবসাইটসমূহ।',
-      icon: Store,
-      accentColor: '#059669',
-      gradientBg: 'from-emerald-600 via-teal-600 to-emerald-700',
-      chipBg: 'bg-emerald-50 text-emerald-700 border-emerald-200'
-    },
-    all: {
-      nameEn: 'All Ready Websites',
-      nameBn: 'সকল রেডি ওয়েবসাইট',
-      badgeEn: 'All Catalog',
-      badgeBn: 'সম্পূর্ণ ক্যাটালগ',
-      descriptionEn: 'Explore our complete gallery of verified high-performance ready-made websites.',
-      descriptionBn: 'আমাদের সকল ভেরিফায়েড রেডিমেড ওয়েবসাইটের সম্পূর্ণ কালেকশন এক্সপ্লোর করুন।',
-      icon: Laptop,
-      accentColor: '#2563EB',
-      gradientBg: 'from-slate-800 to-slate-900',
-      chipBg: 'bg-slate-100 text-slate-800 border-slate-200'
-    },
-    corporate: {
-      nameEn: 'Corporate & Business',
-      nameBn: 'কর্পোরেট ও ব্যবসা',
-      badgeEn: 'Professional',
-      badgeBn: 'প্রফেশনাল',
-      descriptionEn: 'Corporate portfolio and agency business websites.',
-      descriptionBn: 'কর্পোরেট ব্যবসা ও এজেন্সির জন্য প্রিমিয়াম ওয়েবসাইট।',
-      icon: Laptop,
-      accentColor: '#2563EB',
-      gradientBg: 'from-blue-700 to-indigo-800',
-      chipBg: 'bg-blue-50 text-blue-700 border-blue-200'
-    },
-    fashion: {
-      nameEn: 'Fashion & Boutique',
-      nameBn: 'ফ্যাশন ও বুটিক',
-      badgeEn: 'Trendy',
-      badgeBn: 'ট্রেন্ডি',
-      descriptionEn: 'Fashion apparel and stylish clothing boutique storefronts.',
-      descriptionBn: 'ফ্যাশন ও ব্র্যান্ডেড কাপড়ের আধুনিক অনলাইন স্টোর।',
-      icon: ShoppingBag,
-      accentColor: '#DB2777',
-      gradientBg: 'from-pink-600 to-rose-700',
-      chipBg: 'bg-pink-50 text-pink-700 border-pink-200'
-    },
-    portfolio: {
-      nameEn: 'Personal Portfolio',
-      nameBn: 'ব্যক্তিগত পোর্টফোলিও',
-      badgeEn: 'Creative',
-      badgeBn: 'ক্রিয়েটিভ',
-      descriptionEn: 'Personal resume and creative portfolio showcase.',
-      descriptionBn: 'ব্যক্তিগত সিভি ও কাজের নমুনা প্রদর্শনের পোর্টফোলিও।',
-      icon: Laptop,
-      accentColor: '#0284C7',
-      gradientBg: 'from-sky-600 to-cyan-700',
-      chipBg: 'bg-sky-50 text-sky-700 border-sky-200'
+  const [selectedFilter, setSelectedFilter] = useState<string>(() => {
+    if (initialCategory && initialCategory !== 'all') {
+      return initialCategory;
     }
-  };
+    return 'all';
+  });
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showFilterDropdown, setShowFilterDropdown] = useState(false);
 
+  useEffect(() => {
+    setSelectedFilter(initialCategory || 'all');
+  }, [initialCategory]);
 
-  // Retrieve custom uploaded websites dynamically from database and local sync
+  // Filter chips specification
+  const filterChips = [
+    { id: 'all', labelEn: 'All', labelBn: 'সকল' },
+    { id: 'ecommerce', labelEn: 'E-commerce', labelBn: 'ই-কমার্স' },
+    { id: 'restaurant', labelEn: 'Restaurant', labelBn: 'রেস্তোরাঁ' },
+    { id: 'blogging', labelEn: 'Blog', labelBn: 'ব্লগ' },
+    { id: 'grocery', labelEn: 'Grocery', labelBn: 'মুদি' },
+    { id: 'portfolio', labelEn: 'Portfolio', labelBn: 'পোর্টফোলিও' }
+  ];
+
+  // Dynamic custom websites fetched from backend/vault
   const [customWebsites, setCustomWebsites] = useState<WebsiteDemo[]>(() => {
     try {
       const raw = localStorage.getItem('bongoweb_custom_websites') || localStorage.getItem('bongoweb_custom_catalog');
@@ -148,194 +65,237 @@ export default function CategoryWebsitesView({
 
   useEffect(() => {
     apiGetWebsites()
-      .then(sites => {
-        if (Array.isArray(sites)) setCustomWebsites(sites);
+      .then((sites) => {
+        if (Array.isArray(sites) && sites.length > 0) setCustomWebsites(sites);
       })
       .catch(() => {});
-
-    const handleUpdate = (e: any) => {
-      if (e.detail && Array.isArray(e.detail)) {
-        setCustomWebsites(e.detail);
-      } else {
-        try {
-          const raw = localStorage.getItem('bongoweb_custom_websites') || localStorage.getItem('bongoweb_custom_catalog');
-          if (raw) setCustomWebsites(JSON.parse(raw));
-        } catch (_) {}
-      }
-    };
-
-    window.addEventListener('bongoweb_websites_updated', handleUpdate);
-    window.addEventListener('storage', handleUpdate);
-    return () => {
-      window.removeEventListener('bongoweb_websites_updated', handleUpdate);
-      window.removeEventListener('storage', handleUpdate);
-    };
   }, []);
 
-  const allAvailableWebsites = [...WEBSITE_DEMOS, ...customWebsites];
+  const allDemos = useMemo(() => {
+    return [...WEBSITE_DEMOS, ...customWebsites];
+  }, [customWebsites]);
 
-  // Filter demos matching this specific category
-  const matchingWebsites = allAvailableWebsites.filter((demo) => {
-    const matchCat = category === 'all' || demo.category === category;
-    if (!matchCat) return false;
+  // Filter logic
+  const filteredDemos = useMemo(() => {
+    return allDemos.filter((demo) => {
+      // 1. Category filter
+      if (selectedFilter !== 'all') {
+        const matchesCategory = 
+          demo.category === selectedFilter ||
+          (selectedFilter === 'portfolio' && (demo.category === 'portfolio' || demo.category === 'corporate'));
+        if (!matchesCategory) return false;
+      }
 
-    if (!searchQuery.trim()) return true;
-
-    const q = searchQuery.toLowerCase().trim();
-    return (
-      demo.title.toLowerCase().includes(q) ||
-      (demo.englishTitle?.toLowerCase() || '').includes(q) ||
-      (demo.banglaTitle?.toLowerCase() || '').includes(q) ||
-      demo.fourDigitCode.toLowerCase().includes(q) ||
-      demo.description.toLowerCase().includes(q)
-    );
-  });
+      // 2. Search query filter
+      if (!searchQuery.trim()) return true;
+      const q = searchQuery.toLowerCase().trim();
+      return (
+        demo.title.toLowerCase().includes(q) ||
+        (demo.englishTitle?.toLowerCase() || '').includes(q) ||
+        (demo.banglaTitle?.toLowerCase() || '').includes(q) ||
+        demo.category.toLowerCase().includes(q) ||
+        demo.fourDigitCode.toLowerCase().includes(q) ||
+        demo.description.toLowerCase().includes(q)
+      );
+    });
+  }, [allDemos, selectedFilter, searchQuery]);
 
   return (
     <div 
-      id="category-websites-view"
-      data-view="category-websites"
-      className="w-full min-h-[calc(100vh-4rem)] bg-slate-50 text-slate-900 flex flex-col font-sans select-none pb-20 lg:pb-12"
+      id="templates-page-view"
+      data-view="templates"
+      className="w-full min-h-[calc(100vh-4rem)] bg-[#F8F5FC] text-[#1F1F2E] font-sans pb-24 sm:pb-28"
     >
-      {/* Category Navigation Bar */}
-      <section className="w-full bg-white border-b-[3px] border-b-slate-200 shadow-2xs sticky top-16 sm:top-[72px] lg:top-[76px] z-10">
-        <div className="max-w-6xl xl:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-            {/* Left: Simple Back button & Category info */}
-            <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-5 sm:pt-7 space-y-5 sm:space-y-6">
+        
+        {/* 1. Title Section */}
+        <section className="text-center sm:text-left space-y-1">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-[#1F1F2E] tracking-tight">
+            {language === 'bn' ? 'টেমপ্লেট বেছে নিন' : 'টেমপ্লেট বেছে নিন'}
+          </h1>
+          <p className="text-xs sm:text-sm text-[#6B7280] font-medium">
+            Choose a Template
+          </p>
+        </section>
+
+        {/* 2. Search Bar */}
+        <section className="w-full">
+          <div className="relative w-full flex items-center bg-[#FFFFFF] border border-[#EDE4F5] rounded-xl sm:rounded-2xl px-4 py-3 shadow-xs hover:border-[#5B2C8A]/40 focus-within:border-[#5B2C8A] focus-within:ring-2 focus-within:ring-[#5B2C8A]/10 transition-all">
+            {/* Left Search Icon */}
+            <Search className="w-4 h-4 sm:w-5 sm:h-5 text-[#6B7280] shrink-0 mr-3" />
+
+            {/* Input */}
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search templates..."
+              className="w-full bg-transparent text-sm sm:text-base text-[#1F1F2E] placeholder-[#6B7280] outline-none"
+            />
+
+            {/* Clear Button if input has text */}
+            {searchQuery && (
               <button
                 type="button"
-                onClick={onBackToDashboard}
-                className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-slate-700 bg-white border border-slate-200 border-b-2 border-b-slate-300 px-2.5 py-1 rounded-lg hover:bg-slate-50 active:translate-y-0.5 active:border-b shadow-2xs transition-all cursor-pointer"
+                onClick={() => setSearchQuery('')}
+                className="text-xs text-[#6B7280] hover:text-[#1F1F2E] mr-2 px-1.5 py-0.5 rounded cursor-pointer"
               >
-                <ArrowLeft className="w-4 h-4 text-slate-600" />
-                <span>{language === 'en' ? 'Back' : 'পেছনে'}</span>
+                Clear
               </button>
+            )}
 
-              <span className="text-slate-300 font-light">/</span>
-
-              <h2 className="text-xs sm:text-sm font-bold text-slate-900">
-                {categoryMeta[category] 
-                  ? (language === 'en' ? categoryMeta[category].nameEn : categoryMeta[category].nameBn)
-                  : (language === 'en' ? 'Websites' : 'ওয়েবসাইট')}
-              </h2>
-
-              <span className="text-xs font-bold text-slate-700 bg-slate-100 px-2.5 py-0.5 rounded-full border border-slate-200 border-b-2 border-b-slate-300 shadow-2xs">
-                {matchingWebsites.length}
-              </span>
-            </div>
-
-            {/* Right: Clean 3D Search Input */}
-            <div className="relative w-full sm:w-64 md:w-72 shrink-0">
-              <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={language === 'en' ? 'Search by code or name...' : 'কোড বা নাম দিয়ে খুঁজুন (#1042)...'}
-                className="w-full pl-8 pr-3 py-1.5 text-xs sm:text-sm bg-white border border-slate-200 border-b-2 border-b-slate-300 rounded-lg focus:bg-white focus:outline-none focus:border-b-purple-500 shadow-inner text-slate-900 placeholder:text-slate-400"
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Main Grid of Websites */}
-      <main className="max-w-6xl xl:max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-6 lg:py-8 flex-1">
-        {matchingWebsites.length === 0 ? (
-          <div className="text-center py-12 px-4 bg-white rounded-2xl border border-slate-200 border-b-[4px] border-b-slate-300 shadow-sm max-w-sm mx-auto my-6">
-            <Search className="w-8 h-8 text-slate-400 mx-auto mb-2.5" />
-            <h3 className="text-sm font-bold text-slate-800">
-              {language === 'en' ? 'No Websites Found' : 'কোনো ওয়েবসাইট পাওয়া যায়নি'}
-            </h3>
-            <p className="text-xs text-slate-500 mt-1 mb-3">
-              {language === 'en' 
-                ? 'Try searching with another keyword or code.' 
-                : 'অন্য কোনো নাম বা কোড দিয়ে চেষ্টা করুন।'}
-            </p>
+            {/* Right Filter Icon */}
             <button
-              onClick={() => setSearchQuery('')}
-              className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold transition-colors cursor-pointer border border-slate-200 border-b-2 border-b-slate-300 active:border-b active:translate-y-0.5"
+              type="button"
+              onClick={() => setShowFilterDropdown(!showFilterDropdown)}
+              title="Filter templates"
+              className="p-1 rounded-lg text-[#5B2C8A] hover:bg-[#F8F5FC] transition-colors cursor-pointer"
             >
-              {language === 'en' ? 'Reset Search' : 'সার্চ রিসেট করুন'}
+              <SlidersHorizontal className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.2]" />
             </button>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
-            {matchingWebsites.map((demo) => (
-              <div
-                key={demo.id}
-                onClick={() => onOpenWebsiteDetail(demo)}
-                className="group bg-white rounded-2xl border border-slate-200 border-b-[5px] border-b-slate-300 shadow-[0_6px_0_0_#CBD5E1,0_12px_20px_-4px_rgba(0,0,0,0.06)] hover:shadow-[0_10px_0_0_#94A3B8,0_18px_28px_-6px_rgba(124,58,237,0.18)] hover:-translate-y-1 active:translate-y-[2px] active:border-b-[2px] active:shadow-none transition-all duration-200 overflow-hidden flex flex-col cursor-pointer"
+        </section>
+
+        {/* 3. Filter Chips (Horizontal scrollable) */}
+        <section className="w-full">
+          <div className="flex items-center gap-2 sm:gap-2.5 overflow-x-auto pb-1 no-scrollbar">
+            {filterChips.map((chip) => {
+              const isActive = selectedFilter === chip.id;
+              return (
+                <button
+                  key={chip.id}
+                  type="button"
+                  onClick={() => setSelectedFilter(chip.id)}
+                  className={`px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer ${
+                    isActive
+                      ? 'bg-[#5B2C8A] text-[#FFFFFF] shadow-xs'
+                      : 'bg-[#FFFFFF] text-[#6B7280] hover:text-[#5B2C8A] border border-[#EDE4F5] hover:border-[#5B2C8A]/40'
+                  }`}
+                >
+                  {language === 'bn' ? chip.labelBn : chip.labelEn}
+                </button>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* 4. Template Grid (2 columns on mobile, 3 on desktop) */}
+        <section className="w-full pt-1">
+          {filteredDemos.length === 0 ? (
+            <div className="bg-[#FFFFFF] border border-[#EDE4F5] rounded-2xl p-8 text-center max-w-md mx-auto my-6 shadow-xs">
+              <Search className="w-10 h-10 text-[#6B7280] mx-auto mb-3" />
+              <h3 className="text-base font-bold text-[#1F1F2E]">
+                {language === 'bn' ? 'কোনো টেমপ্লেট পাওয়া যায়নি' : 'No Templates Found'}
+              </h3>
+              <p className="text-xs text-[#6B7280] mt-1 mb-4">
+                {language === 'bn' 
+                  ? 'অন্য কোনো কি-ওয়ার্ড দিয়ে সার্চ করুন অথবা ফিল্টার রিসেট করুন।' 
+                  : 'Try searching with another keyword or resetting the category filter.'}
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchQuery('');
+                  setSelectedFilter('all');
+                }}
+                className="px-4 py-2 bg-[#5B2C8A] hover:bg-[#4A1F6E] text-white text-xs font-bold rounded-xl transition-all cursor-pointer"
               >
-                {/* Thumbnail Preview: Kept flat & authentic website view */}
-                <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
-                  <img
-                    src={demo.previewImage}
-                    alt={demo.title}
-                    loading="lazy"
-                    className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300"
-                  />
+                {language === 'bn' ? 'সকল টেমপ্লেট দেখুন' : 'Show All Templates'}
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3.5 sm:gap-5 md:gap-6">
+              {filteredDemos.map((demo) => {
+                const categoryLabel = 
+                  demo.category === 'ecommerce' ? 'E-commerce' :
+                  demo.category === 'restaurant' ? 'Restaurant' :
+                  demo.category === 'blogging' ? 'Blog' :
+                  demo.category === 'grocery' ? 'Grocery' : 'Portfolio';
 
-                  {/* Code Tag badge top-right */}
-                  <span className="absolute top-2.5 right-2.5 font-mono text-[11px] font-bold px-2 py-0.5 rounded-md bg-white/95 text-slate-700 shadow-xs backdrop-blur-xs border border-slate-200/80">
-                    {demo.fourDigitCode}
-                  </span>
-
-                  {/* Hover Overlay with Live Preview */}
-                  <div className="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/20 transition-colors flex items-center justify-center">
-                    <span className="opacity-0 group-hover:opacity-100 transition-opacity px-3.5 py-1.5 rounded-lg bg-white/95 text-slate-900 font-bold text-xs shadow-md border border-slate-200 border-b-2 border-b-slate-300 flex items-center gap-1.5">
-                      <Eye className="w-3.5 h-3.5 text-purple-600" />
-                      <span>{language === 'en' ? 'Live Preview' : 'লাইভ প্রিভিউ'}</span>
-                    </span>
-                  </div>
-                </div>
-
-                {/* Card Body */}
-                <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between">
-                  <div>
-                    <h3 className="text-sm sm:text-base font-bold text-slate-900 group-hover:text-purple-600 transition-colors line-clamp-1">
-                      {demo.title}
-                    </h3>
-                    <p className="text-xs text-slate-500 mt-1 line-clamp-1">
-                      {demo.description}
-                    </p>
-                  </div>
-
-                  {/* Clean Pricing & 3D Action Row */}
-                  <div className="mt-3.5 pt-3.5 border-t border-slate-100 flex items-center justify-between gap-2">
+                return (
+                  <div
+                    key={demo.id}
+                    className="group bg-[#FFFFFF] rounded-2xl border border-[#EDE4F5] shadow-soft hover:shadow-soft-lg transition-all duration-200 overflow-hidden flex flex-col justify-between"
+                  >
                     <div>
-                      <div className="flex items-baseline gap-1">
-                        <span className="text-base font-bold text-slate-900 font-mono">
-                          {demo.priceTag || '৳১,৯৯০'}
+                      {/* Realistic website preview image on top */}
+                      <div 
+                        onClick={() => onOpenWebsiteDetail(demo)}
+                        className="relative aspect-[16/10] overflow-hidden bg-[#F8F5FC] cursor-pointer"
+                      >
+                        <img
+                          src={demo.previewImage}
+                          alt={demo.title}
+                          loading="lazy"
+                          className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-300"
+                        />
+
+                        {/* Top corner code badge */}
+                        <span className="absolute top-2 right-2 font-mono text-[10px] font-bold px-2 py-0.5 rounded-md bg-white/95 text-[#1F1F2E] shadow-xs border border-[#EDE4F5]">
+                          {demo.fourDigitCode}
                         </span>
-                        <span className="text-xs text-slate-400 font-medium font-mono">
-                          + ৳১২০{language === 'en' ? '/mo' : '/মাস'}
-                        </span>
+
+                        {/* Hover Overlay preview icon */}
+                        <div className="absolute inset-0 bg-[#5B2C8A]/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <span className="px-3 py-1.5 rounded-xl bg-white text-[#5B2C8A] font-bold text-xs shadow-md border border-[#EDE4F5] flex items-center gap-1.5">
+                            <Eye className="w-3.5 h-3.5" />
+                            <span>{language === 'bn' ? 'আগে দেখুন' : 'See First'}</span>
+                          </span>
+                        </div>
                       </div>
-                      <span className="text-[10px] text-emerald-600 font-medium block">
-                        {language === 'en' ? 'Domain & Hosting included' : 'ডোমেন ও হোস্টিং অন্তর্ভুক্ত'}
-                      </span>
+
+                      {/* Card Content */}
+                      <div className="p-3 sm:p-4 pb-2">
+                        {/* Small category pill */}
+                        <span className="inline-block text-[10px] sm:text-[11px] font-semibold text-[#5B2C8A] bg-[#F8F5FC] border border-[#EDE4F5] px-2.5 py-0.5 rounded-full mb-1.5">
+                          {categoryLabel}
+                        </span>
+
+                        {/* Template Name (Bold) */}
+                        <h2 
+                          onClick={() => onOpenWebsiteDetail(demo)}
+                          className="text-xs sm:text-base font-bold text-[#1F1F2E] group-hover:text-[#5B2C8A] transition-colors line-clamp-1 cursor-pointer"
+                          title={demo.title}
+                        >
+                          {demo.title}
+                        </h2>
+
+                        <p className="text-[11px] text-[#6B7280] mt-1 line-clamp-2 leading-relaxed hidden sm:block">
+                          {demo.description}
+                        </p>
+                      </div>
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onOpenOrder(demo);
-                      }}
-                      className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#7C3AED] to-[#6D28D9] hover:from-[#6D28D9] hover:to-[#5B21B6] text-white text-xs font-bold border-b-[3px] border-b-purple-950 shadow-[0_2px_0_0_#4C1D95] active:border-b-0 active:translate-y-[2px] active:shadow-none transition-all cursor-pointer flex items-center gap-1.5"
-                    >
-                      <span>{language === 'en' ? 'Order' : 'অর্ডার'}</span>
-                      <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
-                    </button>
+                    {/* Bottom Action Area: Two buttons: “Buy Now” (solid purple) and “See First →” (text link) */}
+                    <div className="p-3 sm:p-4 pt-2 border-t border-[#EDE4F5] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
+                      {/* Solid Purple "Buy Now" Button */}
+                      <button
+                        type="button"
+                        onClick={() => onOpenOrder(demo)}
+                        className="w-full sm:w-auto px-3.5 py-2 rounded-xl bg-[#5B2C8A] hover:bg-[#4A1F6E] active:bg-[#3C165C] text-white text-xs font-bold transition-all cursor-pointer text-center shadow-xs"
+                      >
+                        {language === 'bn' ? 'এখনই কিনুন' : 'Buy Now'}
+                      </button>
+
+                      {/* "See First →" Text Link */}
+                      <button
+                        type="button"
+                        onClick={() => onOpenWebsiteDetail(demo)}
+                        className="text-[#5B2C8A] hover:text-[#7C3AED] text-xs font-bold inline-flex items-center justify-center gap-1 cursor-pointer transition-colors py-1 sm:py-0"
+                      >
+                        <span>{language === 'bn' ? 'আগে দেখুন' : 'See First'}</span>
+                        <ArrowRight className="w-3.5 h-3.5 stroke-[2.2]" />
+                      </button>
+                    </div>
+
                   </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </main>
+                );
+              })}
+            </div>
+          )}
+        </section>
+
+      </div>
     </div>
   );
 }

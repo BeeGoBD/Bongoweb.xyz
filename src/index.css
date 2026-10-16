@@ -2,58 +2,39 @@
 
 @layer base {
   :root {
-    /* Exact BongoWeb Official Brand Colors from Vector Logo */
-    --color-primary: #6B46C1;
-    --color-primary-hover: #5B21B6;
-    --color-primary-active: #4C1D95;
-    --color-primary-dark: #0F172A;
-    --color-brand-deep: #1E1B4B;
-    
-    /* Logo Flame & Ribbon Violet Accents */
-    --color-brand-purple: #9F7AEA;
-    --color-brand-violet: #7C3AED;
-    --color-brand-indigo: #5521B5;
-    --color-brand-lilac: #C084FC;
-    
+    /* Exact Redesigned BongoWeb Brand & Color System */
+    --color-primary: #5B2C8A;
+    --color-primary-hover: #4A1F6E;
+    --color-primary-active: #3C165C;
+    --color-accent-purple: #7C3AED;
+    --color-bg-soft: #F8F5FC;
+    --color-card-bg: #FFFFFF;
+    --color-text-primary: #1F1F2E;
+    --color-text-secondary: #6B7280;
+    --color-border-light: #EDE4F5;
+    --color-white: #FFFFFF;
+
     /* Functional Semantic Accents */
     --color-success: #10B981;
     --color-warning: #F59E0B;
     --color-error: #EF4444;
     --color-info: #0EA5E9;
-    --color-rose: #E11D48;
-    
-    /* Typography Neutrals - Light Theme */
-    --color-text-primary: #0F172A;
-    --color-text-secondary: #334155;
-    --color-text-muted: #64748B;
-    --color-text-quiet: #94A3B8;
-    --color-text-on-primary: #FFFFFF;
-    
-    /* Surface Backgrounds - Light Theme */
-    --color-bg-main: #F8FAFC;
-    --color-bg-quiet: #F1F5F9;
-    --color-bg-subdued: #E2E8F0;
-    --color-bg-accent-subdued: #EDE9FE;
-    --color-bg-soft-neutral: #FFFFFF;
 
-    /* Signature Gradients based on Official BongoWeb Logo */
-    --gradient-flame: linear-gradient(135deg, #9F7AEA 0%, #805AD5 30%, #6B46C1 65%, #5521B5 100%);
-    --gradient-ribbon: linear-gradient(135deg, #C084FC 0%, #7C3AED 40%, #6B46C1 75%, #5521B5 100%);
-    --gradient-primary: linear-gradient(135deg, #7C3AED 0%, #6B46C1 50%, #5521B5 100%);
-    --gradient-royal-deep: linear-gradient(135deg, #EDE9FE 0%, #E0E7FF 55%, #DDD6FE 100%);
-    --gradient-emerald: linear-gradient(135deg, #10B981 0%, #059669 100%);
-    --gradient-amber: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+    /* Subtle soft shadows */
+    --shadow-soft-sm: 0 2px 8px -2px rgba(91, 44, 138, 0.06);
+    --shadow-soft: 0 4px 20px -2px rgba(91, 44, 138, 0.08);
+    --shadow-soft-lg: 0 10px 30px -4px rgba(91, 44, 138, 0.12);
   }
 
   * {
-    border-color: #E2E8F0;
+    border-color: #EDE4F5;
     box-sizing: border-box;
   }
 
   html {
     scroll-behavior: smooth;
-    background-color: #F8FAFC;
-    color: #0F172A;
+    background-color: #F8F5FC;
+    color: #1F1F2E;
     overflow-x: hidden;
     width: 100%;
     font-size: 16px;
@@ -61,18 +42,18 @@
   }
 
   body {
-    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     -webkit-tap-highlight-color: transparent;
-    background-color: #F8FAFC;
-    color: #0F172A;
+    background-color: #F8F5FC;
+    color: #1F1F2E;
     overflow-x: hidden;
     width: 100%;
     min-width: 320px;
-    font-size: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
-    line-height: 1.6;
+    font-size: 1rem;
+    line-height: 1.5;
   }
 
   /* Responsive media defaults */
@@ -87,59 +68,39 @@
   }
 
   ::selection {
-    background-color: #7C3AED;
+    background-color: #5B2C8A;
     color: #FFFFFF;
   }
 }
 
 /* BongoWeb Signature Color Classes */
-.bg-stripe-primary,
-.bg-brand-primary {
-  background-color: #6B46C1;
+.bg-purple-brand {
+  background-color: #5B2C8A;
 }
-.bg-stripe-primary:hover,
-.bg-brand-primary:hover {
-  background-color: #5B21B6;
+.bg-purple-brand:hover {
+  background-color: #4A1F6E;
 }
-.bg-stripe-primary:active,
-.bg-brand-primary:active {
-  background-color: #4C1D95;
+.bg-purple-brand:active {
+  background-color: #3C165C;
 }
 
-.text-stripe-primary,
-.text-brand-primary {
-  color: #6B46C1;
+.text-purple-brand {
+  color: #5B2C8A;
 }
-.text-stripe-primary:hover,
-.text-brand-primary:hover {
-  color: #5B21B6;
+.text-purple-brand:hover {
+  color: #4A1F6E;
 }
 
-.bg-stripe-gradient,
-.bg-brand-gradient {
-  background: linear-gradient(135deg, #7C3AED 0%, #6B46C1 50%, #5521B5 100%);
+.border-purple-brand {
+  border-color: #EDE4F5;
 }
 
-.bg-brand-flame {
-  background: linear-gradient(135deg, #9F7AEA 0%, #805AD5 30%, #6B46C1 65%, #5521B5 100%);
+.shadow-soft {
+  box-shadow: 0 4px 20px -2px rgba(91, 44, 138, 0.08);
 }
 
-.text-brand-flame {
-  background: linear-gradient(135deg, #9F7AEA 0%, #7C3AED 35%, #6B46C1 70%, #5521B5 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.bg-stripe-gradient-subtle {
-  background: linear-gradient(180deg, #FAF5FF 0%, #FFFFFF 100%);
-}
-
-.bg-stripe-accent-orange {
-  background: linear-gradient(135deg, #F59E0B 0%, #EA580C 100%);
-}
-
-.bg-stripe-accent-magenta {
-  background: linear-gradient(135deg, #C084FC 0%, #7C3AED 100%);
+.shadow-soft-lg {
+  box-shadow: 0 10px 30px -4px rgba(91, 44, 138, 0.12);
 }
 
 /* Fluid responsive grid & line-length typography classes */

@@ -152,6 +152,23 @@ export default function App() {
       return;
     }
 
+    if (path === '/templates' || path.startsWith('/templates')) {
+      setSelectedCategory('all');
+      setViewMode('category-websites');
+      return;
+    }
+
+    if (path === '/preview' || path.startsWith('/preview')) {
+      if (!activeDemo) setActiveDemo(WEBSITE_DEMOS[0]);
+      setViewMode('website-detail');
+      return;
+    }
+
+    if (path === '/help' || path.startsWith('/help')) {
+      setViewMode('live-chat');
+      return;
+    }
+
     if (path === '/dashboard' || path.startsWith('/dashboard')) {
       setViewMode('dashboard');
       return;
@@ -161,9 +178,9 @@ export default function App() {
     const savedCategory = sessionStorage.getItem('bongoweb_chosen_category') || localStorage.getItem('bongoweb_chosen_category');
     if (savedCategory) setSelectedCategory(savedCategory as WebsiteCategory);
 
-    // Directly land on Dashboard for any visitor (logged-in or guest)
+    // Directly land on Dashboard (Home) for any visitor
     setViewMode('dashboard');
-  }, []);
+  }, [findDemoByCode]);
 
   // Synchronize current view mode to storage
   useEffect(() => {
@@ -267,16 +284,27 @@ export default function App() {
 
   // Change Fixed Bottom Nav tab with unique URLs
   const handleTabChange = (tab: BottomTabType) => {
-    if (tab === 'dashboard') {
+    if (tab === 'home' || tab === 'dashboard') {
       setViewMode('dashboard');
       window.history.pushState({}, '', '/');
-    } else if (tab === 'after-order') {
-      setAfterOrderKey((prev) => prev + 1);
-      setViewMode('after-order');
-      window.history.pushState({}, '', '/after-order');
+    } else if (tab === 'templates') {
+      setSelectedCategory('all');
+      sessionStorage.setItem('bongoweb_chosen_category', 'all');
+      localStorage.setItem('bongoweb_chosen_category', 'all');
+      setViewMode('category-websites');
+      window.history.pushState({}, '', '/templates');
     } else if (tab === 'live-chat') {
       setViewMode('live-chat');
       window.history.pushState({}, '', '/live-chat');
+    } else if (tab === 'help' || tab === 'after-order') {
+      setAfterOrderKey((prev) => prev + 1);
+      setViewMode('after-order');
+      window.history.pushState({}, '', '/after-order');
+    } else if (tab === 'preview') {
+      if (!activeDemo) setActiveDemo(WEBSITE_DEMOS[0]);
+      setViewMode('website-detail');
+      const cleanCode = String(activeDemo?.fourDigitCode || WEBSITE_DEMOS[0].fourDigitCode).replace('#', '');
+      window.history.pushState({}, '', `/website/${cleanCode}`);
     } else if (tab === 'account') {
       setViewMode('account');
       window.history.pushState({}, '', '/account');
@@ -284,7 +312,7 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Return to Dashboard from Detail or Order pages
+  // Return to Dashboard (Home) from Detail or Order pages
   const handleReturnToDashboard = () => {
     setViewMode('dashboard');
     window.history.pushState({}, '', '/');
@@ -293,26 +321,34 @@ export default function App() {
 
   // Helper for active tab indicator in bottom nav
   const getActiveBottomTab = (): BottomTabType => {
-    if (viewMode === 'after-order') return 'after-order';
+    if (viewMode === 'category-websites') return 'templates';
     if (viewMode === 'live-chat') return 'live-chat';
     if (viewMode === 'account') return 'account';
-    return 'dashboard';
+    if (viewMode === 'after-order') return 'help';
+    return 'home';
   };
 
   return (
-    <div className="min-h-screen bg-[#F1F5F9] text-slate-900 antialiased selection:bg-[#EDE9FE] selection:text-[#6B46C1] flex flex-col justify-between font-sans">
+    <div className="min-h-screen bg-[#F8F5FC] text-[#1F1F2E] antialiased selection:bg-[#5B2C8A] selection:text-white flex flex-col justify-between font-sans">
       {/* 1. Standalone Executive Admin Panel */}
       {viewMode === 'admin' && (
         <AdminPanelView onBackToApp={handleReturnToDashboard} />
       )}
 
-      {/* 2. Dedicated Website Full Page (Unique URL: /website/:code, NO hover modal overlay) */}
+      {/* 2. Dedicated Website Full Page (Unique URL: /website/:code) */}
       {viewMode === 'website-detail' && (
-        <WebsiteDetailPage
-          demo={activeDemo || findDemoByCode('') || WEBSITE_DEMOS[0]}
-          onBackToDashboard={handleReturnToDashboard}
-          onGoToOrder={handleOpenOrder}
-        />
+        <div className="w-full min-h-screen flex flex-col bg-[#F8F5FC] text-[#1F1F2E]">
+          <WebsiteDetailPage
+            demo={activeDemo || findDemoByCode('') || WEBSITE_DEMOS[0]}
+            onBackToDashboard={handleReturnToDashboard}
+            onGoToOrder={handleOpenOrder}
+          />
+          <FixedBottomNav
+            activeTab="home"
+            onTabChange={handleTabChange}
+            unreadChatCount={unreadNotifications}
+          />
+        </div>
       )}
 
       {/* 3. Dedicated Order Full Page (Unique URL: /order/:code) */}
@@ -328,16 +364,16 @@ export default function App() {
         />
       )}
 
-      {/* 4. Main App Container (Dashboard, After Order, Live Chat, Account) */}
+      {/* 4. Main App Container (Dashboard/Home, Templates, After Order, Live Chat, Account) */}
       {viewMode !== 'admin' && viewMode !== 'website-detail' && viewMode !== 'order-page' && (
-        <div className="w-full min-h-screen flex flex-col bg-[#F8FAFC] text-slate-900 selection:bg-[#EDE9FE] selection:text-[#6B46C1]">
+        <div className="w-full min-h-screen flex flex-col bg-[#F8F5FC] text-[#1F1F2E]">
           {/* Fixed Header */}
           <FixedHeader
             onBackToCategoryPicker={handleReturnToDashboard}
             onOpenNotifications={() => setNotificationsOpen(true)}
             onOpenMenu={() => setSideMenuOpen(true)}
             unreadCount={unreadNotifications}
-            currentCategory={selectedCategory}
+            showBackArrow={viewMode === 'category-websites' || viewMode === 'after-order' || viewMode === 'account'}
             activeTab={getActiveBottomTab()}
             onTabChange={handleTabChange}
             unreadChatCount={viewMode === 'live-chat' ? 0 : 1}

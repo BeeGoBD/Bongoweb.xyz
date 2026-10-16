@@ -1,7 +1,15 @@
-import React from 'react';
-import { LayoutGrid, ClipboardCheck, MessageCircle, User } from 'lucide-react';
+import { Home, LayoutGrid, MessageCircle, User } from 'lucide-react';
+import { useLanguage } from '../utils/LanguageContext';
 
-export type BottomTabType = 'dashboard' | 'after-order' | 'live-chat' | 'account';
+export type BottomTabType = 
+  | 'home' 
+  | 'templates' 
+  | 'live-chat' 
+  | 'account'
+  | 'preview'
+  | 'help'
+  | 'dashboard' 
+  | 'after-order';
 
 interface FixedBottomNavProps {
   activeTab: BottomTabType;
@@ -12,85 +20,96 @@ interface FixedBottomNavProps {
 export default function FixedBottomNav({
   activeTab,
   onTabChange,
-  unreadChatCount = 1
+  unreadChatCount = 0
 }: FixedBottomNavProps) {
+  const { language } = useLanguage();
+
+  // Normalize active tab
+  const normalizedActive: 'home' | 'templates' | 'live-chat' | 'account' = (() => {
+    if (activeTab === 'home' || activeTab === 'dashboard') return 'home';
+    if (activeTab === 'templates') return 'templates';
+    if (activeTab === 'live-chat') return 'live-chat';
+    if (activeTab === 'account') return 'account';
+    return 'home';
+  })();
+
   const tabs = [
     {
-      id: 'dashboard' as BottomTabType,
-      label: 'ড্যাশবোর্ড',
-      icon: LayoutGrid,
-      tag: 'ওয়েবসাইট'
+      id: 'home' as BottomTabType,
+      labelBn: 'হোম',
+      labelEn: 'Home',
+      icon: Home
     },
     {
-      id: 'after-order' as BottomTabType,
-      label: 'অর্ডারের ধাপ',
-      icon: ClipboardCheck,
-      tag: 'কর্মপদ্ধতি'
+      id: 'templates' as BottomTabType,
+      labelBn: 'টেমপ্লেট',
+      labelEn: 'Templates',
+      icon: LayoutGrid
     },
     {
       id: 'live-chat' as BottomTabType,
-      label: 'লাইভ চ্যাট',
+      labelBn: 'লাইভ চ্যাট',
+      labelEn: 'Live Chat',
       icon: MessageCircle,
-      tag: 'সাপোর্ট',
       badge: unreadChatCount
     },
     {
       id: 'account' as BottomTabType,
-      label: 'Account',
-      icon: User,
-      tag: 'Profile'
+      labelBn: 'Account',
+      labelEn: 'Account',
+      icon: User
     }
   ];
 
   return (
     <nav
       id="fixed-bottom-nav"
-      className="fixed bottom-0 left-0 right-0 z-40 w-full bg-white/90 backdrop-blur-xl border-t-[3.5px] border-t-purple-200/90 shadow-[0_-8px_24px_rgba(124,58,237,0.12),0_1px_0_0_rgba(255,255,255,0.9)_inset] h-16 sm:h-[72px] flex items-center select-none lg:hidden perspective-1000"
+      className="fixed bottom-0 left-0 right-0 z-40 w-full bg-[#5B2C8A] border-t border-[#4A1F6E] shadow-[0_-4px_20px_rgba(91,44,138,0.25)] h-16 sm:h-[68px] flex items-center select-none"
     >
-      <div className="max-w-lg sm:max-w-xl md:max-w-2xl w-full mx-auto px-3 sm:px-6 h-full flex items-center justify-around gap-1.5 sm:gap-2 preserve-3d">
+      <div className="max-w-md sm:max-w-xl md:max-w-2xl w-full mx-auto px-4 sm:px-6 h-full flex items-center justify-around gap-2">
         {tabs.map((tab) => {
           const Icon = tab.icon;
-          const isActive = activeTab === tab.id;
+          const isActive = normalizedActive === tab.id;
 
           return (
             <button
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
               id={`bottom-nav-${tab.id}`}
-              className={`relative flex-1 flex flex-col items-center justify-center py-1 sm:py-1.5 px-2 rounded-2xl transition-all duration-200 cursor-pointer touch-manipulation min-h-[50px] group active:translate-y-[2px] btn-3d-tactile ${
+              className={`relative flex-1 flex flex-col items-center justify-center py-1.5 px-2 rounded-xl transition-all duration-200 cursor-pointer touch-manipulation min-h-[48px] group ${
                 isActive
-                  ? 'text-purple-700 font-black -translate-y-1'
-                  : 'text-slate-500 hover:text-slate-900 font-bold'
+                  ? 'text-white font-bold'
+                  : 'text-purple-200/80 hover:text-white font-medium'
               }`}
             >
-              {/* Active Tab Floating 3D Capsule */}
+              {/* Active Tab Highlight Indicator */}
               {isActive && (
-                <span className="absolute inset-x-1 sm:inset-x-2 inset-y-1 bg-gradient-to-b from-white via-purple-50 to-purple-100/90 border border-purple-200 border-b-[3.5px] border-b-purple-500 rounded-xl sm:rounded-2xl -z-10 shadow-[0_4px_0_0_#C084FC,0_8px_16px_rgba(124,58,237,0.18)] transition-all animate-fadeIn" />
+                <span className="absolute inset-x-2 inset-y-1 bg-white/15 rounded-xl -z-10 shadow-xs border border-white/20 transition-all" />
               )}
 
-              {/* Icon Container with 3D Depth & Badge */}
+              {/* Icon Container with Badge */}
               <div className="relative mb-0.5 flex items-center justify-center">
                 <Icon
-                  className={`w-5 h-5 sm:w-5.5 sm:h-5.5 transition-all duration-200 ${
+                  className={`w-5 h-5 transition-transform duration-200 ${
                     isActive 
-                      ? 'scale-110 stroke-[2.4] text-purple-700 drop-shadow-[0_3px_6px_rgba(168,85,247,0.45)]' 
-                      : 'stroke-[1.9] text-slate-400 group-hover:text-slate-700 group-hover:scale-105'
+                      ? 'scale-105 stroke-[2.4] text-white drop-shadow-[0_2px_6px_rgba(255,255,255,0.4)]' 
+                      : 'stroke-[1.9] text-purple-200/80 group-hover:text-white'
                   }`}
                 />
-                {tab.badge && tab.badge > 0 && (
-                  <span className="absolute -top-1.5 -right-2.5 flex h-4 min-w-[16px] px-1 items-center justify-center rounded-full bg-[#10B981] text-white text-[9px] font-black shadow-[0_2px_6px_rgba(16,185,129,0.35)] ring-2 ring-white">
+                {tab.badge && tab.badge > 0 ? (
+                  <span className="absolute -top-1.5 -right-2.5 flex h-4 min-w-[16px] px-1 items-center justify-center rounded-full bg-[#10B981] text-white text-[9px] font-black shadow-xs ring-2 ring-[#5B2C8A]">
                     {tab.badge}
                   </span>
-                )}
+                ) : null}
               </div>
 
               {/* Tab Title */}
               <span
-                className={`text-[10.5px] sm:text-[11.5px] leading-tight tracking-tight transition-colors mt-0.5 ${
-                  isActive ? 'text-purple-700 font-extrabold' : 'text-slate-500 group-hover:text-slate-800'
+                className={`text-[11px] sm:text-xs leading-tight tracking-tight transition-colors ${
+                  isActive ? 'text-white font-bold' : 'text-purple-200/80 group-hover:text-white'
                 }`}
               >
-                {tab.label}
+                {language === 'bn' ? tab.labelBn : tab.labelEn}
               </span>
             </button>
           );

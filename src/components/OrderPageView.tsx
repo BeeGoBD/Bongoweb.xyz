@@ -370,10 +370,10 @@ export default function OrderPageView({
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#F1F5F9] text-slate-900 flex flex-col font-sans">
+    <div className="min-h-screen w-full bg-[#F8F5FC] text-[#1F1F2E] flex flex-col font-sans pb-16">
       {/* Top Header */}
-      <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-xl border-b border-slate-200/90 shadow-[0_2px_12px_rgba(15,23,42,0.04)]">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-3">
+      <header className="sticky top-0 z-40 w-full bg-[#5B2C8A] border-b border-[#4A1F6E] shadow-md">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-3 text-white">
           <div className="flex items-center gap-2.5 sm:gap-3">
             <button
               onClick={() => {
@@ -387,21 +387,21 @@ export default function OrderPageView({
                   onBackToDashboard();
                 }
               }}
-              className="px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200/90 hover:border-purple-400 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
+              className="px-3 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 active:bg-white/35 text-white border border-white/20 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
             >
-              <ArrowLeft className="w-4 h-4 text-slate-600" />
+              <ArrowLeft className="w-4 h-4 text-white" />
               <span>পেছনে ফিরুন</span>
             </button>
 
-            <span className="px-3 py-1 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs font-mono font-black shadow-xs">
+            <span className="px-3 py-1 rounded-xl bg-white/20 text-white text-xs font-mono font-bold shadow-xs">
               {demoCode}
             </span>
-            <span className="text-xs sm:text-sm font-black text-slate-900 hidden xs:inline">
+            <span className="text-xs sm:text-sm font-bold text-white hidden xs:inline">
               চেকআউট ও অর্ডার
             </span>
           </div>
 
-          <div className="flex items-center gap-2 text-xs font-bold text-emerald-600">
+          <div className="flex items-center gap-2 text-xs font-bold text-emerald-300">
             <Lock className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">১০০% নিরাপদ SSL চেকআউট</span>
           </div>

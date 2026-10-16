@@ -2,51 +2,25 @@ import { WebsiteDemo, PhotoMockup, Testimonial, PaymentMethod } from '../types';
 
 export const WEBSITE_DEMOS: WebsiteDemo[] = [
   {
-    id: 'rest-1',
-    fourDigitCode: '#1042',
-    title: '#1042 Sultan Dine — Premium Dining & Biryani House',
-    banglaTitle: '#1042 Sultan Dine — Premium Dining & Biryani House',
-    category: 'restaurant',
-    categoryLabel: '🍽️ Restaurant',
-    description: 'Complete premium catering and restaurant website with online table booking, special deals, and food ordering system.',
-    priceTag: '১,৯৯০ ৳',
-    demoUrl: 'sultandine.bongoweb.site',
-    badge: 'Popular Bestseller',
-    accentColor: 'from-white/20 to-white/5',
-    rating: 4.9,
-    ordersCount: '120+ orders/day',
-    previewImage: 'https://images.unsplash.com/photo-1589302168068-964664d93dc0?auto=format&fit=crop&w=800&q=80',
-    heroHeadline: 'Authentic Traditional Flavors & Premium Dine-In Experience',
-    features: ['Online Food Menu', 'Table Reservation', 'Instant Digital Payment', 'Order Tracker'],
-    mockData: {
-      heroSub: 'Prepared with pure butter oil and aromatic saffron, royal biryani platters and special beverages.',
-      items: [
-        { name: 'Special Mutton Biryani Platter (1:1)', price: '450 BDT', tag: 'Chef Choice', image: 'https://images.unsplash.com/photo-1633945274405-b6c8069047b0?auto=format&fit=crop&w=500&q=80' },
-        { name: 'Chicken Roast & Saffron Rice Combo', price: '320 BDT', tag: 'Popular', image: 'https://images.unsplash.com/photo-1596797038530-2c107229654b?auto=format&fit=crop&w=500&q=80' },
-        { name: 'Traditional Spiced Yogurt Beverage (1L)', price: '180 BDT', image: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=500&q=80' },
-        { name: 'Royal Pistachio Pudding & Sweet Curd', price: '120 BDT', image: 'https://images.unsplash.com/photo-1587314168485-3236d6710814?auto=format&fit=crop&w=500&q=80' }
-      ]
-    }
-  },
-  {
     id: 'ecom-1',
     fourDigitCode: '#2085',
-    title: '#2085 GadgetZone — Smart Tech & Electronics Store',
-    banglaTitle: '#2085 GadgetZone — Smart Tech & Electronics Store',
+    title: 'Modern Shop',
+    englishTitle: 'Modern Shop',
+    banglaTitle: 'মডার্ন শপ — ই-কমার্স স্টোর',
     category: 'ecommerce',
     categoryLabel: '🛍️ E-Commerce',
-    description: 'High-converting online store with inventory stock tracking, automated checkout, courier integration, and SMS alerts.',
+    description: 'High-converting modern online store for your products with automated checkout, courier integration, and stock tracking.',
     priceTag: '১,৯৯০ ৳',
-    demoUrl: 'gadgetzone.bongoweb.site',
-    badge: 'High Converting',
-    accentColor: 'from-white/20 to-white/5',
-    rating: 4.8,
-    ordersCount: '210+ sales/week',
+    demoUrl: 'modernshop.bongoweb.site',
+    badge: 'Popular Bestseller',
+    accentColor: 'from-purple-500/20 to-purple-500/5',
+    rating: 4.9,
+    ordersCount: '240+ orders/week',
     previewImage: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80',
-    heroHeadline: 'Original Smart Gadgets & Premium Audio Accessories',
-    features: ['Category Dropdown', 'Courier Tracking API', 'Warranty Card Printing', 'Customer Dashboard'],
+    heroHeadline: 'Premium Gadgets & Modern Lifestyle Store',
+    features: ['Instant Checkout', 'Courier Tracking API', 'bKash/Nagad Auto', 'Inventory Sync'],
     mockData: {
-      heroSub: '100% genuine products with official brand warranty and lightning-fast delivery.',
+      heroSub: '100% genuine products with official warranty and lightning-fast courier delivery.',
       items: [
         { name: 'Wireless Active Noise-Canceling Earbuds', price: '1,650 BDT', tag: 'Sale', image: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?auto=format&fit=crop&w=500&q=80' },
         { name: 'Ultra Smartwatch Series 8 Pro', price: '2,190 BDT', tag: 'Top Rated', image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=500&q=80' },
@@ -55,156 +29,134 @@ export const WEBSITE_DEMOS: WebsiteDemo[] = [
     }
   },
   {
+    id: 'rest-1',
+    fourDigitCode: '#1042',
+    title: 'Foodie Cafe',
+    englishTitle: 'Foodie Cafe',
+    banglaTitle: 'ফুডি ক্যাফে — রেস্তোরাঁ ও ডাইনিং',
+    category: 'restaurant',
+    categoryLabel: '🍽️ Restaurant',
+    description: 'Delicious food menu, table reservation, online orders & brand presence for modern restaurants and cafes.',
+    priceTag: '১,৯৯০ ৳',
+    demoUrl: 'foodiecafe.bongoweb.site',
+    badge: 'Trending Choice',
+    accentColor: 'from-amber-500/20 to-amber-500/5',
+    rating: 4.9,
+    ordersCount: '150+ orders/day',
+    previewImage: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=800&q=80',
+    heroHeadline: 'Artisan Flavors & Memorable Dining Experience',
+    features: ['Digital QR Menu', 'Table Booking System', 'Home Delivery Sync', 'Instant Bill Pay'],
+    mockData: {
+      heroSub: 'Prepared with freshest ingredients, authentic recipes, and chef specialty platters.',
+      items: [
+        { name: 'Special Grilled Platter Combo (1:2)', price: '650 BDT', tag: 'Chef Choice', image: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=500&q=80' },
+        { name: 'Artisan Smoked Burger & Fries', price: '380 BDT', tag: 'Popular', image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=500&q=80' },
+        { name: 'Signature Hazelnut Iced Frappe', price: '220 BDT', image: 'https://images.unsplash.com/photo-1541167760496-1628856ab772?auto=format&fit=crop&w=500&q=80' }
+      ]
+    }
+  },
+  {
     id: 'blog-1',
     fourDigitCode: '#3091',
-    title: '#3091 TechVibe — Technology News & Gadget Reviews',
-    banglaTitle: '#3091 TechVibe — Technology News & Gadget Reviews',
+    title: 'News Portal',
+    englishTitle: 'News Portal',
+    banglaTitle: 'নিউজ পোর্টাল — ব্লগ ও অনলাইন মিডিয়া',
     category: 'blogging',
     categoryLabel: '📰 Blog & Media',
-    description: 'Modern tech news, reviews, categorized article archives, newsletter subscription, and social media optimized portal.',
+    description: 'Share stories & grow audience with fast SEO indexing, categorized articles, and Google AdSense optimization.',
     priceTag: '১,৯৯০ ৳',
-    demoUrl: 'techvibe.bongoweb.site',
-    badge: 'Trending Media',
-    accentColor: 'from-white/20 to-white/5',
-    rating: 4.9,
-    ordersCount: '45k readers/mo',
+    demoUrl: 'newsportal.bongoweb.site',
+    badge: 'High Traffic',
+    accentColor: 'from-blue-500/20 to-blue-500/5',
+    rating: 4.8,
+    ordersCount: '60k readers/mo',
     previewImage: 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=800&q=80',
-    heroHeadline: 'Latest Tech Trends, In-Depth Gadget Reviews & Insights',
-    features: ['Categorized Articles', 'Newsletter Subscription', 'Ad Placement Manager', 'Auto Social Share'],
+    heroHeadline: 'Breaking News, Technology Insights & In-Depth Reports',
+    features: ['Fast Google SEO', 'AdSense Ready', 'Category Archives', 'Social Share Booster'],
     mockData: {
-      heroSub: 'Daily technology insights, freelance career guides, and hands-on smartphone comparisons in one place.',
+      heroSub: 'Daily insights, investigative reporting, and modern editorial features in one fast portal.',
       items: [
-        { name: 'Top Budget Smartphones of 2026: Comprehensive Review', price: 'Free Read', tag: 'Hot Topic', image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=500&q=80' },
-        { name: 'Top 5 AI Tools to Supercharge Your Remote Productivity', price: 'Guide', tag: 'Trending', image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=500&q=80' },
-        { name: 'Cybersecurity 101: Essential Habits to Keep Passwords Safe', price: 'Security', image: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=500&q=80' }
+        { name: 'Top Tech Breakthroughs and Market Trends of 2026', price: 'Free Read', tag: 'Trending', image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=500&q=80' },
+        { name: 'How Digital Commerce is Transforming Local Businesses', price: 'Analysis', tag: 'Featured', image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=500&q=80' }
       ]
     }
   },
   {
     id: 'groc-1',
     fourDigitCode: '#4150',
-    title: '#4150 Pure Valley — Organic Honey & Farm Groceries',
-    banglaTitle: '#4150 Pure Valley — Organic Honey & Farm Groceries',
+    title: 'Fresh Mart',
+    englishTitle: 'Fresh Mart',
+    banglaTitle: 'ফ্রেশ মার্ট — মুদি ও সুপারমার্কেট',
     category: 'grocery',
-    categoryLabel: '🌿 Grocery & Organic',
-    description: 'Trusted online shop for raw forest honey, farm butter ghee, cold-pressed oils, and 100% natural organic food items.',
+    categoryLabel: '🌿 Grocery & Supermarket',
+    description: 'Everyday essentials delivered fast. Features weight-based pricing, area express delivery, and instant checkout.',
     priceTag: '১,৯৯০ ৳',
-    demoUrl: 'purevalley.bongoweb.site',
-    badge: '100% Organic',
-    accentColor: 'from-white/20 to-white/5',
+    demoUrl: 'freshmart.bongoweb.site',
+    badge: 'Daily Essential',
+    accentColor: 'from-emerald-500/20 to-emerald-500/5',
     rating: 4.9,
-    ordersCount: '150+ jars/week',
+    ordersCount: '320+ deliveries/day',
     previewImage: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=800&q=80',
-    heroHeadline: 'Pure, Natural & Chemical-Free Food for a Healthier Lifestyle',
-    features: ['Weight-based Variants', 'Lab Certificate Gallery', '1-Click Fast Order', 'Cash on Delivery'],
+    heroHeadline: 'Farm-Fresh Vegetables, Organic Fruits & Daily Groceries',
+    features: ['Weight-based Calculator', 'Same-Day Express Delivery', '1-Click Fast Reorder', 'Cash or Digital Pay'],
     mockData: {
-      heroSub: 'Completely chemical-free, farm-fresh quality with rigorous purity certification.',
+      heroSub: 'Handpicked daily produce directly from certified organic farms to your kitchen.',
       items: [
-        { name: 'Raw Natural Wildflower Honey (1kg)', price: '950 BDT', tag: 'Pure Natural', image: 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?auto=format&fit=crop&w=500&q=80' },
-        { name: 'Grass-Fed Cow Clarified Butter Ghee (500g)', price: '750 BDT', tag: 'Traditional', image: 'https://images.unsplash.com/photo-1628088062854-d1870b4553da?auto=format&fit=crop&w=500&q=80' },
-        { name: 'Cold-Pressed Pure Virgin Mustard Oil', price: '320 BDT', image: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=500&q=80' }
+        { name: 'Organic Farm Fresh Egg Tray (30 pcs)', price: '380 BDT', tag: 'Daily Deal', image: 'https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?auto=format&fit=crop&w=500&q=80' },
+        { name: 'Pure Forest Raw Honey (1kg Bottle)', price: '950 BDT', tag: 'Pure Natural', image: 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?auto=format&fit=crop&w=500&q=80' },
+        { name: 'Premium Jasmine Aromatic Rice (5kg)', price: '480 BDT', image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=500&q=80' }
       ]
     }
   },
   {
     id: 'ecom-2',
     fourDigitCode: '#5218',
-    title: '#5218 Aura Heritage — Designer Boutique & Fashion Store',
-    banglaTitle: '#5218 Aura Heritage — Designer Boutique & Fashion Store',
+    title: 'Style Studio',
+    englishTitle: 'Style Studio',
+    banglaTitle: 'স্টাইল স্টুডিও — ফ্যাশন ও বুটিক',
     category: 'ecommerce',
     categoryLabel: '🛍️ E-Commerce',
-    description: 'Festive and wedding apparel showcase, interactive size charts, direct WhatsApp cart, and online payment options.',
+    description: 'Contemporary fashion boutique & designer apparel storefront with size selectors and WhatsApp direct order.',
     priceTag: '১,৯৯০ ৳',
-    demoUrl: 'auraheritage.bongoweb.site',
-    badge: 'Trending Choice',
-    accentColor: 'from-white/20 to-white/5',
+    demoUrl: 'stylestudio.bongoweb.site',
+    badge: 'Fashion Trend',
+    accentColor: 'from-pink-500/20 to-pink-500/5',
     rating: 5.0,
-    ordersCount: '85+ orders/day',
+    ordersCount: '110+ sales/day',
     previewImage: 'https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?auto=format&fit=crop&w=800&q=80',
-    heroHeadline: 'Elegance Redefined in Premium Designer Apparel',
-    features: ['Size & Color Selectors', 'Instant Checkout', 'Instagram & Social Feeds', 'VIP Discount Coupons'],
+    heroHeadline: 'Curated Elegance & Contemporary Fashion Collection',
+    features: ['Interactive Size Guide', 'Color & Fabric Variants', 'Fast bKash Checkout', 'VIP Customer Discount'],
     mockData: {
-      heroSub: '100% premium handloom cotton and artisan woven festive collection.',
+      heroSub: 'Artisan handloom cotton and celebratory designer clothing collection.',
       items: [
-        { name: 'Royal Embroidered Festive Tunic', price: '2,850 BDT', tag: 'Bestseller', image: 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=500&q=80' },
-        { name: 'Traditional Hand-Woven Silk Saree', price: '4,200 BDT', tag: 'Exclusive', image: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=500&q=80' },
-        { name: 'Premium Semi-Stitched Designer Kurti', price: '1,450 BDT', image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=500&q=80' }
+        { name: 'Royal Embroidered Festive Kurti', price: '2,450 BDT', tag: 'Exclusive', image: 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=500&q=80' },
+        { name: 'Designer Traditional Silk Saree', price: '4,200 BDT', tag: 'Bestseller', image: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=500&q=80' }
       ]
     }
   },
   {
     id: 'rest-2',
     fourDigitCode: '#6372',
-    title: '#6372 Chai & Roast — Artisan Cafe & Specialty Bakery',
-    banglaTitle: '#6372 Chai & Roast — Artisan Cafe & Specialty Bakery',
+    title: 'Brew Cafe',
+    englishTitle: 'Brew Cafe',
+    banglaTitle: 'ব্রু ক্যাফে — কফি ও বেকারি',
     category: 'restaurant',
     categoryLabel: '🍽️ Restaurant',
-    description: 'Cafe lounge menu, signature shakes, fresh desserts, and artisanal coffee ordering system with digital QR scan.',
+    description: 'Cozy artisan coffee shop, handcrafted bakery menu, and quick takeaway ordering system.',
     priceTag: '১,৯৯০ ৳',
-    demoUrl: 'chairoast.bongoweb.site',
-    badge: 'Popular Spot',
-    accentColor: 'from-white/20 to-white/5',
-    rating: 4.7,
-    ordersCount: '70+ orders/day',
+    demoUrl: 'brewcafe.bongoweb.site',
+    badge: 'Cozy Spot',
+    accentColor: 'from-amber-600/20 to-amber-600/5',
+    rating: 4.8,
+    ordersCount: '95+ cups/day',
     previewImage: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=800&q=80',
-    heroHeadline: 'Fresh Roasted Beans & Cozy Artisan Cafe Ambience',
-    features: ['QR Code Digital Menu', 'Take-Away Pre-Orders', 'Loyalty Rewards Program', 'Private Event Booking'],
+    heroHeadline: 'Fresh Roasted Specialty Beans & Artisanal Bakery',
+    features: ['Pre-Order Takeaway', 'QR Table Scanner', 'Loyalty Coffee Card', 'Online Dessert Menu'],
     mockData: {
-      heroSub: 'Freshly roasted single-origin coffee beans and handcrafted bakery treats.',
+      heroSub: 'Single-origin roasted beans brewed to perfection with fresh oven-baked pastries.',
       items: [
         { name: 'Spanish Hazelnut Iced Latte', price: '250 BDT', tag: 'Signature', image: 'https://images.unsplash.com/photo-1541167760496-1628856ab772?auto=format&fit=crop&w=500&q=80' },
-        { name: 'Belgian Chocolate Waffle with Cream', price: '320 BDT', tag: 'Hot', image: 'https://images.unsplash.com/photo-1562376552-0d160a2f238d?auto=format&fit=crop&w=500&q=80' },
-        { name: 'Flaky Golden Butter Croissant', price: '180 BDT', image: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=500&q=80' }
-      ]
-    }
-  },
-  {
-    id: 'blog-2',
-    fourDigitCode: '#7481',
-    title: '#7481 Perspective — Business, Career & Leadership Magazine',
-    banglaTitle: '#7481 Perspective — Business, Career & Leadership Magazine',
-    category: 'blogging',
-    categoryLabel: '📰 Blog & Media',
-    description: 'Modern online publication featuring business case studies, career advice, and inspirational founder stories.',
-    priceTag: '১,৯৯০ ৳',
-    demoUrl: 'perspective.bongoweb.site',
-    badge: 'Editors Choice',
-    accentColor: 'from-white/20 to-white/5',
-    rating: 4.8,
-    ordersCount: '28k readers',
-    previewImage: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=800&q=80',
-    heroHeadline: 'Inspiring Stories of Entrepreneurship and Business Growth',
-    features: ['Author Profiles', 'Bookmark Articles', 'Reading Time Counter', 'Community Discussion'],
-    mockData: {
-      heroSub: 'Actionable strategies on commerce, economics, and scaling modern startups.',
-      items: [
-        { name: 'From Bootstrapped Shop to Market Leader: 5 Key Lessons', price: 'Case Study', tag: 'Popular', image: 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=500&q=80' },
-        { name: '7 Proven Strategies to Maximize Customer Retention in 2026', price: 'Marketing', image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=500&q=80' }
-      ]
-    }
-  },
-  {
-    id: 'groc-2',
-    fourDigitCode: '#8593',
-    title: '#8593 Fresh Daily — Supermarket & Household Groceries',
-    banglaTitle: '#8593 Fresh Daily — Supermarket & Household Groceries',
-    category: 'grocery',
-    categoryLabel: '🌿 Grocery & Organic',
-    description: 'Home delivery solution for daily fresh vegetables, staples, grains, cooking oils, spices, and household essentials.',
-    priceTag: '১,৯৯০ ৳',
-    demoUrl: 'freshdaily.bongoweb.site',
-    badge: 'Fast Delivery',
-    accentColor: 'from-white/20 to-white/5',
-    rating: 4.9,
-    ordersCount: '300+ daily parcels',
-    previewImage: 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=800&q=80',
-    heroHeadline: 'Farm-Fresh Produce & Daily Household Goods at Your Doorstep',
-    features: ['Area-based Express Delivery', 'Weight Cart Calculator', 'Instant QR Pay', 'Daily Flash Deals'],
-    mockData: {
-      heroSub: 'Morning and evening harvest delivery with guaranteed freshness and doorstep satisfaction.',
-      items: [
-        { name: 'Premium Grain White Rice (25kg Sack)', price: '1,750 BDT', tag: 'Deal', image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=500&q=80' },
-        { name: 'Farm-Fresh Free Range Eggs (1 Dozen)', price: '150 BDT', image: 'https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?auto=format&fit=crop&w=500&q=80' }
+        { name: 'Belgian Chocolate Waffle with Cream', price: '320 BDT', tag: 'Hot', image: 'https://images.unsplash.com/photo-1562376552-0d160a2f238d?auto=format&fit=crop&w=500&q=80' }
       ]
     }
   }

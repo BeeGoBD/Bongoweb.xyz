@@ -1300,24 +1300,36 @@ export async function apiGetWebsites(): Promise<WebsiteDemo[]> {
     }
   } catch (_) {}
 
-  // Exactly 1 mock website as requested by user
-  return [WEBSITE_DEMOS[0]];
+  // Default to full catalog of 4 base websites
+  return WEBSITE_DEMOS;
 }
 
 export async function apiAddWebsite(website: WebsiteDemo): Promise<WebsiteDemo[]> {
   const cleanCode = (website.fourDigitCode || website.id).replace(/[^a-zA-Z0-9_-]/g, '_');
 
   try {
-    await setDoc(doc(db, 'customWebsites', cleanCode), website);
+    const cleanData = cleanFirestoreData(website);
+    await setDoc(doc(db, 'customWebsites', cleanCode), cleanData);
   } catch (err) {
     console.warn('Firestore add website notice:', err);
   }
 
-  localCache.customWebsites.unshift(website);
+  const cleanCodeKey = String(website.fourDigitCode || website.id).replace('#', '').trim().toLowerCase();
+  const existingIdx = localCache.customWebsites.findIndex(
+    s => String(s.fourDigitCode || s.id).replace('#', '').trim().toLowerCase() === cleanCodeKey
+  );
+
+  if (existingIdx !== -1) {
+    localCache.customWebsites[existingIdx] = website;
+  } else {
+    localCache.customWebsites.unshift(website);
+  }
+
   localStorage.setItem('bongoweb_custom_catalog', JSON.stringify(localCache.customWebsites));
   localStorage.setItem('bongoweb_custom_websites', JSON.stringify(localCache.customWebsites));
   try {
     window.dispatchEvent(new CustomEvent('bongoweb_websites_updated', { detail: localCache.customWebsites }));
+    window.dispatchEvent(new CustomEvent('bongoweb_custom_websites_updated', { detail: localCache.customWebsites }));
   } catch (_) {}
 
   try {
@@ -1333,20 +1345,39 @@ export async function apiAddWebsite(website: WebsiteDemo): Promise<WebsiteDemo[]
 
 export async function apiUpdateWebsite(code: string, updateData: Partial<WebsiteDemo>): Promise<WebsiteDemo[]> {
   const cleanCode = code.replace(/[^a-zA-Z0-9_-]/g, '_');
+  const cleanCodeKey = code.replace('#', '').trim().toLowerCase();
 
   try {
-    await setDoc(doc(db, 'customWebsites', cleanCode), updateData, { merge: true });
+    const cleanData = cleanFirestoreData(updateData);
+    await setDoc(doc(db, 'customWebsites', cleanCode), cleanData, { merge: true });
   } catch (err) {
     console.warn('Firestore update website notice:', err);
   }
 
-  localCache.customWebsites = localCache.customWebsites.map(s => 
-    (s.fourDigitCode === code || s.id === code) ? { ...s, ...updateData } : s
+  const existingIdx = localCache.customWebsites.findIndex(
+    s => String(s.fourDigitCode || s.id || '').replace('#', '').trim().toLowerCase() === cleanCodeKey
   );
+
+  if (existingIdx !== -1) {
+    localCache.customWebsites[existingIdx] = {
+      ...localCache.customWebsites[existingIdx],
+      ...updateData
+    };
+  } else {
+    const base = WEBSITE_DEMOS.find(
+      s => String(s.fourDigitCode || s.id || '').replace('#', '').trim().toLowerCase() === cleanCodeKey
+    );
+    const newSite = base 
+      ? { ...base, ...updateData } 
+      : { id: `site-${Date.now()}`, fourDigitCode: code, ...updateData } as WebsiteDemo;
+    localCache.customWebsites.unshift(newSite);
+  }
+
   localStorage.setItem('bongoweb_custom_catalog', JSON.stringify(localCache.customWebsites));
   localStorage.setItem('bongoweb_custom_websites', JSON.stringify(localCache.customWebsites));
   try {
     window.dispatchEvent(new CustomEvent('bongoweb_websites_updated', { detail: localCache.customWebsites }));
+    window.dispatchEvent(new CustomEvent('bongoweb_custom_websites_updated', { detail: localCache.customWebsites }));
   } catch (_) {}
 
   try {
@@ -1362,6 +1393,7 @@ export async function apiUpdateWebsite(code: string, updateData: Partial<Website
 
 export async function apiDeleteWebsite(code: string): Promise<WebsiteDemo[]> {
   const cleanCode = code.replace(/[^a-zA-Z0-9_-]/g, '_');
+  const cleanCodeKey = code.replace('#', '').trim().toLowerCase();
 
   try {
     await deleteDoc(doc(db, 'customWebsites', cleanCode));
@@ -1370,12 +1402,13 @@ export async function apiDeleteWebsite(code: string): Promise<WebsiteDemo[]> {
   }
 
   localCache.customWebsites = localCache.customWebsites.filter(
-    s => s.fourDigitCode !== code && s.id !== code
+    s => String(s.fourDigitCode || s.id || '').replace('#', '').trim().toLowerCase() !== cleanCodeKey
   );
   localStorage.setItem('bongoweb_custom_catalog', JSON.stringify(localCache.customWebsites));
   localStorage.setItem('bongoweb_custom_websites', JSON.stringify(localCache.customWebsites));
   try {
     window.dispatchEvent(new CustomEvent('bongoweb_websites_updated', { detail: localCache.customWebsites }));
+    window.dispatchEvent(new CustomEvent('bongoweb_custom_websites_updated', { detail: localCache.customWebsites }));
   } catch (_) {}
 
   try {

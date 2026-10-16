@@ -187,16 +187,16 @@ export default function SideMenuDrawer({
                   onSelectTab('after-order');
                 }
               }}
-              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl bg-white hover:bg-purple-50/70 text-slate-700 hover:text-purple-700 transition-all text-xs font-bold text-left cursor-pointer group border border-slate-200 border-b-[3.5px] border-b-slate-300 hover:border-b-purple-400 shadow-[0_3px_0_0_#CBD5E1] hover:shadow-[0_3px_0_0_#C084FC] active:border-b active:translate-y-[2px] active:shadow-none btn-3d-tactile"
+              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl bg-white hover:bg-[#F8F5FC] text-[#1F1F2E] hover:text-[#5B2C8A] transition-all text-xs font-bold text-left cursor-pointer group border border-[#EDE4F5] hover:border-[#5B2C8A]/30 shadow-xs active:scale-[0.99]"
             >
-              <div className="w-10 h-10 rounded-xl bg-purple-50 group-hover:bg-purple-100 flex items-center justify-center text-purple-600 border border-purple-200 shadow-xs shrink-0 transition-colors">
+              <div className="w-10 h-10 rounded-xl bg-[#F8F5FC] group-hover:bg-[#5B2C8A] flex items-center justify-center text-[#5B2C8A] group-hover:text-white border border-[#EDE4F5] shadow-xs shrink-0 transition-colors">
                 <ClipboardCheck className="w-5 h-5 stroke-[2.2]" />
               </div>
               <div className="flex-1 min-w-0">
-                <span className="block text-sm font-black text-slate-900 group-hover:text-purple-700">
+                <span className="block text-sm font-bold text-[#1F1F2E] group-hover:text-[#5B2C8A]">
                   ১. আপনার Order এর বিস্তারিত
                 </span>
-                <span className="text-[11px] text-slate-500 font-normal block truncate">
+                <span className="text-[11px] text-[#6B7280] font-normal block truncate">
                   পেন্ডিং, অনুমোদিত ও সম্পূর্ণ অর্ডারের লাইভ স্ট্যাটাস
                 </span>
               </div>
@@ -212,16 +212,16 @@ export default function SideMenuDrawer({
                   onSelectTab('account');
                 }
               }}
-              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl bg-white hover:bg-purple-50/70 text-slate-700 hover:text-purple-700 transition-all text-xs font-bold text-left cursor-pointer group border border-slate-200 border-b-[3.5px] border-b-slate-300 hover:border-b-purple-400 shadow-[0_3px_0_0_#CBD5E1] hover:shadow-[0_3px_0_0_#C084FC] active:border-b active:translate-y-[2px] active:shadow-none btn-3d-tactile"
+              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl bg-white hover:bg-[#F8F5FC] text-[#1F1F2E] hover:text-[#5B2C8A] transition-all text-xs font-bold text-left cursor-pointer group border border-[#EDE4F5] hover:border-[#5B2C8A]/30 shadow-xs active:scale-[0.99]"
             >
-              <div className="w-10 h-10 rounded-xl bg-purple-50 group-hover:bg-[#7C3AED] flex items-center justify-center text-purple-600 group-hover:text-white border border-purple-200 shadow-xs shrink-0 transition-colors">
+              <div className="w-10 h-10 rounded-xl bg-[#F8F5FC] group-hover:bg-[#5B2C8A] flex items-center justify-center text-[#5B2C8A] group-hover:text-white border border-[#EDE4F5] shadow-xs shrink-0 transition-colors">
                 <Key className="w-5 h-5 stroke-[2.2]" />
               </div>
               <div className="flex-1 min-w-0">
-                <span className="block text-sm font-black text-slate-900 group-hover:text-purple-700">
+                <span className="block text-sm font-bold text-[#1F1F2E] group-hover:text-[#5B2C8A]">
                   ২. ওয়েবসাইট আইডি ও পাসওয়ার্ড
                 </span>
-                <span className="text-[11px] text-slate-500 font-normal block truncate">
+                <span className="text-[11px] text-[#6B7280] font-normal block truncate">
                   অ্যাডমিন আইডি ও পাসওয়ার্ড বিস্তারিত দেখুন
                 </span>
               </div>
@@ -233,16 +233,16 @@ export default function SideMenuDrawer({
                 onSelectTab('live-chat');
                 onClose();
               }}
-              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl bg-white hover:bg-purple-50/70 text-slate-700 hover:text-purple-700 transition-all text-xs font-bold text-left cursor-pointer group border border-slate-200 border-b-[3.5px] border-b-slate-300 hover:border-b-purple-400 shadow-[0_3px_0_0_#CBD5E1] hover:shadow-[0_3px_0_0_#C084FC] active:border-b active:translate-y-[2px] active:shadow-none btn-3d-tactile"
+              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl bg-white hover:bg-[#F8F5FC] text-[#1F1F2E] hover:text-[#5B2C8A] transition-all text-xs font-bold text-left cursor-pointer group border border-[#EDE4F5] hover:border-[#5B2C8A]/30 shadow-xs active:scale-[0.99]"
             >
-              <div className="w-10 h-10 rounded-xl bg-purple-50 group-hover:bg-purple-100 flex items-center justify-center text-purple-600 border border-purple-200 shadow-xs shrink-0 transition-colors">
+              <div className="w-10 h-10 rounded-xl bg-[#F8F5FC] group-hover:bg-[#5B2C8A] flex items-center justify-center text-[#5B2C8A] group-hover:text-white border border-[#EDE4F5] shadow-xs shrink-0 transition-colors">
                 <MessageCircle className="w-5 h-5 stroke-[2.2]" />
               </div>
               <div className="flex-1 min-w-0">
-                <span className="block text-sm font-black text-slate-900 group-hover:text-purple-700">
+                <span className="block text-sm font-bold text-[#1F1F2E] group-hover:text-[#5B2C8A]">
                   ৩. BongoWeb Live Support (২৪/৭)
                 </span>
-                <span className="text-[11px] text-slate-500 font-normal block truncate">
+                <span className="text-[11px] text-[#6B7280] font-normal block truncate">
                   সরাসরি আমাদের টিমের সাথে লাইভ চ্যাট
                 </span>
               </div>
@@ -251,16 +251,16 @@ export default function SideMenuDrawer({
             {/* 4. Support Ticket */}
             <button
               onClick={handleOpenTicket}
-              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl bg-white hover:bg-purple-50/70 text-slate-700 hover:text-purple-700 transition-all text-xs font-bold text-left cursor-pointer group border border-slate-200 border-b-[3.5px] border-b-slate-300 hover:border-b-purple-400 shadow-[0_3px_0_0_#CBD5E1] hover:shadow-[0_3px_0_0_#C084FC] active:border-b active:translate-y-[2px] active:shadow-none btn-3d-tactile"
+              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl bg-white hover:bg-[#F8F5FC] text-[#1F1F2E] hover:text-[#5B2C8A] transition-all text-xs font-bold text-left cursor-pointer group border border-[#EDE4F5] hover:border-[#5B2C8A]/30 shadow-xs active:scale-[0.99]"
             >
-              <div className="w-10 h-10 rounded-xl bg-purple-50 group-hover:bg-purple-100 flex items-center justify-center text-purple-600 border border-purple-200 shadow-xs shrink-0 transition-colors">
+              <div className="w-10 h-10 rounded-xl bg-[#F8F5FC] group-hover:bg-[#5B2C8A] flex items-center justify-center text-[#5B2C8A] group-hover:text-white border border-[#EDE4F5] shadow-xs shrink-0 transition-colors">
                 <Ticket className="w-5 h-5 stroke-[2.2]" />
               </div>
               <div className="flex-1 min-w-0">
-                <span className="block text-sm font-black text-slate-900 group-hover:text-purple-700">
+                <span className="block text-sm font-bold text-[#1F1F2E] group-hover:text-[#5B2C8A]">
                   ৪. Support Ticket
                 </span>
-                <span className="text-[11px] text-slate-500 font-normal block truncate">
+                <span className="text-[11px] text-[#6B7280] font-normal block truncate">
                   যেকোনো সমস্যায় সাপোর্ট টিকিট জমা দিন
                 </span>
               </div>
@@ -269,32 +269,32 @@ export default function SideMenuDrawer({
             {/* 5. Testimonials (Client Reviews & Ratings) */}
             <button
               onClick={() => setTestimonialsModalOpen(true)}
-              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl bg-white hover:bg-amber-50/70 text-slate-700 hover:text-amber-700 transition-all text-xs font-bold text-left cursor-pointer group border border-slate-200 border-b-[3.5px] border-b-slate-300 hover:border-b-amber-400 shadow-[0_3px_0_0_#CBD5E1] hover:shadow-[0_3px_0_0_#FBBF24] active:border-b active:translate-y-[2px] active:shadow-none btn-3d-tactile"
+              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl bg-white hover:bg-amber-50/50 text-[#1F1F2E] hover:text-amber-700 transition-all text-xs font-bold text-left cursor-pointer group border border-[#EDE4F5] hover:border-amber-300 shadow-xs active:scale-[0.99]"
             >
               <div className="w-10 h-10 rounded-xl bg-amber-50 group-hover:bg-amber-100 flex items-center justify-center text-amber-500 border border-amber-200 shadow-xs shrink-0 transition-colors">
                 <Star className="w-5 h-5 fill-amber-500" />
               </div>
               <div className="flex-1 min-w-0">
-                <span className="block text-sm font-black text-slate-900 group-hover:text-amber-700">
+                <span className="block text-sm font-bold text-[#1F1F2E] group-hover:text-amber-700">
                   ৫. Testimonials (Client Reviews & Ratings)
                 </span>
-                <span className="text-[11px] text-slate-500 font-normal block truncate">
+                <span className="text-[11px] text-[#6B7280] font-normal block truncate">
                   গ্রাহকদের মতামত ও ৫-স্টার রেটিং দেখুন
                 </span>
               </div>
             </button>
 
-            {/* 6. Call Back Button (Menu Option for all users) */}
+            {/* 6. Call Back Button */}
             <button
               onClick={handleOpenCallBack}
-              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl bg-white hover:bg-emerald-50/70 text-slate-700 hover:text-emerald-700 transition-all text-xs font-bold text-left cursor-pointer group border border-slate-200 border-b-[3.5px] border-b-slate-300 hover:border-b-emerald-400 shadow-[0_3px_0_0_#CBD5E1] hover:shadow-[0_3px_0_0_#34D399] active:border-b active:translate-y-[2px] active:shadow-none btn-3d-tactile relative"
+              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl bg-white hover:bg-emerald-50/50 text-[#1F1F2E] hover:text-emerald-700 transition-all text-xs font-bold text-left cursor-pointer group border border-[#EDE4F5] hover:border-emerald-300 shadow-xs active:scale-[0.99] relative"
             >
               <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center border border-emerald-500 shadow-xs shrink-0">
                 <PhoneCall className="w-5 h-5 stroke-[2.2]" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="block text-sm font-black text-slate-900 group-hover:text-emerald-700">
+                  <span className="block text-sm font-bold text-[#1F1F2E] group-hover:text-emerald-700">
                     ৬. Call Back (কল ব্যাক রিকোয়েস্ট)
                   </span>
                   {myCallBackRequest?.status === 'pending' && (
@@ -308,7 +308,7 @@ export default function SideMenuDrawer({
                     </span>
                   )}
                 </div>
-                <span className="text-[11px] text-slate-500 font-normal block truncate">
+                <span className="text-[11px] text-[#6B7280] font-normal block truncate">
                   {myCallBackRequest?.status === 'pending'
                     ? 'আপনার কল ব্যাক রিকোয়েস্ট অপেক্ষমান রয়েছে'
                     : myCallBackRequest?.status === 'approved'
@@ -319,12 +319,12 @@ export default function SideMenuDrawer({
             </button>
           </div>
 
-          {/* Drawer Clean Footer (No WhatsApp button) */}
-          <div className="p-4 border-t border-slate-200 bg-slate-50 text-center">
-            <p className="text-[11px] font-bold text-slate-900">
-              BongoWeb • Enterprise Solutions
+          {/* Drawer Clean Footer */}
+          <div className="p-4 border-t border-[#EDE4F5] bg-[#F8F5FC] text-center">
+            <p className="text-[11px] font-bold text-[#1F1F2E]">
+              BongoWeb • Premium Website Solutions
             </p>
-            <p className="text-[10px] text-slate-500 mt-0.5">
+            <p className="text-[10px] text-[#6B7280] mt-0.5">
               ২৪ ঘণ্টা লাইভ ডেলিভারি ও সাপোর্ট সিস্টেম
             </p>
           </div>

@@ -8,9 +8,9 @@ interface ThreeCanvas3DProps {
 }
 
 /**
- * Simple, elegant, and calming 3D live background.
- * No bulky shapes, no dark rings, no chaotic lines or spiderweb plexus.
- * Just a graceful, hypnotic 3D wave field of soft luminous micro-points with smooth mouse/touch parallax.
+ * 21st.dev Premium Dark Atmosphere 3D Live Background.
+ * Deep near-black background (#09090b) with soft royal blue (#3b5bff) and stardust wave points.
+ * Subtle, calming, architecturally clean, zero bulky shapes.
  */
 export default function ThreeCanvas3D({
   className = "fixed inset-0 pointer-events-none -z-10 overflow-hidden",
@@ -23,18 +23,18 @@ export default function ThreeCanvas3D({
     const container = containerRef.current;
     if (!container) return;
 
-    // 1. Scene & Depth Atmosphere
+    // 1. Scene & Deep Near-Black Fog
     const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0xF8FAFC, 0.038); // Fades seamlessly into light background
+    scene.fog = new THREE.FogExp2(0x09090b, 0.045); // Seamless blend into 21st.dev #09090b
 
-    // 2. Camera Setup (Tilted viewing angle for 3D depth)
+    // 2. Camera Setup
     const camera = new THREE.PerspectiveCamera(
       45,
       window.innerWidth / window.innerHeight,
       0.1,
       100
     );
-    camera.position.set(0, 4.5, 12);
+    camera.position.set(0, 4.2, 12);
     camera.lookAt(0, 0, 0);
 
     const isHeadless = navigator.webdriver || /HeadlessChrome/i.test(navigator.userAgent);
@@ -45,22 +45,22 @@ export default function ThreeCanvas3D({
     });
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.05;
+    renderer.toneMappingExposure = 1.1;
     renderer.setPixelRatio(isHeadless ? 1 : Math.min(window.devicePixelRatio, 2));
     renderer.setSize(container.clientWidth || window.innerWidth, container.clientHeight || window.innerHeight);
     renderer.setClearColor(0x000000, 0);
 
     container.appendChild(renderer.domElement);
 
-    // 3. Ambient & Mouse Point Lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.2 * intensity);
+    // 3. Ambient & Pointer Lighting
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8 * intensity);
     scene.add(ambientLight);
 
-    const pointerLight = new THREE.PointLight(0xA855F7, 2.0 * intensity, 18);
+    const pointerLight = new THREE.PointLight(0x3b5bff, 2.5 * intensity, 18);
     pointerLight.position.set(0, 2, 5);
     scene.add(pointerLight);
 
-    // 4. Soft Feathered Circular Particle Texture
+    // 4. Soft Feathered Circular Particle Texture (Royal Blue & White core)
     const createCircleTexture = () => {
       const canvas = document.createElement('canvas');
       canvas.width = 32;
@@ -69,9 +69,9 @@ export default function ThreeCanvas3D({
       if (ctx) {
         const gradient = ctx.createRadialGradient(16, 16, 0, 16, 16, 16);
         gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
-        gradient.addColorStop(0.3, 'rgba(168, 85, 247, 0.85)');
-        gradient.addColorStop(0.65, 'rgba(124, 58, 237, 0.35)');
-        gradient.addColorStop(1, 'rgba(124, 58, 237, 0)');
+        gradient.addColorStop(0.25, 'rgba(59, 91, 255, 0.9)');
+        gradient.addColorStop(0.65, 'rgba(59, 91, 255, 0.3)');
+        gradient.addColorStop(1, 'rgba(9, 9, 11, 0)');
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, 32, 32);
       }
@@ -80,7 +80,7 @@ export default function ThreeCanvas3D({
 
     const particleTexture = createCircleTexture();
 
-    // 5. Harmonious 3D Wave Grid (Clean, Simple, Architectural)
+    // 5. Harmonious 3D Wave Grid (Clean, Simple, 21st.dev Geometry)
     const cols = 42;
     const rows = 32;
     const totalPoints = cols * rows;
@@ -93,9 +93,9 @@ export default function ThreeCanvas3D({
     const offsetX = (cols * spacingX) / 2;
     const offsetZ = (rows * spacingZ) / 2;
 
-    const colorPurple = new THREE.Color(0x7C3AED);
-    const colorLilac = new THREE.Color(0xA855F7);
-    const colorSky = new THREE.Color(0x60A5FA);
+    const colorBlue = new THREE.Color(0x3b5bff);
+    const colorIndigo = new THREE.Color(0x6366f1);
+    const colorLavender = new THREE.Color(0xa1a1b0);
 
     for (let iz = 0; iz < rows; iz++) {
       for (let ix = 0; ix < cols; ix++) {
@@ -108,13 +108,12 @@ export default function ThreeCanvas3D({
         wavePositions[index * 3 + 1] = y;
         wavePositions[index * 3 + 2] = z;
 
-        // Subtle gradient: purple in center, lilac/sky at edges
-        const distFromCenter = Math.sqrt((x * x) / (offsetX * offsetX) + (z * z) / (offsetZ * offsetZ));
-        const color = distFromCenter < 0.5 ? colorPurple : distFromCenter < 0.85 ? colorLilac : colorSky;
+        const ratio = (ix / cols + iz / rows) * 0.5;
+        const c = colorBlue.clone().lerp(colorIndigo, Math.sin(ratio * Math.PI)).lerp(colorLavender, 0.15);
 
-        waveColors[index * 3] = color.r;
-        waveColors[index * 3 + 1] = color.g;
-        waveColors[index * 3 + 2] = color.b;
+        waveColors[index * 3] = c.r;
+        waveColors[index * 3 + 1] = c.g;
+        waveColors[index * 3 + 2] = c.b;
       }
     }
 
@@ -127,148 +126,150 @@ export default function ThreeCanvas3D({
       map: particleTexture,
       vertexColors: true,
       transparent: true,
-      opacity: 0.55,
-      blending: THREE.NormalBlending,
-      depthWrite: false
+      opacity: 0.45 * intensity,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending
     });
 
     const wavePoints = new THREE.Points(waveGeometry, waveMaterial);
-    wavePoints.position.set(0, -2.8, -1.5);
-    wavePoints.rotation.x = 0.22; // subtle upward tilt towards camera
+    wavePoints.rotation.x = 0.18;
     scene.add(wavePoints);
 
-    // 6. Gentle Ambient Floating Motes (Subtle, slow dust motes in space)
-    const moteCount = 50;
-    const motePositions = new Float32Array(moteCount * 3);
-    for (let i = 0; i < moteCount; i++) {
-      motePositions[i * 3] = (Math.random() - 0.5) * 22;
-      motePositions[i * 3 + 1] = (Math.random() - 0.5) * 14;
-      motePositions[i * 3 + 2] = (Math.random() - 0.5) * 12;
-    }
-    const moteGeometry = new THREE.BufferGeometry();
-    moteGeometry.setAttribute('position', new THREE.BufferAttribute(motePositions, 3));
-    const moteMaterial = new THREE.PointsMaterial({
-      color: 0xC084FC,
-      size: 0.12,
-      map: particleTexture,
-      transparent: true,
-      opacity: 0.4,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false
-    });
-    const motePoints = new THREE.Points(moteGeometry, moteMaterial);
-    scene.add(motePoints);
+    // 6. Subtle Atmospheric Floating Stardust
+    const ambientCount = 36;
+    const ambientPositions = new Float32Array(ambientCount * 3);
+    const ambientSpeeds = new Float32Array(ambientCount);
 
-    // 7. Smooth Mouse / Touch Parallax Tracking
+    for (let i = 0; i < ambientCount; i++) {
+      ambientPositions[i * 3] = (Math.random() - 0.5) * 22;
+      ambientPositions[i * 3 + 1] = Math.random() * 6 - 1;
+      ambientPositions[i * 3 + 2] = (Math.random() - 0.5) * 16;
+      ambientSpeeds[i] = 0.002 + Math.random() * 0.004;
+    }
+
+    const ambientGeometry = new THREE.BufferGeometry();
+    ambientGeometry.setAttribute('position', new THREE.BufferAttribute(ambientPositions, 3));
+
+    const ambientMaterial = new THREE.PointsMaterial({
+      size: 0.22,
+      map: particleTexture,
+      color: 0x3b5bff,
+      transparent: true,
+      opacity: 0.28 * intensity,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending
+    });
+
+    const ambientPoints = new THREE.Points(ambientGeometry, ambientMaterial);
+    scene.add(ambientPoints);
+
+    // Mouse Tracking Parallax
     let targetMouseX = 0;
     let targetMouseY = 0;
     let currentMouseX = 0;
     let currentMouseY = 0;
 
-    const handlePointerMove = (e: MouseEvent | TouchEvent) => {
+    const handlePointerMove = (e: MouseEvent) => {
       if (!interactive) return;
-      let clientX = 0;
-      let clientY = 0;
-      if ('touches' in e && e.touches.length > 0) {
-        clientX = e.touches[0].clientX;
-        clientY = e.touches[0].clientY;
-      } else if ('clientX' in e) {
-        clientX = e.clientX;
-        clientY = e.clientY;
-      }
-      targetMouseX = (clientX / window.innerWidth - 0.5) * 2;
-      targetMouseY = (clientY / window.innerHeight - 0.5) * 2;
+      targetMouseX = (e.clientX / window.innerWidth) * 2 - 1;
+      targetMouseY = -(e.clientY / window.innerHeight) * 2 + 1;
     };
 
     window.addEventListener('mousemove', handlePointerMove, { passive: true });
-    window.addEventListener('touchmove', handlePointerMove, { passive: true });
 
-    // 8. Handle Window Resize
+    // Responsive Resize Handler
     const handleResize = () => {
       if (!container) return;
-      const w = container.clientWidth || window.innerWidth;
-      const h = container.clientHeight || window.innerHeight;
-      camera.aspect = w / h;
+      const width = container.clientWidth || window.innerWidth;
+      const height = container.clientHeight || window.innerHeight;
+      camera.aspect = width / height;
       camera.updateProjectionMatrix();
-      renderer.setSize(w, h);
+      renderer.setSize(width, height);
     };
 
     window.addEventListener('resize', handleResize);
 
-    // 9. Animation Loop
+    // Smooth Animation Loop
     let animationFrameId: number;
-    const clock = new THREE.Clock();
+    let clock = new THREE.Clock();
 
     const animate = () => {
       animationFrameId = requestAnimationFrame(animate);
 
       const elapsedTime = clock.getElapsedTime();
 
-      // Smooth camera parallax damping
+      // Smooth mouse interpolation
       currentMouseX += (targetMouseX - currentMouseX) * 0.04;
       currentMouseY += (targetMouseY - currentMouseY) * 0.04;
 
+      // Gentle camera sway
       camera.position.x = currentMouseX * 1.2;
-      camera.position.y = 4.5 - currentMouseY * 0.8;
-      camera.lookAt(0, -0.5, 0);
+      camera.position.y = 4.2 + currentMouseY * 0.8;
+      camera.lookAt(0, 0, 0);
 
-      // Light moves smoothly with pointer
-      pointerLight.position.x = currentMouseX * 7;
-      pointerLight.position.y = 2 - currentMouseY * 4;
+      pointerLight.position.x = currentMouseX * 6;
+      pointerLight.position.y = 2 + currentMouseY * 4;
 
-      // Gentle, harmonic undulating wave motion
-      const posAttr = waveGeometry.getAttribute('position') as THREE.BufferAttribute;
-      const posArr = posAttr.array as Float32Array;
+      // Update Wave Grid Heights
+      const posAttr = waveGeometry.attributes.position as THREE.BufferAttribute;
+      const posArray = posAttr.array as Float32Array;
 
       for (let iz = 0; iz < rows; iz++) {
         for (let ix = 0; ix < cols; ix++) {
-          const index = iz * cols + ix;
+          const index = (iz * cols + ix) * 3;
           const x = ix * spacingX - offsetX;
           const z = iz * spacingZ - offsetZ;
 
-          // Harmonic calm ripple
-          const wave1 = Math.sin(x * 0.35 + elapsedTime * 0.75) * 0.45;
-          const wave2 = Math.cos(z * 0.38 + elapsedTime * 0.65) * 0.35;
-          const wave3 = Math.sin((x + z) * 0.25 + elapsedTime * 0.5) * 0.2;
+          const distFromMouse = Math.hypot(x - currentMouseX * 4, z - currentMouseY * 2);
+          const mouseRipple = Math.sin(distFromMouse * 1.5 - elapsedTime * 2.0) * 0.12 * Math.exp(-distFromMouse * 0.25);
 
-          // Subtle interactive mouse elevation
-          const mouseWorldX = currentMouseX * 6;
-          const mouseDist = Math.sqrt((x - mouseWorldX) ** 2 + z ** 2);
-          const mouseLift = Math.max(0, 1 - mouseDist / 6) * 0.35;
+          const wave1 = Math.sin(x * 0.45 + elapsedTime * 0.9) * 0.35;
+          const wave2 = Math.cos(z * 0.35 + elapsedTime * 0.75) * 0.28;
+          const wave3 = Math.sin((x + z) * 0.25 + elapsedTime * 1.1) * 0.18;
 
-          posArr[index * 3 + 1] = wave1 + wave2 + wave3 + mouseLift;
+          posArray[index + 1] = wave1 + wave2 + wave3 + mouseRipple;
         }
       }
       posAttr.needsUpdate = true;
 
-      // Slow drift of floating motes
-      motePoints.rotation.y = elapsedTime * 0.015;
-      motePoints.rotation.x = Math.sin(elapsedTime * 0.02) * 0.05;
+      // Update Ambient Motes
+      const ambAttr = ambientGeometry.attributes.position as THREE.BufferAttribute;
+      const ambArray = ambAttr.array as Float32Array;
+      for (let i = 0; i < ambientCount; i++) {
+        ambArray[i * 3 + 1] += ambientSpeeds[i];
+        if (ambArray[i * 3 + 1] > 6) {
+          ambArray[i * 3 + 1] = -1;
+        }
+      }
+      ambAttr.needsUpdate = true;
 
       renderer.render(scene, camera);
     };
 
     animate();
 
-    // 10. Clean Cleanup & Resource Disposal
     return () => {
       cancelAnimationFrame(animationFrameId);
       window.removeEventListener('mousemove', handlePointerMove);
-      window.removeEventListener('touchmove', handlePointerMove);
       window.removeEventListener('resize', handleResize);
-
-      waveGeometry.dispose();
-      moteGeometry.dispose();
-      waveMaterial.dispose();
-      moteMaterial.dispose();
-      particleTexture.dispose();
-
-      renderer.dispose();
-      if (renderer.domElement && renderer.domElement.parentNode) {
-        renderer.domElement.parentNode.removeChild(renderer.domElement);
+      if (renderer.domElement && container.contains(renderer.domElement)) {
+        container.removeChild(renderer.domElement);
       }
+      renderer.dispose();
+      waveGeometry.dispose();
+      waveMaterial.dispose();
+      ambientGeometry.dispose();
+      ambientMaterial.dispose();
+      particleTexture.dispose();
     };
   }, [intensity, interactive]);
 
-  return <div ref={containerRef} className={className} aria-hidden="true" />;
+  return (
+    <div 
+      ref={containerRef} 
+      className={className} 
+      aria-hidden="true" 
+      style={{ background: '#09090b' }}
+    />
+  );
 }

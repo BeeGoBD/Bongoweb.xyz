@@ -329,7 +329,7 @@ export default function AfterOrderView({ onGoToDashboard, onOpenLiveChat }: Afte
     <div 
       id="after-order-view"
       data-view="after-order"
-      className="relative w-full min-h-[calc(100vh-5rem)] flex flex-col font-sans pb-24 lg:pb-16 pt-3 sm:pt-6 select-none bg-slate-50/80 text-slate-900 perspective-1500"
+      className="relative w-full min-h-[calc(100vh-5rem)] flex flex-col font-sans pb-24 lg:pb-16 pt-3 sm:pt-6 select-none bg-[#F8F5FC] text-[#1F1F2E]"
     >
       {/* 3D Ambient Universe Background */}
       <ThreeCanvas3D intensity={0.85} />

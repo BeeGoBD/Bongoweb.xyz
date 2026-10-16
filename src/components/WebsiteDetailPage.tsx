@@ -70,30 +70,28 @@ export default function WebsiteDetailPage({
   ];
 
   return (
-    <div className="min-h-screen w-full bg-[#F1F5F9] text-slate-900 flex flex-col font-sans">
-      {/* 1. Slim Fixed Header (Strictly fixed at top, permanently stays fixed when scrolling) */}
-      <header className="fixed top-0 left-0 right-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-2xs">
+    <div className="min-h-screen w-full bg-[#F8F5FC] text-[#1F1F2E] flex flex-col font-sans pb-16">
+      {/* 1. Purple Header (Matches #5B2C8A Theme) */}
+      <header className="fixed top-0 left-0 right-0 z-50 w-full bg-[#5B2C8A] border-b border-[#4A1F6E] shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-3 select-none">
-          {/* Left: Enhanced Back to Dashboard + View Details Action */}
+          {/* Left: Enhanced Back to Templates / Home */}
           <div className="flex items-center gap-2.5 sm:gap-3">
             <button
               onClick={onBackToDashboard}
-              className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 active:bg-[#7C3AED] active:text-white text-slate-700 border border-slate-200 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs group"
-              title="ড্যাশবোর্ডে ফিরে যান"
+              className="px-3 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 active:bg-white/35 text-white border border-white/20 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs group"
+              title="ফিরে যান"
             >
-              <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5 text-slate-700" />
-              <span className="hidden xs:inline">ড্যাশবোর্ড</span>
+              <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5 text-white" />
+              <span>ফিরে যান</span>
             </button>
-
-            <div className="h-6 w-px bg-slate-200 hidden sm:block" />
 
             {/* "ভিউ ডিটেইলস" Interactive Spec Drawer Button */}
             <button
               onClick={handleToggleDetails}
-              className={`px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                 detailsExpanded
-                  ? 'bg-purple-100 text-purple-800 border border-purple-300 shadow-2xs'
-                  : 'bg-gradient-to-r from-[#6B46C1] via-[#7C3AED] to-[#5521B5] hover:from-[#5B21B6] hover:to-[#4C1D95] text-white shadow-[0_3px_12px_rgba(107,70,193,0.3)] hover:shadow-[0_4px_18px_rgba(107,70,193,0.4)]'
+                  ? 'bg-white text-[#5B2C8A] shadow-xs'
+                  : 'bg-white/15 text-white hover:bg-white/25 border border-white/20'
               }`}
             >
               <span>ভিউ ডিটেইলস</span>
@@ -101,28 +99,24 @@ export default function WebsiteDetailPage({
             </button>
           </div>
 
-          {/* Right: Integrated Order Number & Red Action Button with Natural Attraction */}
+          {/* Right: Integrated Order Number & Solid Purple/White Action Button */}
           <div className="flex items-center gap-2 sm:gap-3">
             <button
               onClick={() => onGoToOrder(demo)}
-              className="px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-[#7C3AED] to-[#9333EA] hover:from-[#6D28D9] hover:to-[#7C3AED] text-white text-xs sm:text-sm font-black shadow-[0_4px_20px_rgba(124,58,237,0.35)] hover:shadow-[0_6px_26px_rgba(124,58,237,0.45)] transition-all flex items-center gap-2.5 cursor-pointer hover:scale-[1.02] active:scale-95"
+              className="px-4 sm:px-5 py-2 rounded-xl bg-white hover:bg-purple-50 text-[#5B2C8A] text-xs sm:text-sm font-extrabold shadow-md transition-all flex items-center gap-2 cursor-pointer hover:scale-[1.02] active:scale-95"
             >
-              {/* Order Number badge inside button */}
-              <span className="px-2.5 py-0.5 rounded-lg bg-black/25 text-white font-mono font-black text-xs tracking-wider border border-white/20 shadow-inner">
+              <span className="px-2 py-0.5 rounded-md bg-[#5B2C8A]/10 text-[#5B2C8A] font-mono font-bold text-xs">
                 {demo.fourDigitCode}
               </span>
-              <span className="tracking-tight">অর্ডার করুন</span>
+              <span>এখনই কিনুন</span>
               <ArrowRight className="w-4 h-4 stroke-[2.5]" />
             </button>
           </div>
         </div>
       </header>
 
-      {/* Header Placeholder Spacer (Matches fixed header height so website content never jumps) */}
+      {/* Header Placeholder Spacer */}
       <div className="h-14 sm:h-16 w-full shrink-0" />
-
-      {/* Small Clean Separation Gap */}
-      <div className="h-2 bg-[#F1F5F9]" />
 
       {/* 2. Main Live Website Content */}
       <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6 bg-[#F1F5F9]">
