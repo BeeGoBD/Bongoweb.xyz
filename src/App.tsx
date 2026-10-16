@@ -418,7 +418,7 @@ export default function App() {
             onOpenNotifications={() => setNotificationsOpen(true)}
             onOpenMenu={() => setSideMenuOpen(true)}
             unreadCount={unreadNotifications}
-            showBackArrow={viewMode === 'category-websites' || viewMode === 'after-order' || viewMode === 'account'}
+            showBackArrow={viewMode === 'category-websites' || viewMode === 'after-order' || viewMode === 'account' || viewMode === 'live-chat'}
             activeTab={getActiveBottomTab()}
             onTabChange={handleTabChange}
             unreadChatCount={viewMode === 'live-chat' ? 0 : 1}
@@ -458,7 +458,7 @@ export default function App() {
 
             {/* Live Chat (URL: "/live-chat") */}
             {viewMode === 'live-chat' && (
-              <LiveChatView />
+              <LiveChatView onExitChat={() => handleTabChange('home')} />
             )}
 
             {/* Account (URL: "/account") */}

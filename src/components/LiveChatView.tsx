@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
-  MessageSquare, Send, ShieldCheck, Clock, CheckCheck, 
-  RotateCcw, X, Phone, MessageCircle, AlertCircle, Sparkles,
-  User, CheckCircle2, ChevronRight, HelpCircle
+  MessageSquare, Send, ShieldCheck, CheckCheck, 
+  RotateCcw, X, Phone, MessageCircle, AlertCircle,
+  User, CheckCircle2, ChevronRight,
+  Copy, Check, LogOut, Sparkles, Pencil
 } from 'lucide-react';
 import { 
   apiActivateChat, 
@@ -17,16 +18,19 @@ import { SupportChatThread, SupportChatMessage, UserAccount } from '../types';
 import { getClientSecurityCode, getSecurityCodeRemainingSeconds, formatRemainingTime } from '../utils/securityCode';
 import { useLanguage } from '../utils/LanguageContext';
 import { realtimeManager } from '../utils/realtime';
-import ThreeCanvas3D from './ThreeCanvas3D';
 
-export default function LiveChatView() {
+interface LiveChatViewProps {
+  onExitChat?: () => void;
+}
+
+export default function LiveChatView({ onExitChat }: LiveChatViewProps) {
   const { t, language } = useLanguage();
 
   // Admin status (online / offline)
   const [isLiveOnline, setIsLiveOnline] = useState<boolean>(true);
 
   // Client Identification State
-  const [currentUser, setCurrentUser] = useState<UserAccount | null>(() => {
+  const [currentUser] = useState<UserAccount | null>(() => {
     try {
       const stored = localStorage.getItem('bongoweb_user') || sessionStorage.getItem('bongoweb_user');
       if (stored) return JSON.parse(stored);
@@ -80,6 +84,39 @@ export default function LiveChatView() {
   const [isSending, setIsSending] = useState<boolean>(false);
   const [initialLoading, setInitialLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const [copiedCode, setCopiedCode] = useState<boolean>(false);
+
+  // Client Rename State
+  const [isEditingName, setIsEditingName] = useState<boolean>(false);
+  const [editNameInput, setEditNameInput] = useState<string>('');
+
+  const handleSaveNewName = (e: React.FormEvent) => {
+    e.preventDefault();
+    const clean = editNameInput.trim();
+    if (!clean) return;
+
+    setClientName(clean);
+    setIsEditingName(false);
+
+    try {
+      const activeSession = localStorage.getItem('bongoweb_chat_active_session');
+      if (activeSession) {
+        const s = JSON.parse(activeSession);
+        s.name = clean;
+        localStorage.setItem('bongoweb_chat_active_session', JSON.stringify(s));
+      }
+      const user = localStorage.getItem('bongoweb_user');
+      if (user) {
+        const u = JSON.parse(user);
+        u.name = clean;
+        localStorage.setItem('bongoweb_user', JSON.stringify(u));
+      }
+    } catch (_) {}
+
+    if (thread) {
+      setThread(prev => prev ? { ...prev, userName: clean } : prev);
+    }
+  };
 
   // 5-Min Rotating Security Code Countdown
   const [codeCountdown, setCodeCountdown] = useState<number>(getSecurityCodeRemainingSeconds());
@@ -89,13 +126,23 @@ export default function LiveChatView() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatScrollContainerRef = useRef<HTMLDivElement>(null);
 
-  // Quick inquiry topics
+  // Clean, focused quick questions
   const quickQuestions = [
-    t('৳১,৯৯০ ওয়েবসাইট প্যাকেজে কী কী সুবিধা আছে?', 'What is included in the ৳1,990 website package?'),
-    t('২৪ ঘণ্টার মধ্যে ওয়েবসাইট কীভাবে ডেলিভারি পাব?', 'How do I receive 24-hour express delivery?'),
-    t('বিকাশ ও নগদ পেমেন্ট নিশ্চিত করার নিয়ম কী?', 'How do I confirm bKash or Nagad payment?'),
-    t('আমার কাস্টম ডোমেন ও হোস্টিং কীভাবে যুক্ত হবে?', 'How will my custom domain & hosting be connected?')
+    { labelBn: '৳১,৯৯০ প্যাকেজ', labelEn: '৳1,990 Package', query: '৳১,৯৯০ ওয়েবসাইট প্যাকেজে কী কী সুবিধা আছে?' },
+    { labelBn: '২৪ ঘণ্টার ডেলিভারি', labelEn: '24h Delivery', query: 'অর্ডারের পর ২৪ ঘণ্টার মধ্যে কীভাবে ওয়েবসাইট লাইভ হবে?' },
+    { labelBn: 'পেমেন্ট নিয়ম', labelEn: 'Payment Info', query: 'বিকাশ ও নগদ পেমেন্ট নিশ্চিত করার নিয়ম কী?' },
+    { labelBn: 'ডোমেন ও হোস্টিং', labelEn: 'Domain & Host', query: 'ফ্রি .com ডোমেন ও ক্লাউড হোস্টিং কীভাবে পাব?' }
   ];
+
+  // Exit Chat handler
+  const handleExit = () => {
+    if (onExitChat) {
+      onExitChat();
+    } else {
+      window.history.pushState({}, '', '/');
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    }
+  };
 
   // 1. Monitor Live Chat Online/Offline status
   useEffect(() => {
@@ -139,14 +186,13 @@ export default function LiveChatView() {
     const unsubscribe = subscribeToSingleChatThread(cleanPhone, (incomingThread) => {
       if (incomingThread) {
         setThread(incomingThread);
-        // If thread is officially open, maintain active state
         if (!incomingThread.isClosed) {
           setIsChatActive(true);
         }
       }
     });
 
-    // Also fetch current thread from local server cache
+    // Local server fallback cache
     fetch(`/api/chat/thread/${encodeURIComponent(cleanPhone)}`)
       .then(res => res.ok ? res.json() : null)
       .then(data => {
@@ -168,7 +214,16 @@ export default function LiveChatView() {
     }
   }, [thread?.messages]);
 
-  // Start / Initiate direct chat with admin
+  // Copy Security Code
+  const handleCopyCode = () => {
+    const code = currentSecurityCode || getClientSecurityCode(clientPhone);
+    if (!code) return;
+    navigator.clipboard?.writeText(code);
+    setCopiedCode(true);
+    setTimeout(() => setCopiedCode(false), 2000);
+  };
+
+  // Start direct chat with admin
   const handleStartChat = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     setErrorMessage('');
@@ -190,8 +245,8 @@ export default function LiveChatView() {
 
     try {
       const welcomeText = language === 'bn'
-        ? `স্বাগতম ${cleanName}! BongoWeb সরাসরি অ্যাডমিন ও ইঞ্জিনিয়ারিং সাপোর্ট সেন্টারে আপনাকে স্বাগতম। আপনার যেকোনো প্রশ্ন বা চাহিদার কথা লিখুন, আমাদের টিম সরাসরি উত্তর দিচ্ছেন।`
-        : `Welcome ${cleanName}! You are directly connected with BongoWeb Engineering Support. Please state your query, we are here to assist you.`;
+        ? `স্বাগতম ${cleanName}! BongoWeb লাইভ সাপোর্ট সেন্টারে আপনাকে স্বাগতম। আপনার যেকোনো প্রশ্ন লিখুন, আমাদের টিম সরাসরি সহায়তা দিচ্ছেন।`
+        : `Welcome ${cleanName}! You are connected with BongoWeb Live Support. How may we assist you?`;
 
       const newThread = await apiActivateChat({
         name: cleanName,
@@ -209,7 +264,7 @@ export default function LiveChatView() {
       }));
     } catch (err) {
       console.error('Failed to start chat:', err);
-      setErrorMessage(t('চ্যাট চালু করতে সমস্যা হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।', 'Failed to connect. Please try again.'));
+      setErrorMessage(t('চ্যাট চালু করতে সমস্যা হয়েছে। আবার চেষ্টা করুন।', 'Failed to connect. Please try again.'));
     } finally {
       setInitialLoading(false);
     }
@@ -233,7 +288,7 @@ export default function LiveChatView() {
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
 
-      // Optimistic update in UI
+      // Optimistic update
       setThread(prev => {
         if (!prev) return prev;
         return {
@@ -266,7 +321,7 @@ export default function LiveChatView() {
   const handleEndChat = async () => {
     if (!clientPhone) return;
     const confirmClose = window.confirm(
-      t('আপনি কি নিশ্চিত যে বর্তমান চ্যাট সেশন সমাপ্ত করতে চান?', 'Are you sure you want to end this chat session?')
+      t('আপনি কি চ্যাট সেশনটি সমাপ্ত করতে চান?', 'Are you sure you want to end this chat session?')
     );
     if (!confirmClose) return;
 
@@ -311,191 +366,202 @@ export default function LiveChatView() {
     });
   })();
 
-  const remainingMinutes = thread?.expiresAt 
-    ? Math.max(0, Math.floor((thread.expiresAt - Date.now()) / 1000 / 60))
-    : 5;
-
   return (
-    <div className="relative w-full max-w-4xl lg:max-w-5xl mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-8 pb-28 lg:pb-12 font-sans">
+    <div className="w-full max-w-4xl mx-auto px-3 sm:px-6 h-[calc(100dvh-130px)] sm:h-[calc(100dvh-146px)] flex flex-col overflow-hidden font-sans select-none pb-1">
       
-      {/* Main Content: Chat View or Start Form */}
       {!isChatActive ? (
-        /* STEP 1: INITIAL CHAT REGISTRATION / START FORM */
-        <div className="bg-[#FFFFFF] border border-[#EDE4F5] rounded-[20px] p-6 sm:p-10 shadow-soft max-w-xl mx-auto text-[#1F1F2E]">
-          <div className="w-14 h-14 rounded-2xl bg-[#F8F5FC] text-[#5B2C8A] border border-[#EDE4F5] flex items-center justify-center mx-auto mb-4 shadow-xs">
-            <MessageSquare className="w-7 h-7 stroke-[2.2]" />
-          </div>
-
-          <div className="text-center mb-6">
-            <h2 className="text-lg sm:text-xl font-bold text-[#1F1F2E]">
-              {t('অ্যাডমিনের সাথে সরাসরি চ্যাট শুরু করুন', 'Start Direct Chat with Support Admin')}
-            </h2>
-            <p className="text-xs text-[#6B7280] mt-1">
-              {t('তাৎক্ষণিক প্রশ্নের উত্তর ও প্রযুক্তিগত সহায়তার জন্য আপনার তথ্য দিন', 'Provide your information for immediate support')}
-            </p>
-          </div>
-
-          {errorMessage && (
-            <div className="mb-4 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 shrink-0" />
-              <span>{errorMessage}</span>
-            </div>
-          )}
-
-          <form onSubmit={handleStartChat} className="space-y-4">
-            <div>
-              <label className="block text-xs font-bold text-[#1F1F2E] mb-1.5">
-                {t('আপনার নাম', 'Your Full Name')} <span className="text-rose-500">*</span>
-              </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  required
-                  placeholder={t('যেমন: মো: তানভীর আহমেদ', 'e.g. Tanvir Ahmed')}
-                  value={clientName}
-                  onChange={(e) => setClientName(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl bg-[#F8F5FC] border border-[#EDE4F5] text-xs sm:text-sm text-[#1F1F2E] placeholder-[#6B7280] focus:outline-none focus:border-[#5B2C8A] focus:bg-white transition-all"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-[#1F1F2E] mb-1.5">
-                {t('মোবাইল / হোয়াটসঅ্যাপ নম্বর', 'Mobile / WhatsApp Number')} <span className="text-rose-500">*</span>
-              </label>
-              <div className="relative">
-                <input
-                  type="tel"
-                  required
-                  placeholder="017xxxxxxxx"
-                  value={clientPhone}
-                  onChange={(e) => setClientPhone(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl bg-[#F8F5FC] border border-[#EDE4F5] text-xs sm:text-sm text-[#1F1F2E] placeholder-[#6B7280] font-mono focus:outline-none focus:border-[#5B2C8A] focus:bg-white transition-all"
-                />
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={initialLoading}
-              className="w-full mt-4 py-3 px-6 rounded-xl bg-[#5B2C8A] hover:bg-[#4A1F6E] active:bg-[#3C165C] text-white text-xs sm:text-sm font-bold shadow-xs hover:shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
-            >
-              {initialLoading ? (
-                <span>{t('সংযুক্ত হচ্ছে...', 'Connecting to Support...')}</span>
-              ) : (
-                <>
-                  <MessageSquare className="w-4 h-4" />
-                  <span>{t('সরাসরি চ্যাট শুরু করুন', 'Start Direct Chat Now')}</span>
-                  <ChevronRight className="w-4 h-4" />
-                </>
-              )}
-            </button>
-          </form>
-        </div>
-      ) : (
-        /* STEP 2: ACTIVE CONVERSATION INTERFACE */
-        <div className="bg-[#FFFFFF] border border-[#EDE4F5] rounded-[20px] shadow-soft overflow-hidden flex flex-col h-[75vh] min-h-[560px] max-h-[820px] text-[#1F1F2E]">
-          {/* Active Chat Top Bar */}
-          <div className="p-3.5 sm:p-4 bg-[#F8F5FC] border-b border-[#EDE4F5] flex items-center justify-between shrink-0">
-            <div className="flex items-center gap-2.5 sm:gap-3">
-              <div className="relative">
-                <div className="w-10 h-10 rounded-xl bg-[#5B2C8A] text-white flex items-center justify-center font-bold text-sm shadow-xs">
-                  BW
+        /* STEP 1: COMPACT, PRECISELY SIZED START CHAT CARD (NO PAGE SCROLL) */
+        <div className="h-full flex flex-col justify-center items-center py-2">
+          <div className="w-full max-w-md bg-white border border-[#EDE4F5] rounded-3xl p-5 sm:p-7 shadow-sm flex flex-col">
+            
+            {/* Header with Exit Chat Button */}
+            <div className="flex items-center justify-between pb-3.5 mb-4 border-b border-[#EDE4F5]">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-2xl bg-[#F8F5FC] text-[#5B2C8A] border border-[#EDE4F5] flex items-center justify-center shadow-xs">
+                  <MessageSquare className="w-5 h-5 stroke-[2.2]" />
                 </div>
-                <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-white" />
+                <div>
+                  <h2 className="text-sm sm:text-base font-extrabold text-[#1F1F2E] leading-tight">
+                    {t('BongoWeb লাইভ চ্যাট', 'BongoWeb Live Chat')}
+                  </h2>
+                  <div className="flex items-center gap-1.5 text-[11px] text-emerald-800 font-bold mt-0.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <span>{isLiveOnline ? t('সরাসরি অনলাইন (২৪/৭)', 'Online Now (24/7)') : t('অনলাইন', 'Online')}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Explicit Exit Chat Button */}
+              <button
+                type="button"
+                onClick={handleExit}
+                className="px-3 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 active:bg-purple-200 text-[#5B2C8A] border border-[#EDE4F5] text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs hover:scale-[1.02] active:scale-95"
+                title={t('চ্যাট থেকে বের হয়ে হোম পেজে যান', 'Exit Chat and return to Home')}
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span>{t('চ্যাট এক্সিট', 'Exit Chat')}</span>
+              </button>
+            </div>
+
+            <p className="text-xs text-[#6B7280] mb-4 text-center leading-relaxed">
+              {t('সরাসরি আমাদের সাপোর্ট টিমের সাথে কথা বলতে নিচের তথ্য দিন:', 'Connect directly with our support team:')}
+            </p>
+
+            {errorMessage && (
+              <div className="mb-3.5 p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2 animate-fadeIn">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{errorMessage}</span>
+              </div>
+            )}
+
+            {/* Input Form */}
+            <form onSubmit={handleStartChat} className="space-y-3">
+              <div>
+                <label className="block text-xs font-bold text-[#1F1F2E] mb-1">
+                  {t('আপনার নাম', 'Your Name')} <span className="text-rose-500">*</span>
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#6B7280]">
+                    <User className="w-4 h-4" />
+                  </div>
+                  <input
+                    type="text"
+                    required
+                    placeholder={t('যেমন: মো: তানভীর আহমেদ', 'e.g. Tanvir Ahmed')}
+                    value={clientName}
+                    onChange={(e) => setClientName(e.target.value)}
+                    className="w-full pl-9 pr-3.5 py-2.5 rounded-xl bg-[#F8F5FC] border border-[#EDE4F5] text-xs sm:text-sm text-[#1F1F2E] placeholder-[#6B7280] focus:outline-none focus:border-[#5B2C8A] focus:bg-white transition-all shadow-2xs"
+                  />
+                </div>
               </div>
 
               <div>
+                <label className="block text-xs font-bold text-[#1F1F2E] mb-1">
+                  {t('মোবাইল / হোয়াটসঅ্যাপ নম্বর', 'WhatsApp / Mobile')} <span className="text-rose-500">*</span>
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#6B7280]">
+                    <Phone className="w-4 h-4" />
+                  </div>
+                  <input
+                    type="tel"
+                    required
+                    placeholder="017xxxxxxxx"
+                    value={clientPhone}
+                    onChange={(e) => setClientPhone(e.target.value)}
+                    className="w-full pl-9 pr-3.5 py-2.5 rounded-xl bg-[#F8F5FC] border border-[#EDE4F5] text-xs sm:text-sm text-[#1F1F2E] placeholder-[#6B7280] font-mono focus:outline-none focus:border-[#5B2C8A] focus:bg-white transition-all shadow-2xs"
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={initialLoading}
+                className="w-full mt-1 py-3 px-5 rounded-xl bg-[#5B2C8A] hover:bg-[#4A1F6E] active:bg-[#3C165C] text-white text-xs sm:text-sm font-bold shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 hover:scale-[1.01] active:scale-95"
+              >
+                {initialLoading ? (
+                  <span>{t('সংযোগ হচ্ছে...', 'Connecting...')}</span>
+                ) : (
+                  <>
+                    <MessageSquare className="w-4 h-4" />
+                    <span>{t('সরাসরি চ্যাট শুরু করুন', 'Start Chat Now')}</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </>
+                )}
+              </button>
+            </form>
+
+            {/* Quick WhatsApp Link & Reassurance */}
+            <div className="mt-4 pt-3 border-t border-[#EDE4F5] flex items-center justify-between text-xs text-[#6B7280]">
+              <span className="flex items-center gap-1 text-emerald-800 font-semibold text-[11px]">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                <span>১০০% নিরাপদ</span>
+              </span>
+
+              <a
+                href="https://wa.me/8801819847250"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-emerald-600 hover:text-emerald-700 font-bold transition-colors text-[11px]"
+              >
+                <MessageCircle className="w-3.5 h-3.5" />
+                <span>হোয়াটসঅ্যাপ কনসাল্টেশন</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      ) : (
+        /* STEP 2: FIXED HEIGHT CHAT CONTAINER - ONLY INNER MESSAGE STREAM SCROLLS */
+        <div className="h-full flex flex-col bg-white border border-[#EDE4F5] rounded-3xl shadow-sm overflow-hidden">
+          
+          {/* Top Bar: Agent Info + Security Code + EXIT CHAT button */}
+          <div className="px-3.5 sm:px-5 py-2.5 sm:py-3 bg-[#F8F5FC] border-b border-[#EDE4F5] flex items-center justify-between shrink-0 gap-2">
+            
+            {/* Left: Agent Info */}
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="relative shrink-0">
+                <div className="w-8 sm:w-9 h-8 sm:h-9 rounded-xl bg-[#5B2C8A] text-white flex items-center justify-center font-bold text-xs shadow-xs">
+                  BW
+                </div>
+                <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-white animate-pulse" />
+              </div>
+
+              <div className="min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <h3 className="text-xs sm:text-sm font-bold text-[#1F1F2E]">
-                    {t('BongoWeb টেকনিক্যাল সাপোর্ট', 'BongoWeb Technical Support')}
+                  <h3 className="text-xs sm:text-sm font-bold text-[#1F1F2E] truncate">
+                    {t('BongoWeb লাইভ সাপোর্ট', 'BongoWeb Live Support')}
                   </h3>
-                  <span className="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200 text-[10px] font-bold">
-                    {t('অফিসিয়াল', 'Official')}
+                  <span className="px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-900 border border-emerald-300 text-[9px] font-bold shrink-0">
+                    {t('সরাসরি', 'Live')}
                   </span>
                 </div>
-                <p className="text-[10px] sm:text-[11px] text-[#6B7280] flex items-center gap-1 mt-0.5 font-medium">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  <span>{t('২৪/৭ লাইভ সাপোর্ট', '24/7 Live Support')}</span>
+                <p className="text-[10px] text-emerald-800 flex items-center gap-1 font-medium truncate">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                  <span>{t('সরাসরি উত্তর দিচ্ছেন', 'Responding in real-time')}</span>
                 </p>
               </div>
             </div>
 
-            {/* Top Bar Actions: Security Code Badge & Timer */}
-            <div className="flex items-center gap-2">
-              {/* Synchronized 5-Min Rotating Security Code */}
-              {clientPhone && (
-                <div 
-                  className="px-2.5 py-1 rounded-xl bg-purple-50 border border-purple-200 text-purple-700 text-[11px] font-bold flex items-center gap-1.5 select-none"
-                  title={t('আপনার ৫-মিনিটের সিকিউরিটি কোড (অ্যাডমিন প্যানেলের সাথে সিঙ্ক করা)', 'Your 5-min synchronized security code')}
-                >
-                  <ShieldCheck className="w-3.5 h-3.5 text-purple-600" />
-                  <span className="text-[10px] text-slate-600 hidden md:inline">
-                    {t('সিকিউরিটি কোড:', 'Security Code:')}
-                  </span>
-                  <span className="font-mono font-black text-xs text-purple-700 px-1 bg-white rounded border border-purple-200">
-                    {currentSecurityCode || getClientSecurityCode(clientPhone)}
-                  </span>
-                  <span className="text-[10px] font-mono text-slate-500">
-                    ({formatRemainingTime(codeCountdown)})
-                  </span>
-                </div>
-              )}
-
-              {/* Inactivity Session Remaining */}
-              <div 
-                className="px-2.5 py-1 rounded-xl bg-slate-100 border border-slate-200 text-slate-700 text-[11px] font-mono font-bold flex items-center gap-1"
-                title={t('সেশনের মেয়াদ', 'Session expiry countdown')}
-              >
-                <Clock className="w-3 h-3 text-purple-600" />
-                <span>{remainingMinutes} {t('মি.', 'min')}</span>
-              </div>
-
-              {/* End Chat Button */}
+            {/* Right: EXIT CHAT Button */}
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+              {/* EXPLICIT EXIT CHAT BUTTON */}
               <button
                 type="button"
-                onClick={handleEndChat}
-                className="p-1.5 sm:px-2.5 sm:py-1 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
-                title={t('চ্যাট সমাপ্ত করুন', 'End chat session')}
+                onClick={handleExit}
+                className="px-3 py-1.5 rounded-xl bg-[#5B2C8A] hover:bg-[#4A1F6E] active:bg-[#3C165C] text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs hover:scale-[1.02] active:scale-95"
+                title={t('চ্যাট থেকে বের হয়ে হোম পেজে যান', 'Exit Chat and return to Home')}
               >
-                <X className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">{t('সমাপ্ত', 'Close')}</span>
+                <LogOut className="w-3.5 h-3.5" />
+                <span>{t('চ্যাট এক্সিট', 'Exit Chat')}</span>
               </button>
             </div>
           </div>
 
-          {/* Chat Messages Stream */}
+          {/* Chat Messages Stream (ONLY THIS SCROLLS) */}
           <div 
             ref={chatScrollContainerRef}
-            className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 bg-slate-50/70"
+            className="flex-1 overflow-y-auto p-3.5 sm:p-5 space-y-3 bg-[#F8F5FC]/40"
           >
-            {/* Security Verification Banner */}
-            <div className="p-3 rounded-2xl bg-purple-50 border border-purple-200 text-xs text-purple-800 flex items-center justify-between gap-2 shadow-2xs">
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-purple-600 shrink-0" />
-                <span className="text-[11px] leading-relaxed">
-                  {t(
-                    'আপনার কথোপকথন সরাসরি সুরক্ষিত ও এনক্রিপ্টেড। অ্যাডমিন প্যানেল থেকে সিনিয়র ইঞ্জিনিয়ার উত্তর দিচ্ছেন।',
-                    'Your conversation is private and synchronized directly with BongoWeb administrators.'
-                  )}
-                </span>
-              </div>
+            {/* Top Security Notice */}
+            <div className="py-1.5 px-3 rounded-xl bg-white border border-[#EDE4F5] text-[11px] text-[#5B2C8A] flex items-center justify-center gap-1.5 shadow-2xs text-center">
+              <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
+              <span>{t('এনক্রিপ্টেড লাইভ সাপোর্ট সেশন • সাপোর্ট টিম সরাসরি যুক্ত আছেন', 'Encrypted Live Support • Support Team Connected')}</span>
             </div>
 
-            {/* Closed Thread Notice */}
+            {/* Closed Session Warning */}
             {thread && thread.isClosed && (
-              <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs animate-fadeIn">
-                <div className="flex items-center gap-2 text-amber-800">
+              <div className="p-3 rounded-2xl bg-amber-50 border border-amber-200 text-amber-800 flex items-center justify-between gap-2 text-xs animate-fadeIn">
+                <div className="flex items-center gap-2">
                   <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
-                  <span>{t('এই চ্যাট সেশনটি সমাপ্ত করা হয়েছে।', 'This support chat session has ended.')}</span>
+                  <span>{t('চ্যাট সেশনটি সমাপ্ত হয়েছে।', 'Chat session ended.')}</span>
                 </div>
                 <button
                   type="button"
                   onClick={handleReopen}
-                  className="px-3 py-1 rounded-xl bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] hover:from-[#5B21B6] hover:to-[#6B46C1] text-white font-bold text-xs flex items-center gap-1 cursor-pointer shadow-xs"
+                  className="px-2.5 py-1 rounded-xl bg-[#5B2C8A] hover:bg-[#4A1F6E] text-white font-bold text-xs flex items-center gap-1 cursor-pointer"
                 >
-                  <RotateCcw className="w-3.5 h-3.5" />
-                  <span>{t('পুনরায় চালু করুন', 'Reopen Chat')}</span>
+                  <RotateCcw className="w-3 h-3" />
+                  <span>{t('চালু করুন', 'Reopen')}</span>
                 </button>
               </div>
             )}
@@ -509,25 +575,36 @@ export default function LiveChatView() {
                   key={msg.id ? `${msg.id}-${idx}` : `msg-${idx}`}
                   className={`flex flex-col ${isAdmin ? 'items-start' : 'items-end'} max-w-full`}
                 >
-                  {/* Sender Header Badge */}
+                  {/* Sender Header */}
                   <div className={`flex items-center gap-1 mb-1 px-1 text-[11px] font-bold ${
-                    isAdmin ? 'text-purple-700' : 'text-slate-500'
+                    isAdmin ? 'text-[#5B2C8A]' : 'text-slate-500'
                   }`}>
                     {isAdmin ? (
                       <>
-                        <ShieldCheck className="w-3.5 h-3.5 text-purple-600" />
-                        <span>BongoWeb সাপোর্ট ইঞ্জিনিয়ার</span>
+                        <ShieldCheck className="w-3.5 h-3.5 text-[#5B2C8A]" />
+                        <span>{t('BongoWeb সাপোর্ট', 'BongoWeb Support')}</span>
                       </>
                     ) : (
-                      <>
-                        <span>{clientName || t('আপনি (গ্রাহক)', 'You')}</span>
-                      </>
+                      <div className="flex items-center gap-1">
+                        <span>{clientName || t('আপনি', 'You')}</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditNameInput(clientName || '');
+                            setIsEditingName(true);
+                          }}
+                          className="p-0.5 text-slate-400 hover:text-[#5B2C8A] rounded transition-colors cursor-pointer"
+                          title={t('নাম পরিবর্তন করুন', 'Change name')}
+                        >
+                          <Pencil className="w-2.5 h-2.5" />
+                        </button>
+                      </div>
                     )}
                   </div>
 
                   {/* Message Bubble */}
                   <div
-                    className={`max-w-[88%] sm:max-w-[78%] p-3.5 sm:p-4 rounded-2xl text-xs sm:text-sm leading-relaxed ${
+                    className={`max-w-[88%] sm:max-w-[76%] p-3 sm:p-3.5 rounded-2xl text-xs sm:text-sm leading-relaxed ${
                       isAdmin
                         ? 'bg-white border border-[#EDE4F5] text-[#1F1F2E] rounded-tl-xs shadow-xs'
                         : 'bg-[#5B2C8A] text-white rounded-tr-xs shadow-xs'
@@ -536,8 +613,8 @@ export default function LiveChatView() {
                     <p className="whitespace-pre-wrap select-text font-sans">{msg.text}</p>
                   </div>
 
-                  {/* Message Timestamp */}
-                  <span className={`text-[10px] font-mono mt-1 px-1 flex items-center gap-1 text-[#6B7280]`}>
+                  {/* Timestamp */}
+                  <span className="text-[10px] font-mono mt-0.5 px-1 flex items-center gap-1 text-[#6B7280]">
                     <span>{msg.timestamp}</span>
                     {!isAdmin && <CheckCheck className="w-3 h-3 text-[#5B2C8A]" />}
                   </span>
@@ -548,26 +625,26 @@ export default function LiveChatView() {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Quick Suggestion Chips */}
-          <div className="px-3 sm:px-4 py-2 border-t border-[#EDE4F5] bg-[#F8F5FC] flex items-center gap-1.5 overflow-x-auto scrollbar-none shrink-0">
+          {/* Quick Suggestion Chips (Compact 1 Row) */}
+          <div className="px-3 sm:px-4 py-1.5 border-t border-[#EDE4F5] bg-[#F8F5FC] flex items-center gap-1.5 overflow-x-auto scrollbar-none shrink-0">
             <span className="text-[10px] text-[#6B7280] font-bold shrink-0">
-              {t('দ্রুত প্রশ্ন:', 'Suggestions:')}
+              {t('প্রশ্ন:', 'Quick:')}
             </span>
             {quickQuestions.map((q, idx) => (
               <button
                 key={idx}
                 type="button"
-                onClick={() => handleSendMessage(q)}
+                onClick={() => handleSendMessage(q.query)}
                 disabled={thread?.isClosed || isSending}
                 className="px-2.5 py-1 rounded-xl bg-white hover:bg-purple-50 text-[#1F1F2E] hover:text-[#5B2C8A] text-[10px] font-medium border border-[#EDE4F5] transition-all shrink-0 cursor-pointer disabled:opacity-50 shadow-2xs"
               >
-                {q}
+                {language === 'bn' ? q.labelBn : q.labelEn}
               </button>
             ))}
           </div>
 
-          {/* Input Box Footer */}
-          <div className="p-3 sm:p-4 border-t border-[#EDE4F5] bg-white shrink-0">
+          {/* Input Bar Footer */}
+          <div className="p-2.5 sm:p-3 border-t border-[#EDE4F5] bg-white shrink-0">
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -580,18 +657,18 @@ export default function LiveChatView() {
                 disabled={thread?.isClosed || isSending}
                 placeholder={
                   thread?.isClosed
-                    ? t('চ্যাট বন্ধ রয়েছে। নতুন চ্যাট চালু করুন...', 'Chat is closed. Reopen to continue...')
-                    : t('আপনার বার্তা লিখুন (Enter চাপুন)...', 'Type your message (Press Enter to send)...')
+                    ? t('চ্যাট বন্ধ রয়েছে। পুনরায় চালু করুন...', 'Chat is closed. Reopen to chat...')
+                    : t('বার্তা লিখুন (Enter চাপুন)...', 'Type your message (Press Enter)...')
                 }
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
-                className="flex-1 px-4 py-2.5 sm:py-3 rounded-xl bg-[#F8F5FC] border border-[#EDE4F5] text-xs sm:text-sm text-[#1F1F2E] placeholder-[#6B7280] focus:outline-none focus:border-[#5B2C8A] focus:bg-white transition-all disabled:opacity-60"
+                className="flex-1 px-3.5 py-2 sm:py-2.5 rounded-xl bg-[#F8F5FC] border border-[#EDE4F5] text-xs sm:text-sm text-[#1F1F2E] placeholder-[#6B7280] focus:outline-none focus:border-[#5B2C8A] focus:bg-white transition-all disabled:opacity-60 shadow-2xs"
               />
 
               <button
                 type="submit"
                 disabled={!inputMessage.trim() || thread?.isClosed || isSending}
-                className="px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl bg-[#5B2C8A] hover:bg-[#4A1F6E] active:bg-[#3C165C] text-white text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+                className="px-4 py-2 sm:py-2.5 rounded-xl bg-[#5B2C8A] hover:bg-[#4A1F6E] active:bg-[#3C165C] text-white text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
               >
                 <Send className="w-4 h-4" />
                 <span className="hidden sm:inline">{t('পাঠান', 'Send')}</span>
@@ -601,28 +678,46 @@ export default function LiveChatView() {
         </div>
       )}
 
-      {/* Floating Emergency WhatsApp & Direct Call Footer */}
-      <div className="mt-5 text-center text-xs text-slate-500 flex flex-wrap items-center justify-center gap-4">
-        <a
-          href="https://wa.me/8801819847250"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 text-emerald-600 hover:text-emerald-700 font-bold transition-colors"
-        >
-          <MessageCircle className="w-3.5 h-3.5" />
-          <span>{t('হোয়াটসঅ্যাপে মেসেজ পাঠান', 'Chat on WhatsApp')}</span>
-        </a>
-
-        <span className="text-slate-300">•</span>
-
-        <a
-          href="tel:+8801819847250"
-          className="inline-flex items-center gap-1.5 text-[#6B46C1] hover:text-[#5B21B6] font-bold transition-colors font-mono"
-        >
-          <Phone className="w-3.5 h-3.5" />
-          <span>+880 1819-847250</span>
-        </a>
-      </div>
+      {/* Edit Name Modal */}
+      {isEditingName && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
+          <div className="bg-white rounded-2xl p-5 w-full max-w-sm shadow-xl border border-[#EDE4F5]">
+            <h3 className="text-sm font-bold text-[#1F1F2E] mb-1.5 flex items-center gap-2">
+              <User className="w-4 h-4 text-[#5B2C8A]" />
+              <span>{t('আপনার নাম পরিবর্তন করুন', 'Change Your Name')}</span>
+            </h3>
+            <p className="text-xs text-[#6B7280] mb-3">
+              {t('চ্যাটে প্রদর্শিত আপনার নাম আপডেট করুন:', 'Update your name displayed in chat:')}
+            </p>
+            <form onSubmit={handleSaveNewName} className="space-y-3">
+              <input
+                type="text"
+                autoFocus
+                required
+                value={editNameInput}
+                onChange={(e) => setEditNameInput(e.target.value)}
+                placeholder={t('আপনার নাম লিখুন', 'Enter your name')}
+                className="w-full px-3.5 py-2.5 rounded-xl bg-[#F8F5FC] border border-[#EDE4F5] text-xs sm:text-sm text-[#1F1F2E] focus:outline-none focus:border-[#5B2C8A] focus:bg-white transition-all shadow-2xs"
+              />
+              <div className="flex items-center justify-end gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setIsEditingName(false)}
+                  className="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 cursor-pointer"
+                >
+                  {t('বাতিল', 'Cancel')}
+                </button>
+                <button
+                  type="submit"
+                  className="px-3.5 py-1.5 rounded-xl bg-[#5B2C8A] hover:bg-[#4A1F6E] active:bg-[#3C165C] text-xs font-bold text-white shadow-xs cursor-pointer"
+                >
+                  {t('সংরক্ষণ করুন', 'Save')}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
