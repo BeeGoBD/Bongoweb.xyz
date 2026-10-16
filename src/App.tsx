@@ -15,6 +15,14 @@ import AdminPanelView from './components/AdminPanelView';
 import LandscapeOrderDetailsModal from './components/LandscapeOrderDetailsModal';
 import WebsiteCredentialsModal from './components/WebsiteCredentialsModal';
 import CategoryWebsitesView from './components/CategoryWebsitesView';
+import PrivacyPolicyView from './components/legal/PrivacyPolicyView';
+import TermsConditionsView from './components/legal/TermsConditionsView';
+import CookiePolicyView from './components/legal/CookiePolicyView';
+import RefundPolicyView from './components/legal/RefundPolicyView';
+import NotFoundView from './components/NotFoundView';
+import AppFooter from './components/AppFooter';
+import CookieConsentBanner from './components/CookieConsentBanner';
+import { updatePageSEO } from './utils/seo';
 
 type ViewMode = 
   | 'dashboard' 
@@ -24,7 +32,12 @@ type ViewMode =
   | 'account' 
   | 'website-detail' 
   | 'order-page' 
-  | 'admin';
+  | 'admin'
+  | 'privacy'
+  | 'terms'
+  | 'cookies'
+  | 'refund'
+  | 'not-found';
 
 export default function App() {
   const [viewMode, setViewMode] = useState<ViewMode>(() => {
@@ -178,17 +191,46 @@ export default function App() {
       return;
     }
 
+    if (path === '/privacy' || path === '/privacy-policy' || path.startsWith('/privacy')) {
+      setViewMode('privacy');
+      return;
+    }
+
+    if (path === '/terms' || path === '/terms-and-conditions' || path.startsWith('/terms')) {
+      setViewMode('terms');
+      return;
+    }
+
+    if (path === '/cookies' || path === '/cookie-policy' || path.startsWith('/cookies')) {
+      setViewMode('cookies');
+      return;
+    }
+
+    if (path === '/refund' || path === '/refund-policy' || path.startsWith('/refund')) {
+      setViewMode('refund');
+      return;
+    }
+
+    if (path === '/404') {
+      setViewMode('not-found');
+      return;
+    }
+
     if (path === '/dashboard' || path.startsWith('/dashboard')) {
       setViewMode('dashboard');
       return;
     }
 
     // Default root path "/"
-    const savedCategory = sessionStorage.getItem('bongoweb_chosen_category') || localStorage.getItem('bongoweb_chosen_category');
-    if (savedCategory) setSelectedCategory(savedCategory as WebsiteCategory);
+    if (path === '/' || path === '') {
+      const savedCategory = sessionStorage.getItem('bongoweb_chosen_category') || localStorage.getItem('bongoweb_chosen_category');
+      if (savedCategory) setSelectedCategory(savedCategory as WebsiteCategory);
+      setViewMode('dashboard');
+      return;
+    }
 
-    // Directly land on Dashboard (Home) for any visitor
-    setViewMode('dashboard');
+    // Any other unrecognized route -> 404 Custom Not Found View
+    setViewMode('not-found');
   }, [findDemoByCode]);
 
   // Synchronize current view mode to storage
@@ -335,6 +377,13 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'instant' });
   };
 
+  // Navigate to Legal & Compliance pages
+  const handleNavigateLegal = (page: 'privacy' | 'terms' | 'cookies' | 'refund') => {
+    setViewMode(page);
+    window.history.pushState({}, '', `/${page}`);
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  };
+
   // Return to previous view (Templates, Category, Home, etc.) when clicking Back from Website Detail / Preview
   const handleBackFromWebsite = () => {
     let target = returnPath;
@@ -472,6 +521,63 @@ export default function App() {
                 }}
               />
             )}
+
+            {/* Privacy Policy (URL: "/privacy") */}
+            {viewMode === 'privacy' && (
+              <PrivacyPolicyView
+                onBack={handleReturnToDashboard}
+                onNavigateToTerms={() => handleNavigateLegal('terms')}
+                onNavigateToCookies={() => handleNavigateLegal('cookies')}
+              />
+            )}
+
+            {/* Terms & Conditions (URL: "/terms") */}
+            {viewMode === 'terms' && (
+              <TermsConditionsView
+                onBack={handleReturnToDashboard}
+                onNavigateToPrivacy={() => handleNavigateLegal('privacy')}
+                onNavigateToRefund={() => handleNavigateLegal('refund')}
+              />
+            )}
+
+            {/* Cookie Policy (URL: "/cookies") */}
+            {viewMode === 'cookies' && (
+              <CookiePolicyView
+                onBack={handleReturnToDashboard}
+                onNavigateToPrivacy={() => handleNavigateLegal('privacy')}
+              />
+            )}
+
+            {/* Refund Policy (URL: "/refund") */}
+            {viewMode === 'refund' && (
+              <RefundPolicyView
+                onBack={handleReturnToDashboard}
+                onNavigateToLiveChat={() => handleTabChange('live-chat')}
+              />
+            )}
+
+            {/* Custom 404 Page */}
+            {viewMode === 'not-found' && (
+              <NotFoundView
+                onGoHome={handleReturnToDashboard}
+                onGoTemplates={() => handleTabChange('templates')}
+                onGoSupport={() => handleTabChange('live-chat')}
+              />
+            )}
+
+            {/* Global Comprehensive Footer */}
+            {(viewMode === 'dashboard' || viewMode === 'category-websites' || viewMode === 'privacy' || viewMode === 'terms' || viewMode === 'cookies' || viewMode === 'refund' || viewMode === 'not-found') && (
+              <AppFooter
+                onNavigateHome={handleReturnToDashboard}
+                onNavigateTemplates={() => handleTabChange('templates')}
+                onNavigateLiveChat={() => handleTabChange('live-chat')}
+                onNavigateAccount={() => handleTabChange('account')}
+                onNavigatePrivacy={() => handleNavigateLegal('privacy')}
+                onNavigateTerms={() => handleNavigateLegal('terms')}
+                onNavigateCookies={() => handleNavigateLegal('cookies')}
+                onNavigateRefund={() => handleNavigateLegal('refund')}
+              />
+            )}
           </main>
 
           {/* Fixed Bottom Navigation Bar (4 Options) */}
@@ -504,6 +610,7 @@ export default function App() {
         onGoToCategoryLanding={handleReturnToDashboard}
         onOpenOrderDetails={() => setLandscapeOrderModalOpen(true)}
         onOpenWebsiteCredentials={() => setWebsiteCredentialsModalOpen(true)}
+        onNavigateLegal={handleNavigateLegal}
       />
 
       {/* Dedicated Website Credentials Modal (Menu Option 2) */}
@@ -528,6 +635,11 @@ export default function App() {
           setLandscapeOrderModalOpen(false);
           handleTabChange('live-chat');
         }}
+      />
+
+      {/* Cookie Consent Banner & Preferences Modal */}
+      <CookieConsentBanner 
+        onNavigateToCookies={() => handleNavigateLegal('cookies')} 
       />
     </div>
   );

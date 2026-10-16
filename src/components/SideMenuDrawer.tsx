@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { 
   X, ClipboardCheck, MessageCircle, 
-  CheckCircle2, Send, Ticket, Star, Quote, Key, Sparkles,
-  PhoneCall, AlertCircle, Clock, Lock
+  CheckCircle2, Send, Ticket, Key, Sparkles,
+  PhoneCall, AlertCircle, Clock, Lock,
+  Building2, ShieldCheck, Mail, Phone, ExternalLink, Cookie, Scale
 } from 'lucide-react';
 import BongoWebLogo from './BongoWebLogo';
 import { BottomTabType } from './FixedBottomNav';
-import { TESTIMONIALS } from '../data/mockData';
 import { UserAccount, CallBackRequest } from '../types';
 import { apiSubmitCallBackRequest } from '../utils/api';
 import { useLanguage } from '../utils/LanguageContext';
@@ -19,6 +19,7 @@ interface SideMenuDrawerProps {
   onOpenLogoShowcase?: () => void;
   onOpenOrderDetails?: () => void;
   onOpenWebsiteCredentials?: () => void;
+  onNavigateLegal?: (page: 'privacy' | 'terms' | 'cookies' | 'refund') => void;
 }
 
 export default function SideMenuDrawer({
@@ -27,7 +28,8 @@ export default function SideMenuDrawer({
   onSelectTab,
   onOpenLogoShowcase: _onOpenLogoShowcase,
   onOpenOrderDetails,
-  onOpenWebsiteCredentials
+  onOpenWebsiteCredentials,
+  onNavigateLegal
 }: SideMenuDrawerProps) {
   const { language } = useLanguage();
   const [currentUser, setCurrentUser] = useState<UserAccount | null>(() => {
@@ -94,8 +96,12 @@ export default function SideMenuDrawer({
   const [ticketSubmitted, setTicketSubmitted] = useState(false);
   const [generatedTicketId, setGeneratedTicketId] = useState('');
 
-  // Testimonials Modal State
-  const [testimonialsModalOpen, setTestimonialsModalOpen] = useState(false);
+  // Business Info & Legal Policies Modal State
+  const [businessInfoModalOpen, setBusinessInfoModalOpen] = useState(false);
+  const [ticketConsent, setTicketConsent] = useState(false);
+  const [ticketConsentError, setTicketConsentError] = useState('');
+  const [callBackConsent, setCallBackConsent] = useState(false);
+  const [callBackConsentError, setCallBackConsentError] = useState('');
 
   if (!isOpen) return null;
 
@@ -107,6 +113,8 @@ export default function SideMenuDrawer({
     setCallBackName(currentUser.name || '');
     setCallBackPhone(currentUser.phone || '');
     setCallBackReason('');
+    setCallBackConsent(false);
+    setCallBackConsentError('');
     setCallBackSuccess(false);
     setCallBackModalOpen(true);
   };
@@ -115,7 +123,17 @@ export default function SideMenuDrawer({
     e.preventDefault();
     if (!callBackName.trim() || !callBackPhone.trim() || !callBackReason.trim()) return;
 
+    if (!callBackConsent) {
+      setCallBackConsentError(
+        language === 'bn' 
+          ? 'অনুগ্রহ করে যোগাযোগের সম্মতিতে টিক দিন।' 
+          : 'Please give consent to be contacted regarding your inquiry.'
+      );
+      return;
+    }
+
     setCallBackSubmitting(true);
+    setCallBackConsentError('');
     try {
       const res = await apiSubmitCallBackRequest({
         name: callBackName.trim(),
@@ -133,6 +151,8 @@ export default function SideMenuDrawer({
 
   const handleOpenTicket = () => {
     setTicketSubmitted(false);
+    setTicketConsent(false);
+    setTicketConsentError('');
     setTicketModalOpen(true);
   };
 
@@ -140,14 +160,26 @@ export default function SideMenuDrawer({
     e.preventDefault();
     if (!ticketReason.trim() || !ticketName.trim() || !ticketQuestion.trim()) return;
 
+    if (!ticketConsent) {
+      setTicketConsentError(
+        language === 'bn'
+          ? 'অনুগ্রহ করে সাপোর্ট যোগাযোগ সম্মতিতে টিক দিন।'
+          : 'Please agree to allow our support team to contact you.'
+      );
+      return;
+    }
+
     const randomId = `#TKT-${Math.floor(1000 + Math.random() * 9000)}`;
     setGeneratedTicketId(randomId);
     setTicketSubmitted(true);
+    setTicketConsentError('');
   };
 
   const handleResetTicketModal = () => {
     setTicketModalOpen(false);
     setTicketSubmitted(false);
+    setTicketConsent(false);
+    setTicketConsentError('');
     setTicketReason('');
     setTicketName('');
     setTicketPhone('');
@@ -276,22 +308,22 @@ export default function SideMenuDrawer({
               </div>
             </button>
 
-            {/* 5. Testimonials (Client Reviews & Ratings) */}
+            {/* 5. Business Information & Legal Policies */}
             <button
-              onClick={() => setTestimonialsModalOpen(true)}
-              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl bg-white hover:bg-amber-50/50 text-[#1F1F2E] hover:text-amber-700 transition-all text-xs font-bold text-left cursor-pointer group border border-[#EDE4F5] hover:border-amber-300 shadow-xs active:scale-[0.99]"
+              onClick={() => setBusinessInfoModalOpen(true)}
+              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl bg-white hover:bg-[#F8F5FC] text-[#1F1F2E] hover:text-[#5B2C8A] transition-all text-xs font-bold text-left cursor-pointer group border border-[#EDE4F5] hover:border-[#5B2C8A]/30 shadow-xs active:scale-[0.99]"
             >
-              <div className="w-10 h-10 rounded-xl bg-amber-50 group-hover:bg-amber-100 flex items-center justify-center text-amber-500 border border-amber-200 shadow-xs shrink-0 transition-colors">
-                <Star className="w-5 h-5 fill-amber-500" />
+              <div className="w-10 h-10 rounded-xl bg-[#F8F5FC] group-hover:bg-[#5B2C8A] flex items-center justify-center text-[#5B2C8A] group-hover:text-white border border-[#EDE4F5] shadow-xs shrink-0 transition-colors">
+                <Building2 className="w-5 h-5 stroke-[2.2]" />
               </div>
               <div className="flex-1 min-w-0">
-                <span className="block text-sm font-bold text-[#1F1F2E] group-hover:text-amber-700">
-                  {language === 'bn' ? '৫. গ্রাহকদের রিভিউ ও রেটিং' : '5. Client Reviews & Ratings'}
+                <span className="block text-sm font-bold text-[#1F1F2E] group-hover:text-[#5B2C8A]">
+                  {language === 'bn' ? '৫. ব্যবসায়িক বিবরণ ও আইনি পলিসি' : '5. Business Info & Legal Policies'}
                 </span>
                 <span className="text-[11px] text-[#6B7280] font-normal block truncate">
                   {language === 'bn' 
-                    ? 'গ্রাহকদের বাস্তব মতামত ও ৫-স্টার রেটিং দেখুন' 
-                    : 'Verified customer feedback and 5-star ratings'}
+                    ? 'কোম্পানি ঠিকানা, প্রাইভেসি পলিসি ও রিফান্ড সংক্রান্ত তথ্য' 
+                    : 'Company registration, DPDP privacy & refund policies'}
                 </span>
               </div>
             </button>
@@ -331,16 +363,80 @@ export default function SideMenuDrawer({
             </button>
           </div>
 
-          {/* Drawer Clean Footer */}
-          <div className="p-4 border-t border-[#EDE4F5] bg-[#F8F5FC] text-center">
-            <p className="text-[11px] font-bold text-[#1F1F2E]">
-              BongoWeb • Premium Website Solutions
-            </p>
-            <p className="text-[10px] text-[#6B7280] mt-0.5">
-              {language === 'bn' 
-                ? '২৪ ঘণ্টা লাইভ ডেলিভারি ও সাপোর্ট সিস্টেম' 
-                : '24-Hour Express Launch & Complete Support System'}
-            </p>
+          {/* Drawer Clean Footer with Compliance & Clickable Contacts */}
+          <div className="p-4 border-t border-[#EDE4F5] bg-[#F8F5FC] text-center space-y-2">
+            <div>
+              <p className="text-[11px] font-bold text-[#1F1F2E]">
+                BongoWeb Digital Solutions Ltd.
+              </p>
+              <p className="text-[10px] text-[#6B7280]">
+                Block B, Banani, Dhaka 1213 • 24/7 Live Desk
+              </p>
+            </div>
+
+            <div className="flex items-center justify-center gap-3 text-[11px]">
+              <a 
+                href="tel:+8801819847250"
+                className="text-[#5B2C8A] font-bold hover:underline inline-flex items-center gap-1 font-mono"
+              >
+                <Phone className="w-3 h-3" />
+                <span>+880 1819-847250</span>
+              </a>
+              <span className="text-slate-300">•</span>
+              <a 
+                href="mailto:support@bongoweb.xyz"
+                className="text-[#5B2C8A] font-bold hover:underline inline-flex items-center gap-1"
+              >
+                <Mail className="w-3 h-3" />
+                <span>support@bongoweb.xyz</span>
+              </a>
+            </div>
+
+            <div className="pt-1 flex items-center justify-center gap-2 text-[10px] text-[#6B7280] flex-wrap">
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  if (onNavigateLegal) onNavigateLegal('privacy');
+                }}
+                className="hover:text-[#5B2C8A] underline cursor-pointer"
+              >
+                Privacy
+              </button>
+              <span>•</span>
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  if (onNavigateLegal) onNavigateLegal('terms');
+                }}
+                className="hover:text-[#5B2C8A] underline cursor-pointer"
+              >
+                Terms
+              </button>
+              <span>•</span>
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  if (onNavigateLegal) onNavigateLegal('refund');
+                }}
+                className="hover:text-[#5B2C8A] underline cursor-pointer"
+              >
+                Refund
+              </button>
+              <span>•</span>
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  if (onNavigateLegal) onNavigateLegal('cookies');
+                }}
+                className="hover:text-[#5B2C8A] underline cursor-pointer"
+              >
+                Cookies
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -452,6 +548,23 @@ export default function SideMenuDrawer({
                     />
                   </div>
 
+                  <div className="pt-1">
+                    <label className="flex items-start gap-2 text-[11px] text-slate-600 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={ticketConsent}
+                        onChange={(e) => setTicketConsent(e.target.checked)}
+                        className="mt-0.5 rounded text-[#5B2C8A] border-slate-300"
+                      />
+                      <span>
+                        আমি BongoWeb সাপোর্ট টিমকে আমার এই মোবাইল নম্বর ও বিষয়ে যোগাযোগের সম্মতি প্রদান করছি (DPDP Act &amp; Privacy Policy Compliant)।
+                      </span>
+                    </label>
+                    {ticketConsentError && (
+                      <p className="text-[11px] text-rose-500 font-bold mt-1">{ticketConsentError}</p>
+                    )}
+                  </div>
+
                   <div className="pt-2">
                     <button
                       type="submit"
@@ -468,54 +581,153 @@ export default function SideMenuDrawer({
         </div>
       )}
 
-      {/* Testimonials Modal */}
-      {testimonialsModalOpen && (
+      {/* Business Details & Legal Compliance Modal (Replaces fake reviews) */}
+      {businessInfoModalOpen && (
         <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fadeIn">
           <div className="w-full max-w-xl max-h-[85vh] bg-white text-slate-900 rounded-3xl border border-slate-200 shadow-2xl p-6 sm:p-8 animate-slideUpModal relative flex flex-col">
             <button
-              onClick={() => setTestimonialsModalOpen(false)}
+              onClick={() => setBusinessInfoModalOpen(false)}
               className="absolute top-4 right-4 p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
 
             <div className="mb-4">
-              <span className="px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-700 border border-purple-200 text-xs font-bold">
-                গ্রাহকদের রেটিং ও রিভিউ
+              <span className="px-2.5 py-0.5 rounded-full bg-purple-100 text-[#5B2C8A] border border-purple-200 text-xs font-bold inline-flex items-center gap-1.5">
+                <Building2 className="w-3.5 h-3.5" />
+                <span>ব্যবসায়িক পরিচিতি ও আইনি বিবরণ</span>
               </span>
               <h2 className="text-xl font-black text-slate-900 mt-2">
-                Testimonials (Client Reviews & Ratings)
+                BongoWeb Digital Solutions Ltd.
               </h2>
               <p className="text-xs text-slate-500 mt-0.5">
-                BongoWeb থেকে ওয়েবসাইট নিয়ে গ্রাহকরা যা বলছেন:
+                অফিসিয়াল কোম্পানি তথ্য, স্বচ্ছ রিফান্ড নীতি ও ডিপিডিপি আইন মেনে পরিচালিত সেবা:
               </p>
             </div>
 
-            <div className="flex-1 overflow-y-auto space-y-3.5 pr-1">
-              {TESTIMONIALS.map((t, idx) => (
-                <div key={idx} className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="text-xs sm:text-sm font-bold text-slate-900">{t.name}</h4>
-                      <p className="text-[11px] text-slate-500">{t.business} • {t.role || t.location}</p>
-                    </div>
-                    <div className="flex items-center gap-1 text-amber-500">
-                      {[...Array(t.stars || 5)].map((_, rIdx) => (
-                        <Star key={rIdx} className="w-3.5 h-3.5 fill-amber-400" />
-                      ))}
-                    </div>
-                  </div>
-                  <p className="text-xs text-slate-600 italic leading-relaxed">
-                    "{t.quote}"
-                  </p>
+            <div className="flex-1 overflow-y-auto space-y-3.5 pr-1 text-xs">
+              {/* Registered Address & Entity */}
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+                <div className="font-bold text-slate-900 text-sm flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-[#10B981]" />
+                  <span>কর্পোরেট বিবরণ ও নিবন্ধিত কার্যালয়</span>
                 </div>
-              ))}
+                <p className="text-slate-600">
+                  <strong>কোম্পানি:</strong> BongoWeb Digital Solutions Ltd.
+                </p>
+                <p className="text-slate-600">
+                  <strong>অফিস ঠিকানা:</strong> Block B, Road 11, Banani, Dhaka 1213, Bangladesh.
+                </p>
+                <p className="text-slate-600">
+                  <strong>সেবার ধরণ:</strong> প্রিমিয়াম বিজনেস ওয়েবসাইট ক্যাটালগ ও ক্লাউড নোড হোস্টিং।
+                </p>
+              </div>
+
+              {/* Direct Clickable Contacts */}
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+                <div className="font-bold text-slate-900 text-sm">
+                  যোগাযোগ ও কাস্টমার সাপোর্ট
+                </div>
+                <div className="flex items-center gap-2">
+                  <Phone className="w-3.5 h-3.5 text-[#5B2C8A]" />
+                  <span className="text-slate-600">হটলাইন:</span>
+                  <a href="tel:+8801819847250" className="text-[#5B2C8A] font-bold font-mono underline">
+                    +880 1819-847250
+                  </a>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Mail className="w-3.5 h-3.5 text-[#5B2C8A]" />
+                  <span className="text-slate-600">ইমেইল:</span>
+                  <a href="mailto:support@bongoweb.xyz" className="text-[#5B2C8A] font-bold underline">
+                    support@bongoweb.xyz
+                  </a>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Lock className="w-3.5 h-3.5 text-[#5B2C8A]" />
+                  <span className="text-slate-600">ডিপিডিপি গ্রিভ্যান্স অফিসার:</span>
+                  <a href="mailto:privacy@bongoweb.xyz" className="text-[#5B2C8A] font-bold underline">
+                    privacy@bongoweb.xyz
+                  </a>
+                </div>
+              </div>
+
+              {/* Quick Legal Links */}
+              <div className="p-4 rounded-2xl bg-purple-50/60 border border-purple-200 space-y-2">
+                <div className="font-bold text-[#5B2C8A] text-xs uppercase tracking-wider">
+                  আইনি নীতিমালা ও অধিকার
+                </div>
+                <div className="grid grid-cols-2 gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setBusinessInfoModalOpen(false);
+                      onClose();
+                      if (onNavigateLegal) onNavigateLegal('privacy');
+                    }}
+                    className="p-2.5 rounded-xl bg-white hover:bg-purple-100/60 text-[#1F1F2E] font-bold border border-purple-200 transition-all text-left flex items-center justify-between cursor-pointer"
+                  >
+                    <span>Privacy Policy (DPDP)</span>
+                    <ExternalLink className="w-3 h-3 text-[#5B2C8A]" />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setBusinessInfoModalOpen(false);
+                      onClose();
+                      if (onNavigateLegal) onNavigateLegal('terms');
+                    }}
+                    className="p-2.5 rounded-xl bg-white hover:bg-purple-100/60 text-[#1F1F2E] font-bold border border-purple-200 transition-all text-left flex items-center justify-between cursor-pointer"
+                  >
+                    <span>Terms &amp; Conditions</span>
+                    <ExternalLink className="w-3 h-3 text-[#5B2C8A]" />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setBusinessInfoModalOpen(false);
+                      onClose();
+                      if (onNavigateLegal) onNavigateLegal('refund');
+                    }}
+                    className="p-2.5 rounded-xl bg-white hover:bg-purple-100/60 text-[#1F1F2E] font-bold border border-purple-200 transition-all text-left flex items-center justify-between cursor-pointer"
+                  >
+                    <span>৭-দিনের রিফান্ড পলিসি</span>
+                    <ExternalLink className="w-3 h-3 text-[#5B2C8A]" />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setBusinessInfoModalOpen(false);
+                      onClose();
+                      if (onNavigateLegal) onNavigateLegal('cookies');
+                    }}
+                    className="p-2.5 rounded-xl bg-white hover:bg-purple-100/60 text-[#1F1F2E] font-bold border border-purple-200 transition-all text-left flex items-center justify-between cursor-pointer"
+                  >
+                    <span>Cookie Policy</span>
+                    <ExternalLink className="w-3 h-3 text-[#5B2C8A]" />
+                  </button>
+                </div>
+              </div>
             </div>
 
-            <div className="pt-4 border-t border-slate-200 text-center">
+            <div className="pt-4 border-t border-slate-200 flex justify-between items-center">
               <button
-                onClick={() => setTestimonialsModalOpen(false)}
-                className="px-6 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold transition-all cursor-pointer shadow-md shadow-purple-500/25"
+                type="button"
+                onClick={() => {
+                  window.dispatchEvent(new CustomEvent('bongoweb_open_cookie_preferences'));
+                }}
+                className="text-xs text-[#5B2C8A] font-bold underline cursor-pointer flex items-center gap-1"
+              >
+                <Cookie className="w-3.5 h-3.5" />
+                <span>কুকি সেটিংস পরিবর্তন</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setBusinessInfoModalOpen(false)}
+                className="px-5 py-2 rounded-xl bg-[#5B2C8A] hover:bg-[#4A1F6E] text-white text-xs font-bold transition-all cursor-pointer shadow-xs"
               >
                 বন্ধ করুন
               </button>
@@ -794,6 +1006,23 @@ export default function SideMenuDrawer({
                   <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-[11px] text-emerald-800 flex items-center gap-2">
                     <Clock className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                     <span>আমাদের টিম অফিস চলাকালীন সর্বোচ্চ ১৫-৩০ মিনিটের মধ্যে কল করে থাকে।</span>
+                  </div>
+
+                  <div className="pt-1">
+                    <label className="flex items-start gap-2 text-[11px] text-slate-600 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={callBackConsent}
+                        onChange={(e) => setCallBackConsent(e.target.checked)}
+                        className="mt-0.5 rounded text-emerald-600 border-slate-300"
+                      />
+                      <span>
+                        আমি BongoWeb সাপোর্ট টিমকে এই নম্বরে কল করে সহায়তা প্রদানের সম্মতি দিচ্ছি (DPDP Act &amp; Privacy Policy Compliant)।
+                      </span>
+                    </label>
+                    {callBackConsentError && (
+                      <p className="text-[11px] text-rose-500 font-bold mt-1">{callBackConsentError}</p>
+                    )}
                   </div>
 
                   <div className="pt-2">

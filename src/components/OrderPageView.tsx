@@ -83,6 +83,7 @@ export default function OrderPageView({
   const [name, setName] = useState(saved?.name || loggedIn?.name || '');
   const [phone, setPhone] = useState(saved?.phone || loggedIn?.phone || '');
   const [email, setEmail] = useState(saved?.email || loggedIn?.email || '');
+  const [formConsent, setFormConsent] = useState(false);
   const [step1Error, setStep1Error] = useState('');
   const [step1Loading, setStep1Loading] = useState(false);
 
@@ -186,6 +187,10 @@ export default function OrderPageView({
     }
     if (!cleanEmail || !cleanEmail.includes('@') || !cleanEmail.includes('.')) {
       setStep1Error('অনুগ্রহ করে সঠিক ইমেইল এড্রেস লিখুন।');
+      return;
+    }
+    if (!formConsent) {
+      setStep1Error('অনুগ্রহ করে আমাদের টার্মস ও কন্ডিশনস, প্রাইভেসি পলিসি (DPDP Act) এবং রিফান্ড পলিসিতে সম্মতি প্রদান করুন।');
       return;
     }
 
@@ -596,6 +601,37 @@ export default function OrderPageView({
                 <span>মাসিক ক্লাউড: <strong className="text-purple-700 font-mono">১২০ টাকা</strong></span>
               </div>
 
+              {/* Form Consent Checkbox */}
+              <div className="pt-2">
+                <label className="flex items-start gap-2.5 text-xs text-slate-700 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={formConsent}
+                    onChange={(e) => {
+                      setFormConsent(e.target.checked);
+                      if (step1Error) setStep1Error('');
+                    }}
+                    className="mt-0.5 w-4 h-4 rounded text-[#5B2C8A] border-slate-300 focus:ring-[#5B2C8A] cursor-pointer"
+                    required
+                  />
+                  <span className="leading-relaxed">
+                    আমি BongoWeb এর{' '}
+                    <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-[#5B2C8A] font-bold underline">
+                      টার্মস অ্যান্ড কন্ডিশনস
+                    </a>
+                    ,{' '}
+                    <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-[#5B2C8A] font-bold underline">
+                      প্রাইভেসি পলিসি (DPDP Act)
+                    </a>{' '}
+                    এবং{' '}
+                    <a href="/refund" target="_blank" rel="noopener noreferrer" className="text-[#5B2C8A] font-bold underline">
+                      ৭ দিনের রিফান্ড পলিসি
+                    </a>{' '}
+                    পড়েছি ও সম্মত আছি। (শুধুমাত্র ওয়েবসাইট সেটআপ ও ডেলিভারির জন্য প্রয়োজনীয় ডেটা সংগৃহীত হয়)।
+                  </span>
+                </label>
+              </div>
+
               <div className="pt-3">
                 <button
                   type="submit"
@@ -993,8 +1029,14 @@ export default function OrderPageView({
                 </div>
               </div>
 
+              {/* Trust & Guarantee Note */}
+              <div className="p-3 rounded-xl bg-purple-50/70 border border-purple-200 text-center text-[11px] text-[#5B2C8A] font-medium flex items-center justify-center gap-1.5">
+                <ShieldCheck className="w-4 h-4 text-[#10B981] shrink-0" />
+                <span>নিরাপদ চেকআউট • ৭ দিনের রিফান্ড পলিসি • আপনার ডেটা সুরক্ষিত ও এনক্রিপ্টেড</span>
+              </div>
+
               {/* Red Attraction Order Button */}
-              <div className="pt-2">
+              <div className="pt-1">
                 <button
                   type="submit"
                   className="w-full py-3.5 px-6 rounded-2xl bg-[#E53935] hover:bg-[#D32F2F] active:bg-[#C62828] text-white text-sm sm:text-base font-black shadow-[0_6px_24px_rgba(229,57,53,0.3)] transition-all flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.01] active:scale-95 animate-pulse hover:animate-none"

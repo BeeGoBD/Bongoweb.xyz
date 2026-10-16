@@ -427,8 +427,17 @@ export default function WebsiteDetailPage({
       </main>
 
       {/* Footer */}
-      <footer className="w-full py-6 border-t border-slate-200 bg-white text-center text-xs text-slate-500 mt-12">
-        <p>© 2026 BongoWeb — All Rights Reserved.</p>
+      <footer className="w-full py-6 border-t border-slate-200 bg-white text-center text-xs text-slate-500 mt-12 pb-24 sm:pb-12 space-y-2">
+        <p>&copy; {new Date().getFullYear()} BongoWeb Digital Solutions Ltd. All Rights Reserved.</p>
+        <div className="flex items-center justify-center gap-3 text-[11px] text-slate-500">
+          <a href="/privacy" className="hover:text-[#5B2C8A] underline">Privacy Policy</a>
+          <span>•</span>
+          <a href="/terms" className="hover:text-[#5B2C8A] underline">Terms of Service</a>
+          <span>•</span>
+          <a href="/refund" className="hover:text-[#5B2C8A] underline">Refund Policy</a>
+          <span>•</span>
+          <a href="tel:+8801819847250" className="hover:text-[#5B2C8A] underline font-mono">+880 1819-847250</a>
+        </div>
       </footer>
     </div>
   );

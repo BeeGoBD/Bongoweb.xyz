@@ -164,8 +164,8 @@ export default function EmailRecoveryPage({ onBack }: EmailRecoveryPageProps) {
 
   if (loadingActive) {
     return (
-      <div className="w-full min-h-[calc(100vh-120px)] flex items-center justify-center bg-[#09090b] text-[#f5f5f7]">
-        <div className="flex items-center gap-2 text-[#3b5bff] font-medium text-sm">
+      <div className="w-full min-h-[calc(100vh-120px)] flex items-center justify-center bg-[#F8F5FC]">
+        <div className="flex items-center gap-2 text-[#AB55F7] font-bold text-sm">
           <RefreshCw className="w-5 h-5 animate-spin" />
           <span>লোড হচ্ছে...</span>
         </div>
@@ -181,71 +181,71 @@ export default function EmailRecoveryPage({ onBack }: EmailRecoveryPageProps) {
     const isCompleted = activeRequest.status === 'completed';
 
     return (
-      <div className="w-full min-h-[calc(100vh-120px)] flex flex-col items-center justify-start py-6 sm:py-10 px-4 bg-[#09090b] text-[#f5f5f7] font-sans animate-fadeIn select-none">
+      <div className="w-full min-h-[calc(100vh-120px)] flex flex-col items-center justify-start py-6 sm:py-10 px-4 bg-[#F8F5FC] font-sans animate-fadeIn select-none">
         <div className="max-w-xl w-full space-y-5">
           {/* Back button */}
           <div className="flex items-center justify-between">
             <button
               type="button"
               onClick={onBack}
-              className="px-4 py-2 rounded-full bg-white/[0.04] hover:bg-white/[0.08] text-[#f5f5f7] border border-white/[0.08] text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
+              className="px-4 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>← লগইন পৃষ্ঠায় ফিরে যান</span>
             </button>
 
-            <span className="text-[11px] font-mono text-[#a1a1b0] font-medium bg-white/[0.04] px-3 py-1 rounded-full border border-white/[0.08]">
+            <span className="text-[11px] font-mono text-slate-500 font-bold bg-white px-3 py-1 rounded-full border border-slate-200">
               আইডি: {activeRequest.id}
             </span>
           </div>
 
           {/* MAIN PERMANENT BANNER CONTAINER */}
-          <div className="bg-[#0e0e12] border border-white/[0.08] rounded-2xl p-6 sm:p-8 shadow-dark-card space-y-6">
+          <div className="bg-white border border-slate-200/90 rounded-[28px] p-6 sm:p-8 shadow-[0_20px_50px_-12px_rgba(171,85,247,0.18),0_4px_16px_rgba(0,0,0,0.03)] space-y-6">
             
             {/* Status Header Badge */}
             <div className="text-center space-y-2">
               {isPending ? (
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs font-medium animate-pulse">
-                  <Clock className="w-4 h-4 text-amber-400" />
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-xs font-bold animate-pulse">
+                  <Clock className="w-4 h-4 text-amber-600" />
                   <span>পর্যালোচনাধীন রয়েছে (Under Review)</span>
                 </div>
               ) : (
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                   <span>অনুমোদিত ও সম্পন্ন (Approved by Support)</span>
                 </div>
               )}
 
-              <h1 className="text-xl sm:text-2xl font-semibold text-[#f5f5f7] tracking-tight">
+              <h1 className="text-xl sm:text-2xl font-black text-[#0D253D] tracking-tight">
                 {isPending 
                   ? 'আপনার ইমেইল রিকোয়েস্ট জমা হয়েছে' 
                   : 'রিকোয়েস্ট সিদ্ধান্ত সম্পন্ন হয়েছে'}
               </h1>
-              <p className="text-xs text-[#a1a1b0]">
+              <p className="text-xs text-slate-500">
                 রিকোয়েস্ট দাখিলের তারিখ ও সময়: {activeRequest.createdAt}
               </p>
             </div>
 
             {/* MANDATORY NOTICE PARAGRAPHS IN BANGLA & ENGLISH */}
-            <div className="p-4 sm:p-5 rounded-xl bg-white/[0.03] border border-white/[0.08] space-y-4 shadow-xs">
+            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-purple-50/80 via-white to-indigo-50/60 border border-[#AB55F7]/30 space-y-4 shadow-xs">
               {/* Bangla Notice */}
               <div className="space-y-1.5">
-                <div className="flex items-center gap-2 text-xs font-medium text-[#3b5bff]">
-                  <Phone className="w-4 h-4 text-[#3b5bff]" />
+                <div className="flex items-center gap-2 text-xs font-bold text-[#7E22CE]">
+                  <Phone className="w-4 h-4 text-[#AB55F7]" />
                   <span>গুরুত্বপূর্ণ নির্দেশনা (বাংলা):</span>
                 </div>
-                <p className="text-xs sm:text-sm text-[#f5f5f7] leading-relaxed font-normal bg-white/[0.02] p-3 rounded-xl border border-white/[0.06]">
-                  আমাদের ডেডিকেটেড সাপোর্ট টিম আগামী <strong className="text-[#3b5bff]">১ থেকে ৪৮ ঘণ্টার মধ্যে</strong> সরাসরি আপনার দেওয়া মোবাইল নম্বরে কল করবে এবং আপনার অ্যাকাউন্টটি যাচাই করে পুনরুদ্ধার সম্পন্ন করবে। অনুগ্রহ করে আমাদের কলটি রিসিভ করার জন্য প্রস্তুত থাকুন। <strong className="text-rose-400">আপনি যদি আমাদের সাপোর্ট টিমের কলটি মিস করেন বা কল না ধরেন, তবে আপনার এই রিকোয়েস্টটি সিস্টেম থেকে স্বয়ংক্রিয়ভাবে মুছে ফেলা (বাতিল) হবে</strong> এবং আপনাকে পরবর্তীতে পুনরায় নতুন করে আবেদন করতে হবে।
+                <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-medium bg-white/70 p-3 rounded-xl border border-purple-100">
+                  আমাদের ডেডিকেটেড সাপোর্ট টিম আগামী <strong className="text-[#AB55F7]">১ থেকে ৪৮ ঘণ্টার মধ্যে</strong> সরাসরি আপনার দেওয়া মোবাইল নম্বরে কল করবে এবং আপনার অ্যাকাউন্টটি যাচাই করে পুনরুদ্ধার সম্পন্ন করবে। অনুগ্রহ করে আমাদের কলটি রিসিভ করার জন্য প্রস্তুত থাকুন। <strong className="text-red-600">আপনি যদি আমাদের সাপোর্ট টিমের কলটি মিস করেন বা কল না ধরেন, তবে আপনার এই রিকোয়েস্টটি সিস্টেম থেকে স্বয়ংক্রিয়ভাবে মুছে ফেলা (বাতিল) হবে</strong> এবং আপনাকে পরবর্তীতে পুনরায় নতুন করে আবেদন করতে হবে।
                 </p>
               </div>
 
               {/* English Notice */}
-              <div className="space-y-1.5 pt-1 border-t border-white/[0.06]">
-                <div className="flex items-center gap-2 text-xs font-medium text-[#a1a1b0]">
-                  <ShieldAlert className="w-4 h-4 text-[#a1a1b0]" />
+              <div className="space-y-1.5 pt-1 border-t border-purple-100">
+                <div className="flex items-center gap-2 text-xs font-bold text-slate-800">
+                  <ShieldAlert className="w-4 h-4 text-slate-600" />
                   <span>Official Notice (English):</span>
                 </div>
-                <p className="text-xs text-[#a1a1b0] leading-relaxed bg-white/[0.02] p-3 rounded-xl border border-white/[0.06]">
+                <p className="text-xs text-slate-600 leading-relaxed bg-white/70 p-3 rounded-xl border border-slate-100">
                   Our dedicated support team will contact you directly via your provided mobile phone number within <strong>1 to 48 hours</strong> to verify and assist you with your account. Please answer the call promptly. <strong>If you miss the call or fail to answer, this request will be automatically deleted from our system</strong> and you will need to submit a new request again.
                 </p>
               </div>
@@ -253,62 +253,62 @@ export default function EmailRecoveryPage({ onBack }: EmailRecoveryPageProps) {
 
             {/* SUBMITTED DETAILS CARD */}
             <div className="space-y-3">
-              <h3 className="text-xs font-medium uppercase tracking-wider text-[#71717a]">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
                 আপনার দাখিলকৃত বিবরণ (Submitted Details)
               </h3>
               
-              <div className="p-4 rounded-xl bg-white/[0.03] border border-white/[0.08] space-y-2.5 text-xs text-[#a1a1b0]">
-                <div className="flex items-start justify-between py-1 border-b border-white/[0.06]">
-                  <span className="font-normal text-[#71717a]">জিমেইল সংক্রান্ত সমস্যা:</span>
-                  <span className="font-semibold text-[#f5f5f7] text-right max-w-[240px]">
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2.5 text-xs text-slate-700">
+                <div className="flex items-start justify-between py-1 border-b border-slate-200/60">
+                  <span className="font-semibold text-slate-500">জিমেইল সংক্রান্ত সমস্যা:</span>
+                  <span className="font-bold text-[#0D253D] text-right max-w-[240px]">
                     {activeRequest.gmailIssueLabel || activeRequest.gmailIssue}
                   </span>
                 </div>
 
                 {activeRequest.customReason && (
-                  <div className="py-1 border-b border-white/[0.06]">
-                    <span className="font-normal text-[#71717a] block mb-0.5">অন্যান্য কারণের বিবরণ:</span>
-                    <span className="text-[#f5f5f7] italic bg-white/[0.02] p-2 rounded-lg border border-white/[0.06] block">
+                  <div className="py-1 border-b border-slate-200/60">
+                    <span className="font-semibold text-slate-500 block mb-0.5">অন্যান্য কারণের বিবরণ:</span>
+                    <span className="text-slate-800 italic bg-white p-2 rounded-lg border border-slate-200 block">
                       "{activeRequest.customReason}"
                     </span>
                   </div>
                 )}
 
-                <div className="flex items-center justify-between py-1 border-b border-white/[0.06]">
-                  <span className="font-normal text-[#71717a]">পূর্বে ক্রয় করেছিলেন কি?</span>
-                  <span className={`px-2 py-0.5 rounded-full font-medium text-[11px] ${
+                <div className="flex items-center justify-between py-1 border-b border-slate-200/60">
+                  <span className="font-semibold text-slate-500">পূর্বে ক্রয় করেছিলেন কি?</span>
+                  <span className={`px-2 py-0.5 rounded-md font-bold text-[11px] ${
                     activeRequest.purchasedBefore 
-                      ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' 
-                      : 'bg-white/[0.04] text-[#a1a1b0] border border-white/[0.08]'
+                      ? 'bg-emerald-100 text-emerald-800' 
+                      : 'bg-slate-200 text-slate-700'
                   }`}>
                     {activeRequest.purchasedBefore ? 'হ্যাঁ (Yes)' : 'না (No)'}
                   </span>
                 </div>
 
-                <div className="flex items-center justify-between py-1 border-b border-white/[0.06]">
-                  <span className="font-normal text-[#71717a]">মোবাইল নম্বর মনে আছে কি?</span>
-                  <span className={`px-2 py-0.5 rounded-full font-medium text-[11px] ${
+                <div className="flex items-center justify-between py-1 border-b border-slate-200/60">
+                  <span className="font-semibold text-slate-500">মোবাইল নম্বর মনে আছে কি?</span>
+                  <span className={`px-2 py-0.5 rounded-md font-bold text-[11px] ${
                     activeRequest.rememberPhone 
-                      ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' 
-                      : 'bg-white/[0.04] text-[#a1a1b0] border border-white/[0.08]'
+                      ? 'bg-emerald-100 text-emerald-800' 
+                      : 'bg-slate-200 text-slate-700'
                   }`}>
                     {activeRequest.rememberPhone ? 'হ্যাঁ (Yes)' : 'না (No)'}
                   </span>
                 </div>
 
                 <div className="flex items-center justify-between py-1">
-                  <span className="font-normal text-[#71717a]">কল করার জন্য মোবাইল নম্বর:</span>
-                  <span className="font-mono font-semibold text-[#3b5bff] text-sm">
+                  <span className="font-semibold text-slate-500">কল করার জন্য মোবাইল নম্বর:</span>
+                  <span className="font-mono font-bold text-[#AB55F7] text-sm">
                     {activeRequest.phoneNumber}
                   </span>
                 </div>
 
                 {activeRequest.decisionNote && (
-                  <div className="mt-2 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300">
-                    <span className="font-semibold block mb-1">অ্যাডমিন সিদ্ধান্ত:</span>
+                  <div className="mt-2 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900">
+                    <span className="font-bold block mb-1">অ্যাডমিন সিদ্ধান্ত:</span>
                     <p className="text-xs">{activeRequest.decisionNote}</p>
                     {activeRequest.decisionAt && (
-                      <span className="text-[10px] text-emerald-400 block mt-1">সময়: {activeRequest.decisionAt}</span>
+                      <span className="text-[10px] text-emerald-700 block mt-1">সময়: {activeRequest.decisionAt}</span>
                     )}
                   </div>
                 )}
@@ -320,7 +320,7 @@ export default function EmailRecoveryPage({ onBack }: EmailRecoveryPageProps) {
               <button
                 type="button"
                 onClick={onBack}
-                className="w-full py-3 px-4 rounded-full bg-[#3b5bff] hover:bg-[#324ecc] text-white font-medium text-xs sm:text-sm shadow-md shadow-[#3b5bff]/25 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#AB55F7] to-[#7C3AED] hover:from-[#9333EA] hover:to-[#6D28D9] text-white font-bold text-xs sm:text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 <ArrowLeft className="w-4 h-4" />
                 <span>লগইন পেজে ফিরে যান</span>
@@ -333,7 +333,7 @@ export default function EmailRecoveryPage({ onBack }: EmailRecoveryPageProps) {
                     localStorage.removeItem('bongoweb_email_recovery_request');
                     setActiveRequest(null);
                   }}
-                  className="w-full sm:w-auto py-3 px-4 rounded-full bg-white/[0.04] hover:bg-white/[0.08] text-[#a1a1b0] hover:text-[#f5f5f7] border border-white/[0.08] font-medium text-xs transition-all whitespace-nowrap cursor-pointer"
+                  className="w-full sm:w-auto py-3 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-all whitespace-nowrap cursor-pointer"
                 >
                   নতুন আবেদন করুন
                 </button>
@@ -351,32 +351,32 @@ export default function EmailRecoveryPage({ onBack }: EmailRecoveryPageProps) {
   // ========================================================
   if (isWritingOtherPage) {
     return (
-      <div className="w-full min-h-[calc(100vh-120px)] flex flex-col items-center justify-start py-6 sm:py-10 px-4 bg-[#09090b] text-[#f5f5f7] font-sans animate-fadeIn select-none">
+      <div className="w-full min-h-[calc(100vh-120px)] flex flex-col items-center justify-start py-6 sm:py-10 px-4 bg-[#F8F5FC] font-sans animate-fadeIn select-none">
         <div className="max-w-md w-full space-y-4">
           <button
             type="button"
             onClick={() => setIsWritingOtherPage(false)}
-            className="px-3.5 py-2 rounded-full bg-white/[0.04] hover:bg-white/[0.08] text-[#f5f5f7] border border-white/[0.08] text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
+            className="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>← অপশন তালিকায় ফিরে যান</span>
           </button>
 
-          <div className="bg-[#0e0e12] border border-white/[0.08] rounded-2xl p-6 sm:p-8 shadow-dark-card space-y-4">
+          <div className="bg-white border border-slate-200/90 rounded-[28px] p-6 sm:p-8 shadow-[0_20px_50px_-12px_rgba(171,85,247,0.18),0_4px_16px_rgba(0,0,0,0.03)] space-y-4">
             <div className="text-center space-y-1">
-              <div className="w-12 h-12 rounded-xl bg-white/[0.05] text-[#3b5bff] border border-white/[0.08] flex items-center justify-center mx-auto mb-2">
-                <FileText className="w-6 h-6 stroke-[2]" />
+              <div className="w-12 h-12 rounded-2xl bg-purple-50 text-[#AB55F7] flex items-center justify-center mx-auto mb-2">
+                <FileText className="w-6 h-6" />
               </div>
-              <h2 className="text-lg font-semibold text-[#f5f5f7]">
+              <h2 className="text-lg font-black text-[#0D253D]">
                 অন্যান্য কারণ বিস্তারিত লিখুন
               </h2>
-              <p className="text-xs text-[#a1a1b0]">
+              <p className="text-xs text-slate-500">
                 আপনার জিমেইল সংক্রান্ত সমস্যাটি সংক্ষেপে বুঝিয়ে লিখুন যাতে সাপোর্ট টিম সহায়তা করতে পারে।
               </p>
             </div>
 
             <div className="space-y-2">
-              <label className="block text-xs font-medium text-[#a1a1b0]">
+              <label className="block text-xs font-bold text-slate-700">
                 আপনার কারণ / সমস্যার বিবরণ:
               </label>
               <textarea
@@ -385,7 +385,7 @@ export default function EmailRecoveryPage({ onBack }: EmailRecoveryPageProps) {
                 value={customReason}
                 onChange={(e) => setCustomReason(e.target.value)}
                 placeholder="যেমন: আমি জিমেইলের পাসওয়ার্ড ভুলে গেছি এবং রিকভারি নম্বরও সচল নেই..."
-                className="w-full p-3.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-xs sm:text-sm text-[#f5f5f7] placeholder-[#71717a] focus:outline-none focus:border-[#3b5bff] transition-all resize-none shadow-2xs"
+                className="w-full p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#AB55F7] focus:ring-2 focus:ring-[#AB55F7]/20 transition-all resize-none shadow-2xs"
               />
             </div>
 
@@ -393,7 +393,7 @@ export default function EmailRecoveryPage({ onBack }: EmailRecoveryPageProps) {
               type="button"
               disabled={!customReason.trim()}
               onClick={() => setIsWritingOtherPage(false)}
-              className="w-full py-3 px-4 rounded-full bg-[#3b5bff] hover:bg-[#324ecc] disabled:opacity-50 text-white font-medium text-xs sm:text-sm shadow-md shadow-[#3b5bff]/25 transition-all flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#AB55F7] to-[#7C3AED] hover:from-[#9333EA] hover:to-[#6D28D9] disabled:opacity-50 text-white font-bold text-xs sm:text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
               <span>সংরক্ষণ করুন ও মূল ফর্মে ফিরুন</span>
               <CheckCircle2 className="w-4 h-4" />
@@ -409,47 +409,47 @@ export default function EmailRecoveryPage({ onBack }: EmailRecoveryPageProps) {
   // ========================================================
   if (isProvidingPhonePage && rememberPhone === true) {
     return (
-      <div className="w-full min-h-[calc(100vh-120px)] flex flex-col items-center justify-start py-6 sm:py-10 px-4 bg-[#09090b] text-[#f5f5f7] font-sans animate-fadeIn select-none">
+      <div className="w-full min-h-[calc(100vh-120px)] flex flex-col items-center justify-start py-6 sm:py-10 px-4 bg-[#F8F5FC] font-sans animate-fadeIn select-none">
         <div className="max-w-md w-full space-y-4">
           <button
             type="button"
             onClick={() => setIsProvidingPhonePage(false)}
-            className="px-3.5 py-2 rounded-full bg-white/[0.04] hover:bg-white/[0.08] text-[#f5f5f7] border border-white/[0.08] text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
+            className="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>← অপশন তালিকায় ফিরে যান</span>
           </button>
 
-          <div className="bg-[#0e0e12] border border-white/[0.08] rounded-2xl p-6 sm:p-8 shadow-dark-card space-y-5">
+          <div className="bg-white border border-slate-200/90 rounded-[28px] p-6 sm:p-8 shadow-[0_20px_50px_-12px_rgba(171,85,247,0.18),0_4px_16px_rgba(0,0,0,0.03)] space-y-5">
             <div className="text-center space-y-1">
-              <div className="w-14 h-14 rounded-2xl bg-white/[0.05] text-[#3b5bff] flex items-center justify-center mx-auto mb-2 border border-white/[0.08] shadow-xs">
-                <Phone className="w-7 h-7 stroke-[2]" />
+              <div className="w-14 h-14 rounded-2xl bg-purple-50 text-[#AB55F7] flex items-center justify-center mx-auto mb-2 border border-purple-200 shadow-xs">
+                <Phone className="w-7 h-7" />
               </div>
-              <h2 className="text-xl font-semibold text-[#f5f5f7] tracking-tight">
+              <h2 className="text-xl font-black text-[#0D253D] tracking-tight">
                 পূর্বের ব্যবহৃত মোবাইল নম্বর
               </h2>
-              <p className="text-xs text-[#a1a1b0]">
+              <p className="text-xs text-slate-500">
                 What was your mobile number? (Remember: Yes)
               </p>
             </div>
 
-            <p className="text-xs text-[#a1a1b0] leading-relaxed bg-white/[0.03] p-3.5 rounded-xl border border-white/[0.08]">
-              যেহেতু আপনি জানিয়েছেন যে আপনার পূর্বের ব্যবহৃত মোবাইল নম্বরটি মনে আছে, অনুগ্রহ করে সেই মোবাইল নম্বরটি নিচে লিখুন। আমাদের সাপোর্ট টিম <strong className="text-[#3b5bff]">১ থেকে ৪৮ ঘণ্টার মধ্যে</strong> সরাসরি এই নম্বরে কল করে অ্যাকাউন্ট যাচাই করবে।
+            <p className="text-xs text-slate-600 leading-relaxed bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+              যেহেতু আপনি জানিয়েছেন যে আপনার পূর্বের ব্যবহৃত মোবাইল নম্বরটি মনে আছে, অনুগ্রহ করে সেই মোবাইল নম্বরটি নিচে লিখুন। আমাদের সাপোর্ট টিম <strong className="text-[#AB55F7]">১ থেকে ৪৮ ঘণ্টার মধ্যে</strong> সরাসরি এই নম্বরে কল করে অ্যাকাউন্ট যাচাই করবে।
             </p>
 
             {errorMsg && (
-              <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-medium flex items-center gap-2 animate-shake">
+              <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs font-bold flex items-center gap-2 animate-shake">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>{errorMsg}</span>
               </div>
             )}
 
             <div className="space-y-1.5">
-              <label className="block text-xs font-medium text-[#f5f5f7]">
+              <label className="block text-xs font-bold text-slate-800">
                 পূর্বে ব্যবহৃত মোবাইল নম্বরটি লিখুন:
               </label>
               <div className="relative">
-                <Phone className="w-4 h-4 text-[#3b5bff] absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <Phone className="w-4 h-4 text-[#AB55F7] absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="tel"
                   autoFocus
@@ -460,21 +460,21 @@ export default function EmailRecoveryPage({ onBack }: EmailRecoveryPageProps) {
                     setPhoneNumber(e.target.value);
                     if (errorMsg) setErrorMsg('');
                   }}
-                  className="w-full pl-10 pr-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.08] text-sm font-mono font-semibold text-[#f5f5f7] placeholder-[#71717a] focus:outline-none focus:border-[#3b5bff] transition-all shadow-2xs"
+                  className="w-full pl-10 pr-4 py-3.5 rounded-xl bg-white border border-purple-200 text-sm font-mono font-bold text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#AB55F7] focus:ring-2 focus:ring-[#AB55F7]/20 transition-all shadow-2xs"
                 />
               </div>
-              <p className="text-[10px] text-[#71717a]">
+              <p className="text-[10px] text-slate-500">
                 * সচল নম্বর দিন যাতে সাপোর্ট টিম সরাসরি আপনার সাথে ফোনে কথা বলতে পারে।
               </p>
             </div>
 
             {/* Note on 1-48 hours and missing calls */}
-            <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs space-y-1">
-              <div className="font-semibold flex items-center gap-1.5 text-amber-400">
-                <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
+            <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-950 text-xs space-y-1">
+              <div className="font-bold flex items-center gap-1.5 text-amber-900">
+                <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
                 <span>গুরুত্বপূর্ণ নির্দেশনা:</span>
               </div>
-              <p className="text-[11px] leading-relaxed text-[#a1a1b0]">
+              <p className="text-[11px] leading-relaxed">
                 আমাদের সাপোর্ট টিম ১ থেকে ৪৮ ঘণ্টার মধ্যে কল করবে। কল মিস করলে আপনার রিকোয়েস্টটি মুছে ফেলা হবে এবং পুনরায় নতুন করে আবেদন করতে হবে।
               </p>
             </div>
@@ -501,7 +501,7 @@ export default function EmailRecoveryPage({ onBack }: EmailRecoveryPageProps) {
                   }
                   handleSubmit(e as any);
                 }}
-                className="w-full py-3 px-4 rounded-full bg-[#3b5bff] hover:bg-[#324ecc] disabled:opacity-50 text-white font-medium text-xs sm:text-sm shadow-md shadow-[#3b5bff]/25 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#AB55F7] to-[#7C3AED] hover:from-[#9333EA] hover:to-[#6D28D9] disabled:opacity-50 text-white font-bold text-xs sm:text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 {submitting ? (
                   <span className="flex items-center gap-2">
@@ -520,10 +520,10 @@ export default function EmailRecoveryPage({ onBack }: EmailRecoveryPageProps) {
               <button
                 type="button"
                 onClick={() => setIsProvidingPhonePage(false)}
-                className="w-full py-2.5 px-3 rounded-full bg-white/[0.04] hover:bg-white/[0.08] text-[#a1a1b0] hover:text-[#f5f5f7] border border-white/[0.08] text-xs font-medium transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                className="w-full py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <span>সংরক্ষণ করুন ও মূল ফর্মে ফিরুন</span>
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
               </button>
             </div>
           </div>
@@ -536,7 +536,7 @@ export default function EmailRecoveryPage({ onBack }: EmailRecoveryPageProps) {
   // VIEW 2: NEW FORM SELECTION (3 Options with selection images/cards)
   // ========================================================
   return (
-    <div className="w-full min-h-[calc(100vh-120px)] flex flex-col items-center justify-start py-6 sm:py-10 px-4 bg-[#09090b] text-[#f5f5f7] font-sans animate-fadeIn select-none">
+    <div className="w-full min-h-[calc(100vh-120px)] flex flex-col items-center justify-start py-6 sm:py-10 px-4 bg-[#F8F5FC] font-sans animate-fadeIn select-none">
       <div className="max-w-xl w-full space-y-5">
         
         {/* Back Header */}
@@ -544,35 +544,35 @@ export default function EmailRecoveryPage({ onBack }: EmailRecoveryPageProps) {
           <button
             type="button"
             onClick={onBack}
-            className="px-4 py-2 rounded-full bg-white/[0.04] hover:bg-white/[0.08] text-[#f5f5f7] border border-white/[0.08] text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
+            className="px-4 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>← লগইন পৃষ্ঠায় ফিরে যান</span>
           </button>
 
-          <span className="text-xs font-medium text-[#3b5bff] bg-white/[0.04] px-3 py-1 rounded-full border border-white/[0.08] flex items-center gap-1">
+          <span className="text-xs font-bold text-[#AB55F7] bg-purple-50 px-3 py-1 rounded-full border border-purple-200 flex items-center gap-1">
             <HelpCircle className="w-3.5 h-3.5" />
             <span>ইমেইল রিকভারি সহায়তা</span>
           </span>
         </div>
 
         {/* Form Container */}
-        <form onSubmit={handleSubmit} className="bg-[#0e0e12] border border-white/[0.08] rounded-2xl p-6 sm:p-8 shadow-dark-card space-y-6">
+        <form onSubmit={handleSubmit} className="bg-white border border-slate-200/90 rounded-[28px] p-6 sm:p-8 shadow-[0_20px_50px_-12px_rgba(171,85,247,0.18),0_4px_16px_rgba(0,0,0,0.03)] space-y-6">
           
           <div className="text-center space-y-1.5">
-            <div className="w-14 h-14 rounded-2xl bg-white/[0.05] border border-white/[0.08] text-[#3b5bff] flex items-center justify-center mx-auto mb-2 shadow-xs">
-              <Mail className="w-7 h-7 stroke-[2]" />
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#AB55F7]/10 to-[#7C3AED]/20 border border-[#AB55F7]/30 text-[#AB55F7] flex items-center justify-center mx-auto mb-2 shadow-xs">
+              <Mail className="w-7 h-7" />
             </div>
-            <h1 className="text-xl sm:text-2xl font-semibold text-[#f5f5f7] tracking-tight">
+            <h1 className="text-xl sm:text-2xl font-black text-[#0D253D] tracking-tight">
               I Don't Have My Email (আমার ইমেইল নেই)
             </h1>
-            <p className="text-xs text-[#a1a1b0] max-w-sm mx-auto leading-relaxed">
+            <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
               সঠিক অপশনগুলো নির্বাচন করে রিকোয়েস্ট পাঠালে আমাদের সাপোর্ট টিম ১ থেকে ৪৮ ঘণ্টার মধ্যে আপনার দেওয়া নম্বরে কল করে একাউন্ট ফিরিয়ে দেবে।
             </p>
           </div>
 
           {errorMsg && (
-            <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-medium flex items-center gap-2 animate-shake">
+            <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs font-bold flex items-center gap-2 animate-shake">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{errorMsg}</span>
             </div>
@@ -582,12 +582,12 @@ export default function EmailRecoveryPage({ onBack }: EmailRecoveryPageProps) {
           {/* OPTION 1: GMAIL ISSUE (List opens to choose)              */}
           {/* ======================================================== */}
           <div className="space-y-2.5">
-            <label className="block text-xs font-medium text-[#f5f5f7] flex items-center justify-between">
+            <label className="block text-xs font-bold text-slate-800 flex items-center justify-between">
               <span className="flex items-center gap-1.5">
-                <span className="w-5 h-5 rounded-full bg-[#3b5bff] text-white flex items-center justify-center text-[10px] font-bold">১</span>
+                <span className="w-5 h-5 rounded-full bg-[#AB55F7] text-white flex items-center justify-center text-[10px] font-bold">১</span>
                 <span>জিমেইল সংক্রান্ত সমস্যা (Gmail Issue)</span>
               </span>
-              <span className="text-[11px] text-[#3b5bff] font-medium">বাছাই করুন</span>
+              <span className="text-[11px] text-[#AB55F7] font-semibold">বাছাই করুন</span>
             </label>
 
             {/* Click to open list */}
@@ -597,24 +597,24 @@ export default function EmailRecoveryPage({ onBack }: EmailRecoveryPageProps) {
                 onClick={() => setGmailDropdownOpen(!gmailDropdownOpen)}
                 className={`w-full p-3.5 rounded-xl border text-left flex items-center justify-between transition-all cursor-pointer shadow-2xs ${
                   gmailIssue 
-                    ? 'bg-white/[0.05] border-[#3b5bff]/50 text-[#f5f5f7] font-medium' 
-                    : 'bg-white/[0.03] border-white/[0.08] text-[#a1a1b0] font-normal hover:border-white/[0.15]'
+                    ? 'bg-purple-50/60 border-[#AB55F7] text-slate-900 font-bold' 
+                    : 'bg-slate-50/80 border-slate-200 text-slate-500 font-medium hover:border-slate-300'
                 }`}
               >
                 <div className="flex items-center gap-2.5">
-                  <Mail className="w-4 h-4 text-[#3b5bff]" />
+                  <Mail className="w-4 h-4 text-[#AB55F7]" />
                   <span className="text-xs sm:text-sm">
                     {gmailIssue 
                       ? gmailIssueOptions.find(o => o.id === gmailIssue)?.titleBn 
                       : 'জিমেইল সংক্রান্ত তালিকা খুলুন (Select issue from list)'}
                   </span>
                 </div>
-                <ChevronDown className={`w-4 h-4 text-[#a1a1b0] transition-transform ${gmailDropdownOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${gmailDropdownOpen ? 'rotate-180' : ''}`} />
               </button>
 
               {/* The List of Options */}
               {gmailDropdownOpen && (
-                <div className="mt-2 p-2 rounded-2xl bg-[#14141a] border border-white/[0.1] shadow-2xl space-y-1.5 animate-fadeIn">
+                <div className="mt-2 p-2 rounded-2xl bg-white border border-purple-200 shadow-xl space-y-1.5 animate-fadeIn">
                   {gmailIssueOptions.map((opt) => (
                     <button
                       key={opt.id}
@@ -622,24 +622,24 @@ export default function EmailRecoveryPage({ onBack }: EmailRecoveryPageProps) {
                       onClick={() => handleSelectGmailIssue(opt.id)}
                       className={`w-full p-3 rounded-xl text-left transition-all flex items-start gap-3 cursor-pointer ${
                         gmailIssue === opt.id 
-                          ? 'bg-[#3b5bff]/15 border border-[#3b5bff]/40 text-[#f5f5f7]' 
-                          : 'hover:bg-white/[0.04] text-[#a1a1b0] hover:text-[#f5f5f7]'
+                          ? 'bg-purple-100/70 border border-[#AB55F7] text-purple-900' 
+                          : 'hover:bg-slate-50 text-slate-700'
                       }`}
                     >
                       <span className="text-xl mt-0.5">{opt.icon}</span>
                       <div className="flex-1">
-                        <div className="text-xs sm:text-sm font-semibold text-[#f5f5f7]">
+                        <div className="text-xs sm:text-sm font-bold text-slate-800">
                           {opt.titleBn}
                         </div>
-                        <div className="text-[11px] text-[#3b5bff] font-medium">
+                        <div className="text-[11px] text-[#AB55F7] font-semibold">
                           {opt.titleEn}
                         </div>
-                        <div className="text-[10px] text-[#71717a] mt-0.5">
+                        <div className="text-[10px] text-slate-500 mt-0.5">
                           {opt.desc}
                         </div>
                       </div>
                       {gmailIssue === opt.id && (
-                        <CheckCircle2 className="w-4 h-4 text-[#3b5bff] shrink-0 mt-1" />
+                        <CheckCircle2 className="w-4 h-4 text-[#AB55F7] shrink-0 mt-1" />
                       )}
                     </button>
                   ))}
@@ -649,17 +649,17 @@ export default function EmailRecoveryPage({ onBack }: EmailRecoveryPageProps) {
 
             {/* If Others is chosen, show quick summary / edit link */}
             {gmailIssue === 'others' && (
-              <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.08] flex items-center justify-between">
+              <div className="p-3 rounded-xl bg-purple-50/60 border border-purple-200 flex items-center justify-between">
                 <div className="text-xs">
-                  <span className="font-semibold text-[#f5f5f7]">অন্যান্য কারণ: </span>
-                  <span className="text-[#a1a1b0] italic">
+                  <span className="font-bold text-purple-900">অন্যান্য কারণ: </span>
+                  <span className="text-slate-700 italic">
                     {customReason ? `"${customReason}"` : 'এখনো বিবরণ লেখা হয়নি'}
                   </span>
                 </div>
                 <button
                   type="button"
                   onClick={() => setIsWritingOtherPage(true)}
-                  className="text-xs text-[#3b5bff] font-medium underline hover:text-[#324ecc] cursor-pointer shrink-0 ml-2"
+                  className="text-xs text-[#AB55F7] font-bold underline hover:text-[#7C3AED] cursor-pointer shrink-0 ml-2"
                 >
                   {customReason ? 'পরিবর্তন করুন' : 'বিবরণ লিখুন'}
                 </button>
@@ -670,9 +670,9 @@ export default function EmailRecoveryPage({ onBack }: EmailRecoveryPageProps) {
           {/* ======================================================== */}
           {/* OPTION 2: DID YOU PURCHASE ANYTHING BEFORE? (Yes / No)    */}
           {/* ======================================================== */}
-          <div className="space-y-2.5 pt-2 border-t border-white/[0.06]">
-            <label className="block text-xs font-medium text-[#f5f5f7] flex items-center gap-1.5">
-              <span className="w-5 h-5 rounded-full bg-[#3b5bff] text-white flex items-center justify-center text-[10px] font-bold">২</span>
+          <div className="space-y-2.5 pt-2 border-t border-slate-100">
+            <label className="block text-xs font-bold text-slate-800 flex items-center gap-1.5">
+              <span className="w-5 h-5 rounded-full bg-[#AB55F7] text-white flex items-center justify-center text-[10px] font-bold">২</span>
               <span>আপনি কি পূর্বে কোনো কিছু ক্রয় করেছেন? (Did you purchase anything before?)</span>
             </label>
 
@@ -684,25 +684,25 @@ export default function EmailRecoveryPage({ onBack }: EmailRecoveryPageProps) {
                 onClick={() => setPurchasedBefore(true)}
                 className={`p-4 rounded-2xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-2 group ${
                   purchasedBefore === true
-                    ? 'bg-[#3b5bff]/15 border-[#3b5bff] ring-1 ring-[#3b5bff] shadow-xs'
-                    : 'bg-white/[0.02] border-white/[0.08] hover:bg-white/[0.05] hover:border-white/[0.15]'
+                    ? 'bg-purple-50 border-[#AB55F7] ring-2 ring-[#AB55F7]/20 shadow-xs'
+                    : 'bg-slate-50/70 border-slate-200 hover:bg-slate-100 hover:border-slate-300'
                 }`}
               >
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-105 ${
-                  purchasedBefore === true ? 'bg-[#3b5bff] text-white' : 'bg-white/[0.05] text-[#a1a1b0]'
+                  purchasedBefore === true ? 'bg-[#AB55F7] text-white' : 'bg-slate-200 text-slate-600'
                 }`}>
                   <ShoppingBag className="w-5 h-5" />
                 </div>
                 <div>
-                  <div className="text-xs sm:text-sm font-semibold text-[#f5f5f7]">
+                  <div className="text-xs sm:text-sm font-bold text-slate-900">
                     হ্যাঁ (Yes)
                   </div>
-                  <div className="text-[10px] text-[#71717a] mt-0.5">
+                  <div className="text-[10px] text-slate-500 mt-0.5">
                     পূর্বে ওয়েবসাইট অর্ডার করেছি
                   </div>
                 </div>
                 {purchasedBefore === true && (
-                  <CheckCircle2 className="w-4 h-4 text-[#3b5bff]" />
+                  <CheckCircle2 className="w-4 h-4 text-[#AB55F7]" />
                 )}
               </button>
 
@@ -712,25 +712,25 @@ export default function EmailRecoveryPage({ onBack }: EmailRecoveryPageProps) {
                 onClick={() => setPurchasedBefore(false)}
                 className={`p-4 rounded-2xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-2 group ${
                   purchasedBefore === false
-                    ? 'bg-[#3b5bff]/15 border-[#3b5bff] ring-1 ring-[#3b5bff] shadow-xs'
-                    : 'bg-white/[0.02] border-white/[0.08] hover:bg-white/[0.05] hover:border-white/[0.15]'
+                    ? 'bg-purple-50 border-[#AB55F7] ring-2 ring-[#AB55F7]/20 shadow-xs'
+                    : 'bg-slate-50/70 border-slate-200 hover:bg-slate-100 hover:border-slate-300'
                 }`}
               >
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-105 ${
-                  purchasedBefore === false ? 'bg-[#3b5bff] text-white' : 'bg-white/[0.05] text-[#a1a1b0]'
+                  purchasedBefore === false ? 'bg-[#AB55F7] text-white' : 'bg-slate-200 text-slate-600'
                 }`}>
                   <X className="w-5 h-5" />
                 </div>
                 <div>
-                  <div className="text-xs sm:text-sm font-semibold text-[#f5f5f7]">
+                  <div className="text-xs sm:text-sm font-bold text-slate-900">
                     না (No)
                   </div>
-                  <div className="text-[10px] text-[#71717a] mt-0.5">
+                  <div className="text-[10px] text-slate-500 mt-0.5">
                     নতুন ক্লায়েন্ট / কিছু কিনিনি
                   </div>
                 </div>
                 {purchasedBefore === false && (
-                  <CheckCircle2 className="w-4 h-4 text-[#3b5bff]" />
+                  <CheckCircle2 className="w-4 h-4 text-[#AB55F7]" />
                 )}
               </button>
             </div>
@@ -739,9 +739,9 @@ export default function EmailRecoveryPage({ onBack }: EmailRecoveryPageProps) {
           {/* ======================================================== */}
           {/* OPTION 3: WHAT WAS YOUR MOBILE NUMBER? (Remember: Yes/No) */}
           {/* ======================================================== */}
-          <div className="space-y-2.5 pt-2 border-t border-white/[0.06]">
-            <label className="block text-xs font-medium text-[#f5f5f7] flex items-center gap-1.5">
-              <span className="w-5 h-5 rounded-full bg-[#3b5bff] text-white flex items-center justify-center text-[10px] font-bold">৩</span>
+          <div className="space-y-2.5 pt-2 border-t border-slate-100">
+            <label className="block text-xs font-bold text-slate-800 flex items-center gap-1.5">
+              <span className="w-5 h-5 rounded-full bg-[#AB55F7] text-white flex items-center justify-center text-[10px] font-bold">৩</span>
               <span>আপনার মোবাইল নম্বর কি মনে আছে? (Do you remember your mobile number?)</span>
             </label>
 
@@ -753,25 +753,25 @@ export default function EmailRecoveryPage({ onBack }: EmailRecoveryPageProps) {
                 onClick={() => handleSelectRememberPhone(true)}
                 className={`p-4 rounded-2xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-2 group ${
                   rememberPhone === true
-                    ? 'bg-[#3b5bff]/15 border-[#3b5bff] ring-1 ring-[#3b5bff] shadow-xs'
-                    : 'bg-white/[0.02] border-white/[0.08] hover:bg-white/[0.05] hover:border-white/[0.15]'
+                    ? 'bg-purple-50 border-[#AB55F7] ring-2 ring-[#AB55F7]/20 shadow-xs'
+                    : 'bg-slate-50/70 border-slate-200 hover:bg-slate-100 hover:border-slate-300'
                 }`}
               >
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-105 ${
-                  rememberPhone === true ? 'bg-[#3b5bff] text-white' : 'bg-white/[0.05] text-[#a1a1b0]'
+                  rememberPhone === true ? 'bg-[#AB55F7] text-white' : 'bg-slate-200 text-slate-600'
                 }`}>
                   <Phone className="w-5 h-5" />
                 </div>
                 <div>
-                  <div className="text-xs sm:text-sm font-semibold text-[#f5f5f7]">
+                  <div className="text-xs sm:text-sm font-bold text-slate-900">
                     হ্যাঁ (Yes)
                   </div>
-                  <div className="text-[10px] text-[#71717a] mt-0.5">
+                  <div className="text-[10px] text-slate-500 mt-0.5">
                     পূর্বের নম্বর মনে আছে
                   </div>
                 </div>
                 {rememberPhone === true && (
-                  <CheckCircle2 className="w-4 h-4 text-[#3b5bff]" />
+                  <CheckCircle2 className="w-4 h-4 text-[#AB55F7]" />
                 )}
               </button>
 
@@ -781,78 +781,78 @@ export default function EmailRecoveryPage({ onBack }: EmailRecoveryPageProps) {
                 onClick={() => handleSelectRememberPhone(false)}
                 className={`p-4 rounded-2xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-2 group ${
                   rememberPhone === false
-                    ? 'bg-[#3b5bff]/15 border-[#3b5bff] ring-1 ring-[#3b5bff] shadow-xs'
-                    : 'bg-white/[0.02] border-white/[0.08] hover:bg-white/[0.05] hover:border-white/[0.15]'
+                    ? 'bg-purple-50 border-[#AB55F7] ring-2 ring-[#AB55F7]/20 shadow-xs'
+                    : 'bg-slate-50/70 border-slate-200 hover:bg-slate-100 hover:border-slate-300'
                 }`}
               >
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-105 ${
-                  rememberPhone === false ? 'bg-[#3b5bff] text-white' : 'bg-white/[0.05] text-[#a1a1b0]'
+                  rememberPhone === false ? 'bg-[#AB55F7] text-white' : 'bg-slate-200 text-slate-600'
                 }`}>
                   <HelpCircle className="w-5 h-5" />
                 </div>
                 <div>
-                  <div className="text-xs sm:text-sm font-semibold text-[#f5f5f7]">
+                  <div className="text-xs sm:text-sm font-bold text-slate-900">
                     না (No)
                   </div>
-                  <div className="text-[10px] text-[#71717a] mt-0.5">
+                  <div className="text-[10px] text-slate-500 mt-0.5">
                     সঠিক নম্বর মনে নেই
                   </div>
                 </div>
                 {rememberPhone === false && (
-                  <CheckCircle2 className="w-4 h-4 text-[#3b5bff]" />
+                  <CheckCircle2 className="w-4 h-4 text-[#AB55F7]" />
                 )}
               </button>
             </div>
 
             {/* Option 3 Details (When Yes or No is selected) */}
             {rememberPhone === true && (
-              <div className="mt-3 p-4 rounded-2xl bg-white/[0.03] border border-white/[0.08] space-y-2 animate-fadeIn">
+              <div className="mt-3 p-4 rounded-2xl bg-purple-50/80 border border-purple-200 space-y-2 animate-fadeIn">
                 <div className="flex items-center justify-between">
-                  <label className="block text-xs font-medium text-[#f5f5f7]">
+                  <label className="block text-xs font-bold text-purple-950">
                     পূর্বে ব্যবহৃত মোবাইল নম্বর:
                   </label>
                   <button
                     type="button"
                     onClick={() => setIsProvidingPhonePage(true)}
-                    className="text-xs text-[#3b5bff] hover:text-[#324ecc] font-medium underline cursor-pointer"
+                    className="text-xs text-[#AB55F7] hover:text-[#7C3AED] font-bold underline cursor-pointer"
                   >
                     {phoneNumber ? 'নম্বর পরিবর্তন করুন' : 'নম্বর লিখুন (পৃষ্ঠা খুলুন)'}
                   </button>
                 </div>
                 <div className="relative">
-                  <Phone className="w-4 h-4 text-[#3b5bff] absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <Phone className="w-4 h-4 text-[#AB55F7] absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
                     type="tel"
                     required
                     placeholder="যেমন: 017XXXXXXXX বা 019XXXXXXXX"
                     value={phoneNumber}
                     onChange={(e) => setPhoneNumber(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.08] text-xs sm:text-sm text-[#f5f5f7] placeholder-[#71717a] focus:outline-none focus:border-[#3b5bff] font-mono font-medium shadow-2xs"
+                    className="w-full pl-10 pr-4 py-3 rounded-xl bg-white border border-purple-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#AB55F7] focus:ring-2 focus:ring-[#AB55F7]/20 font-mono font-bold shadow-2xs"
                   />
                 </div>
-                <p className="text-[11px] text-[#a1a1b0]">
+                <p className="text-[11px] text-purple-800">
                   📞 এই নম্বরেই আমাদের সাপোর্ট টিম কল করে অ্যাকাউন্ট যাচাই করবে।
                 </p>
               </div>
             )}
 
             {rememberPhone === false && (
-              <div className="mt-3 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 space-y-2 animate-fadeIn">
-                <label className="block text-xs font-medium text-amber-300">
+              <div className="mt-3 p-4 rounded-2xl bg-amber-50/80 border border-amber-200 space-y-2 animate-fadeIn">
+                <label className="block text-xs font-bold text-amber-950">
                   সাপোর্ট টিম যে সচল নম্বরে কল করবে সেই নম্বর দিন:
                 </label>
                 <div className="relative">
-                  <Phone className="w-4 h-4 text-amber-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <Phone className="w-4 h-4 text-amber-600 absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
                     type="tel"
                     required
                     placeholder="যেমন: 017XXXXXXXX বা 019XXXXXXXX"
                     value={phoneNumber}
                     onChange={(e) => setPhoneNumber(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 rounded-xl bg-white/[0.04] border border-amber-500/30 text-xs sm:text-sm text-[#f5f5f7] placeholder-[#71717a] focus:outline-none focus:border-amber-400 font-mono font-medium shadow-2xs"
+                    className="w-full pl-10 pr-4 py-3 rounded-xl bg-white border border-amber-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 font-mono font-bold shadow-2xs"
                   />
                 </div>
-                <p className="text-[11px] text-amber-300/80">
+                <p className="text-[11px] text-amber-800">
                   ⚠️ যেহেতু পূর্বের নম্বর মনে নেই, তাই এই সচল নম্বরে কল করে বিকল্প তথ্যাদি দিয়ে যাচাই করা হবে।
                 </p>
               </div>
@@ -860,13 +860,13 @@ export default function EmailRecoveryPage({ onBack }: EmailRecoveryPageProps) {
           </div>
 
           {/* POLICY CALLOUT: 1 to 48 hours response notice */}
-          <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs space-y-1.5">
-            <div className="flex items-center gap-1.5 font-semibold text-amber-400">
-              <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
+          <div className="p-4 rounded-2xl bg-amber-50/90 border border-amber-200 text-amber-950 text-xs space-y-1.5">
+            <div className="flex items-center gap-1.5 font-bold text-amber-900">
+              <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
               <span>কল সংক্রান্ত অত্যন্ত জরুরি শর্তাবলী:</span>
             </div>
-            <p className="leading-relaxed text-[#a1a1b0]">
-              রিকোয়েস্ট দাখিলের পর আমাদের সাপোর্ট টিম <strong className="text-amber-300">১ থেকে ৪৮ ঘণ্টার মধ্যে</strong> সরাসরি আপনার মোবাইল নম্বরে কল করবে। অনুগ্রহ করে কলটি রিসিভ করুন। <strong className="text-rose-400">কল মিস করলে রিকোয়েস্টটি মুছে দেওয়া হবে</strong> এবং আপনাকে পুনরায় নতুন করে আবেদন করতে হবে।
+            <p className="leading-relaxed">
+              রিকোয়েস্ট দাখিলের পর আমাদের সাপোর্ট টিম <strong>১ থেকে ৪৮ ঘণ্টার মধ্যে</strong> সরাসরি আপনার মোবাইল নম্বরে কল করবে। অনুগ্রহ করে কলটি রিসিভ করুন। <strong>কল মিস করলে রিকোয়েস্টটি মুছে দেওয়া হবে</strong> এবং আপনাকে পুনরায় নতুন করে আবেদন করতে হবে।
             </p>
           </div>
 
@@ -875,7 +875,7 @@ export default function EmailRecoveryPage({ onBack }: EmailRecoveryPageProps) {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full py-3.5 px-5 rounded-full bg-[#3b5bff] hover:bg-[#324ecc] active:scale-[0.99] text-white font-medium text-sm sm:text-base shadow-md shadow-[#3b5bff]/25 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+              className="w-full py-4 px-5 rounded-2xl bg-gradient-to-r from-[#AB55F7] to-[#7C3AED] hover:from-[#9333EA] hover:to-[#6D28D9] active:scale-[0.99] text-white font-black text-sm sm:text-base shadow-[0_8px_24px_-4px_rgba(171,85,247,0.4)] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
             >
               {submitting ? (
                 <span className="flex items-center gap-2">
