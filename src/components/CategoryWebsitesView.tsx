@@ -111,10 +111,10 @@ export default function CategoryWebsitesView({
         {/* 1. Title Section */}
         <section className="text-center sm:text-left space-y-1">
           <h1 className="text-2xl sm:text-3xl font-extrabold text-[#1F1F2E] tracking-tight">
-            {language === 'bn' ? 'টেমপ্লেট বেছে নিন' : 'টেমপ্লেট বেছে নিন'}
+            {language === 'bn' ? 'টেমপ্লেট বেছে নিন' : 'Choose a Template'}
           </h1>
           <p className="text-xs sm:text-sm text-[#6B7280] font-medium">
-            Choose a Template
+            {language === 'bn' ? 'Choose a Template' : 'Browse verified, ready-to-launch website templates'}
           </p>
         </section>
 

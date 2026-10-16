@@ -58,6 +58,15 @@ export default function App() {
   const [landscapeOrderModalOpen, setLandscapeOrderModalOpen] = useState(false);
   const [websiteCredentialsModalOpen, setWebsiteCredentialsModalOpen] = useState(false);
 
+  // Track previous path before opening website detail so Back returns to where user came from (e.g. templates, category, etc.)
+  const [returnPath, setReturnPath] = useState<string>(() => {
+    try {
+      return sessionStorage.getItem('bongoweb_return_path') || '/templates';
+    } catch {
+      return '/templates';
+    }
+  });
+
   // Helper to extract demo by code (e.g. 1042 or #1042 or custom uploaded websites)
   const findDemoByCode = (rawCode: string): WebsiteDemo | null => {
     const clean = decodeURIComponent(String(rawCode || '')).replace('#', '').trim().toLowerCase();
@@ -255,10 +264,17 @@ export default function App() {
 
   // Open Website in dedicated full page with unique URL: /website/:code
   const handleOpenWebsiteDetail = (demo: WebsiteDemo) => {
+    const currentPath = window.location.pathname || '/';
+    if (!currentPath.startsWith('/website') && !currentPath.startsWith('/order')) {
+      setReturnPath(currentPath);
+      try {
+        sessionStorage.setItem('bongoweb_return_path', currentPath);
+      } catch (_) {}
+    }
     setActiveDemo(demo);
     const cleanCode = String(demo?.fourDigitCode || '2085').replace('#', '');
     setViewMode('website-detail');
-    window.history.pushState({}, '', `/website/${cleanCode}`);
+    window.history.pushState({ prevPath: currentPath }, '', `/website/${cleanCode}`);
     window.scrollTo({ top: 0, behavior: 'instant' });
   };
 
@@ -312,10 +328,35 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Return to Dashboard (Home) from Detail or Order pages
+  // Return to Dashboard (Home)
   const handleReturnToDashboard = () => {
     setViewMode('dashboard');
     window.history.pushState({}, '', '/');
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  };
+
+  // Return to previous view (Templates, Category, Home, etc.) when clicking Back from Website Detail / Preview
+  const handleBackFromWebsite = () => {
+    let target = returnPath;
+    try {
+      const stored = sessionStorage.getItem('bongoweb_return_path');
+      if (stored && !stored.startsWith('/website') && !stored.startsWith('/order')) {
+        target = stored;
+      }
+    } catch (_) {}
+
+    // Fallback if target is invalid or self
+    if (!target || target.startsWith('/website') || target.startsWith('/order')) {
+      const savedCat = sessionStorage.getItem('bongoweb_chosen_category') || selectedCategory;
+      if (savedCat && savedCat !== 'all') {
+        target = `/category/${savedCat}`;
+      } else {
+        target = '/templates';
+      }
+    }
+
+    window.history.pushState({}, '', target);
+    parseCurrentUrl();
     window.scrollTo({ top: 0, behavior: 'instant' });
   };
 
@@ -325,6 +366,9 @@ export default function App() {
     if (viewMode === 'live-chat') return 'live-chat';
     if (viewMode === 'account') return 'account';
     if (viewMode === 'after-order') return 'help';
+    if (viewMode === 'website-detail') {
+      return (returnPath && (returnPath.startsWith('/templates') || returnPath.startsWith('/category'))) ? 'templates' : 'home';
+    }
     return 'home';
   };
 
@@ -340,11 +384,12 @@ export default function App() {
         <div className="w-full min-h-screen flex flex-col bg-[#F8F5FC] text-[#1F1F2E]">
           <WebsiteDetailPage
             demo={activeDemo || findDemoByCode('') || WEBSITE_DEMOS[0]}
-            onBackToDashboard={handleReturnToDashboard}
+            onBackToDashboard={handleBackFromWebsite}
+            onBack={handleBackFromWebsite}
             onGoToOrder={handleOpenOrder}
           />
           <FixedBottomNav
-            activeTab="home"
+            activeTab={getActiveBottomTab()}
             onTabChange={handleTabChange}
             unreadChatCount={unreadNotifications}
           />
@@ -355,11 +400,11 @@ export default function App() {
       {viewMode === 'order-page' && (
         <OrderPageView
           demo={activeDemo || findDemoByCode('') || WEBSITE_DEMOS[0]}
-          onBackToDashboard={handleReturnToDashboard}
+          onBackToDashboard={handleBackFromWebsite}
           onBackToWebsite={(code) => {
             const demo = findDemoByCode(code);
             if (demo) handleOpenWebsiteDetail(demo);
-            else handleReturnToDashboard();
+            else handleBackFromWebsite();
           }}
         />
       )}

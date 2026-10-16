@@ -1,5 +1,5 @@
 import React from 'react';
-import { Menu, ArrowLeft, Globe, Bell, Home, LayoutGrid, MessageCircle, User } from 'lucide-react';
+import { Menu, ArrowLeft, Languages, Bell, Home, LayoutGrid, MessageCircle, User } from 'lucide-react';
 import { BottomTabType } from './FixedBottomNav';
 import BongoWebLogo from './BongoWebLogo';
 import { useLanguage } from '../utils/LanguageContext';
@@ -122,7 +122,7 @@ export default function FixedHeader({
               On Home: White globe icon (toggles / selects language)
               On Templates / Subpages: White hamburger menu icon (or Globe + Hamburger on desktop) */}
           <div className="flex items-center gap-1 sm:gap-2">
-            {/* Globe Language Button */}
+            {/* Language Switcher Button */}
             <button
               type="button"
               onClick={handleToggleLanguage}
@@ -130,7 +130,7 @@ export default function FixedHeader({
               title={language === 'bn' ? 'Switch to English' : 'বাংলা ভাষায় পরিবর্তন করুন'}
               className="p-2 sm:p-2.5 rounded-xl text-white hover:bg-white/15 active:bg-white/25 transition-all cursor-pointer flex items-center gap-1.5"
             >
-              <Globe className="w-5 h-5 sm:w-5.5 sm:h-5.5 text-white stroke-[2.2]" />
+              <Languages className="w-5 h-5 sm:w-5.5 sm:h-5.5 text-white stroke-[2.2]" />
               <span className="text-[11px] font-bold text-purple-100 hidden sm:inline uppercase">
                 {language === 'bn' ? 'বাংলা' : 'EN'}
               </span>

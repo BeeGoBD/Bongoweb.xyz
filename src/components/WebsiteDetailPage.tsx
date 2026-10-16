@@ -11,15 +11,18 @@ import { playClickSound } from '../utils/sound';
 
 interface WebsiteDetailPageProps {
   demo: WebsiteDemo;
-  onBackToDashboard: () => void;
+  onBackToDashboard?: () => void;
+  onBack?: () => void;
   onGoToOrder: (demo: WebsiteDemo) => void;
 }
 
 export default function WebsiteDetailPage({
   demo,
   onBackToDashboard,
+  onBack,
   onGoToOrder
 }: WebsiteDetailPageProps) {
+  const handleBack = onBack || onBackToDashboard;
   const [detailsExpanded, setDetailsExpanded] = useState(false);
   const [show3DStage, setShow3DStage] = useState(false);
   const [addedItem, setAddedItem] = useState<string | null>(null);
@@ -77,7 +80,7 @@ export default function WebsiteDetailPage({
           {/* Left: Enhanced Back to Templates / Home */}
           <div className="flex items-center gap-2.5 sm:gap-3">
             <button
-              onClick={onBackToDashboard}
+              onClick={handleBack}
               className="px-3 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 active:bg-white/35 text-white border border-white/20 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs group"
               title="ফিরে যান"
             >

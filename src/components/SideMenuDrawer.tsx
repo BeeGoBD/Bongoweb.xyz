@@ -9,6 +9,7 @@ import { BottomTabType } from './FixedBottomNav';
 import { TESTIMONIALS } from '../data/mockData';
 import { UserAccount, CallBackRequest } from '../types';
 import { apiSubmitCallBackRequest } from '../utils/api';
+import { useLanguage } from '../utils/LanguageContext';
 
 interface SideMenuDrawerProps {
   isOpen: boolean;
@@ -28,6 +29,7 @@ export default function SideMenuDrawer({
   onOpenOrderDetails,
   onOpenWebsiteCredentials
 }: SideMenuDrawerProps) {
+  const { language } = useLanguage();
   const [currentUser, setCurrentUser] = useState<UserAccount | null>(() => {
     try {
       const raw = localStorage.getItem('bongoweb_user');
@@ -177,7 +179,7 @@ export default function SideMenuDrawer({
 
           {/* Navigation Links with 3D Depth */}
           <div className="flex-1 overflow-y-auto p-4 space-y-2.5 perspective-1000">
-            {/* 1. আপনার Order এর বিস্তারিত */}
+            {/* 1. Order Details */}
             <button
               onClick={() => {
                 onClose();
@@ -194,15 +196,17 @@ export default function SideMenuDrawer({
               </div>
               <div className="flex-1 min-w-0">
                 <span className="block text-sm font-bold text-[#1F1F2E] group-hover:text-[#5B2C8A]">
-                  ১. আপনার Order এর বিস্তারিত
+                  {language === 'bn' ? '১. আপনার অর্ডারের বিস্তারিত' : '1. Your Order Details'}
                 </span>
                 <span className="text-[11px] text-[#6B7280] font-normal block truncate">
-                  পেন্ডিং, অনুমোদিত ও সম্পূর্ণ অর্ডারের লাইভ স্ট্যাটাস
+                  {language === 'bn' 
+                    ? 'পেন্ডিং, অনুমোদিত ও সম্পূর্ণ অর্ডারের লাইভ স্ট্যাটাস' 
+                    : 'Live status of pending, approved and completed orders'}
                 </span>
               </div>
             </button>
 
-            {/* 2. ওয়েবসাইট আইডি ও পাসওয়ার্ড (Website ID & Password) */}
+            {/* 2. Website ID & Password */}
             <button
               onClick={() => {
                 onClose();
@@ -219,10 +223,12 @@ export default function SideMenuDrawer({
               </div>
               <div className="flex-1 min-w-0">
                 <span className="block text-sm font-bold text-[#1F1F2E] group-hover:text-[#5B2C8A]">
-                  ২. ওয়েবসাইট আইডি ও পাসওয়ার্ড
+                  {language === 'bn' ? '২. ওয়েবসাইট আইডি ও পাসওয়ার্ড' : '2. Website ID & Password'}
                 </span>
                 <span className="text-[11px] text-[#6B7280] font-normal block truncate">
-                  অ্যাডমিন আইডি ও পাসওয়ার্ড বিস্তারিত দেখুন
+                  {language === 'bn' 
+                    ? 'অ্যাডমিন আইডি ও লগইন পাসওয়ার্ড বিস্তারিত দেখুন' 
+                    : 'View admin login ID, password and access details'}
                 </span>
               </div>
             </button>
@@ -240,10 +246,12 @@ export default function SideMenuDrawer({
               </div>
               <div className="flex-1 min-w-0">
                 <span className="block text-sm font-bold text-[#1F1F2E] group-hover:text-[#5B2C8A]">
-                  ৩. BongoWeb Live Support (২৪/৭)
+                  {language === 'bn' ? '৩. বঙ্গওয়েব লাইভ সাপোর্ট (২৪/৭)' : '3. BongoWeb Live Support (24/7)'}
                 </span>
                 <span className="text-[11px] text-[#6B7280] font-normal block truncate">
-                  সরাসরি আমাদের টিমের সাথে লাইভ চ্যাট
+                  {language === 'bn' 
+                    ? 'সরাসরি আমাদের সাপোর্ট টিমের সাথে লাইভ চ্যাট' 
+                    : 'Live chat directly with our technical support team'}
                 </span>
               </div>
             </button>
@@ -258,10 +266,12 @@ export default function SideMenuDrawer({
               </div>
               <div className="flex-1 min-w-0">
                 <span className="block text-sm font-bold text-[#1F1F2E] group-hover:text-[#5B2C8A]">
-                  ৪. Support Ticket
+                  {language === 'bn' ? '৪. সাপোর্ট টিকিট' : '4. Support Ticket'}
                 </span>
                 <span className="text-[11px] text-[#6B7280] font-normal block truncate">
-                  যেকোনো সমস্যায় সাপোর্ট টিকিট জমা দিন
+                  {language === 'bn' 
+                    ? 'যেকোনো কারিগরি সমস্যায় সাপোর্ট টিকিট জমা দিন' 
+                    : 'Submit a ticket for technical help and inquiries'}
                 </span>
               </div>
             </button>
@@ -276,10 +286,12 @@ export default function SideMenuDrawer({
               </div>
               <div className="flex-1 min-w-0">
                 <span className="block text-sm font-bold text-[#1F1F2E] group-hover:text-amber-700">
-                  ৫. Testimonials (Client Reviews & Ratings)
+                  {language === 'bn' ? '৫. গ্রাহকদের রিভিউ ও রেটিং' : '5. Client Reviews & Ratings'}
                 </span>
                 <span className="text-[11px] text-[#6B7280] font-normal block truncate">
-                  গ্রাহকদের মতামত ও ৫-স্টার রেটিং দেখুন
+                  {language === 'bn' 
+                    ? 'গ্রাহকদের বাস্তব মতামত ও ৫-স্টার রেটিং দেখুন' 
+                    : 'Verified customer feedback and 5-star ratings'}
                 </span>
               </div>
             </button>
@@ -295,25 +307,25 @@ export default function SideMenuDrawer({
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="block text-sm font-bold text-[#1F1F2E] group-hover:text-emerald-700">
-                    ৬. Call Back (কল ব্যাক রিকোয়েস্ট)
+                    {language === 'bn' ? '৬. কল ব্যাক রিকোয়েস্ট' : '6. Request Call Back'}
                   </span>
                   {myCallBackRequest?.status === 'pending' && (
                     <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-bold border border-amber-200 shrink-0 animate-pulse">
-                      পেন্ডিং
+                      {language === 'bn' ? 'পেন্ডিং' : 'Pending'}
                     </span>
                   )}
                   {myCallBackRequest?.status === 'approved' && (
                     <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold border border-emerald-200 shrink-0">
-                      ✓ অনুমোদিত
+                      {language === 'bn' ? '✓ অনুমোদিত' : '✓ Approved'}
                     </span>
                   )}
                 </div>
                 <span className="text-[11px] text-[#6B7280] font-normal block truncate">
                   {myCallBackRequest?.status === 'pending'
-                    ? 'আপনার কল ব্যাক রিকোয়েস্ট অপেক্ষমান রয়েছে'
+                    ? (language === 'bn' ? 'আপনার কল ব্যাক রিকোয়েস্ট অপেক্ষমান রয়েছে' : 'Your call back request is pending review')
                     : myCallBackRequest?.status === 'approved'
-                    ? '✓ কল সম্পন্ন ও অনুমোদিত হয়েছে'
-                    : 'নাম ও নম্বর দিয়ে কল ব্যাক রিকোয়েস্ট পাঠান'}
+                    ? (language === 'bn' ? '✓ কল সম্পন্ন ও অনুমোদিত হয়েছে' : '✓ Call completed and approved')
+                    : (language === 'bn' ? 'নাম ও নম্বর দিয়ে কল ব্যাক রিকোয়েস্ট পাঠান' : 'Submit your phone number for an urgent call back')}
                 </span>
               </div>
             </button>
@@ -325,7 +337,9 @@ export default function SideMenuDrawer({
               BongoWeb • Premium Website Solutions
             </p>
             <p className="text-[10px] text-[#6B7280] mt-0.5">
-              ২৪ ঘণ্টা লাইভ ডেলিভারি ও সাপোর্ট সিস্টেম
+              {language === 'bn' 
+                ? '২৪ ঘণ্টা লাইভ ডেলিভারি ও সাপোর্ট সিস্টেম' 
+                : '24-Hour Express Launch & Complete Support System'}
             </p>
           </div>
         </div>
