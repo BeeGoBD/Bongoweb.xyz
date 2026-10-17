@@ -36,7 +36,7 @@ export default function AppFooter({
     <footer 
       role="contentinfo" 
       aria-label="Site Footer" 
-      className="w-full bg-white border-t border-[#EDE4F5] text-[#1F1F2E] font-sans pt-12 pb-24 sm:pb-16 mt-auto"
+      className="w-full bg-white border-t border-[#EDE4F5] text-[#1F1F2E] font-sans pt-12 pb-20 md:pb-12 mt-auto"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         

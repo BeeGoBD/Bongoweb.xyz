@@ -104,9 +104,9 @@ export default function CategoryWebsitesView({
     <div 
       id="templates-page-view"
       data-view="templates"
-      className="w-full min-h-[calc(100vh-4rem)] bg-[#F8F5FC] text-[#1F1F2E] font-sans pb-24 sm:pb-28"
+      className="w-full min-h-[calc(100vh-4rem)] bg-[#F8F5FC] text-[#1F1F2E] font-sans pb-20 md:pb-12"
     >
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-5 sm:pt-7 space-y-5 sm:space-y-6">
+      <div className="max-w-6xl xl:max-w-7xl mx-auto px-4 sm:px-6 md:px-8 pt-5 sm:pt-7 md:pt-8 space-y-5 sm:space-y-6">
         
         {/* 1. Title Section */}
         <section className="text-center sm:text-left space-y-1">
@@ -156,9 +156,9 @@ export default function CategoryWebsitesView({
           </div>
         </section>
 
-        {/* 3. Filter Chips (Horizontal scrollable) */}
+        {/* 3. Filter Chips (Horizontal scrollable on mobile, wrapped on desktop) */}
         <section className="w-full">
-          <div className="flex items-center gap-2 sm:gap-2.5 overflow-x-auto pb-1 no-scrollbar">
+          <div className="flex items-center gap-2 sm:gap-2.5 overflow-x-auto md:overflow-visible md:flex-wrap pb-1 md:pb-0 no-scrollbar">
             {filterChips.map((chip) => {
               const isActive = selectedFilter === chip.id;
               return (
@@ -179,7 +179,7 @@ export default function CategoryWebsitesView({
           </div>
         </section>
 
-        {/* 4. Template Grid (2 columns on mobile, 3 on desktop) */}
+        {/* 4. Template Grid (2 columns on mobile, 3 on tablet/laptop, 4 on desktop) */}
         <section className="w-full pt-1">
           {filteredDemos.length === 0 ? (
             <div className="bg-[#FFFFFF] border border-[#EDE4F5] rounded-2xl p-8 text-center max-w-md mx-auto my-6 shadow-xs">
@@ -204,7 +204,7 @@ export default function CategoryWebsitesView({
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3.5 sm:gap-5 md:gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-5 md:gap-6">
               {filteredDemos.map((demo) => {
                 const categoryLabel = 
                   demo.category === 'ecommerce' ? 'E-commerce' :

@@ -367,45 +367,101 @@ export default function LiveChatView({ onExitChat }: LiveChatViewProps) {
   })();
 
   return (
-    <div className="w-full max-w-4xl mx-auto px-3 sm:px-6 h-[calc(100dvh-130px)] sm:h-[calc(100dvh-146px)] flex flex-col overflow-hidden font-sans select-none pb-1">
+    <div className="w-full max-w-4xl lg:max-w-6xl xl:max-w-7xl mx-auto px-3 sm:px-6 h-[calc(100dvh-130px)] sm:h-[calc(100dvh-146px)] lg:h-[calc(100vh-105px)] flex flex-col overflow-hidden font-sans select-none pb-1">
       
       {!isChatActive ? (
         /* STEP 1: COMPACT, PRECISELY SIZED START CHAT CARD (NO PAGE SCROLL) */
         <div className="h-full flex flex-col justify-center items-center py-2">
-          <div className="w-full max-w-md bg-white border border-[#EDE4F5] rounded-3xl p-5 sm:p-7 shadow-sm flex flex-col">
+          <div className="w-full max-w-md md:max-w-4xl bg-white border border-[#EDE4F5] rounded-3xl shadow-sm flex flex-col md:grid md:grid-cols-12 overflow-hidden">
             
-            {/* Header with Exit Chat Button */}
-            <div className="flex items-center justify-between pb-3.5 mb-4 border-b border-[#EDE4F5]">
-              <div className="flex items-center gap-2.5">
-                <div className="w-10 h-10 rounded-2xl bg-[#F8F5FC] text-[#5B2C8A] border border-[#EDE4F5] flex items-center justify-center shadow-xs">
-                  <MessageSquare className="w-5 h-5 stroke-[2.2]" />
+            {/* Desktop Left Welcome Column (Laptop/Computer View Only) */}
+            <div className="hidden md:flex md:col-span-5 bg-gradient-to-br from-[#5B2C8A] to-[#4A1F6E] text-white p-7 flex-col justify-between select-none">
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="text-xs font-bold uppercase tracking-wider text-purple-200">
+                    {t('সার্বক্ষণিক লাইভ সাপোর্ট ডেস্ক', '24/7 Live Support Desk')}
+                  </span>
                 </div>
-                <div>
-                  <h2 className="text-sm sm:text-base font-extrabold text-[#1F1F2E] leading-tight">
-                    {t('BongoWeb লাইভ চ্যাট', 'BongoWeb Live Chat')}
-                  </h2>
-                  <div className="flex items-center gap-1.5 text-[11px] text-emerald-800 font-bold mt-0.5">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                    <span>{isLiveOnline ? t('সরাসরি অনলাইন (২৪/৭)', 'Online Now (24/7)') : t('অনলাইন', 'Online')}</span>
+
+                <h3 className="text-xl font-extrabold text-white leading-tight">
+                  {t('সরাসরি ডেডিকেটেড ইঞ্জিনিয়ারের সাথে চ্যাট করুন', 'Connect with our web engineering team in real time')}
+                </h3>
+
+                <p className="text-xs text-purple-200 leading-relaxed">
+                  {t('ওয়েবসাইট কাস্টমাইজেশন, ডোমেন সেটআপ বা অর্ডারের যেকোনো বিষয়ে তাত্ক্ষণিক সহায়তা পেতে তথ্য দিন।', 'Get instant assistance regarding website customization, domain activation, or order fulfillment.')}
+                </p>
+
+                <div className="pt-2 space-y-2 text-xs text-purple-100">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-300 shrink-0" />
+                    <span>{t('গড় উত্তর সময়: ২ মিনিটেরও কম', 'Avg Response: Under 2 mins')}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-300 shrink-0" />
+                    <span>{t('১০০% এনক্রিপ্টেড ও সুরক্ষিত চ্যাট', 'Encrypted & Private Session')}</span>
                   </div>
                 </div>
               </div>
 
-              {/* Explicit Exit Chat Button */}
-              <button
-                type="button"
-                onClick={handleExit}
-                className="px-3 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 active:bg-purple-200 text-[#5B2C8A] border border-[#EDE4F5] text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs hover:scale-[1.02] active:scale-95"
-                title={t('চ্যাট থেকে বের হয়ে হোম পেজে যান', 'Exit Chat and return to Home')}
-              >
-                <LogOut className="w-3.5 h-3.5" />
-                <span>{t('চ্যাট এক্সিট', 'Exit Chat')}</span>
-              </button>
+              {/* Direct Call / WhatsApp at bottom */}
+              <div className="pt-4 border-t border-white/15 space-y-2 text-xs">
+                <span className="text-purple-200 block">{t('জরুরি কল অথবা হোয়াটসঅ্যাপ:', 'Hotline & WhatsApp:')}</span>
+                <div className="flex items-center gap-3">
+                  <a
+                    href="tel:+8801819847250"
+                    className="font-mono font-bold text-white hover:text-emerald-300 transition-colors"
+                  >
+                    +880 1819-847250
+                  </a>
+                  <span>•</span>
+                  <a
+                    href="https://wa.me/8801819847250"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-emerald-300 font-bold hover:underline"
+                  >
+                    WhatsApp
+                  </a>
+                </div>
+              </div>
             </div>
 
-            <p className="text-xs text-[#6B7280] mb-4 text-center leading-relaxed">
-              {t('সরাসরি আমাদের সাপোর্ট টিমের সাথে কথা বলতে নিচের তথ্য দিন:', 'Connect directly with our support team:')}
-            </p>
+            {/* Right Column: Form Container */}
+            <div className="md:col-span-7 p-5 sm:p-7 flex flex-col justify-between">
+              <div>
+                {/* Header with Exit Chat Button */}
+                <div className="flex items-center justify-between pb-3.5 mb-4 border-b border-[#EDE4F5]">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-10 h-10 rounded-2xl bg-[#F8F5FC] text-[#5B2C8A] border border-[#EDE4F5] flex items-center justify-center shadow-xs">
+                      <MessageSquare className="w-5 h-5 stroke-[2.2]" />
+                    </div>
+                    <div>
+                      <h2 className="text-sm sm:text-base font-extrabold text-[#1F1F2E] leading-tight">
+                        {t('BongoWeb লাইভ চ্যাট', 'BongoWeb Live Chat')}
+                      </h2>
+                      <div className="flex items-center gap-1.5 text-[11px] text-emerald-800 font-bold mt-0.5">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                        <span>{isLiveOnline ? t('সরাসরি অনলাইন (২৪/৭)', 'Online Now (24/7)') : t('অনলাইন', 'Online')}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Explicit Exit Chat Button */}
+                  <button
+                    type="button"
+                    onClick={handleExit}
+                    className="px-3 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 active:bg-purple-200 text-[#5B2C8A] border border-[#EDE4F5] text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs hover:scale-[1.02] active:scale-95"
+                    title={t('চ্যাট থেকে বের হয়ে হোম পেজে যান', 'Exit Chat and return to Home')}
+                  >
+                    <LogOut className="w-3.5 h-3.5" />
+                    <span>{t('চ্যাট এক্সিট', 'Exit Chat')}</span>
+                  </button>
+                </div>
+
+                <p className="text-xs text-[#6B7280] mb-4 text-center lg:text-left leading-relaxed">
+                  {t('সরাসরি আমাদের সাপোর্ট টিমের সাথে কথা বলতে নিচের তথ্য দিন:', 'Connect directly with our support team:')}
+                </p>
 
             {errorMessage && (
               <div className="mb-3.5 p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2 animate-fadeIn">
@@ -494,12 +550,61 @@ export default function LiveChatView({ onExitChat }: LiveChatViewProps) {
             </div>
           </div>
         </div>
+        </div>
+        </div>
       ) : (
         /* STEP 2: FIXED HEIGHT CHAT CONTAINER - ONLY INNER MESSAGE STREAM SCROLLS */
-        <div className="h-full flex flex-col bg-white border border-[#EDE4F5] rounded-3xl shadow-sm overflow-hidden">
+        <div className="h-full flex flex-col lg:flex-row bg-white border border-[#EDE4F5] rounded-3xl shadow-sm overflow-hidden">
           
-          {/* Top Bar: Agent Info + Security Code + EXIT CHAT button */}
-          <div className="px-3.5 sm:px-5 py-2.5 sm:py-3 bg-[#F8F5FC] border-b border-[#EDE4F5] flex items-center justify-between shrink-0 gap-2">
+          {/* Left Desktop Sidebar (Laptop/Computer View Only) */}
+          <aside className="hidden lg:flex lg:w-72 shrink-0 flex-col justify-between bg-[#F8F5FC] border-r border-[#EDE4F5] p-5 select-none">
+            <div className="space-y-4">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-xl bg-[#5B2C8A] text-white flex items-center justify-center font-bold text-sm shadow-xs">
+                  BW
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-[#1F1F2E]">BongoWeb সাপোর্ট</h4>
+                  <div className="flex items-center gap-1.5 text-xs text-emerald-700 font-bold">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <span>অনলাইন (২৪/৭)</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Quick Questions on Desktop */}
+              <div className="pt-3 border-t border-[#EDE4F5] space-y-2">
+                <span className="text-[11px] font-bold text-[#6B7280] uppercase tracking-wider block">
+                  দ্রুত প্রশ্নসমূহ
+                </span>
+                <div className="space-y-1.5">
+                  {quickQuestions.map((q, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => setInputMessage(q.query)}
+                      className="w-full text-left p-2 rounded-xl bg-white hover:bg-purple-50 text-[#1F1F2E] hover:text-[#5B2C8A] border border-[#EDE4F5] text-xs font-medium transition-all shadow-2xs cursor-pointer"
+                    >
+                      {language === 'bn' ? q.labelBn : q.labelEn}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Hotline at bottom */}
+            <div className="p-3 rounded-xl bg-white border border-[#EDE4F5] text-xs text-[#6B7280] space-y-1">
+              <span className="font-bold text-[#1F1F2E] block">জরুরি হেল্পলাইন:</span>
+              <a href="tel:+8801819847250" className="text-[#5B2C8A] font-mono font-bold block hover:underline">
+                +880 1819-847250
+              </a>
+            </div>
+          </aside>
+
+          {/* Right Main Chat Thread & Input */}
+          <div className="flex-1 flex flex-col h-full min-w-0">
+            {/* Top Bar: Agent Info + Security Code + EXIT CHAT button */}
+            <div className="px-3.5 sm:px-5 py-2.5 sm:py-3 bg-[#F8F5FC] border-b border-[#EDE4F5] flex items-center justify-between shrink-0 gap-2">
             
             {/* Left: Agent Info */}
             <div className="flex items-center gap-2.5 min-w-0">
@@ -678,6 +783,7 @@ export default function LiveChatView({ onExitChat }: LiveChatViewProps) {
                 <span className="hidden sm:inline">{t('পাঠান', 'Send')}</span>
               </button>
             </form>
+          </div>
           </div>
         </div>
       )}

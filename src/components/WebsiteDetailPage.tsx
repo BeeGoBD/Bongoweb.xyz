@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { 
   ArrowLeft, ArrowRight, ShoppingBag, CheckCircle2, 
   ShieldCheck, Zap, Headphones, Globe, MessageCircle, 
-  ChevronDown, Layers, Sparkles, Box
+  ChevronDown, Layers, Sparkles, Box, Phone
 } from 'lucide-react';
 import { WebsiteDemo } from '../types';
 import Card3D from './Card3D';
@@ -73,10 +73,10 @@ export default function WebsiteDetailPage({
   ];
 
   return (
-    <div className="min-h-screen w-full bg-[#F8F5FC] text-[#1F1F2E] flex flex-col font-sans pb-16">
+    <div className="min-h-screen w-full bg-[#F8F5FC] text-[#1F1F2E] flex flex-col font-sans pb-16 lg:pb-12">
       {/* 1. Purple Header (Matches #5B2C8A Theme) */}
       <header className="fixed top-0 left-0 right-0 z-50 w-full bg-[#5B2C8A] border-b border-[#4A1F6E] shadow-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-3 select-none">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 sm:h-16 lg:h-[72px] flex items-center justify-between gap-3 select-none">
           {/* Left: Enhanced Back to Templates / Home */}
           <div className="flex items-center gap-2.5 sm:gap-3">
             <button
@@ -119,19 +119,24 @@ export default function WebsiteDetailPage({
       </header>
 
       {/* Header Placeholder Spacer */}
-      <div className="h-14 sm:h-16 w-full shrink-0" />
+      <div className="h-14 sm:h-16 lg:h-[72px] w-full shrink-0" />
 
       {/* 2. Main Live Website Content */}
-      <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6 bg-[#F1F5F9]">
+      <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 bg-[#F1F5F9]">
         
-        {/* Showcase Mode Header */}
-        <div className="flex items-center justify-between gap-3 px-1">
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#7C3AED] animate-pulse" />
-            <h2 className="text-sm sm:text-base font-black text-slate-800">
-              {show3DStage ? 'ইন্টারেক্টিভ ৩ডি ডিভাইস স্টুডিও (3D Device Stage)' : 'লাইভ ওয়েবসাইট ইন্টারফেস'}
-            </h2>
-          </div>
+        {/* Laptop/Desktop 2-Column Workstation Layout */}
+        <div className="lg:grid lg:grid-cols-12 lg:gap-8 lg:items-start space-y-6 lg:space-y-0">
+          
+          {/* Main Showcase & Catalog Area (Left 8 Columns on Laptop/Desktop) */}
+          <div className="lg:col-span-8 space-y-6">
+            {/* Showcase Mode Header */}
+            <div className="flex items-center justify-between gap-3 px-1">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#7C3AED] animate-pulse" />
+                <h2 className="text-sm sm:text-base font-black text-slate-800">
+                  {show3DStage ? 'ইন্টারেক্টিভ ৩ডি ডিভাইস স্টুডিও (3D Device Stage)' : 'লাইভ ওয়েবসাইট ইন্টারফেস'}
+                </h2>
+              </div>
 
           <div className="inline-flex items-center p-0.5 rounded-xl bg-white border border-slate-200/90 shadow-2xs">
             <button
@@ -309,6 +314,103 @@ export default function WebsiteDetailPage({
             </div>
           </section>
         )}
+          </div>
+
+          {/* Right Sticky Sidebar (Laptop/Desktop View Only) */}
+          <aside className="hidden lg:block lg:col-span-4 lg:sticky lg:top-24 space-y-4 select-none">
+            <div className="bg-white border border-slate-200/90 rounded-3xl p-6 shadow-md space-y-5 text-slate-900">
+              
+              {/* Product Header */}
+              <div className="flex items-start justify-between gap-3 pb-4 border-b border-slate-100">
+                <div className="min-w-0">
+                  <span className="inline-block px-2.5 py-0.5 rounded-full bg-purple-100 text-[#5B2C8A] font-bold text-xs mb-1.5 border border-purple-200">
+                    {demo.categoryLabel || 'বিজনেস টেমপ্লেট'}
+                  </span>
+                  <h3 className="text-base sm:text-lg font-black text-slate-900 leading-tight">
+                    {demo.title}
+                  </h3>
+                </div>
+                <span className="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 font-mono font-bold text-xs shrink-0 border border-slate-200">
+                  {demo.fourDigitCode}
+                </span>
+              </div>
+
+              {/* Price & Plan */}
+              <div className="p-4 rounded-2xl bg-purple-50/70 border border-purple-100 space-y-1">
+                <div className="flex items-baseline justify-between">
+                  <span className="text-xs text-slate-600 font-semibold">এককালীন ফুল সেটআপ:</span>
+                  <span className="text-2xl font-black text-[#5B2C8A] font-mono">{demo.priceTag || '৳১,৯৯০'}</span>
+                </div>
+                <div className="flex items-center justify-between text-xs text-purple-700 font-medium pt-1 border-t border-purple-100">
+                  <span>মাসিক ক্লাউড হোস্টিং:</span>
+                  <span className="font-bold font-mono">৳১২০ / মাস</span>
+                </div>
+              </div>
+
+              {/* Inclusions Checklist */}
+              <div className="space-y-2 text-xs text-slate-600">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>১ বছর ফ্রি .com ডোমেইন রেজিস্ট্রেশন</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>উচ্চগতির NVMe ক্লাউড হোস্টিং ও SSL</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>বিকাশ/নগদ অটো পেমেন্ট ও কুরিয়ার ট্র্যাকিং</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>২৪ ঘণ্টায় ফুল লাইভ ডেলিভারি গ্যারান্টি</span>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="space-y-2.5 pt-2">
+                <button
+                  type="button"
+                  onClick={() => onGoToOrder(demo)}
+                  className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#7C3AED] via-[#9333EA] to-[#6B46C1] hover:from-[#8B5CF6] hover:to-[#7C3AED] text-white text-sm font-black transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-purple-500/20 hover:scale-[1.02] active:scale-95"
+                >
+                  <span className="px-2 py-0.5 rounded-md bg-black/20 text-white font-mono text-xs">
+                    {demo.fourDigitCode}
+                  </span>
+                  <span>অর্ডার পেজে যান</span>
+                  <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+                </button>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <a
+                    href="https://wa.me/8801819847250"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
+                  >
+                    <MessageCircle className="w-3.5 h-3.5" />
+                    <span>WhatsApp</span>
+                  </a>
+
+                  <a
+                    href="tel:+8801819847250"
+                    className="py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    <Phone className="w-3.5 h-3.5 text-[#5B2C8A]" />
+                    <span>কল করুন</span>
+                  </a>
+                </div>
+              </div>
+
+              {/* Guarantees */}
+              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-[11px] text-slate-500 flex items-center justify-center gap-2 text-center">
+                <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>৭ দিনের মানিব্যাক গ্যারান্টি • ২৪/৭ সাপোর্ট</span>
+              </div>
+            </div>
+          </aside>
+
+        </div>
 
         {/* 3. Pricing Architecture & Inclusions Section */}
         <section className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">

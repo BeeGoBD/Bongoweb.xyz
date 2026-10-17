@@ -797,12 +797,57 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
         {/* Subtle Ambient Background Brand Glow */}
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-gradient-to-tr from-purple-200/40 via-indigo-200/30 to-blue-200/30 rounded-full blur-3xl pointer-events-none -z-10" />
 
-        {/* MOBILE-FIRST CENTERED CARD */}
-        <div className="max-w-[440px] mx-auto px-4 w-full relative z-10 flex flex-col items-center mt-2 sm:mt-4">
-          {/* ======================================================== */}
-          {/* STEP 1: EMAIL ENTRY CARD (No Sign In, No Sign Up tabs)   */}
-          {/* ======================================================== */}
-          {authStep === 'email' && (
+        {/* DESKTOP 2-COLUMN / MOBILE CENTERED CARD */}
+        <div className="max-w-[440px] lg:max-w-5xl xl:max-w-6xl mx-auto px-4 sm:px-6 w-full relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between mt-2 sm:mt-4 lg:mt-8 gap-8">
+          
+          {/* Left Desktop Portal Branding & Info (Laptop/Computer View Only) */}
+          <div className="hidden lg:flex lg:w-1/2 flex-col justify-between p-8 xl:p-10 rounded-3xl bg-gradient-to-br from-[#5B2C8A] via-[#4A1F6E] to-[#361352] text-white shadow-xl space-y-8 select-none">
+            <div className="space-y-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-purple-200 text-xs font-bold">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span>BongoWeb Official Client Portal</span>
+              </div>
+              <h1 className="text-3xl font-extrabold text-white tracking-tight leading-tight">
+                আপনার ক্লায়েন্ট ড্যাশবোর্ড ও ডেলিভারি ভল্ট
+              </h1>
+              <p className="text-sm text-purple-200/90 leading-relaxed">
+                পাসওয়ার্ড ছাড়া সহজ ও সুরক্ষিত অ্যাক্সেস। সরাসরি ইমেইল ও মোবাইল নম্বর দিয়ে আপনার অর্ডার ট্র্যাক করুন, ডেলিভারি ক্রেডেনশিয়ালস বুঝে নিন এবং ২৪/৭ সাপোর্ট গ্রহণ করুন।
+              </p>
+            </div>
+
+            <div className="space-y-3.5 text-xs text-purple-100">
+              <div className="flex items-center gap-2.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-300 shrink-0" />
+                <span>ওয়েবসাইট এডমিন প্যানেল ও ডেলিভারি ক্রেডেনশিয়ালস ভল্ট</span>
+              </div>
+              <div className="flex items-center gap-2.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-300 shrink-0" />
+                <span>লাইভ অর্ডার অগ্রগতি ও ২৪ ঘণ্টার মধ্যে সক্রিয়করণ ট্র্যাকিং</span>
+              </div>
+              <div className="flex items-center gap-2.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-300 shrink-0" />
+                <span>৫-মিনিটের ডায়নামিক সিকিউরিটি কোড সিস্টেম</span>
+              </div>
+              <div className="flex items-center gap-2.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-300 shrink-0" />
+                <span>ভারত DPDP আইন ও বৈশ্বিক মানদণ্ডে নিরাপদ তথ্য সংরক্ষণ</span>
+              </div>
+            </div>
+
+            <div className="pt-4 border-t border-white/15 flex items-center justify-between text-xs text-purple-200">
+              <span>জরুরি সহায়তা হেল্পলাইন:</span>
+              <a href="tel:+8801819847250" className="font-mono font-bold text-white hover:text-emerald-300 transition-colors">
+                +880 1819-847250
+              </a>
+            </div>
+          </div>
+
+          {/* Right Column: Mobile & Desktop Auth Flow */}
+          <div className="w-full lg:w-1/2 max-w-[440px] mx-auto flex flex-col items-center">
+            {/* ======================================================== */}
+            {/* STEP 1: EMAIL ENTRY CARD (No Sign In, No Sign Up tabs)   */}
+            {/* ======================================================== */}
+            {authStep === 'email' && (
             <div className="w-full bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-[0_12px_36px_-10px_rgba(15,23,42,0.08)] space-y-5 animate-fadeIn">
               
               {/* Card Header & Brand Welcome */}
@@ -884,6 +929,19 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                       </span>
                     )}
                   </button>
+
+                  <div className="pt-2 text-center">
+                    <p className="text-[11px] text-slate-500 leading-relaxed">
+                      By continuing, you agree to our{' '}
+                      <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-[#5B2C8A] font-bold underline">
+                        Terms of Service
+                      </a>{' '}
+                      and acknowledge our{' '}
+                      <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-[#5B2C8A] font-bold underline">
+                        Privacy Policy (DPDP Act)
+                      </a>.
+                    </p>
+                  </div>
                 </div>
               </form>
 
@@ -1158,6 +1216,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
             </div>
           )}
 
+            </div>
           </div>
       </div>
     );

@@ -64,7 +64,7 @@ export default function FixedBottomNav({
   return (
     <nav
       id="fixed-bottom-nav"
-      className="fixed bottom-0 left-0 right-0 z-40 w-full bg-[#5B2C8A] border-t border-[#4A1F6E] shadow-[0_-4px_20px_rgba(91,44,138,0.25)] h-16 sm:h-[68px] flex items-center select-none"
+      className="fixed bottom-0 left-0 right-0 z-40 w-full bg-[#5B2C8A] border-t border-[#4A1F6E] shadow-[0_-4px_20px_rgba(91,44,138,0.25)] h-16 sm:h-[68px] flex items-center select-none md:hidden"
     >
       <div className="max-w-md sm:max-w-xl md:max-w-2xl w-full mx-auto px-4 sm:px-6 h-full flex items-center justify-around gap-2">
         {tabs.map((tab) => {

@@ -3,10 +3,11 @@ import {
   ArrowLeft, ArrowRight, CheckCircle2, ShieldCheck, 
   Copy, Check, Upload, HelpCircle, Lock, 
   FileText, Download, Printer, AlertCircle, Sparkles,
-  Mail, Phone, RefreshCw, KeyRound, User
+  Mail, Phone, RefreshCw, KeyRound, User, Globe, Zap, MessageCircle
 } from 'lucide-react';
 import { WebsiteDemo, ClientOrder, UserAccount } from '../types';
 import { apiCreateOrder, apiRegisterUser, apiGetUsers, apiSendEmailOtp, apiVerifyEmailOtp } from '../utils/api';
+import { WEBSITE_DEMOS } from '../data/mockData';
 
 interface OrderPageViewProps {
   demo: WebsiteDemo | string | null;
@@ -27,6 +28,12 @@ export default function OrderPageView({
   const demoCode = (typeof demo === 'object' && demo?.fourDigitCode) ? demo.fourDigitCode : (typeof demo === 'string' ? demo : '#2085');
   const cleanCode = String(demoCode || '').replace('#', '');
   const storageKey = `bongoweb_order_state_${cleanCode}`;
+
+  const demoObj: WebsiteDemo = (() => {
+    if (typeof demo === 'object' && demo) return demo;
+    const clean = String(demoCode || '').replace('#', '').trim().toLowerCase();
+    return WEBSITE_DEMOS.find(d => String(d?.fourDigitCode || '').replace('#', '').toLowerCase() === clean) || WEBSITE_DEMOS[0];
+  })();
 
   // Safely restore state across page refreshes
   const getSavedState = () => {
@@ -431,7 +438,7 @@ export default function OrderPageView({
       )}
 
       {/* Main Checkout View Container */}
-      <main className="flex-1 w-full max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+      <main className="flex-1 w-full max-w-4xl lg:max-w-6xl xl:max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
         {/* Easy-to-Understand 3-Step Order Progress Bar */}
         <div className="mb-6 sm:mb-8 max-w-xl mx-auto">
           <div className="grid grid-cols-3 gap-1.5 sm:gap-3 p-1.5 sm:p-2 rounded-2xl bg-white border border-slate-200/90 shadow-md">
@@ -520,8 +527,105 @@ export default function OrderPageView({
           </div>
         </div>
 
-        {/* ----------------- STEP 1: Client Information (No Password) ----------------- */}
-        {currentStep === 1 && (
+        {currentStep !== 3 ? (
+          <div className="lg:grid lg:grid-cols-12 lg:gap-8 lg:items-start">
+            {/* Desktop Order Summary Sidebar (Laptop/Computer View Only) */}
+            <aside className="hidden lg:block lg:col-span-5 xl:col-span-4 lg:sticky lg:top-24 space-y-4 select-none">
+              <div className="bg-white border border-slate-200/90 rounded-3xl p-6 shadow-md space-y-5 text-slate-900">
+                {/* Product Thumbnail & Details */}
+                <div className="flex items-start gap-4 pb-4 border-b border-slate-100">
+                  <div className="w-20 h-16 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 shrink-0">
+                    <img 
+                      src={demoObj.previewImage} 
+                      alt={demoTitle}
+                      className="w-full h-full object-cover" 
+                    />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <span className="inline-block px-2 py-0.5 rounded-md bg-purple-100 text-purple-700 font-mono text-[11px] font-bold mb-1">
+                      {demoCode}
+                    </span>
+                    <h3 className="text-sm font-black text-slate-900 truncate leading-tight" title={demoTitle}>
+                      {demoTitle}
+                    </h3>
+                    <p className="text-[11px] text-slate-500 mt-0.5">
+                      {demoObj.categoryLabel || 'ব্যবসার ওয়েবসাইট'}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Transparent Financial Architecture Breakdown */}
+                <div className="space-y-2.5 text-xs">
+                  <div className="flex justify-between items-center text-slate-600">
+                    <span>ওয়েবসাইট মেকিং ও লাইভ সেটআপ:</span>
+                    <span className="font-bold text-slate-900 font-mono">৳১,৯৯০</span>
+                  </div>
+                  <div className="flex justify-between items-center text-slate-600">
+                    <span>১ বছর ফ্রি .com ডোমেইন:</span>
+                    <span className="font-bold text-emerald-600">৳০ (ফ্রি)</span>
+                  </div>
+                  <div className="flex justify-between items-center text-slate-600">
+                    <span>NVMe হাই-স্পিড ক্লাউড হোস্টিং:</span>
+                    <span className="font-bold text-emerald-600">৳০ (ফ্রি)</span>
+                  </div>
+                  <div className="flex justify-between items-center text-slate-600">
+                    <span>লাইফটাইম SSL সিকিউরিটি:</span>
+                    <span className="font-bold text-emerald-600">৳০ (ফ্রি)</span>
+                  </div>
+                  <div className="pt-2 border-t border-slate-200 flex justify-between items-center">
+                    <span className="text-sm font-black text-slate-900">মোট এককালীন প্রদেয়:</span>
+                    <span className="text-xl font-black text-purple-700 font-mono">১,৯৯০ ৳</span>
+                  </div>
+                  <p className="text-[11px] text-slate-500 pt-1">
+                    সার্ভার মেইনটেন্যান্স: মাত্র ১২০ টাকা / মাস (৯৯.৯% আপটাইম)
+                  </p>
+                </div>
+
+                {/* Core Guarantees */}
+                <div className="p-3.5 rounded-2xl bg-[#F8F5FC] border border-[#EDE4F5] space-y-2 text-xs">
+                  <div className="flex items-center gap-2 text-slate-700 font-medium">
+                    <Zap className="w-4 h-4 text-purple-600 shrink-0" />
+                    <span>২৪ ঘণ্টার মধ্যে সম্পূর্ণ লাইভ ডেলিভারি</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-slate-700 font-medium">
+                    <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span>৭ দিনের ১০০% মানিব্যাক গ্যারান্টি</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-slate-700 font-medium">
+                    <Globe className="w-4 h-4 text-blue-600 shrink-0" />
+                    <span>মোবাইল, ট্যাবলেট ও ডেক্সটপ রেসপন্সিভ</span>
+                  </div>
+                </div>
+
+                {/* Hotline Assistance */}
+                <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+                  <span className="text-slate-500">সাহায্য প্রয়োজন?</span>
+                  <div className="flex items-center gap-2">
+                    <a
+                      href="https://wa.me/8801819847250"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-emerald-600 hover:text-emerald-700 font-bold inline-flex items-center gap-1"
+                    >
+                      <MessageCircle className="w-3.5 h-3.5" />
+                      <span>WhatsApp</span>
+                    </a>
+                    <span className="text-slate-300">•</span>
+                    <a
+                      href="tel:+8801819847250"
+                      className="text-purple-700 hover:text-purple-800 font-bold font-mono"
+                    >
+                      +880 1819-847250
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </aside>
+
+            {/* Right Column: Active Step Form */}
+            <div className="lg:col-span-7 xl:col-span-8">
+              {/* ----------------- STEP 1: Client Information (No Password) ----------------- */}
+              {currentStep === 1 && (
           <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-10 shadow-lg max-w-2xl mx-auto animate-fadeIn text-slate-900">
             <div className="text-center mb-6">
               <span className="px-3.5 py-1 rounded-full bg-purple-100 text-purple-700 text-xs font-bold inline-flex items-center gap-1.5 mb-2 border border-purple-200">
@@ -1048,10 +1152,13 @@ export default function OrderPageView({
             </form>
           </div>
         )}
+            </div>
+          </div>
+        ) : null}
 
         {/* ----------------- STEP 3: Authentic Printable Receipt / Invoice ----------------- */}
         {currentStep === 3 && createdOrder && (
-          <div className="bg-white border-2 border-slate-200 rounded-3xl p-6 sm:p-10 shadow-xl max-w-2xl mx-auto animate-fadeIn space-y-6 text-slate-900">
+          <div className="bg-white border-2 border-slate-200 rounded-3xl p-6 sm:p-10 shadow-xl max-w-2xl lg:max-w-3xl mx-auto animate-fadeIn space-y-6 text-slate-900">
             {/* Header Badge */}
             <div className="text-center pb-6 border-b border-slate-200">
               <div className="w-14 h-14 rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200 flex items-center justify-center mx-auto mb-3 shadow-xs">
