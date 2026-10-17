@@ -42,8 +42,8 @@ export default function FixedBottomNav({
     },
     {
       id: 'templates' as BottomTabType,
-      labelBn: 'টেমপ্লেট',
-      labelEn: 'Templates',
+      labelBn: 'ক্যাটাগরি',
+      labelEn: 'Category',
       icon: LayoutGrid
     },
     {

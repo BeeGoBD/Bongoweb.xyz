@@ -26,10 +26,10 @@ export default function CategorySelectionLanding({
   const categories = [
     {
       id: 'ecommerce' as WebsiteCategory,
-      titleEnglish: 'E-Commerce',
-      titleBangla: 'ই-কমার্স ও শপ',
-      subtitleBn: 'অনলাইন শপ, স্টক ম্যানেজমেন্ট, অটো পেমেন্ট ও কুরিয়ার ট্র্যাকিং',
-      subtitleEn: 'Online stores, inventory, automated payments & courier sync',
+      titleEnglish: 'Ecommerce',
+      titleBangla: 'ই-কমার্স',
+      subtitleBn: 'পোশাক, প্রাকৃতিক খাদ্য, ঘড়ি ইত্যাদি',
+      subtitleEn: 'Cloths, natural food, watches etc.',
       featuresBn: 'bKash Auto · Courier Sync',
       featuresEn: 'Auto Payment · Courier Sync',
       icon: ShoppingBasket,

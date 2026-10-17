@@ -243,6 +243,30 @@ export default function App() {
 
   // Initialize and listen to popstate and hashchange
   useEffect(() => {
+    // 0. Clean slate purge of old users, orders, and chats for fresh start
+    try {
+      const FRESH_KEY = 'bongoweb_clean_slate_20261017_v3';
+      if (!localStorage.getItem(FRESH_KEY)) {
+        localStorage.removeItem('bongoweb_orders');
+        localStorage.removeItem('bongoweb_placed_orders');
+        localStorage.removeItem('bongoweb_all_orders');
+        localStorage.removeItem('bongoweb_support_chats');
+        localStorage.removeItem('bongoweb_registered_users');
+        localStorage.removeItem('bongoweb_delivered_credentials');
+        localStorage.removeItem('bongoweb_reset_requests');
+        localStorage.removeItem('bongoweb_reports');
+        localStorage.removeItem('bongoweb_user');
+        localStorage.removeItem('bongoweb_chat_active_session');
+        localStorage.removeItem('bongoweb_last_otp');
+        localStorage.removeItem('bongoweb_pending_email');
+        localStorage.removeItem('bongoweb_notifications');
+        sessionStorage.removeItem('bongoweb_user');
+        sessionStorage.removeItem('bongoweb_active_view');
+        sessionStorage.removeItem('bongoweb_chat_active_session');
+        localStorage.setItem(FRESH_KEY, 'true');
+      }
+    } catch (_) {}
+
     // 1. Initial route resolution
     parseCurrentUrl();
 
@@ -470,7 +494,14 @@ export default function App() {
             showBackArrow={viewMode === 'category-websites' || viewMode === 'after-order' || viewMode === 'account' || viewMode === 'live-chat'}
             activeTab={getActiveBottomTab()}
             onTabChange={handleTabChange}
-            unreadChatCount={viewMode === 'live-chat' ? 0 : 1}
+            unreadChatCount={(() => {
+              if (viewMode === 'live-chat') return 0;
+              try {
+                return localStorage.getItem('bongoweb_chat_active_session') ? 1 : 0;
+              } catch (_) {
+                return 0;
+              }
+            })()}
           />
 
           {/* Dynamic Content Views */}

@@ -67,12 +67,14 @@ export function cleanFirestoreData<T extends Record<string, any>>(obj: T): T {
 // No mock orders by default - 100% clean production state
 export const DEFAULT_INITIAL_ORDERS: ClientOrder[] = [];
 
-// Clean fresh start purge for legacy client sessions and mock entries
+// Clean fresh start purge for legacy client sessions, old users, purchase chats and orders
 try {
   if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
-    const FRESH_START_FLAG = 'bongoweb_fresh_start_2026_clean';
+    const FRESH_START_FLAG = 'bongoweb_clean_slate_20261017_v3';
     if (!localStorage.getItem(FRESH_START_FLAG)) {
       localStorage.removeItem('bongoweb_orders');
+      localStorage.removeItem('bongoweb_placed_orders');
+      localStorage.removeItem('bongoweb_all_orders');
       localStorage.removeItem('bongoweb_support_chats');
       localStorage.removeItem('bongoweb_registered_users');
       localStorage.removeItem('bongoweb_delivered_credentials');
@@ -82,9 +84,11 @@ try {
       localStorage.removeItem('bongoweb_chat_active_session');
       localStorage.removeItem('bongoweb_last_otp');
       localStorage.removeItem('bongoweb_pending_email');
+      localStorage.removeItem('bongoweb_notifications');
       if (typeof sessionStorage !== 'undefined') {
         sessionStorage.removeItem('bongoweb_user');
         sessionStorage.removeItem('bongoweb_active_view');
+        sessionStorage.removeItem('bongoweb_chat_active_session');
       }
       localStorage.setItem(FRESH_START_FLAG, 'true');
     }
@@ -961,17 +965,49 @@ export async function apiActivateChat(params: {
     const existingSnap = await getDoc(chatDocRef);
     if (existingSnap.exists()) {
       const prev = existingSnap.data() as SupportChatThread;
-      thread = {
-        ...prev,
-        userName: cleanName,
-        language: params.language,
-        expiresAt,
-        isClosed: false,
-        isArchived: false,
-        lastUpdated: 'এখনই'
-      };
-      if (!thread.messages || thread.messages.length === 0) {
-        thread.messages = [welcomeMsg];
+      const wasClosedOrArchived = prev.isClosed || prev.isArchived;
+
+      if (wasClosedOrArchived) {
+        // Old chat is in ARCHIVE! Do not start from where it ended.
+        try {
+          const archId = `arch_${cleanPhone.replace(/[^a-zA-Z0-9_-]/g, '_')}_${Date.now()}`;
+          await setDoc(doc(db, 'archivedChats', archId), cleanFirestoreData({
+            ...prev,
+            isClosed: true,
+            isArchived: true,
+            archivedAt: prev.archivedAt || new Date().toLocaleString('bn-BD')
+          }));
+        } catch (_) {}
+
+        // New chat starts 100% fresh with welcomeMsg
+        thread = {
+          userPhone: cleanPhone,
+          userName: cleanName,
+          language: params.language,
+          lastMessage: params.welcomeText,
+          lastUpdated: 'এখনই',
+          unreadAdminCount: 1,
+          unreadClientCount: 0,
+          expiresAt,
+          isClosed: false,
+          isArchived: false,
+          additionalMinutesAdded: 0,
+          messages: [welcomeMsg]
+        };
+      } else {
+        // Open live chat session reconnecting
+        thread = {
+          ...prev,
+          userName: cleanName,
+          language: params.language,
+          expiresAt,
+          isClosed: false,
+          isArchived: false,
+          lastUpdated: 'এখনই'
+        };
+        if (!thread.messages || thread.messages.length === 0) {
+          thread.messages = [welcomeMsg];
+        }
       }
     }
     // Save to Cloud Firestore with undefined sanitized
@@ -1178,39 +1214,63 @@ export async function apiEndChat(phone: string, hasAccount?: boolean): Promise<v
     userHasAccount = matchUser || matchOrder;
   }
 
-  if (userHasAccount) {
-    try {
-      await updateDoc(doc(db, 'supportChats', cleanPhone), {
+  // Always archive to archivedChats collection
+  try {
+    const chatDoc = await getDoc(doc(db, 'supportChats', cleanPhone));
+    if (chatDoc.exists()) {
+      const data = chatDoc.data();
+      const archId = `arch_${cleanPhone.replace(/[^a-zA-Z0-9_-]/g, '_')}_${Date.now()}`;
+      await setDoc(doc(db, 'archivedChats', archId), cleanFirestoreData({
+        ...data,
         isClosed: true,
         isArchived: true,
         archivedAt: now
-      });
-    } catch (err) {
-      console.warn('Firestore close chat notice:', err);
+      }));
     }
+  } catch (_) {}
 
-    localCache.supportChats = (localCache.supportChats || []).map(t => 
-      (t.userPhone === cleanPhone || normalizePhone(t.userPhone).slice(-10) === cleanDigits)
-        ? { ...t, isClosed: true, isArchived: true, archivedAt: now }
-        : t
-    );
-  } else {
-    // Visitor does not have an account: temporary chat is deleted and not stored in archives
+  // Update supportChats document with isClosed: true, isArchived: true
+  try {
+    await updateDoc(doc(db, 'supportChats', cleanPhone), {
+      isClosed: true,
+      isArchived: true,
+      archivedAt: now
+    });
+  } catch (err) {
     try {
-      await deleteDoc(doc(db, 'supportChats', cleanPhone));
-    } catch (err) {
-      console.warn('Firestore delete temporary chat notice:', err);
-    }
-    localCache.supportChats = (localCache.supportChats || []).filter(t => 
-      t.userPhone !== cleanPhone && normalizePhone(t.userPhone).slice(-10) !== cleanDigits
-    );
+      await setDoc(doc(db, 'supportChats', cleanPhone), {
+        userPhone: cleanPhone,
+        isClosed: true,
+        isArchived: true,
+        archivedAt: now
+      }, { merge: true });
+    } catch (_) {}
   }
+
+  localCache.supportChats = (localCache.supportChats || []).map(t => 
+    (t.userPhone === cleanPhone || normalizePhone(t.userPhone).slice(-10) === cleanDigits)
+      ? { ...t, isClosed: true, isArchived: true, archivedAt: now }
+      : t
+  );
 
   localStorage.setItem('bongoweb_support_chats', JSON.stringify(localCache.supportChats));
 
-  // Broadcast realtime chat:ended
+  // Purge active session from client storage
+  try {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem('bongoweb_chat_active_session');
+    }
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.removeItem('bongoweb_chat_active_session');
+    }
+  } catch (_) {}
+
+  // Broadcast realtime chat:ended to all clients
   try {
     realtimeManager.emit('chat:ended', { phone: cleanPhone, isClosed: true, hasAccount: userHasAccount });
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('bongoweb_chat_ended', { detail: { phone: cleanPhone } }));
+    }
   } catch (_) {}
 
   try {

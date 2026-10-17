@@ -134,8 +134,33 @@ export default function LiveChatView({ onExitChat }: LiveChatViewProps) {
     { labelBn: 'ডোমেন ও হোস্টিং', labelEn: 'Domain & Host', query: 'ফ্রি .com ডোমেন ও ক্লাউড হোস্টিং কীভাবে পাব?' }
   ];
 
-  // Exit Chat handler
-  const handleExit = () => {
+  // Exit Chat handler: Ends active chat, archives it into database, clears active session, and navigates
+  const handleExit = async () => {
+    const phoneToClose = clientPhone || (() => {
+      try {
+        const s = localStorage.getItem('bongoweb_chat_active_session');
+        if (s) return JSON.parse(s).phone;
+      } catch (_) {}
+      return '';
+    })();
+
+    if (phoneToClose) {
+      try {
+        await apiEndChat(phoneToClose, !!currentUser);
+      } catch (err) {
+        console.warn('Error closing chat on exit:', err);
+      }
+    }
+
+    try {
+      localStorage.removeItem('bongoweb_chat_active_session');
+      sessionStorage.removeItem('bongoweb_chat_active_session');
+    } catch (_) {}
+
+    setIsChatActive(false);
+    setThread(null);
+    setInputMessage('');
+
     if (onExitChat) {
       onExitChat();
     } else {
@@ -177,35 +202,98 @@ export default function LiveChatView({ onExitChat }: LiveChatViewProps) {
     return () => clearInterval(interval);
   }, [clientPhone]);
 
-  // 3. Subscribe to real-time chat messages when phone is active
+  // 3. Subscribe to real-time chat messages and monitor when admin closes chat
   useEffect(() => {
     const cleanPhone = normalizePhone(clientPhone);
     if (!cleanPhone || !isChatActive) return;
 
     // Direct Firestore real-time listener
     const unsubscribe = subscribeToSingleChatThread(cleanPhone, (incomingThread) => {
-      if (incomingThread) {
-        setThread(incomingThread);
-        if (!incomingThread.isClosed) {
-          setIsChatActive(true);
-        }
+      if (!incomingThread) {
+        // Document deleted by admin -> immediately end active session
+        try {
+          localStorage.removeItem('bongoweb_chat_active_session');
+          sessionStorage.removeItem('bongoweb_chat_active_session');
+        } catch (_) {}
+        setIsChatActive(false);
+        setThread(null);
+        return;
+      }
+
+      // If admin has closed or archived the chat, immediately close and archive it on the client
+      if (incomingThread.isClosed || incomingThread.isArchived) {
+        try {
+          localStorage.removeItem('bongoweb_chat_active_session');
+          sessionStorage.removeItem('bongoweb_chat_active_session');
+        } catch (_) {}
+        setIsChatActive(false);
+        setThread(null);
+        setErrorMessage(language === 'bn' 
+          ? 'এডমিন লাইভ চ্যাটটি সমাপ্ত করেছেন। পূর্ববর্তী চ্যাট আর্কাইভে সংরক্ষিত হয়েছে।' 
+          : 'Live chat has been closed by admin. Previous session has been archived.');
+        return;
+      }
+
+      setThread(incomingThread);
+      setIsChatActive(true);
+    });
+
+    // Realtime broadcast listener (chat:ended from admin or server)
+    const unsubscribeEnded = realtimeManager.on('chat:ended', (data: any) => {
+      const endedDigits = data?.phone ? normalizePhone(data.phone).slice(-10) : '';
+      const myDigits = cleanPhone.slice(-10);
+      if (!endedDigits || endedDigits === myDigits) {
+        try {
+          localStorage.removeItem('bongoweb_chat_active_session');
+          sessionStorage.removeItem('bongoweb_chat_active_session');
+        } catch (_) {}
+        setIsChatActive(false);
+        setThread(null);
+        setErrorMessage(language === 'bn' 
+          ? 'এডমিন লাইভ চ্যাটটি সমাপ্ত করেছেন। পূর্ববর্তী চ্যাট আর্কাইভে সংরক্ষিত হয়েছে।' 
+          : 'Live chat has been closed by admin. Previous session has been archived.');
       }
     });
+
+    const handleWindowChatEnded = (e: any) => {
+      const endedDigits = e?.detail?.phone ? normalizePhone(e.detail.phone).slice(-10) : '';
+      const myDigits = cleanPhone.slice(-10);
+      if (!endedDigits || endedDigits === myDigits) {
+        try {
+          localStorage.removeItem('bongoweb_chat_active_session');
+          sessionStorage.removeItem('bongoweb_chat_active_session');
+        } catch (_) {}
+        setIsChatActive(false);
+        setThread(null);
+      }
+    };
+    window.addEventListener('bongoweb_chat_ended', handleWindowChatEnded);
 
     // Local server fallback cache
     fetch(`/api/chat/thread/${encodeURIComponent(cleanPhone)}`)
       .then(res => res.ok ? res.json() : null)
       .then(data => {
-        if (data && !thread) {
-          setThread(data);
+        if (data) {
+          if (data.isClosed || data.isArchived) {
+            try {
+              localStorage.removeItem('bongoweb_chat_active_session');
+              sessionStorage.removeItem('bongoweb_chat_active_session');
+            } catch (_) {}
+            setIsChatActive(false);
+            setThread(null);
+          } else if (!thread) {
+            setThread(data);
+          }
         }
       })
       .catch(() => {});
 
     return () => {
       if (unsubscribe) unsubscribe();
+      if (typeof unsubscribeEnded === 'function') unsubscribeEnded();
+      window.removeEventListener('bongoweb_chat_ended', handleWindowChatEnded);
     };
-  }, [clientPhone, isChatActive]);
+  }, [clientPhone, isChatActive, language]);
 
   // Auto-scroll chat to latest message
   useEffect(() => {
@@ -631,17 +719,28 @@ export default function LiveChatView({ onExitChat }: LiveChatViewProps) {
               </div>
             </div>
 
-            {/* Right: EXIT CHAT Button */}
+            {/* Right: End & Archive + Exit Buttons */}
             <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-              {/* EXPLICIT EXIT CHAT BUTTON */}
+              {/* Close & Archive button */}
+              <button
+                type="button"
+                onClick={handleEndChat}
+                className="px-2.5 sm:px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs hover:scale-[1.02] active:scale-95"
+                title={t('চ্যাট সমাপ্ত ও আর্কাইভে সংরক্ষণ করুন', 'End and archive chat session')}
+              >
+                <X className="w-3.5 h-3.5" />
+                <span>{t('চ্যাট সমাপ্ত', 'End Chat')}</span>
+              </button>
+
+              {/* Exit Chat button */}
               <button
                 type="button"
                 onClick={handleExit}
-                className="px-3 py-1.5 rounded-xl bg-[#5B2C8A] hover:bg-[#4A1F6E] active:bg-[#3C165C] text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs hover:scale-[1.02] active:scale-95"
-                title={t('চ্যাট থেকে বের হয়ে হোম পেজে যান', 'Exit Chat and return to Home')}
+                className="px-2.5 sm:px-3 py-1.5 rounded-xl bg-[#5B2C8A] hover:bg-[#4A1F6E] active:bg-[#3C165C] text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs hover:scale-[1.02] active:scale-95"
+                title={t('চ্যাট সমাপ্ত করে হোম পেজে ফিরে যান', 'Exit chat and return to Home')}
               >
                 <LogOut className="w-3.5 h-3.5" />
-                <span>{t('চ্যাট এক্সিট', 'Exit Chat')}</span>
+                <span>{t('এক্সিট', 'Exit')}</span>
               </button>
             </div>
           </div>
@@ -658,19 +757,26 @@ export default function LiveChatView({ onExitChat }: LiveChatViewProps) {
             </div>
 
             {/* Closed Session Warning */}
-            {thread && thread.isClosed && (
-              <div className="p-3 rounded-2xl bg-amber-50 border border-amber-200 text-amber-800 flex items-center justify-between gap-2 text-xs animate-fadeIn">
+            {thread && (thread.isClosed || thread.isArchived) && (
+              <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 flex items-center justify-between gap-2 text-xs animate-fadeIn shadow-xs">
                 <div className="flex items-center gap-2">
                   <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
-                  <span>{t('চ্যাট সেশনটি সমাপ্ত হয়েছে।', 'Chat session ended.')}</span>
+                  <span>{t('চ্যাট সেশনটি সমাপ্ত ও আর্কাইভে সংরক্ষিত হয়েছে।', 'Chat session ended and archived.')}</span>
                 </div>
                 <button
                   type="button"
-                  onClick={handleReopen}
-                  className="px-2.5 py-1 rounded-xl bg-[#5B2C8A] hover:bg-[#4A1F6E] text-white font-bold text-xs flex items-center gap-1 cursor-pointer"
+                  onClick={() => {
+                    try {
+                      localStorage.removeItem('bongoweb_chat_active_session');
+                      sessionStorage.removeItem('bongoweb_chat_active_session');
+                    } catch (_) {}
+                    setIsChatActive(false);
+                    setThread(null);
+                  }}
+                  className="px-3 py-1 rounded-xl bg-[#5B2C8A] hover:bg-[#4A1F6E] text-white font-bold text-xs flex items-center gap-1 cursor-pointer shadow-xs"
                 >
                   <RotateCcw className="w-3 h-3" />
-                  <span>{t('চালু করুন', 'Reopen')}</span>
+                  <span>{t('নতুন চ্যাট শুরু করুন', 'Start New Chat')}</span>
                 </button>
               </div>
             )}

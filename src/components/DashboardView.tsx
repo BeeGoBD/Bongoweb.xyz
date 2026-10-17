@@ -31,10 +31,10 @@ export default function DashboardView({
   const categories = [
     {
       id: 'ecommerce' as WebsiteCategory,
-      titleEn: 'E-commerce Shop',
-      titleBn: 'ই-কমার্স শপ',
-      descEn: 'Online store for your products',
-      descBn: 'পণ্য বিক্রির অনলাইন স্টোর ও কুরিয়ার ট্র্যাকিং',
+      titleEn: 'Ecommerce',
+      titleBn: 'ই-কমার্স',
+      descEn: 'Cloths, natural food, watches etc.',
+      descBn: 'পোশাক, প্রাকৃতিক খাদ্য, ঘড়ি ইত্যাদি',
       icon: ShoppingBag,
       codeHint: '#2085'
     },

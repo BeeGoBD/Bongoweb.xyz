@@ -3,7 +3,7 @@ import {
   X, ClipboardCheck, MessageCircle, 
   CheckCircle2, Send, Ticket, Key, Sparkles,
   PhoneCall, AlertCircle, Clock, Lock,
-  Building2, ShieldCheck, Mail, Phone, ExternalLink, Cookie, Scale
+  Building2, ShieldCheck, Mail, Phone, ExternalLink, Cookie, Scale, LayoutGrid
 } from 'lucide-react';
 import BongoWebLogo from './BongoWebLogo';
 import { BottomTabType } from './FixedBottomNav';
@@ -26,6 +26,7 @@ export default function SideMenuDrawer({
   isOpen,
   onClose,
   onSelectTab,
+  onGoToCategoryLanding,
   onOpenLogoShowcase: _onOpenLogoShowcase,
   onOpenOrderDetails,
   onOpenWebsiteCredentials,
@@ -211,6 +212,33 @@ export default function SideMenuDrawer({
 
           {/* Navigation Links with 3D Depth */}
           <div className="flex-1 overflow-y-auto p-4 space-y-2.5 perspective-1000">
+            {/* Website Categories */}
+            <button
+              onClick={() => {
+                onClose();
+                if (onGoToCategoryLanding) {
+                  onGoToCategoryLanding();
+                } else {
+                  onSelectTab('dashboard');
+                }
+              }}
+              className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-2xl bg-white hover:bg-[#F8F5FC] text-[#1F1F2E] hover:text-[#5B2C8A] transition-all text-xs font-bold text-left cursor-pointer group border border-[#EDE4F5] hover:border-[#5B2C8A]/30 shadow-xs active:scale-[0.99]"
+            >
+              <div className="w-10 h-10 rounded-xl bg-[#F8F5FC] group-hover:bg-[#5B2C8A] flex items-center justify-center text-[#5B2C8A] group-hover:text-white border border-[#EDE4F5] shadow-xs shrink-0 transition-colors">
+                <LayoutGrid className="w-5 h-5 stroke-[2.2]" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <span className="block text-sm font-bold text-[#1F1F2E] group-hover:text-[#5B2C8A]">
+                  {language === 'bn' ? 'ক্যাটাগরি সমূহ' : 'Website Categories'}
+                </span>
+                <span className="text-[11px] text-[#6B7280] font-normal block truncate">
+                  {language === 'bn' 
+                    ? 'ই-কমার্স, রেস্তোরাঁ, ব্লগ ও গ্রোসারি ক্যাটাগরি' 
+                    : 'E-Commerce, Restaurant, Blogs & Groceries'}
+                </span>
+              </div>
+            </button>
+
             {/* 1. Order Details */}
             <button
               onClick={() => {
