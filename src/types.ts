@@ -1,6 +1,6 @@
 export type WizardStep = 1 | 2 | 3 | 4 | 5;
 
-export type WebsiteCategory = 'all' | 'ecommerce' | 'restaurant' | 'blogging' | 'grocery' | 'corporate' | 'fashion' | 'portfolio';
+export type WebsiteCategory = 'all' | 'ecommerce' | 'restaurant' | 'landing' | 'grocery' | 'blogging' | 'corporate' | 'fashion' | 'portfolio';
 
 export type SubscriptionPlanId = 'starter' | 'pro' | 'enterprise';
 

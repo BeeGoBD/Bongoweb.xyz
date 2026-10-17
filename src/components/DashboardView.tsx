@@ -2,7 +2,7 @@ import React from 'react';
 import { 
   ShoppingBag, 
   UtensilsCrossed, 
-  BookOpen, 
+  Layers, 
   ShoppingCart, 
   ChevronRight,
   ArrowRight,
@@ -27,41 +27,41 @@ export default function DashboardView({
 }: DashboardViewProps) {
   const { language, t } = useLanguage();
 
-  // Exactly 4 categories in vertical cards as specified in user brief
+  // Exactly 4 categories as requested: Ecommerce, Restaurant & Fast Food, Landing Page, Grocery Shop
   const categories = [
     {
       id: 'ecommerce' as WebsiteCategory,
       titleEn: 'Ecommerce',
       titleBn: 'ই-কমার্স',
       descEn: 'Cloths, natural food, watches etc.',
-      descBn: 'পোশাক, প্রাকৃতিক খাদ্য, ঘড়ি ইত্যাদি',
+      descBn: 'পোশাক, অর্গানিক ফুড, ঘড়ি ইত্যাদি',
       icon: ShoppingBag,
       codeHint: '#2085'
     },
     {
       id: 'restaurant' as WebsiteCategory,
-      titleEn: 'Restaurant & Cafe',
-      titleBn: 'রেস্তোরাঁ ও ক্যাফে',
-      descEn: 'Menu, orders & online presence',
-      descBn: 'ডিজিটাল ফুড মেনু, টেবিল বুকিং ও হোম ডেলিভারি',
+      titleEn: 'Restaurant & Fast Food',
+      titleBn: 'রেস্তোরাঁ ও ফাস্ট ফুড',
+      descEn: 'Burger, pizza, dine-in & takeaway',
+      descBn: 'বার্গার, পিজ্জা, ডাইন-ইন ও পার্সেল',
       icon: UtensilsCrossed,
       codeHint: '#1042'
     },
     {
-      id: 'blogging' as WebsiteCategory,
-      titleEn: 'Blog & Media',
-      titleBn: 'ব্লগ ও মিডিয়া',
-      descEn: 'Share stories & grow audience',
-      descBn: 'নিউজ, ম্যাগাজিন, দ্রুত গুগল র‍্যাংকিং ও এডসেন্স',
-      icon: BookOpen,
+      id: 'landing' as WebsiteCategory,
+      titleEn: 'Landing Page',
+      titleBn: 'ল্যান্ডিং পেজ',
+      descEn: 'Single product, promo & lead capture',
+      descBn: 'সিঙ্গেল প্রোডাক্ট, অফার ও কাস্টমার লিড',
+      icon: Layers,
       codeHint: '#3091'
     },
     {
       id: 'grocery' as WebsiteCategory,
-      titleEn: 'Grocery & Supermarket',
-      titleBn: 'মুদি ও সুপারমার্কেট',
-      descEn: 'Everyday essentials, delivered',
-      descBn: 'নিত্যপ্রয়োজনীয় গ্রোসারি ও এক্সপ্রেস ডেলিভারি',
+      titleEn: 'Grocery Shop',
+      titleBn: 'গ্রোসারি শপ',
+      descEn: 'Daily essentials, organic fruits & veg',
+      descBn: 'নিত্যপ্রয়োজনীয় বাজার, ফলমূল ও শাকসবজি',
       icon: ShoppingCart,
       codeHint: '#4150'
     }
@@ -161,7 +161,7 @@ export default function DashboardView({
                         </span>
                       )}
                     </div>
-                    <p className="text-xs sm:text-[13px] text-[#6B7280] font-normal mt-0.5 md:mt-1.5 line-clamp-2 leading-relaxed">
+                    <p className="text-xs sm:text-[13px] text-[#6B7280] font-normal mt-0.5 md:mt-1.5 line-clamp-1 md:line-clamp-2 leading-relaxed">
                       {language === 'bn' ? cat.descBn : cat.descEn}
                     </p>
                   </div>

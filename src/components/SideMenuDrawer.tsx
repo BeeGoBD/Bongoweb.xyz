@@ -233,8 +233,8 @@ export default function SideMenuDrawer({
                 </span>
                 <span className="text-[11px] text-[#6B7280] font-normal block truncate">
                   {language === 'bn' 
-                    ? 'ই-কমার্স, রেস্তোরাঁ, ব্লগ ও গ্রোসারি ক্যাটাগরি' 
-                    : 'E-Commerce, Restaurant, Blogs & Groceries'}
+                    ? 'ই-কমার্স, রেস্তোরাঁ ও ফাস্ট ফুড, ল্যান্ডিং পেজ ও গ্রোসারি' 
+                    : 'Ecommerce, Fast Food, Landing Page & Grocery'}
                 </span>
               </div>
             </button>

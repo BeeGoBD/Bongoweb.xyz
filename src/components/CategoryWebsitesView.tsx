@@ -47,10 +47,10 @@ export default function CategoryWebsitesView({
   // Filter chips specification
   const filterChips = [
     { id: 'all', labelEn: 'All', labelBn: 'সকল' },
-    { id: 'ecommerce', labelEn: 'E-commerce', labelBn: 'ই-কমার্স' },
-    { id: 'restaurant', labelEn: 'Restaurant', labelBn: 'রেস্তোরাঁ' },
-    { id: 'blogging', labelEn: 'Blog', labelBn: 'ব্লগ' },
-    { id: 'grocery', labelEn: 'Grocery', labelBn: 'মুদি' },
+    { id: 'ecommerce', labelEn: 'Ecommerce', labelBn: 'ই-কমার্স' },
+    { id: 'restaurant', labelEn: 'Restaurant & Fast Food', labelBn: 'রেস্তোরাঁ ও ফাস্ট ফুড' },
+    { id: 'landing', labelEn: 'Landing Page', labelBn: 'ল্যান্ডিং পেজ' },
+    { id: 'grocery', labelEn: 'Grocery', labelBn: 'গ্রোসারি' },
     { id: 'portfolio', labelEn: 'Portfolio', labelBn: 'পোর্টফোলিও' }
   ];
 
@@ -82,6 +82,7 @@ export default function CategoryWebsitesView({
       if (selectedFilter !== 'all') {
         const matchesCategory = 
           demo.category === selectedFilter ||
+          (selectedFilter === 'landing' && (demo.category === 'landing' || demo.category === 'blogging')) ||
           (selectedFilter === 'portfolio' && (demo.category === 'portfolio' || demo.category === 'corporate'));
         if (!matchesCategory) return false;
       }
@@ -207,9 +208,9 @@ export default function CategoryWebsitesView({
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-5 md:gap-6">
               {filteredDemos.map((demo) => {
                 const categoryLabel = 
-                  demo.category === 'ecommerce' ? 'E-commerce' :
-                  demo.category === 'restaurant' ? 'Restaurant' :
-                  demo.category === 'blogging' ? 'Blog' :
+                  demo.category === 'ecommerce' ? 'Ecommerce' :
+                  demo.category === 'restaurant' ? 'Restaurant & Fast Food' :
+                  demo.category === 'landing' || demo.category === 'blogging' ? 'Landing Page' :
                   demo.category === 'grocery' ? 'Grocery' : 'Portfolio';
 
                 return (
