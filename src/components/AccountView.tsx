@@ -12,7 +12,8 @@ import {
   apiRegisterUser, apiRequestPasswordReset, apiGetOrders, apiGetUsers, 
   apiGetCredentials, apiCreateReport, apiGetReports, subscribeToReports,
   apiSendEmailOtp, apiVerifyEmailOtp, 
-  apiResetPasswordWithOtp, apiSyncDescopeUser, apiSyncGoogleUser, normalizePhone 
+  apiResetPasswordWithOtp, apiSyncDescopeUser, apiSyncGoogleUser, normalizePhone,
+  isStrictGmail, validateStrictBangladeshiPhone
 } from '../utils/api';
 import { getClientSecurityCode, getSecurityCodeRemainingSeconds, formatRemainingTime } from '../utils/securityCode';
 import { auth, googleProvider } from '../firebase';
@@ -398,7 +399,7 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
     setTimeout(() => setCopiedField(null), 2000);
   };
 
-  // Google Social Login - with Firefox & Popup blocker safe handling and SPA routing
+  // Google Social Login - with Firefox & Popup blocker safe handling and unauthorized-domain graceful recovery
   const handleGoogleSignIn = async () => {
     setAuthError('');
     setGoogleLoading(true);
@@ -407,6 +408,13 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
       const gUser = result.user;
       if (gUser && gUser.email) {
         const cleanEmail = gUser.email.toLowerCase();
+
+        // Strict Gmail Only check
+        if (!isStrictGmail(cleanEmail)) {
+          setAuthError('শুধুমাত্র জিমেইল (@gmail.com) গ্রহণযোগ্য। এই গুগল অ্যাকাউন্টটি @gmail.com এর সাথে যুক্ত নয়।');
+          return;
+        }
+
         const cleanName = gUser.displayName || cleanEmail.split('@')[0] || 'Google User';
         const photoUrl = gUser.photoURL || undefined;
 
@@ -433,14 +441,22 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
       }
     } catch (err: any) {
       console.warn('Google Popup Sign-In notice:', err?.code, err?.message);
-      if (err?.code === 'auth/popup-blocked') {
-        setAuthError('Google Sign-In popup was blocked by your browser. Please allow popups or use email address below.');
+      if (err?.code === 'auth/unauthorized-domain' || err?.message?.includes('unauthorized-domain')) {
+        // Fix for Google unauthorized-domain issue (Requirement 7)
+        setAuthError('এই প্রিভিউ ডোমেইনে সরাসরি গুগল পপআপ নিরাপত্তা অনুমোদন পেন্ডিং রয়েছে। অনুগ্রহ করে নিচে সরাসরি আপনার জিমেইল (@gmail.com) লিখুন — তাৎক্ষণিক ৬-সংখ্যার কোড পাঠিয়ে ভেরিফাই করা হবে।');
+        const inputEl = document.getElementById('account-email-input');
+        if (inputEl) {
+          inputEl.focus();
+          inputEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      } else if (err?.code === 'auth/popup-blocked') {
+        setAuthError('গুগল পপআপ আপনার ব্রাউজারে ব্লক করা হয়েছে। অনুগ্রহ করে পপআপ এলাউ করুন অথবা নিচে সরাসরি জিমেইল লিখুন।');
       } else if (err?.code === 'auth/popup-closed-by-user') {
-        setAuthError('Google sign-in popup was closed before completing.');
+        setAuthError('লগইন সম্পন্ন হওয়ার পূর্বেই গুগল সাইন-ইন পপআপ বন্ধ করা হয়েছে।');
       } else if (err?.code === 'auth/cancelled-popup-request') {
         // Ignored
       } else {
-        setAuthError(err?.message || 'Google sign-in encountered an issue. Please enter your email below.');
+        setAuthError('গুগল সাইন-ইন সম্পন্ন করা যায়নি। অনুগ্রহ করে নিচে আপনার জিমেইল (@gmail.com) লিখে কন্টিনিউ করুন।');
       }
     } finally {
       setGoogleLoading(false);
@@ -476,17 +492,13 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
     setAuthError('Authentication error. Please try again.');
   };
 
-  // STEP 1: Handle Email Submit (Unified Entry for all users)
+  // STEP 1: Handle Email Submit (Unified Entry for all users - Gmail ONLY)
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setAuthError('');
     setAuthSuccess('');
 
     const cleanEmail = emailInput.trim().toLowerCase();
-    if (!cleanEmail || !cleanEmail.includes('@') || !cleanEmail.includes('.')) {
-      setAuthError('Please enter a valid Gmail / Email address.');
-      return;
-    }
 
     // Secret Admin portal redirect
     if (cleanEmail === 'admin' || cleanEmail === 'admin@bongoweb.xyz') {
@@ -499,6 +511,12 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
       return;
     }
 
+    // Strict Gmail validation (Requirement 8)
+    if (!isStrictGmail(cleanEmail)) {
+      setAuthError('শুধুমাত্র সচল ও বৈধ জিমেইল (@gmail.com) গ্রহণযোগ্য। ইয়াহু বা অন্য কোনো ইমেইল গ্রহণযোগ্য নয়।');
+      return;
+    }
+
     setOtpSending(true);
     try {
       const res = await apiSendEmailOtp(cleanEmail, 'signup');
@@ -508,10 +526,10 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
         setAuthStep('otp');
         setAuthSuccess(`Verification code sent to ${cleanEmail}`);
       } else {
-        setAuthError(res.error || 'Failed to send verification code. Please try again.');
+        setAuthError(res.error || 'ভেরিফিকেশন কোড পাঠানো সম্ভব হয়নি। আবার চেষ্টা করুন।');
       }
     } catch (_) {
-      setAuthError('Error sending verification code. Please check your network.');
+      setAuthError('কোড পাঠাতে সমস্যা হয়েছে। ইন্টারনেট সংযোগ চেক করুন।');
     } finally {
       setOtpSending(false);
     }
@@ -633,11 +651,13 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
     e.preventDefault();
     setAuthError('');
 
-    const cleanPhone = manualPhone.trim().replace(/\s+/g, '');
-    if (!cleanPhone || cleanPhone.length < 6) {
-      setAuthError('Please enter a valid mobile number.');
+    const phoneValidation = validateStrictBangladeshiPhone(manualPhone);
+    if (!phoneValidation.valid) {
+      setAuthError(phoneValidation.error || 'সঠিক ১১-সংখ্যার সক্রিয় বাংলাদেশি মোবাইল নম্বর দিন। কোনো ফেক বা অস্থায়ী (Temporary) নম্বর গ্রহণযোগ্য নয়।');
       return;
     }
+
+    const cleanPhone = phoneValidation.cleanPhone || manualPhone.trim().replace(/\D/g, '');
 
     setSubmittingNumber(true);
     try {
@@ -894,20 +914,32 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
                 )}
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                    Email / Gmail Address
-                  </label>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-xs font-bold text-slate-800">
+                      জিমেইল এড্রেস (Gmail Address Only) <span className="text-rose-500">*</span>
+                    </label>
+                    <span className="text-[10px] font-bold text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full border border-purple-200">
+                      শুধুমাত্র @gmail.com
+                    </span>
+                  </div>
                   <div className="relative">
-                    <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    <Mail className="w-4 h-4 text-purple-600 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                     <input
+                      id="account-email-input"
                       type="email"
                       required
-                      placeholder="name@example.com"
+                      placeholder="yourname@gmail.com"
                       value={emailInput}
-                      onChange={(e) => setEmailInput(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-300 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-purple-600 focus:ring-4 focus:ring-purple-500/10 transition-all shadow-xs"
+                      onChange={(e) => {
+                        setEmailInput(e.target.value);
+                        if (authError) setAuthError('');
+                      }}
+                      className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-300 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-purple-600 focus:ring-4 focus:ring-purple-500/10 transition-all shadow-xs font-medium"
                     />
                   </div>
+                  <span className="text-[10px] text-slate-500 block mt-1">
+                    অ্যাকাউন্টে লগইন ও সুরক্ষার জন্য কেবল সক্রিয় @gmail.com গ্রহণযোগ্য।
+                  </span>
                 </div>
 
                 {/* Continue button */}

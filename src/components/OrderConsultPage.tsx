@@ -5,6 +5,7 @@ import {
   Copy, MessageCircle, PhoneCall, Sparkles, Rocket, ChevronUp, ChevronDown
 } from 'lucide-react';
 import { WebsiteDemo } from '../types';
+import { validateStrictBangladeshiPhone, isStrictGmail } from '../utils/api';
 
 interface OrderConsultPageProps {
   onBack: () => void;
@@ -80,6 +81,18 @@ export default function OrderConsultPage({
       alert('দয়া করে আপনার পুরো নাম, ব্র্যান্ডের নাম এবং মোবাইল নম্বর পূরণ করুন।');
       return;
     }
+
+    const phoneCheck = validateStrictBangladeshiPhone(phone);
+    if (!phoneCheck.valid) {
+      alert(phoneCheck.error || 'সঠিক ১১-সংখ্যার সচল বাংলাদেশি মোবাইল নম্বর দিন। কোনো ফেক বা অস্থায়ী (Temporary) নম্বর গ্রহণযোগ্য নয়।');
+      return;
+    }
+
+    if (email.trim() && !isStrictGmail(email.trim())) {
+      alert('শুধুমাত্র জিমেইল (@gmail.com) এড্রেস গ্রহণযোগ্য। অন্য কোনো ইমেইল গ্রহণযোগ্য নয়।');
+      return;
+    }
+
     setCheckoutStep(2);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };

@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Menu, ArrowLeft, Languages, Bell, Home, LayoutGrid, MessageCircle, User, Phone } from 'lucide-react';
 import { BottomTabType } from './FixedBottomNav';
 import BongoWebLogo from './BongoWebLogo';
+import CallActionModal from './CallActionModal';
 import { useLanguage } from '../utils/LanguageContext';
 
 interface FixedHeaderProps {
@@ -26,6 +27,7 @@ export default function FixedHeader({
   unreadChatCount = 0
 }: FixedHeaderProps) {
   const { language, setLanguage, t } = useLanguage();
+  const [callModalOpen, setCallModalOpen] = useState(false);
 
   const handleToggleLanguage = () => {
     setLanguage(language === 'bn' ? 'en' : 'bn');
@@ -128,16 +130,17 @@ export default function FixedHeader({
 
           {/* Right Action: Hotline + Language + (Mobile Menu 3 Lines next to Language) + Notifications + Desktop Menu */}
           <div className="flex items-center gap-2 md:gap-2.5 shrink-0 md:flex-1 md:justify-end">
-            {/* Direct Phone Hotline Call Icon Button (No number, icon only) */}
-            <a
-              href="tel:+8801955570912"
-              aria-label="Call Hotline: 01955570912"
-              title="Call Hotline: 01955570912"
+            {/* Direct Phone Hotline Call Icon Button: Opens Modal with 2 buttons (Instant Call & Call Back Request) */}
+            <button
+              type="button"
+              onClick={() => setCallModalOpen(true)}
+              aria-label="Call Hotline & Support: 01955570912"
+              title="কল বা কল ব্যাক রিকোয়েস্ট (Hotline & Call Back)"
               className="relative p-2 sm:p-2.5 rounded-xl text-white bg-emerald-500/20 hover:bg-emerald-500/30 active:bg-emerald-500/40 border border-emerald-400/40 transition-all cursor-pointer flex items-center justify-center shadow-2xs group"
             >
               <Phone className="w-4.5 h-4.5 text-emerald-300 stroke-[2.2] group-hover:scale-110 transition-transform" />
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-emerald-400 rounded-full ring-2 ring-[#5B2C8A] animate-pulse" />
-            </a>
+            </button>
 
             {/* Language Switcher Button */}
             <button
@@ -192,8 +195,10 @@ export default function FixedHeader({
             </button>
           </div>
 
-        </div>
       </header>
+
+      {/* 2-Button Hover/Action Modal: Instant Call & Call Back Request */}
+      <CallActionModal isOpen={callModalOpen} onClose={() => setCallModalOpen(false)} />
     </div>
   );
 }

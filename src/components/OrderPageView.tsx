@@ -7,7 +7,10 @@ import {
   Building2, Hash, CreditCard, Smartphone
 } from 'lucide-react';
 import { WebsiteDemo, ClientOrder, UserAccount } from '../types';
-import { apiCreateOrder, apiRegisterUser, apiGetUsers, apiSendEmailOtp, apiVerifyEmailOtp } from '../utils/api';
+import { 
+  apiCreateOrder, apiRegisterUser, apiGetUsers, apiSendEmailOtp, apiVerifyEmailOtp,
+  isStrictGmail, validateStrictBangladeshiPhone 
+} from '../utils/api';
 import { WEBSITE_DEMOS } from '../data/mockData';
 
 interface OrderPageViewProps {
@@ -316,14 +319,18 @@ export default function OrderPageView({
       setStep1Error('অনুগ্রহ করে আপনার পুরো নাম লিখুন।');
       return;
     }
-    if (!cleanPhone || cleanPhone.length < 10) {
-      setStep1Error('অনুগ্রহ করে সঠিক মোবাইল নম্বর প্রদান করুন (কমপক্ষে ১০ ডিজিট)।');
+
+    const phoneCheck = validateStrictBangladeshiPhone(cleanPhone);
+    if (!phoneCheck.valid) {
+      setStep1Error(phoneCheck.error || 'সঠিক ১১-সংখ্যার বাংলাদেশি মোবাইল নম্বর দিন। কোনো ফেক বা অস্থায়ী (Temporary) নম্বর গ্রহণযোগ্য নয়।');
       return;
     }
-    if (!cleanEmail || !cleanEmail.includes('@') || !cleanEmail.includes('.')) {
-      setStep1Error('অনুগ্রহ করে সঠিক ইমেইল এড্রেস লিখুন।');
+
+    if (!isStrictGmail(cleanEmail)) {
+      setStep1Error('শুধুমাত্র জিমেইল (@gmail.com) এড্রেস গ্রহণযোগ্য। অন্য কোনো ইমেইল এড্রেস গ্রহণযোগ্য নয়।');
       return;
     }
+
     if (!formConsent) {
       setStep1Error('অনুগ্রহ করে আমাদের টার্মস ও কন্ডিশনস, প্রাইভেসি পলিসি (DPDP Act) এবং রিফান্ড পলিসিতে সম্মতি প্রদান করুন।');
       return;
@@ -817,42 +824,59 @@ export default function OrderPageView({
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="block text-xs font-bold text-slate-800">
-                        মোবাইল নম্বর <span className="text-rose-500">*</span>
-                      </label>
+                      <div className="flex items-center justify-between">
+                        <label className="block text-xs font-bold text-slate-800">
+                          মোবাইল নম্বর (১১ ডিজিট) <span className="text-rose-500">*</span>
+                        </label>
+                        <span className="text-[10px] text-purple-700 font-bold bg-purple-50 px-2 py-0.5 rounded-md border border-purple-200">
+                          স্থায়ী নম্বর আবশ্যক
+                        </span>
+                      </div>
                       <div className="relative">
                         <Phone className="w-4 h-4 text-purple-600 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                         <input
                           type="tel"
                           required
+                          maxLength={11}
                           placeholder="017xxxxxxxx বা 019xxxxxxxx"
                           value={phone}
-                          onChange={(e) => setPhone(e.target.value)}
-                          className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50/70 border border-slate-300 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-purple-600 focus:ring-2 focus:ring-purple-600/15 transition-all font-mono shadow-2xs"
+                          onChange={(e) => {
+                            setPhone(e.target.value.replace(/\D/g, '').slice(0, 11));
+                            if (step1Error) setStep1Error('');
+                          }}
+                          className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50/70 border border-slate-300 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-purple-600 focus:ring-2 focus:ring-purple-600/15 transition-all font-mono shadow-2xs font-bold"
                         />
                       </div>
                       <span className="text-[10px] text-slate-500 block">
-                        এই নম্বরে অর্ডার সংক্রান্ত এসএমএস ও প্রয়োজনীয় আপডেট পাঠানো হবে।
+                        ১১ ডিজিটের সক্রিয় বাংলাদেশি নম্বর দিন (অস্থায়ী বা ফেক নম্বর গ্রহণ করা হবে না)।
                       </span>
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="block text-xs font-bold text-slate-800">
-                        ইমেইল এড্রেস <span className="text-rose-500">*</span>
-                      </label>
+                      <div className="flex items-center justify-between">
+                        <label className="block text-xs font-bold text-slate-800">
+                          জিমেইল এড্রেস (Gmail Address Only) <span className="text-rose-500">*</span>
+                        </label>
+                        <span className="text-[10px] text-purple-700 font-bold bg-purple-50 px-2 py-0.5 rounded-md border border-purple-200">
+                          শুধুমাত্র @gmail.com
+                        </span>
+                      </div>
                       <div className="relative">
                         <Mail className="w-4 h-4 text-purple-600 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                         <input
                           type="email"
                           required
-                          placeholder="name@example.com"
+                          placeholder="username@gmail.com"
                           value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50/70 border border-slate-300 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-purple-600 focus:ring-2 focus:ring-purple-600/15 transition-all font-mono shadow-2xs"
+                          onChange={(e) => {
+                            setEmail(e.target.value);
+                            if (step1Error) setStep1Error('');
+                          }}
+                          className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50/70 border border-slate-300 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-purple-600 focus:ring-2 focus:ring-purple-600/15 transition-all font-mono shadow-2xs font-medium"
                         />
                       </div>
                       <span className="text-[10px] text-slate-500 block">
-                        ইমেইল ভেরিফিকেশনের জন্য একটি ৬-সংখ্যার ওটিপি কোড পাঠানো হবে।
+                        ইমেইল ভেরিফিকেশনের জন্য আপনার জিমেইলে ৬-সংখ্যার ওটিপি কোড পাঠানো হবে।
                       </span>
                     </div>
 
@@ -1225,18 +1249,10 @@ export default function OrderPageView({
               </div>
 
               {/* Bottom Buttons */}
-              <div className="pt-3 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <button
-                  type="button"
-                  onClick={() => setCurrentStep(1)}
-                  className="py-2.5 px-4 rounded-xl text-slate-600 hover:text-slate-800 hover:bg-slate-100 text-xs font-bold transition-all cursor-pointer text-center sm:text-left"
-                >
-                  ← ১ম ধাপে (অ্যাকাউন্ট) ফিরুন
-                </button>
-
+              <div className="pt-3 border-t border-slate-100 flex justify-end">
                 <button
                   type="submit"
-                  className="py-3 px-6 rounded-xl bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 hover:from-purple-500 hover:to-indigo-500 text-white text-xs sm:text-sm font-bold shadow-md shadow-purple-500/25 transition-all flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.01] active:scale-95"
+                  className="w-full sm:w-auto py-3 px-7 rounded-xl bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 hover:from-purple-500 hover:to-indigo-500 text-white text-xs sm:text-sm font-bold shadow-md shadow-purple-500/25 transition-all flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.01] active:scale-95"
                 >
                   <span>পরবর্তী ধাপ: পেমেন্ট ও চেকআউট (৩য় ধাপ)</span>
                   <ArrowRight className="w-4 h-4 stroke-[2.5]" />

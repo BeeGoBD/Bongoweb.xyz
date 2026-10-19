@@ -928,6 +928,65 @@ export function normalizePhone(phone: string): string {
   return phone.replace(/[^0-9]/g, '').trim();
 }
 
+// Strict Gmail Validator: Only @gmail.com accepted
+export function isStrictGmail(email: string): boolean {
+  if (!email) return false;
+  const clean = email.trim().toLowerCase();
+  const parts = clean.split('@');
+  if (parts.length !== 2) return false;
+  const [username, domain] = parts;
+  if (domain !== 'gmail.com') return false;
+  if (username.length < 3) return false;
+  return /^[a-z0-9.]+$/.test(username);
+}
+
+// Strict 11-digit Bangladeshi Phone Validator: Rejects fake, temporary, or non-11-digit numbers
+export function validateStrictBangladeshiPhone(rawPhone: string): { valid: boolean; error?: string; cleanPhone?: string } {
+  if (!rawPhone) {
+    return { valid: false, error: 'অনুগ্রহ করে আপনার ১১-ডিজিটের মোবাইল নম্বর দিন।' };
+  }
+  let clean = rawPhone.replace(/\D/g, '');
+  if (clean.startsWith('8801') && clean.length === 13) {
+    clean = clean.slice(2);
+  }
+  if (clean.length !== 11) {
+    return { 
+      valid: false, 
+      error: `মোবাইল নম্বরটি অবশ্যই ঠিক ১১ ডিজিটের হতে হবে (বর্তমানে ${clean.length} ডিজিট)।` 
+    };
+  }
+  const validPrefixes = ['013', '014', '015', '016', '017', '018', '019'];
+  const prefix = clean.substring(0, 3);
+  if (!validPrefixes.includes(prefix)) {
+    return { 
+      valid: false, 
+      error: 'অনুগ্রহ করে সক্রিয় বাংলাদেশি অপারেটরের নম্বর দিন (013, 014, 015, 016, 017, 018, বা 019 দিয়ে শুরু)।' 
+    };
+  }
+  const suffix = clean.substring(3);
+  const allSame = suffix.split('').every(ch => ch === suffix[0]);
+  if (allSame) {
+    return { 
+      valid: false, 
+      error: 'কোনো অস্থায়ী বা ফেক নম্বর গ্রহণযোগ্য নয়। অনুগ্রহ করে আপনার আসল সক্রিয় নম্বর দিন।' 
+    };
+  }
+  if (suffix === '12345678' || suffix === '87654321' || suffix === '01234567' || clean === '01234567890') {
+    return { 
+      valid: false, 
+      error: 'ফেক বা ডামি নম্বর গ্রহণযোগ্য নয়। অনুগ্রহ করে আপনার আসল মোবাইল নম্বর দিন।' 
+    };
+  }
+  const knownTempPrefixes = ['010', '011', '012'];
+  if (knownTempPrefixes.includes(prefix)) {
+    return {
+      valid: false,
+      error: 'অস্থায়ী বা অবৈধ নম্বর গ্রহণযোগ্য নয়।'
+    };
+  }
+  return { valid: true, cleanPhone: clean };
+}
+
 export async function apiActivateChat(params: {
   name: string;
   phone: string;

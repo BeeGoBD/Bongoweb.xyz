@@ -47,6 +47,25 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
   const [adminInputPass, setAdminInputPass] = useState('');
   const [loginError, setLoginError] = useState('');
 
+  // 3-Strikes Admin Security System: Block access after 3 failed attempts
+  const [adminFailedAttempts, setAdminFailedAttempts] = useState<number>(() => {
+    try {
+      const stored = localStorage.getItem('bongoweb_admin_failed_attempts');
+      return stored ? parseInt(stored, 10) : 0;
+    } catch (_) {
+      return 0;
+    }
+  });
+  const [isAdminBlocked, setIsAdminBlocked] = useState<boolean>(() => {
+    try {
+      if (localStorage.getItem('bongoweb_admin_blocked') === 'true') return true;
+      const count = parseInt(localStorage.getItem('bongoweb_admin_failed_attempts') || '0', 10);
+      return count >= 3;
+    } catch (_) {
+      return false;
+    }
+  });
+
   // Master Key Recovery Modal
   const [showMasterKeyModal, setShowMasterKeyModal] = useState(false);
   const [masterKeyInput, setMasterKeyInput] = useState('');
@@ -543,33 +562,51 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
     localStorage.setItem('bongoweb_custom_catalog', JSON.stringify(updated));
   };
 
-  // Handle Admin Login
+  // Handle Admin Login with 3-Strikes Security Enforcement
   const handleAdminLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setLoginError('');
 
+    if (isAdminBlocked) {
+      setLoginError('🚫 নিরাপত্তা সতর্কতা: ৩ বার ভুল অ্যাডমিন তথ্য দেওয়ার কারণে এই ডিভাইসে অ্যাডমিন এক্সেস ব্লক করা হয়েছে। মাস্টার সিকিউরিটি কী (Master Key) দিয়ে আনলক করুন।');
+      return;
+    }
+
     const inputId = adminInputId.trim().toLowerCase();
     const pass = adminInputPass.trim();
 
-    if (
+    const isAuthorized = (
       (inputId === adminConfig.adminId.toLowerCase() ||
        inputId === 'admin@bongoweb.xyz' ||
        inputId === 'admin') &&
       (pass === adminConfig.adminEntryPassword || pass === 'admin123')
-    ) {
-      setIsAdminLoggedIn(true);
-      setIsProtectedSectionsUnlocked(true);
-      sessionStorage.setItem('bongoweb_admin_auth', 'true');
-      localStorage.setItem('bongoweb_admin_auth', 'true');
-      sessionStorage.setItem('bongoweb_admin_sections_unlocked', 'true');
-    } else if (pass === adminConfig.masterKey || pass === 'admin123') {
+    ) || (pass === adminConfig.masterKey || pass === 'admin123');
+
+    if (isAuthorized) {
+      // Clear strikes upon correct login
+      setAdminFailedAttempts(0);
+      setIsAdminBlocked(false);
+      localStorage.removeItem('bongoweb_admin_failed_attempts');
+      localStorage.removeItem('bongoweb_admin_blocked');
+
       setIsAdminLoggedIn(true);
       setIsProtectedSectionsUnlocked(true);
       sessionStorage.setItem('bongoweb_admin_auth', 'true');
       localStorage.setItem('bongoweb_admin_auth', 'true');
       sessionStorage.setItem('bongoweb_admin_sections_unlocked', 'true');
     } else {
-      setLoginError('ভুল অ্যাডমিন আইডি অথবা এন্ট্রি পাসওয়ার্ড!');
+      const nextStrikes = adminFailedAttempts + 1;
+      setAdminFailedAttempts(nextStrikes);
+      localStorage.setItem('bongoweb_admin_failed_attempts', String(nextStrikes));
+
+      if (nextStrikes >= 3) {
+        setIsAdminBlocked(true);
+        localStorage.setItem('bongoweb_admin_blocked', 'true');
+        setLoginError('🚫 এক্সেস ব্লকড! ৩ বার ভুল অ্যাডমিন ইউজারনেম বা পাসওয়ার্ড দেওয়া হয়েছে। নিরাপত্তার স্বার্থে কনসোল লক করা হয়েছে। মাস্টার কী দিয়ে রিসেট ছাড়া এক্সেস সম্ভব নয়।');
+      } else {
+        const remaining = 3 - nextStrikes;
+        setLoginError(`ভুল অ্যাডমিন আইডি অথবা এন্ট্রি পাসওয়ার্ড! (${nextStrikes}/৩ বার ভুল হয়েছে। আর ${remaining} বার ভুল হলে এক্সেস চিরতরে ব্লক হবে)`);
+      }
     }
   };
 
@@ -1639,7 +1676,15 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
 
     setAdminConfig(updatedConfig);
     localStorage.setItem('bongoweb_admin_config', JSON.stringify(updatedConfig));
-    setMasterSuccessMsg('পাসওয়ার্ড সফলভাবে হালনাগাদ করা হয়েছে!');
+    
+    // Reset strike counter and unblock access
+    setAdminFailedAttempts(0);
+    setIsAdminBlocked(false);
+    localStorage.removeItem('bongoweb_admin_failed_attempts');
+    localStorage.removeItem('bongoweb_admin_blocked');
+    setLoginError('');
+
+    setMasterSuccessMsg('পাসওয়ার্ড সফলভাবে হালনাগাদ করা হয়েছে ও এক্সেস আনলক হয়েছে!');
     setTimeout(() => {
       setMasterSuccessMsg('');
       setShowMasterKeyModal(false);
@@ -1705,51 +1750,93 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
           </div>
 
           {loginError && (
-            <div className="mb-4 p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-xs font-medium text-rose-400 flex items-center gap-2 animate-shake">
-              <AlertTriangle className="w-4 h-4 shrink-0" />
-              <span>{loginError}</span>
+            <div className={`mb-4 p-3.5 rounded-xl text-xs font-medium flex items-center gap-2.5 ${
+              isAdminBlocked 
+                ? 'bg-rose-500/20 border border-rose-500/40 text-rose-300' 
+                : 'bg-rose-500/10 border border-rose-500/20 text-rose-400 animate-shake'
+            }`}>
+              <AlertTriangle className="w-5 h-5 shrink-0 text-rose-400" />
+              <div className="leading-relaxed">
+                <span>{loginError}</span>
+                {isAdminBlocked && (
+                  <p className="mt-1 text-[11px] text-rose-400/90">
+                    নিচে দেওয়া মাস্টার সিকিউরিটি কী (Master Key) অপশন ব্যবহার করে আপনার এক্সেস আনলক করতে হবে।
+                  </p>
+                )}
+              </div>
             </div>
           )}
 
-          <form onSubmit={handleAdminLogin} className="space-y-4">
-            <div>
-              <label className="block text-xs font-medium text-[#a1a1b0] mb-1.5 uppercase tracking-wider text-[10px]">
-                অ্যাডমিন ইউজারনেম
-              </label>
-              <input
-                type="text"
-                required
-                placeholder="admin"
-                value={adminInputId}
-                onChange={(e) => setAdminInputId(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.08] text-[#f5f5f7] text-xs sm:text-sm font-mono placeholder-[#71717a] focus:outline-none focus:border-[#3b5bff] transition-all"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-[#a1a1b0] mb-1.5 uppercase tracking-wider text-[10px]">
-                অ্যাডমিন এন্ট্রি পাসওয়ার্ড
-              </label>
-              <input
-                type="password"
-                required
-                placeholder="••••••••"
-                value={adminInputPass}
-                onChange={(e) => setAdminInputPass(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.08] text-[#f5f5f7] text-xs sm:text-sm placeholder-[#71717a] focus:outline-none focus:border-[#3b5bff] transition-all font-mono"
-              />
-            </div>
-
-            <div className="pt-2">
+          {isAdminBlocked ? (
+            <div className="p-5 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-center space-y-3.5 animate-fadeIn">
+              <div className="w-12 h-12 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center mx-auto">
+                <Lock className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-rose-300">
+                  অ্যাডমিন কনসোল সাময়িকভাবে লক করা হয়েছে
+                </h3>
+                <p className="text-xs text-[#a1a1b0] mt-1 leading-relaxed">
+                  টানা ৩ বার ভুল তথ্য দেওয়ার কারণে সাধারণ লগইন বন্ধ রয়েছে। শুধুমাত্র মাস্টার কি (Master Key) দিয়ে আনলক করা যাবে।
+                </p>
+              </div>
               <button
-                type="submit"
-                className="w-full py-3.5 px-4 rounded-full bg-[#3b5bff] hover:bg-[#324ecc] active:scale-[0.98] text-white text-xs sm:text-sm font-medium shadow-md shadow-[#3b5bff]/25 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                type="button"
+                onClick={() => setShowMasterKeyModal(true)}
+                className="w-full py-3 px-4 rounded-xl bg-[#3b5bff] hover:bg-[#324ecc] text-white text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-md cursor-pointer"
               >
-                <Lock className="w-4 h-4" />
-                <span>লগইন করুন (Unlock Console)</span>
+                <Key className="w-4 h-4" />
+                <span>মাস্টার কী দিয়ে আনলক করুন (Unlock with Master Key)</span>
               </button>
             </div>
-          </form>
+          ) : (
+            <form onSubmit={handleAdminLogin} className="space-y-4">
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-medium text-[#a1a1b0] uppercase tracking-wider text-[10px]">
+                    অ্যাডমিন ইউজারনেম
+                  </label>
+                  {adminFailedAttempts > 0 && (
+                    <span className="text-[10px] text-amber-400 font-mono">
+                      ভুল প্রচেষ্টা: {adminFailedAttempts}/৩
+                    </span>
+                  )}
+                </div>
+                <input
+                  type="text"
+                  required
+                  placeholder="admin"
+                  value={adminInputId}
+                  onChange={(e) => setAdminInputId(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.08] text-[#f5f5f7] text-xs sm:text-sm font-mono placeholder-[#71717a] focus:outline-none focus:border-[#3b5bff] transition-all"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-[#a1a1b0] mb-1.5 uppercase tracking-wider text-[10px]">
+                  অ্যাডমিন এন্ট্রি পাসওয়ার্ড
+                </label>
+                <input
+                  type="password"
+                  required
+                  placeholder="••••••••"
+                  value={adminInputPass}
+                  onChange={(e) => setAdminInputPass(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.08] text-[#f5f5f7] text-xs sm:text-sm placeholder-[#71717a] focus:outline-none focus:border-[#3b5bff] transition-all font-mono"
+                />
+              </div>
+
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  className="w-full py-3.5 px-4 rounded-full bg-[#3b5bff] hover:bg-[#324ecc] active:scale-[0.98] text-white text-xs sm:text-sm font-medium shadow-md shadow-[#3b5bff]/25 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <Lock className="w-4 h-4" />
+                  <span>লগইন করুন (Unlock Console)</span>
+                </button>
+              </div>
+            </form>
+          )}
 
           {/* Master Key Emergency Reset Link */}
           <div className="mt-6 pt-5 border-t border-white/[0.06] flex items-center justify-between text-xs">
