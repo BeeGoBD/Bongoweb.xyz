@@ -404,11 +404,11 @@ export default function SideMenuDrawer({
 
             <div className="flex items-center justify-center gap-3 text-[11px]">
               <a 
-                href="tel:+8801819847250"
+                href="tel:+8801955570912"
                 className="text-[#5B2C8A] font-bold hover:underline inline-flex items-center gap-1 font-mono"
               >
                 <Phone className="w-3 h-3" />
-                <span>+880 1819-847250</span>
+                <span>01955570912</span>
               </a>
               <span className="text-slate-300">•</span>
               <a 
@@ -659,8 +659,8 @@ export default function SideMenuDrawer({
                 <div className="flex items-center gap-2">
                   <Phone className="w-3.5 h-3.5 text-[#5B2C8A]" />
                   <span className="text-slate-600">হটলাইন:</span>
-                  <a href="tel:+8801819847250" className="text-[#5B2C8A] font-bold font-mono underline">
-                    +880 1819-847250
+                  <a href="tel:+8801955570912" className="text-[#5B2C8A] font-bold font-mono underline">
+                    01955570912
                   </a>
                 </div>
                 <div className="flex items-center gap-2">

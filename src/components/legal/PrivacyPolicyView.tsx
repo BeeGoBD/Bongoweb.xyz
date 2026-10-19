@@ -82,7 +82,7 @@ export default function PrivacyPolicyView({
               <p><strong>Entity Name:</strong> BongoWeb Digital Solutions Ltd.</p>
               <p><strong>Operational Address:</strong> Block B, Banani, Dhaka 1213, Bangladesh</p>
               <p><strong>Official Inquiries:</strong> <a href="mailto:support@bongoweb.xyz" className="text-[#5B2C8A] underline">support@bongoweb.xyz</a></p>
-              <p><strong>Hotline:</strong> <a href="tel:+8801819847250" className="text-[#5B2C8A] underline">+880 1819-847250</a></p>
+              <p><strong>Hotline:</strong> <a href="tel:+8801955570912" className="text-[#5B2C8A] underline">01955570912</a></p>
             </div>
           </div>
 

@@ -187,12 +187,12 @@ export default function AppFooter({
               <p>
                 <span className="block text-[11px] text-[#6B7280]">Customer Support Hotline:</span>
                 <a 
-                  href="tel:+8801819847250" 
-                  aria-label="Call customer support at +880 1819-847250"
+                  href="tel:+8801955570912" 
+                  aria-label="Call customer support at 01955570912"
                   className="text-[#5B2C8A] hover:underline font-bold text-xs sm:text-sm font-mono inline-flex items-center gap-1 mt-0.5"
                 >
                   <Phone className="w-3.5 h-3.5" />
-                  <span>+880 1819-847250</span>
+                  <span>01955570912</span>
                 </a>
               </p>
 

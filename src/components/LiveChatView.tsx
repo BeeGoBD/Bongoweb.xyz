@@ -497,14 +497,14 @@ export default function LiveChatView({ onExitChat }: LiveChatViewProps) {
                 <span className="text-purple-200 block">{t('জরুরি কল অথবা হোয়াটসঅ্যাপ:', 'Hotline & WhatsApp:')}</span>
                 <div className="flex items-center gap-3">
                   <a
-                    href="tel:+8801819847250"
+                    href="tel:+8801955570912"
                     className="font-mono font-bold text-white hover:text-emerald-300 transition-colors"
                   >
-                    +880 1819-847250
+                    01955570912
                   </a>
                   <span>•</span>
                   <a
-                    href="https://wa.me/8801819847250"
+                    href="https://wa.me/8801955570912"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-emerald-300 font-bold hover:underline"
@@ -627,7 +627,7 @@ export default function LiveChatView({ onExitChat }: LiveChatViewProps) {
               </span>
 
               <a
-                href="https://wa.me/8801819847250"
+                href="https://wa.me/8801955570912"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1 text-emerald-600 hover:text-emerald-700 font-bold transition-colors text-[11px]"
@@ -683,8 +683,8 @@ export default function LiveChatView({ onExitChat }: LiveChatViewProps) {
             {/* Hotline at bottom */}
             <div className="p-3 rounded-xl bg-white border border-[#EDE4F5] text-xs text-[#6B7280] space-y-1">
               <span className="font-bold text-[#1F1F2E] block">জরুরি হেল্পলাইন:</span>
-              <a href="tel:+8801819847250" className="text-[#5B2C8A] font-mono font-bold block hover:underline">
-                +880 1819-847250
+              <a href="tel:+8801955570912" className="text-[#5B2C8A] font-mono font-bold block hover:underline">
+                01955570912
               </a>
             </div>
           </aside>

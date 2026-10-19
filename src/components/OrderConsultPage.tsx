@@ -106,7 +106,7 @@ export default function OrderConsultPage({
       (trxId ? `TrxID: ${trxId}\n` : '') +
       `\nঅনুগ্রহ করে আমার সাথে যোগাযোগ করে ২৪ ঘণ্টার সেটআপ শুরু করুন। ধন্যবাদ!`;
 
-    window.open(`https://wa.me/8801700000000?text=${encodeURIComponent(text)}`, '_blank');
+    window.open(`https://wa.me/8801955570912?text=${encodeURIComponent(text)}`, '_blank');
   };
 
   const copyReceiptToClipboard = () => {
@@ -417,13 +417,16 @@ export default function OrderConsultPage({
                   <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-4">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 rounded-xl bg-white border border-slate-200 font-mono text-xs sm:text-sm">
                       <div>
-                        <span className="text-slate-500 block text-[11px] font-sans">অফিসিয়াল মার্চেন্ট/অ্যাকাউন্ট নম্বর:</span>
+                        <span className="text-slate-500 block text-[11px] font-sans">অফিসিয়াল পেমেন্ট নম্বর:</span>
                         <span className="font-bold text-slate-900 text-base">
-                          {selectedPaymentTab === 'bank' ? 'BongoWeb Technologies Ltd.' : '01700000000'}
+                          {selectedPaymentTab === 'bkash' && '01405005651 (Personal) / 01614255150 (Merchant)'}
+                          {selectedPaymentTab === 'nagad' && '01405005651'}
+                          {selectedPaymentTab === 'rocket' && '014050056514'}
+                          {selectedPaymentTab === 'bank' && 'BongoWeb Technologies Ltd.'}
                         </span>
                       </div>
                       <span className="text-[10px] font-bold text-purple-700 bg-purple-50 px-2.5 py-1 rounded-md border border-purple-200 self-start sm:self-auto">
-                        {selectedPaymentTab === 'bank' ? 'City Bank Ltd. (A/C: 1502938471001)' : 'ভেরিফাইড মার্চেন্ট নম্বর'}
+                        {selectedPaymentTab === 'bank' ? 'City Bank Ltd. (A/C: 1502938471001)' : 'ভেরিফাইড নম্বর'}
                       </span>
                     </div>
 

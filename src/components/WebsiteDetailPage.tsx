@@ -383,7 +383,7 @@ export default function WebsiteDetailPage({
 
                 <div className="grid grid-cols-2 gap-2">
                   <a
-                    href="https://wa.me/8801819847250"
+                    href="https://wa.me/8801955570912"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
@@ -393,7 +393,7 @@ export default function WebsiteDetailPage({
                   </a>
 
                   <a
-                    href="tel:+8801819847250"
+                    href="tel:+8801955570912"
                     className="py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     <Phone className="w-3.5 h-3.5 text-[#5B2C8A]" />
@@ -503,7 +503,7 @@ export default function WebsiteDetailPage({
 
             <div className="flex items-center gap-3 w-full sm:w-auto">
               <a
-                href="https://wa.me/8801819847250"
+                href="https://wa.me/8801955570912"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
@@ -538,7 +538,7 @@ export default function WebsiteDetailPage({
           <span>•</span>
           <a href="/refund" className="hover:text-[#5B2C8A] underline">Refund Policy</a>
           <span>•</span>
-          <a href="tel:+8801819847250" className="hover:text-[#5B2C8A] underline font-mono">+880 1819-847250</a>
+          <a href="tel:+8801955570912" className="hover:text-[#5B2C8A] underline font-mono">01955570912</a>
         </div>
       </footer>
     </div>

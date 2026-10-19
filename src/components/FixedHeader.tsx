@@ -130,9 +130,9 @@ export default function FixedHeader({
           <div className="flex items-center gap-2 md:gap-2.5 shrink-0 md:flex-1 md:justify-end">
             {/* Direct Phone Hotline Call Icon Button (No number, icon only) */}
             <a
-              href="tel:+8801819847250"
-              aria-label="Call Hotline: +880 1819-847250"
-              title="Call Hotline: +880 1819-847250"
+              href="tel:+8801955570912"
+              aria-label="Call Hotline: 01955570912"
+              title="Call Hotline: 01955570912"
               className="relative p-2 sm:p-2.5 rounded-xl text-white bg-emerald-500/20 hover:bg-emerald-500/30 active:bg-emerald-500/40 border border-emerald-400/40 transition-all cursor-pointer flex items-center justify-center shadow-2xs group"
             >
               <Phone className="w-4.5 h-4.5 text-emerald-300 stroke-[2.2] group-hover:scale-110 transition-transform" />

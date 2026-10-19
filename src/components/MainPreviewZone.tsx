@@ -165,7 +165,7 @@ export default function MainPreviewZone({
               </button>
 
               <a
-                href="https://wa.me/8801700000000"
+                href="https://wa.me/8801955570912"
                 target="_blank"
                 rel="noreferrer"
                 className="w-full min-h-[48px] py-3 rounded-xl text-xs font-semibold text-[#800020] bg-white hover:bg-[#800020]/5 border border-[#800020]/30 flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs active:scale-98 touch-manipulation"

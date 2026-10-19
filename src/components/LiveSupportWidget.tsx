@@ -24,7 +24,7 @@ export default function LiveSupportWidget() {
     }, 2200);
   };
 
-  const whatsappUrl = `https://wa.me/8801700000000?text=${encodeURIComponent(
+  const whatsappUrl = `https://wa.me/8801955570912?text=${encodeURIComponent(
     'Hello BongoWeb Team, I am interested in launching a website for my business. Please share details.'
   )}`;
 
@@ -103,7 +103,7 @@ export default function LiveSupportWidget() {
             </a>
 
             <a
-              href="tel:+8801700000000"
+              href="tel:+8801955570912"
               className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-white hover:bg-[#DC2626]/5 text-[#1C1614] border border-slate-200 text-xs font-bold shadow-xs transition-all hover:scale-[1.02]"
             >
               <Phone className="w-3.5 h-3.5 text-[#DC2626]" />

@@ -141,7 +141,7 @@ export default function OrderModal({ demo, onClose }: OrderModalProps) {
               {/* Or Direct WhatsApp */}
               <div className="text-center pt-2">
                 <a
-                  href={`https://wa.me/8801819847250?text=${encodeURIComponent(
+                  href={`https://wa.me/8801955570912?text=${encodeURIComponent(
                     `Hello BongoWeb, I want to order website: ${demoTitle} (${demoCode})`
                   )}`}
                   target="_blank"
@@ -149,7 +149,7 @@ export default function OrderModal({ demo, onClose }: OrderModalProps) {
                   className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-400 hover:text-emerald-300 transition-colors"
                 >
                   <MessageCircle className="w-3.5 h-3.5" />
-                  <span>সরাসরি হোয়াটসঅ্যাপে কথা বলুন (+880 1819-847250)</span>
+                  <span>সরাসরি হোয়াটসঅ্যাপে কথা বলুন (01955570912)</span>
                 </a>
               </div>
             </form>

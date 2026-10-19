@@ -836,8 +836,8 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
 
             <div className="pt-4 border-t border-white/15 flex items-center justify-between text-xs text-purple-200">
               <span>জরুরি সহায়তা হেল্পলাইন:</span>
-              <a href="tel:+8801819847250" className="font-mono font-bold text-white hover:text-emerald-300 transition-colors">
-                +880 1819-847250
+              <a href="tel:+8801955570912" className="font-mono font-bold text-white hover:text-emerald-300 transition-colors">
+                01955570912
               </a>
             </div>
           </div>
