@@ -34,7 +34,7 @@ export default function DashboardView({
       titleEn: 'Ecommerce',
       titleBn: 'ই-কমার্স',
       descEn: 'Cloths, natural food, watches etc.',
-      descBn: 'পোশাক, অর্গানিক ফুড, ঘড়ি ইত্যাদি',
+      descBn: 'পোশাক, প্রাকৃতিক খাদ্য, ঘড়ি ইত্যাদি',
       icon: ShoppingBag,
       codeHint: '#2085'
     },
@@ -128,10 +128,10 @@ export default function DashboardView({
                   role="button"
                   tabIndex={0}
                   aria-label={`Select ${cat.titleEn}`}
-                  className="group w-full p-4 sm:p-4.5 md:p-5 lg:p-6 rounded-[16px] md:rounded-[22px] bg-[#FFFFFF] hover:bg-[#F8F5FC] border border-[#EDE4F5] hover:border-[#5B2C8A]/40 shadow-xs hover:shadow-[0_8px_24px_rgba(91,44,138,0.12)] active:scale-[0.99] transition-all duration-200 cursor-pointer flex items-center justify-between gap-3 sm:gap-4 md:flex-col md:items-start md:justify-between md:h-full"
+                  className="group w-full p-4 sm:p-4.5 md:p-5 lg:p-6 rounded-[16px] md:rounded-[22px] bg-[#FFFFFF] hover:bg-[#F8F5FC] border border-[#EDE4F5] hover:border-[#5B2C8A]/40 shadow-xs hover:shadow-[0_8px_24px_rgba(91,44,138,0.12)] active:scale-[0.99] transition-all duration-200 cursor-pointer flex items-center justify-between gap-3.5 sm:gap-4 md:flex-col md:items-start md:justify-between md:h-full"
                 >
-                  {/* Laptop Top Row / Mobile Left */}
-                  <div className="w-full flex items-center justify-between">
+                  {/* Laptop Top Row / Mobile Left Icon Container */}
+                  <div className="shrink-0 md:w-full md:flex md:items-center md:justify-between">
                     <div className="w-12 h-12 sm:w-13 sm:h-13 md:w-14 md:h-14 rounded-2xl bg-[#F8F5FC] group-hover:bg-[#5B2C8A] text-[#5B2C8A] group-hover:text-white border border-[#EDE4F5] flex items-center justify-center shrink-0 transition-colors shadow-2xs">
                       <Icon className="w-6 h-6 md:w-7 md:h-7 stroke-[2]" />
                     </div>
@@ -152,16 +152,16 @@ export default function DashboardView({
                   {/* Middle: Bold Title + Description */}
                   <div className="flex-1 min-w-0 md:w-full md:mt-4">
                     <div className="flex items-center gap-2">
-                      <h2 className="text-sm sm:text-base md:text-lg font-bold text-[#1F1F2E] group-hover:text-[#5B2C8A] transition-colors truncate">
+                      <h2 className="text-sm sm:text-base md:text-lg font-bold text-[#1F1F2E] group-hover:text-[#5B2C8A] transition-colors leading-tight line-clamp-1">
                         {language === 'bn' ? cat.titleBn : cat.titleEn}
                       </h2>
                       {idx === 0 && (
-                        <span className="text-[10px] font-bold text-[#5B2C8A] bg-[#F8F5FC] border border-[#EDE4F5] px-2 py-0.2 rounded-full md:hidden">
+                        <span className="text-[10px] font-bold text-[#5B2C8A] bg-[#F8F5FC] border border-[#EDE4F5] px-2 py-0.5 rounded-full shrink-0 md:hidden">
                           {language === 'bn' ? 'জনপ্রিয়' : 'Popular'}
                         </span>
                       )}
                     </div>
-                    <p className="text-xs sm:text-[13px] text-[#6B7280] font-normal mt-0.5 md:mt-1.5 line-clamp-1 md:line-clamp-2 leading-relaxed">
+                    <p className="text-xs sm:text-[13px] text-[#6B7280] font-normal mt-1 leading-snug line-clamp-1 md:line-clamp-2">
                       {language === 'bn' ? cat.descBn : cat.descEn}
                     </p>
                   </div>
@@ -180,6 +180,7 @@ export default function DashboardView({
               );
             })}
           </div>
+
 
           {/* Quick Action: Explore All Templates */}
           <div className="mt-5 lg:mt-8 pt-4 lg:pt-6 border-t border-[#EDE4F5] text-center">
