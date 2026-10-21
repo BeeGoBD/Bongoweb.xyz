@@ -1208,17 +1208,6 @@ export default function OrderPageView({
                     />
                   </div>
                 )}
-                {domainOption === 'no_domain' && (
-                  <p className="mt-2 text-[11px] text-emerald-800 font-semibold bg-emerald-50 py-2 px-3 rounded-xl border border-emerald-200 animate-fadeIn flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>প্যাকেজের সাথে ১ বছরের সম্পূর্ণ ফ্রি .com ডোমেইন এবং ক্লাউড হোস্টিং দেওয়া হবে।</span>
-                  </p>
-                )}
-                {domainOption === 'dont_know' && (
-                  <p className="mt-2 text-[11px] text-slate-600 bg-slate-50 py-2 px-3 rounded-xl border border-slate-200 animate-fadeIn">
-                    ডোমেইন হলো ওয়েবসাইটের ঠিকানা (যেমন: facebook.com)। অর্ডারের পর আমাদের ইঞ্জিনিয়ার আপনার পছন্দের নামে ফ্রি .com ডোমেইন রেজিস্টার করে দেবেন।
-                  </p>
-                )}
               </div>
 
               {/* Package Inclusion Summary Card */}

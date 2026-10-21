@@ -10,7 +10,8 @@ import {
   Sparkles,
   Phone,
   PhoneCall,
-  Clock
+  Clock,
+  X
 } from 'lucide-react';
 import { WebsiteCategory, WebsiteDemo } from '../types';
 import { WEBSITE_DEMOS } from '../data/mockData';
@@ -224,69 +225,89 @@ export default function DashboardView({
         </div>
       </section>
 
-      {/* Dashboard Floating Quick Call Action with Hover 2-Button Card */}
+      {/* Dashboard Floating Quick Call Action with Clean Hover / Click 2-Button Card */}
       <div 
         className="fixed bottom-20 md:bottom-8 right-4 sm:right-6 md:right-8 z-40"
         onMouseEnter={() => setDashboardCallHover(true)}
         onMouseLeave={() => setDashboardCallHover(false)}
       >
-        {/* Floating Trigger Button */}
+        {/* Floating Trigger Button: Clean, Elegant, Distraction-Free */}
         <button
           type="button"
-          onClick={() => {
-            setDashboardCallTab('options');
-            setDashboardCallModalOpen(true);
+          onClick={(e) => {
+            e.stopPropagation();
+            setDashboardCallHover(prev => !prev);
           }}
           aria-label="Direct Call Support"
           title="কল বা কল ব্যাক রিকোয়েস্ট (Hotline & Call Back)"
-          className="relative group p-3.5 sm:p-4 rounded-2xl bg-gradient-to-tr from-emerald-600 via-teal-600 to-emerald-500 hover:from-emerald-700 hover:to-teal-700 text-white shadow-[0_10px_25px_-5px_rgba(16,185,129,0.5)] border-2 border-white/60 transition-all cursor-pointer flex items-center justify-center active:scale-95"
+          className="relative group w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-[#5B2C8A] hover:bg-[#4A1F6E] active:scale-95 text-white shadow-[0_10px_25px_-5px_rgba(91,44,138,0.4)] border border-white/20 transition-all duration-200 cursor-pointer flex items-center justify-center"
         >
-          <Phone className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.2] animate-bounce" />
-          <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-emerald-400 rounded-full ring-2 ring-white animate-pulse" />
+          <Phone className="w-5.5 h-5.5 sm:w-6 sm:h-6 stroke-[2.2] group-hover:scale-105 transition-transform" />
+          <span className="absolute top-2.5 right-2.5 w-2.5 h-2.5 bg-emerald-400 rounded-full ring-2 ring-[#5B2C8A]" />
         </button>
 
-        {/* Hover / Click 2-Button Card */}
+        {/* Clean Hover / Click 2-Button Popover Card */}
         {dashboardCallHover && (
           <div 
-            className="absolute bottom-full right-0 mb-3 w-72 sm:w-80 bg-white rounded-3xl shadow-2xl border border-slate-200/90 p-4 z-50 text-slate-900 animate-slideUpModal"
+            className="absolute bottom-full right-0 mb-3 w-80 sm:w-88 bg-white/98 backdrop-blur-md rounded-2xl shadow-[0_20px_50px_rgba(15,23,42,0.18)] border border-[#EDE4F5] p-4 z-50 text-[#1F1F2E] animate-slideUpModal"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between pb-2 mb-2.5 border-b border-slate-100">
+            {/* Top Bar: Title, Live indicator, and Close */}
+            <div className="flex items-center justify-between pb-3 mb-3 border-b border-[#EDE4F5]">
               <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="text-xs sm:text-sm font-black text-slate-900">
-                  {language === 'bn' ? 'BongoWeb কল সেন্টার' : 'Call & Support Desk'}
+                <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+                <span className="text-xs sm:text-sm font-bold text-[#1F1F2E]">
+                  {language === 'bn' ? 'কল ও কাস্টমার সাপোর্ট' : 'Call & Support Desk'}
                 </span>
               </div>
-              <span className="text-[10px] text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                সরাসরি সক্রিয়
-              </span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                  {language === 'bn' ? 'সরাসরি সক্রিয়' : 'Online'}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setDashboardCallHover(false)}
+                  className="w-6 h-6 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 flex items-center justify-center transition-colors cursor-pointer"
+                  aria-label="Close"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
 
-            <p className="text-[11px] text-slate-500 leading-relaxed mb-3">
-              {language === 'bn' ? 'আপনার সুবিধামতো অপশন বেছে নিন:' : 'Choose your preferred call option:'}
+            <p className="text-xs text-[#6B7280] leading-snug mb-3">
+              {language === 'bn' 
+                ? 'সরাসরি কথা বলুন অথবা সুবিধাজনক সময়ে কল ব্যাক রিকোয়েস্ট করুন:' 
+                : 'Connect directly or schedule a call back at your convenience:'}
             </p>
 
-            {/* 2 Buttons */}
-            <div className="space-y-2">
-              {/* Button 1: Instant Call */}
+            {/* 2 Clean Action Cards */}
+            <div className="space-y-2.5">
+              {/* Option 1: Instant Call */}
               <a
                 href="tel:+8801955570912"
-                className="p-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs flex items-center justify-between shadow-md shadow-emerald-600/20 transition-all group/btn"
+                onClick={() => setDashboardCallHover(false)}
+                className="group/btn w-full p-3 rounded-xl bg-emerald-50/70 hover:bg-emerald-100/80 border border-emerald-200/90 transition-all flex items-center justify-between gap-3 text-left"
               >
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center">
-                    <Phone className="w-4 h-4 text-white stroke-[2.2]" />
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs group-hover/btn:scale-105 transition-transform">
+                    <Phone className="w-4.5 h-4.5 stroke-[2.2]" />
                   </div>
-                  <div className="text-left">
-                    <span className="block font-black text-[13px] leading-tight">Instant Call</span>
-                    <span className="text-[10px] text-emerald-100">সরাসরি হটলাইন: 01955570912</span>
+                  <div className="min-w-0">
+                    <span className="block text-xs sm:text-sm font-bold text-slate-900 leading-tight">
+                      {language === 'bn' ? 'সরাসরি কল (Instant Call)' : 'Instant Call'}
+                    </span>
+                    <span className="block text-[11px] font-mono font-semibold text-emerald-700 mt-0.5">
+                      01955570912
+                    </span>
                   </div>
                 </div>
-                <ArrowRight className="w-4 h-4 text-white/80 group-hover/btn:translate-x-0.5 transition-transform" />
+                <div className="w-7 h-7 rounded-lg bg-white/80 group-hover/btn:bg-white text-emerald-700 flex items-center justify-center shrink-0 border border-emerald-200 shadow-2xs">
+                  <ArrowRight className="w-3.5 h-3.5 group-hover/btn:translate-x-0.5 transition-transform" />
+                </div>
               </a>
 
-              {/* Button 2: Call Back Request */}
+              {/* Option 2: Call Back Request */}
               <button
                 type="button"
                 onClick={() => {
@@ -294,18 +315,24 @@ export default function DashboardView({
                   setDashboardCallTab('callback');
                   setDashboardCallModalOpen(true);
                 }}
-                className="w-full p-3 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold text-xs flex items-center justify-between shadow-md shadow-purple-600/20 transition-all group/btn cursor-pointer"
+                className="group/btn w-full p-3 rounded-xl bg-[#F8F5FC] hover:bg-[#EDE4F5]/70 border border-[#EDE4F5] hover:border-[#5B2C8A]/30 transition-all flex items-center justify-between gap-3 text-left cursor-pointer"
               >
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center">
-                    <Clock className="w-4 h-4 text-white stroke-[2.2]" />
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-9 h-9 rounded-xl bg-[#5B2C8A] text-white flex items-center justify-center shrink-0 shadow-xs group-hover/btn:scale-105 transition-transform">
+                    <Clock className="w-4.5 h-4.5 stroke-[2.2]" />
                   </div>
-                  <div className="text-left">
-                    <span className="block font-black text-[13px] leading-tight">Call Back Request</span>
-                    <span className="text-[10px] text-purple-100">আপনার সুবিধাজনক সময়ে কল পাব</span>
+                  <div className="min-w-0">
+                    <span className="block text-xs sm:text-sm font-bold text-[#1F1F2E] leading-tight">
+                      {language === 'bn' ? 'কল ব্যাক রিকোয়েস্ট (Call Back)' : 'Call Back Request'}
+                    </span>
+                    <span className="block text-[11px] text-[#6B7280] mt-0.5">
+                      {language === 'bn' ? 'আপনার সুবিধাজনক সময়ে কল পাবেন' : 'We will call you back at your time'}
+                    </span>
                   </div>
                 </div>
-                <ArrowRight className="w-4 h-4 text-white/80 group-hover/btn:translate-x-0.5 transition-transform" />
+                <div className="w-7 h-7 rounded-lg bg-white group-hover/btn:bg-white text-[#5B2C8A] flex items-center justify-center shrink-0 border border-[#EDE4F5] shadow-2xs">
+                  <ArrowRight className="w-3.5 h-3.5 group-hover/btn:translate-x-0.5 transition-transform" />
+                </div>
               </button>
             </div>
           </div>

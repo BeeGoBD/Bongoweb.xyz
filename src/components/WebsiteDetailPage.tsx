@@ -2,12 +2,13 @@ import React, { useState, useRef } from 'react';
 import { 
   ArrowLeft, ArrowRight, ShoppingBag, CheckCircle2, 
   ShieldCheck, Zap, Headphones, Globe, MessageCircle, 
-  ChevronDown, Layers, Sparkles, Box, Phone
+  ChevronDown, Layers, Sparkles, Box, Phone, ArrowDown, X
 } from 'lucide-react';
 import { WebsiteDemo } from '../types';
 import Card3D from './Card3D';
 import ThreeCanvas3D from './ThreeCanvas3D';
 import { playClickSound } from '../utils/sound';
+import { useLanguage } from '../utils/LanguageContext';
 
 interface WebsiteDetailPageProps {
   demo: WebsiteDemo;
@@ -22,96 +23,108 @@ export default function WebsiteDetailPage({
   onBack,
   onGoToOrder
 }: WebsiteDetailPageProps) {
+  const { language, t } = useLanguage();
   const handleBack = onBack || onBackToDashboard;
-  const [detailsExpanded, setDetailsExpanded] = useState(false);
+  const [showFeaturesChart, setShowFeaturesChart] = useState(false);
   const [show3DStage, setShow3DStage] = useState(false);
+  const [showOrderChart, setShowOrderChart] = useState(false);
   const [addedItem, setAddedItem] = useState<string | null>(null);
-  const detailsRef = useRef<HTMLDivElement>(null);
+
+  // Matching short text: Bangla for Bangla version, English for English version. Strictly in one line with no sub text.
+  const afterOrderSteps = language === 'bn' ? [
+    '১. ফোনে কথা বলে রিকোয়ারমেন্ট বুঝে নেব',
+    '২. লোগো ও প্রয়োজনীয় তথ্য সংগ্রহ করব',
+    '৩. পছন্দের কালার অনুযায়ী ওয়েবসাইট রেডি করব',
+    '৪. ৪৮ ঘণ্টার মধ্যে লাইভ ডেলিভারি ও সাপোর্ট'
+  ] : [
+    '1. Call you to understand project requirements',
+    '2. Collect your logo & business details',
+    '3. Customize and prepare your website',
+    '4. Live delivery within 48 hours + free support'
+  ];
+
+  // Features You Get list: matching short text, strictly in one line with no sub text.
+  const includedFeaturesList = language === 'bn' ? [
+    '১. সম্পূর্ণ রেসপন্সিভ ও মোবাইল অপ্টিমাইজড আর্কিটেকচার',
+    '২. ১ বছর ফ্রি .com ডোমেইন এবং NVMe ক্লাউড হোস্টিং + SSL',
+    '৩. বিকাশ, নগদ, রকেট ও কার্ড অটো পেমেন্ট গেটওয়ে ইন্টিগ্রেশন',
+    '৪. Steadfast, Pathao ও RedX অটো কুরিয়ার ট্র্যাকিং',
+    '৫. ২৪ ঘণ্টায় ফুল ডেলিভারি ও আজীবন ডেডিকেটেড ইঞ্জিনিয়ার সাপোর্ট'
+  ] : [
+    '1. Fully responsive & 100% mobile-optimized architecture',
+    '2. 1-year free .com domain & high-speed NVMe hosting + SSL',
+    '3. bKash, Nagad, Rocket & card automated payment gateway',
+    '4. Steadfast, Pathao & RedX automated courier tracking',
+    '5. 24-hour full launch & lifetime dedicated engineer support'
+  ];
 
   const handleTestAddToCart = (itemName: string) => {
     setAddedItem(itemName);
     setTimeout(() => setAddedItem(null), 2500);
   };
 
-  const handleToggleDetails = () => {
-    const nextState = !detailsExpanded;
-    setDetailsExpanded(nextState);
+  const handleToggleFeatures = () => {
+    playClickSound();
+    const nextState = !showFeaturesChart;
+    setShowFeaturesChart(nextState);
     if (nextState) {
-      setTimeout(() => {
-        detailsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 100);
+      setShowOrderChart(false);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
-  // 5 Real-Time Step-by-Step Feature Specifications
-  const detailedSpecs = [
-    {
-      step: '১',
-      title: 'সম্পূর্ণ রেসপন্সিভ ও মোবাইল অপ্টিমাইজড আর্কিটেকচার',
-      description: 'যেকোনো মোবাইল, ট্যাবলেট কিংবা ডেক্সটপ কম্পিউটারে স্বয়ংক্রিয়ভাবে খাপ খাইয়ে নিখুঁতভাবে প্রদর্শিত হবে।'
-    },
-    {
-      step: '২',
-      title: 'উচ্চগতির ডেডিকেটেড ক্লাউড হোস্টিং ও ফ্রি SSL সিকিউরিটি',
-      description: 'অত্যাধুনিক NVMe ক্লাউড সার্ভার এবং নিরাপদ এনক্রিপ্টেড SSL সার্টিফিকেট সার্বক্ষণিক সক্রিয় থাকবে।'
-    },
-    {
-      step: '৩',
-      title: 'বিকাশ, নগদ, রকেট ও কার্ড অটো পেমেন্ট গেটওয়ে ইন্টিগ্রেশন',
-      description: 'সরাসরি আপনার নিজস্ব মার্চেন্ট বা পার্সোনাল একাউন্টে তাৎক্ষণিক অটোমেটেড পেমেন্ট সেটআপ।'
-    },
-    {
-      step: '৪',
-      title: 'অটোমেটেড কুরিয়ার ট্র্যাকিং ও এসএমএস নোটিফিকেশন',
-      description: 'Steadfast, Pathao ও RedX কুরিয়ার API ইন্টিগ্রেশন যার মাধ্যমে গ্রাহক স্বয়ংক্রিয় ট্র্যাকিং পাবেন।'
-    },
-    {
-      step: '৫',
-      title: 'আজীবন টেকনিক্যাল মেইনটেন্যান্স ও ২৪/৭ ডেডিকেটেড ইঞ্জিনিয়ার সাপোর্ট',
-      description: 'কোনো সমস্যা ছাড়াই নির্বিঘ্নে ব্যবসা পরিচালনায় সার্বক্ষণিক সরাসরি হোয়াটসঅ্যাপ ও ফোন সাপোর্ট।'
-    }
-  ];
+
 
   return (
     <div className="min-h-screen w-full bg-[#F8F5FC] text-[#1F1F2E] flex flex-col font-sans pb-16 lg:pb-12">
       {/* 1. Purple Header (Matches #5B2C8A Theme) */}
       <header className="fixed top-0 left-0 right-0 z-50 w-full bg-[#5B2C8A] border-b border-[#4A1F6E] shadow-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 sm:h-16 lg:h-[72px] flex items-center justify-between gap-3 select-none">
-          {/* Left: Enhanced Back to Templates / Home */}
-          <div className="flex items-center gap-2.5 sm:gap-3">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 h-14 sm:h-16 lg:h-[72px] flex items-center justify-between gap-2.5 sm:gap-4 select-none">
+          {/* Left: 1) Return back icon (no text) + 2) "Features You Get" explanation button */}
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            {/* 1. Return back icon (icon only, no text) */}
             <button
+              type="button"
               onClick={handleBack}
-              className="px-3 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 active:bg-white/35 text-white border border-white/20 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs group"
-              title="ফিরে যান"
+              aria-label={t('ফিরে যান', 'Back')}
+              title={t('ফিরে যান', 'Back')}
+              className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white/15 hover:bg-white/25 active:bg-white/35 text-white border border-white/20 transition-all flex items-center justify-center cursor-pointer shadow-xs active:scale-90 shrink-0 group"
             >
-              <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5 text-white" />
-              <span>ফিরে যান</span>
+              <ArrowLeft className="w-5 h-5 transition-transform group-hover:-translate-x-0.5 text-white stroke-[2.4]" />
             </button>
 
-            {/* "ভিউ ডিটেইলস" Interactive Spec Drawer Button */}
+            {/* 2. "Features You Get" Button - clearly conveys the features included with the website */}
             <button
-              onClick={handleToggleDetails}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
-                detailsExpanded
-                  ? 'bg-white text-[#5B2C8A] shadow-xs'
+              type="button"
+              onClick={handleToggleFeatures}
+              aria-expanded={showFeaturesChart}
+              aria-label={t('ওয়েবসাইটে যা যা পাবেন', 'Features You Get')}
+              title={t('ওয়েবসাইটে কী কী ফিচার পাবেন তা দেখুন', 'See what features you get with this website')}
+              className={`px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl text-xs sm:text-[13px] font-bold transition-all flex items-center gap-1.5 sm:gap-2 cursor-pointer shadow-xs shrink min-w-0 ${
+                showFeaturesChart
+                  ? 'bg-white text-[#5B2C8A] shadow-md ring-2 ring-white/40'
                   : 'bg-white/15 text-white hover:bg-white/25 border border-white/20'
               }`}
             >
-              <span>ভিউ ডিটেইলস</span>
-              <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-300 ${detailsExpanded ? 'rotate-180' : ''}`} />
+              <span className="truncate">
+                {t('ওয়েবসাইটে যা যা পাবেন', 'Features You Get')}
+              </span>
+              <ChevronDown className={`w-3.5 h-3.5 shrink-0 transition-transform duration-300 ${showFeaturesChart ? 'rotate-180' : ''}`} />
             </button>
           </div>
 
-          {/* Right: Integrated Order Number & Solid Purple/White Action Button */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          {/* Right: 3) "Buy It" Action Button */}
+          <div className="flex items-center gap-2 shrink-0">
             <button
+              type="button"
               onClick={() => onGoToOrder(demo)}
-              className="px-4 sm:px-5 py-2 rounded-xl bg-white hover:bg-purple-50 text-[#5B2C8A] text-xs sm:text-sm font-extrabold shadow-md transition-all flex items-center gap-2 cursor-pointer hover:scale-[1.02] active:scale-95"
+              aria-label={t('এখনই কিনুন', 'Buy Now')}
+              className="px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-white hover:bg-purple-50 active:bg-purple-100 text-[#5B2C8A] text-xs sm:text-sm font-black shadow-md hover:shadow-lg transition-all flex items-center gap-1.5 sm:gap-2 cursor-pointer hover:scale-[1.02] active:scale-95 shrink-0"
             >
-              <span className="px-2 py-0.5 rounded-md bg-[#5B2C8A]/10 text-[#5B2C8A] font-mono font-bold text-xs">
+              <span className="hidden xs:inline-block px-1.5 py-0.5 rounded-md bg-[#5B2C8A]/10 text-[#5B2C8A] font-mono font-bold text-xs">
                 {demo.fourDigitCode}
               </span>
-              <span>এখনই কিনুন</span>
+              <span>{t('এখনই কিনুন', 'Buy Now')}</span>
               <ArrowRight className="w-4 h-4 stroke-[2.5]" />
             </button>
           </div>
@@ -129,48 +142,176 @@ export default function WebsiteDetailPage({
           
           {/* Main Showcase & Catalog Area (Left 8 Columns on Laptop/Desktop) */}
           <div className="lg:col-span-8 space-y-6">
-            {/* Showcase Mode Header */}
-            <div className="flex items-center justify-between gap-3 px-1">
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#7C3AED] animate-pulse" />
-                <h2 className="text-sm sm:text-base font-black text-slate-800">
-                  {show3DStage ? 'ইন্টারেক্টিভ ৩ডি ডিভাইস স্টুডিও (3D Device Stage)' : 'লাইভ ওয়েবসাইট ইন্টারফেস'}
-                </h2>
-              </div>
+            {/* Interactive "Features You Get" Chart (Opened from header button, website remains in background) */}
+            {showFeaturesChart && (
+              <div 
+                id="website-features-included-chart"
+                className="w-full bg-white/98 backdrop-blur-md rounded-2xl sm:rounded-3xl border-2 border-purple-200/90 shadow-[0_20px_50px_rgba(91,44,138,0.15)] p-4 sm:p-6 animate-slideDown"
+              >
+                {/* Chart Header */}
+                <div className="flex items-center justify-between pb-3 mb-3.5 border-b border-slate-100">
+                  <div className="flex items-center gap-2.5">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#5B2C8A] shrink-0" />
+                    <h4 className="text-xs sm:text-sm md:text-base font-extrabold text-slate-900">
+                      {t('ওয়েবসাইটে যে যে ফিচার পাচ্ছেন', 'Features You Get With This Website')}
+                    </h4>
+                  </div>
 
-          <div className="inline-flex items-center p-0.5 rounded-xl bg-white border border-slate-200/90 shadow-2xs">
-            <button
-              type="button"
-              onClick={() => {
-                setShow3DStage(false);
-                playClickSound();
-              }}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
-                !show3DStage
-                  ? 'bg-purple-100 text-purple-800 shadow-2xs'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              <Box className="w-3.5 h-3.5" />
-              <span>ইন্টারফেস ভিউ</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setShow3DStage(true);
-                playClickSound();
-              }}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
-                show3DStage
-                  ? 'bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] text-white shadow-2xs'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              <Layers className="w-3.5 h-3.5" />
-              <span>🧊 ৩ডি ডিভাইস মডেল</span>
-            </button>
-          </div>
-        </div>
+                  {/* Put Back Button */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      playClickSound();
+                      setShowFeaturesChart(false);
+                    }}
+                    className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                    aria-label={t('বন্ধ করুন', 'Put back')}
+                  >
+                    <X className="w-3.5 h-3.5" />
+                    <span>{t('বন্ধ করুন', 'Put back')}</span>
+                  </button>
+                </div>
+
+                {/* 5 Features List - Strictly Every Feature in One Line, No Sub Text */}
+                <div className="space-y-2 sm:space-y-2.5">
+                  {includedFeaturesList.map((feature, idx) => (
+                    <div
+                      key={idx}
+                      className="p-3 sm:p-3.5 rounded-xl bg-slate-50 border border-slate-200/90 hover:border-purple-300 hover:bg-purple-50/30 transition-all flex items-center justify-between gap-3 shadow-2xs"
+                    >
+                      <div className="flex items-center gap-3 min-w-0 flex-1">
+                        <span className="w-6 h-6 rounded-lg bg-[#5B2C8A] text-white flex items-center justify-center font-bold text-xs shrink-0 font-mono shadow-2xs">
+                          {idx + 1}
+                        </span>
+                        <p className="text-xs sm:text-[13px] md:text-sm font-bold text-slate-800 whitespace-nowrap overflow-hidden text-ellipsis">
+                          {feature}
+                        </p>
+                      </div>
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    </div>
+                  ))}
+                </div>
+
+                {/* Chart Footer with Action to Put it back */}
+                <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between gap-3">
+                  <span className="text-[11px] text-slate-500 font-medium hidden sm:inline">
+                    {t('স্বচ্ছ মূল্য ও আজীবন মালিকানা • কোনো হিডেন চার্জ নেই', 'Transparent pricing & lifetime ownership • No hidden charges')}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      playClickSound();
+                      setShowFeaturesChart(false);
+                    }}
+                    className="w-full sm:w-auto px-4 py-2 rounded-xl bg-[#5B2C8A] hover:bg-[#4A1F6E] text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ml-auto shadow-xs"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                    <span>{t('চার্ট বন্ধ করুন', 'Put back')}</span>
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Interactive "What we do after your order" Action with Animated Down Arrow & Chart */}
+            <div className="w-full space-y-3">
+              <button
+                type="button"
+                onClick={() => {
+                  playClickSound();
+                  setShowOrderChart(prev => !prev);
+                  setShowFeaturesChart(false);
+                }}
+                aria-expanded={showOrderChart}
+                aria-label={t('অর্ডার করার পর আমরা যা করব', 'What we do after your order')}
+                className="w-full py-3.5 px-4 sm:px-6 rounded-2xl bg-gradient-to-r from-[#5B2C8A] via-[#6B34A3] to-[#5B2C8A] hover:from-[#4A1F6E] hover:to-[#4A1F6E] active:scale-[0.99] text-white shadow-[0_8px_20px_-4px_rgba(91,44,138,0.35)] border border-white/20 transition-all flex items-center justify-between gap-3 cursor-pointer group"
+              >
+                <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shrink-0" />
+                  <span className="text-xs sm:text-sm md:text-base font-extrabold text-white tracking-wide whitespace-nowrap overflow-hidden text-ellipsis text-left">
+                    {t('অর্ডার করার পর আমরা যা করব', 'What we do after your order')}
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className="text-[11px] sm:text-xs font-semibold text-purple-200 hidden md:inline">
+                    {showOrderChart ? t('বন্ধ করুন', 'Put back') : t('চার্ট দেখুন', 'View Chart')}
+                  </span>
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-white/15 group-hover:bg-white/25 flex items-center justify-center transition-colors">
+                    <ArrowDown className={`w-4 h-4 text-white stroke-[2.5] ${showOrderChart ? 'rotate-180 transition-transform duration-300' : 'animate-bounce'}`} />
+                  </div>
+                </div>
+              </button>
+
+              {/* Interactive Workflow Chart (The website being viewed stays in the background) */}
+              {showOrderChart && (
+                <div 
+                  id="after-order-workflow-chart"
+                  className="w-full bg-white/98 backdrop-blur-md rounded-2xl sm:rounded-3xl border-2 border-purple-200/90 shadow-[0_20px_50px_rgba(91,44,138,0.15)] p-4 sm:p-6 animate-slideDown"
+                >
+                  {/* Chart Header */}
+                  <div className="flex items-center justify-between pb-3 mb-3.5 border-b border-slate-100">
+                    <div className="flex items-center gap-2.5">
+                      <span className="w-2.5 h-2.5 rounded-full bg-[#5B2C8A] shrink-0" />
+                      <h4 className="text-xs sm:text-sm md:text-base font-extrabold text-slate-900">
+                        {t('অর্ডার পরবর্তী ৪টি পদক্ষেপ', '4 Steps After Your Order')}
+                      </h4>
+                    </div>
+
+                    {/* Put Back Button */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        playClickSound();
+                        setShowOrderChart(false);
+                      }}
+                      className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                      aria-label={t('বন্ধ করুন', 'Put back')}
+                    >
+                      <X className="w-3.5 h-3.5" />
+                      <span>{t('বন্ধ করুন', 'Put back')}</span>
+                    </button>
+                  </div>
+
+                  {/* 4 Instructions - Strictly Every Instruction in One Line, No Sub Text */}
+                  <div className="space-y-2 sm:space-y-2.5">
+                    {afterOrderSteps.map((instruction, idx) => (
+                      <div
+                        key={idx}
+                        className="p-3 sm:p-3.5 rounded-xl bg-slate-50 border border-slate-200/90 hover:border-purple-300 hover:bg-purple-50/30 transition-all flex items-center justify-between gap-3 shadow-2xs"
+                      >
+                        <div className="flex items-center gap-3 min-w-0 flex-1">
+                          <span className="w-6 h-6 rounded-lg bg-[#5B2C8A] text-white flex items-center justify-center font-bold text-xs shrink-0 font-mono shadow-2xs">
+                            {idx + 1}
+                          </span>
+                          <p className="text-xs sm:text-[13px] md:text-sm font-bold text-slate-800 whitespace-nowrap overflow-hidden text-ellipsis">
+                            {instruction}
+                          </p>
+                        </div>
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Chart Footer with Action to Put it back */}
+                  <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between gap-3">
+                    <span className="text-[11px] text-slate-500 font-medium hidden sm:inline">
+                      {t('স্বচ্ছ প্রক্রিয়া • সার্বক্ষণিক টেকনিক্যাল সাপোর্ট', 'Transparent process • 24/7 dedicated support')}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        playClickSound();
+                        setShowOrderChart(false);
+                      }}
+                      className="w-full sm:w-auto px-4 py-2 rounded-xl bg-[#5B2C8A] hover:bg-[#4A1F6E] text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ml-auto shadow-xs"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                      <span>{t('চার্ট বন্ধ করুন', 'Put back')}</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
 
         {/* Real Live Website Showcase Area */}
         <section className="w-full bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
@@ -280,40 +421,6 @@ export default function WebsiteDetailPage({
           </div>
         </section>
 
-        {/* Step-by-Step Detailed Specs Section (Toggled from Top Header) */}
-        {detailsExpanded && (
-          <section ref={detailsRef} className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 animate-fadeIn shadow-sm">
-            <div className="max-w-2xl mb-6">
-              <span className="px-3 py-1 rounded-full bg-purple-50 text-purple-700 text-xs font-bold border border-purple-200">
-                প্রযুক্তিগত বিস্তারিত তালিকা
-              </span>
-              <h3 className="text-xl sm:text-2xl font-black text-slate-900 mt-2">
-                ওয়েবসাইট কোড {demo.fourDigitCode} এর পূর্ণাঙ্গ ৫টি ফিচার
-              </h3>
-            </div>
-
-            <div className="space-y-3.5">
-              {detailedSpecs.map((spec, sIdx) => (
-                <div
-                  key={sIdx}
-                  className="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200 flex items-start gap-4 shadow-2xs"
-                >
-                  <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#6B46C1] to-[#7C3AED] text-white flex items-center justify-center font-black text-sm shrink-0 shadow-2xs">
-                    {spec.step}
-                  </div>
-                  <div>
-                    <h4 className="text-sm sm:text-base font-bold text-slate-900">
-                      {spec.title}
-                    </h4>
-                    <p className="text-xs sm:text-sm text-slate-600 mt-1 leading-relaxed">
-                      {spec.description}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
           </div>
 
           {/* Right Sticky Sidebar (Laptop/Desktop View Only) */}
