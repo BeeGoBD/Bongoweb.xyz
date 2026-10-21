@@ -79,7 +79,7 @@ export default function WebsiteDetailPage({
     <div className="min-h-screen w-full bg-[#F8F5FC] text-[#1F1F2E] flex flex-col font-sans pb-16 lg:pb-12">
       {/* 1. Purple Header (Matches #5B2C8A Theme) */}
       <header className="fixed top-0 left-0 right-0 z-50 w-full bg-[#5B2C8A] border-b border-[#4A1F6E] shadow-md">
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 h-14 sm:h-16 lg:h-[72px] flex items-center justify-between gap-2.5 sm:gap-4 select-none">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16 lg:h-[72px] flex items-center justify-between gap-2.5 sm:gap-4 select-none">
           {/* Left: 1) Return back icon (no text) + 2) "Features You Get" explanation button */}
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             {/* 1. Return back icon (icon only, no text) */}
@@ -88,44 +88,46 @@ export default function WebsiteDetailPage({
               onClick={handleBack}
               aria-label={t('ফিরে যান', 'Back')}
               title={t('ফিরে যান', 'Back')}
-              className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white/15 hover:bg-white/25 active:bg-white/35 text-white border border-white/20 transition-all flex items-center justify-center cursor-pointer shadow-xs active:scale-90 shrink-0 group"
+              className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white/10 hover:bg-white/20 active:bg-white/30 text-white border border-white/20 transition-all duration-200 flex items-center justify-center cursor-pointer shadow-xs active:scale-95 shrink-0 group"
             >
-              <ArrowLeft className="w-5 h-5 transition-transform group-hover:-translate-x-0.5 text-white stroke-[2.4]" />
+              <ArrowLeft className="w-5 h-5 transition-transform duration-200 group-hover:-translate-x-0.5 text-white stroke-[2.4]" />
             </button>
 
-            {/* 2. "Features You Get" Button - clearly conveys the features included with the website */}
+            {/* 2. "Features You Get" Button - clearly conveys features included with website */}
             <button
               type="button"
               onClick={handleToggleFeatures}
               aria-expanded={showFeaturesChart}
               aria-label={t('ওয়েবসাইটে যা যা পাবেন', 'Features You Get')}
               title={t('ওয়েবসাইটে কী কী ফিচার পাবেন তা দেখুন', 'See what features you get with this website')}
-              className={`px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl text-xs sm:text-[13px] font-bold transition-all flex items-center gap-1.5 sm:gap-2 cursor-pointer shadow-xs shrink min-w-0 ${
+              className={`px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 flex items-center gap-1.5 sm:gap-2 cursor-pointer shadow-xs shrink min-w-0 group active:scale-95 ${
                 showFeaturesChart
-                  ? 'bg-white text-[#5B2C8A] shadow-md ring-2 ring-white/40'
-                  : 'bg-white/15 text-white hover:bg-white/25 border border-white/20'
+                  ? 'bg-white text-[#5B2C8A] shadow-md ring-2 ring-white/50 border border-white'
+                  : 'bg-white/10 text-white hover:bg-white/20 border border-white/20'
               }`}
             >
-              <span className="truncate">
+              <span className="truncate tracking-wide">
                 {t('ওয়েবসাইটে যা যা পাবেন', 'Features You Get')}
               </span>
-              <ChevronDown className={`w-3.5 h-3.5 shrink-0 transition-transform duration-300 ${showFeaturesChart ? 'rotate-180' : ''}`} />
+              <ChevronDown className={`w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 transition-transform duration-300 ${showFeaturesChart ? 'rotate-180' : 'group-hover:translate-y-0.5'}`} />
             </button>
           </div>
 
-          {/* Right: 3) "Buy It" Action Button */}
+          {/* Right: 3) "Buy It" Action Button (Light Green background + White text) */}
           <div className="flex items-center gap-2 shrink-0">
             <button
               type="button"
               onClick={() => onGoToOrder(demo)}
               aria-label={t('এখনই কিনুন', 'Buy Now')}
-              className="px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-white hover:bg-purple-50 active:bg-purple-100 text-[#5B2C8A] text-xs sm:text-sm font-black shadow-md hover:shadow-lg transition-all flex items-center gap-1.5 sm:gap-2 cursor-pointer hover:scale-[1.02] active:scale-95 shrink-0"
+              className="px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 active:from-emerald-700 active:to-teal-700 text-white text-xs sm:text-sm font-black shadow-[0_4px_16px_rgba(16,185,129,0.45)] hover:shadow-[0_6px_22px_rgba(16,185,129,0.6)] border border-emerald-300/40 transition-all duration-200 flex items-center gap-1.5 sm:gap-2 cursor-pointer hover:scale-105 active:scale-95 shrink-0 group"
             >
-              <span className="hidden xs:inline-block px-1.5 py-0.5 rounded-md bg-[#5B2C8A]/10 text-[#5B2C8A] font-mono font-bold text-xs">
+              <span className="hidden xs:inline-block px-1.5 py-0.5 rounded-md bg-white/25 text-white font-mono font-bold text-[11px] sm:text-xs tracking-tight shadow-2xs">
                 {demo.fourDigitCode}
               </span>
-              <span>{t('এখনই কিনুন', 'Buy Now')}</span>
-              <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+              <span className="text-white font-black tracking-wide">
+                {t('এখনই কিনুন', 'Buy Now')}
+              </span>
+              <ArrowRight className="w-4 h-4 text-white stroke-[2.5] group-hover:translate-x-0.5 transition-transform duration-200" />
             </button>
           </div>
         </div>
