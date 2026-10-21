@@ -5,7 +5,7 @@ import {
   Send, RefreshCw, X, Sparkles, AlertTriangle
 } from 'lucide-react';
 import { EmailRecoveryRequest } from '../types';
-import { apiCreateEmailRecovery, apiGetEmailRecoveries } from '../utils/api';
+import { apiCreateEmailRecovery, apiGetEmailRecoveries, validateStrictBangladeshiPhone } from '../utils/api';
 
 interface EmailRecoveryPageProps {
   onBack: () => void;
@@ -135,8 +135,9 @@ export default function EmailRecoveryPage({ onBack }: EmailRecoveryPageProps) {
       setErrorMsg('অনুগ্রহ করে তৃতীয় অপশন (মোবাইল নম্বর মনে আছে কিনা) নির্বাচন করুন।');
       return;
     }
-    if (!phoneNumber.trim() || phoneNumber.trim().length < 9) {
-      setErrorMsg('অনুগ্রহ করে আপনার সঠিক মোবাইল নম্বরটি প্রদান করুন (ন্যূনতম ১০ বা ১১ সংখ্যা)।');
+    const phoneCheck = validateStrictBangladeshiPhone(phoneNumber);
+    if (!phoneCheck.valid) {
+      setErrorMsg(phoneCheck.error || 'সঠিক ১১-সংখ্যার বাংলাদেশি মোবাইল নম্বর দিন। কোনো ফেক বা অস্থায়ী (Temporary) নম্বর গ্রহণযোগ্য নয়।');
       return;
     }
 

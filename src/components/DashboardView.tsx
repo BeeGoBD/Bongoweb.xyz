@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   ShoppingBag, 
   UtensilsCrossed, 
@@ -7,11 +7,15 @@ import {
   ChevronRight,
   ArrowRight,
   CheckCircle2,
-  Sparkles
+  Sparkles,
+  Phone,
+  PhoneCall,
+  Clock
 } from 'lucide-react';
 import { WebsiteCategory, WebsiteDemo } from '../types';
 import { WEBSITE_DEMOS } from '../data/mockData';
 import { useLanguage } from '../utils/LanguageContext';
+import CallActionModal from './CallActionModal';
 
 interface DashboardViewProps {
   initialCategory?: WebsiteCategory;
@@ -26,6 +30,9 @@ export default function DashboardView({
   onSelectCategoryWebsites
 }: DashboardViewProps) {
   const { language, t } = useLanguage();
+  const [dashboardCallModalOpen, setDashboardCallModalOpen] = useState(false);
+  const [dashboardCallTab, setDashboardCallTab] = useState<'options' | 'callback'>('options');
+  const [dashboardCallHover, setDashboardCallHover] = useState(false);
 
   // Exactly 4 categories as requested: Ecommerce, Restaurant & Fast Food, Landing Page, Grocery Shop
   const categories = [
@@ -216,6 +223,101 @@ export default function DashboardView({
           </span>
         </div>
       </section>
+
+      {/* Dashboard Floating Quick Call Action with Hover 2-Button Card */}
+      <div 
+        className="fixed bottom-20 md:bottom-8 right-4 sm:right-6 md:right-8 z-40"
+        onMouseEnter={() => setDashboardCallHover(true)}
+        onMouseLeave={() => setDashboardCallHover(false)}
+      >
+        {/* Floating Trigger Button */}
+        <button
+          type="button"
+          onClick={() => {
+            setDashboardCallTab('options');
+            setDashboardCallModalOpen(true);
+          }}
+          aria-label="Direct Call Support"
+          title="কল বা কল ব্যাক রিকোয়েস্ট (Hotline & Call Back)"
+          className="relative group p-3.5 sm:p-4 rounded-2xl bg-gradient-to-tr from-emerald-600 via-teal-600 to-emerald-500 hover:from-emerald-700 hover:to-teal-700 text-white shadow-[0_10px_25px_-5px_rgba(16,185,129,0.5)] border-2 border-white/60 transition-all cursor-pointer flex items-center justify-center active:scale-95"
+        >
+          <Phone className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.2] animate-bounce" />
+          <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-emerald-400 rounded-full ring-2 ring-white animate-pulse" />
+        </button>
+
+        {/* Hover / Click 2-Button Card */}
+        {dashboardCallHover && (
+          <div 
+            className="absolute bottom-full right-0 mb-3 w-72 sm:w-80 bg-white rounded-3xl shadow-2xl border border-slate-200/90 p-4 z-50 text-slate-900 animate-slideUpModal"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between pb-2 mb-2.5 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-xs sm:text-sm font-black text-slate-900">
+                  {language === 'bn' ? 'BongoWeb কল সেন্টার' : 'Call & Support Desk'}
+                </span>
+              </div>
+              <span className="text-[10px] text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                সরাসরি সক্রিয়
+              </span>
+            </div>
+
+            <p className="text-[11px] text-slate-500 leading-relaxed mb-3">
+              {language === 'bn' ? 'আপনার সুবিধামতো অপশন বেছে নিন:' : 'Choose your preferred call option:'}
+            </p>
+
+            {/* 2 Buttons */}
+            <div className="space-y-2">
+              {/* Button 1: Instant Call */}
+              <a
+                href="tel:+8801955570912"
+                className="p-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs flex items-center justify-between shadow-md shadow-emerald-600/20 transition-all group/btn"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center">
+                    <Phone className="w-4 h-4 text-white stroke-[2.2]" />
+                  </div>
+                  <div className="text-left">
+                    <span className="block font-black text-[13px] leading-tight">Instant Call</span>
+                    <span className="text-[10px] text-emerald-100">সরাসরি হটলাইন: 01955570912</span>
+                  </div>
+                </div>
+                <ArrowRight className="w-4 h-4 text-white/80 group-hover/btn:translate-x-0.5 transition-transform" />
+              </a>
+
+              {/* Button 2: Call Back Request */}
+              <button
+                type="button"
+                onClick={() => {
+                  setDashboardCallHover(false);
+                  setDashboardCallTab('callback');
+                  setDashboardCallModalOpen(true);
+                }}
+                className="w-full p-3 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold text-xs flex items-center justify-between shadow-md shadow-purple-600/20 transition-all group/btn cursor-pointer"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center">
+                    <Clock className="w-4 h-4 text-white stroke-[2.2]" />
+                  </div>
+                  <div className="text-left">
+                    <span className="block font-black text-[13px] leading-tight">Call Back Request</span>
+                    <span className="text-[10px] text-purple-100">আপনার সুবিধাজনক সময়ে কল পাব</span>
+                  </div>
+                </div>
+                <ArrowRight className="w-4 h-4 text-white/80 group-hover/btn:translate-x-0.5 transition-transform" />
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* 2-Button Action Modal with working functions */}
+      <CallActionModal 
+        isOpen={dashboardCallModalOpen} 
+        initialTab={dashboardCallTab}
+        onClose={() => setDashboardCallModalOpen(false)} 
+      />
     </div>
   );
 }

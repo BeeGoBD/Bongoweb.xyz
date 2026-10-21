@@ -162,6 +162,8 @@ export interface CallBackRequest {
   phone: string;
   reason: string;
   requestedAt: string;
+  createdAt?: string;
+  preferredTime?: string;
   status: 'pending' | 'approved' | 'rejected';
   approvedAt?: string;
   rejectedAt?: string;

@@ -785,7 +785,6 @@ export default function SideMenuDrawer({
         </div>
       )}
 
-      )}
     </>
   );
 }

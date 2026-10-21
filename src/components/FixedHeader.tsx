@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Menu, ArrowLeft, Languages, Bell, Home, LayoutGrid, MessageCircle, User, Phone } from 'lucide-react';
+import { Menu, ArrowLeft, Languages, Bell, Home, LayoutGrid, MessageCircle, User, Phone, Clock, ArrowRight } from 'lucide-react';
 import { BottomTabType } from './FixedBottomNav';
 import BongoWebLogo from './BongoWebLogo';
 import CallActionModal from './CallActionModal';
@@ -28,6 +28,8 @@ export default function FixedHeader({
 }: FixedHeaderProps) {
   const { language, setLanguage, t } = useLanguage();
   const [callModalOpen, setCallModalOpen] = useState(false);
+  const [callHoverOpen, setCallHoverOpen] = useState(false);
+  const [callModalInitialTab, setCallModalInitialTab] = useState<'options' | 'callback'>('options');
 
   const handleToggleLanguage = () => {
     setLanguage(language === 'bn' ? 'en' : 'bn');
@@ -130,17 +132,92 @@ export default function FixedHeader({
 
           {/* Right Action: Hotline + Language + (Mobile Menu 3 Lines next to Language) + Notifications + Desktop Menu */}
           <div className="flex items-center gap-2 md:gap-2.5 shrink-0 md:flex-1 md:justify-end">
-            {/* Direct Phone Hotline Call Icon Button: Opens Modal with 2 buttons (Instant Call & Call Back Request) */}
-            <button
-              type="button"
-              onClick={() => setCallModalOpen(true)}
-              aria-label="Call Hotline & Support: 01955570912"
-              title="কল বা কল ব্যাক রিকোয়েস্ট (Hotline & Call Back)"
-              className="relative p-2 sm:p-2.5 rounded-xl text-white bg-emerald-500/20 hover:bg-emerald-500/30 active:bg-emerald-500/40 border border-emerald-400/40 transition-all cursor-pointer flex items-center justify-center shadow-2xs group"
+            {/* Direct Phone Hotline Call Icon Button: Hover or Click reveals page with 2 buttons (Instant Call & Call Back Request) */}
+            <div 
+              className="relative"
+              onMouseEnter={() => setCallHoverOpen(true)}
+              onMouseLeave={() => setCallHoverOpen(false)}
             >
-              <Phone className="w-4.5 h-4.5 text-emerald-300 stroke-[2.2] group-hover:scale-110 transition-transform" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-emerald-400 rounded-full ring-2 ring-[#5B2C8A] animate-pulse" />
-            </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setCallModalInitialTab('options');
+                  setCallModalOpen(true);
+                }}
+                aria-label="Call Hotline & Support: 01955570912"
+                title="কল বা কল ব্যাক রিকোয়েস্ট (Hotline & Call Back)"
+                className="relative p-2 sm:p-2.5 rounded-xl text-white bg-emerald-500/20 hover:bg-emerald-500/30 active:bg-emerald-500/40 border border-emerald-400/40 transition-all cursor-pointer flex items-center justify-center shadow-2xs group"
+              >
+                <Phone className="w-4.5 h-4.5 text-emerald-300 stroke-[2.2] group-hover:scale-110 transition-transform" />
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-emerald-400 rounded-full ring-2 ring-[#5B2C8A] animate-pulse" />
+              </button>
+
+              {/* Hover Dropdown / Popover Card: 2 Choice Buttons */}
+              {callHoverOpen && (
+                <div 
+                  className="absolute right-0 top-full mt-2 w-72 sm:w-80 bg-white rounded-2xl shadow-2xl border border-slate-200/90 p-3.5 z-50 text-slate-900 animate-slideDownModal"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="flex items-center justify-between pb-2 mb-2.5 border-b border-slate-100">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                      <span className="text-xs font-black text-slate-900">
+                        {language === 'bn' ? 'BongoWeb কল সেন্টার' : 'Call & Support Desk'}
+                      </span>
+                    </div>
+                    <span className="text-[10px] text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                      সরাসরি ২৪/৭
+                    </span>
+                  </div>
+
+                  <p className="text-[11px] text-slate-500 leading-tight mb-3">
+                    {language === 'bn' ? 'সরাসরি এখনই কল করুন অথবা আপনার ফ্রি সময়ে কল ব্যাক রিকোয়েস্ট পাঠান:' : 'Connect immediately or request a convenient call back:'}
+                  </p>
+
+                  {/* 2 Buttons */}
+                  <div className="space-y-2">
+                    {/* Button 1: Instant Call */}
+                    <a
+                      href="tel:+8801955570912"
+                      className="p-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs flex items-center justify-between shadow-md shadow-emerald-600/20 transition-all group/btn"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                          <Phone className="w-4 h-4 text-white stroke-[2.2]" />
+                        </div>
+                        <div className="text-left">
+                          <span className="block font-black text-[13px] leading-tight">Instant Call</span>
+                          <span className="text-[10px] text-emerald-100">সরাসরি হটলাইন: 01955570912</span>
+                        </div>
+                      </div>
+                      <ArrowRight className="w-4 h-4 text-white/80 group-hover/btn:translate-x-0.5 transition-transform" />
+                    </a>
+
+                    {/* Button 2: Call Back Request */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCallHoverOpen(false);
+                        setCallModalInitialTab('callback');
+                        setCallModalOpen(true);
+                      }}
+                      className="w-full p-3 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold text-xs flex items-center justify-between shadow-md shadow-purple-600/20 transition-all group/btn cursor-pointer"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                          <Clock className="w-4 h-4 text-white stroke-[2.2]" />
+                        </div>
+                        <div className="text-left">
+                          <span className="block font-black text-[13px] leading-tight">Call Back Request</span>
+                          <span className="text-[10px] text-purple-100">আপনার সুবিধাজনক সময়ে কল পাব</span>
+                        </div>
+                      </div>
+                      <ArrowRight className="w-4 h-4 text-white/80 group-hover/btn:translate-x-0.5 transition-transform" />
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* Language Switcher Button */}
             <button
@@ -194,11 +271,15 @@ export default function FixedHeader({
               <Menu className="w-4.5 h-4.5 text-white stroke-[2.4]" />
             </button>
           </div>
-
+        </div>
       </header>
 
       {/* 2-Button Hover/Action Modal: Instant Call & Call Back Request */}
-      <CallActionModal isOpen={callModalOpen} onClose={() => setCallModalOpen(false)} />
+      <CallActionModal 
+        isOpen={callModalOpen} 
+        initialTab={callModalInitialTab}
+        onClose={() => setCallModalOpen(false)} 
+      />
     </div>
   );
 }

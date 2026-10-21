@@ -21,11 +21,12 @@ import { validateStrictBangladeshiPhone, apiSaveCallBackRequest, apiGetCallBackR
 interface CallActionModalProps {
   isOpen: boolean;
   onClose: () => void;
+  initialTab?: 'options' | 'callback';
 }
 
-export default function CallActionModal({ isOpen, onClose }: CallActionModalProps) {
+export default function CallActionModal({ isOpen, onClose, initialTab }: CallActionModalProps) {
   const { language } = useLanguage();
-  const [activeTab, setActiveTab] = useState<'options' | 'callback'>('options');
+  const [activeTab, setActiveTab] = useState<'options' | 'callback'>(initialTab || 'options');
   const [copiedNumber, setCopiedNumber] = useState(false);
 
   // Call Back Form State
@@ -55,7 +56,10 @@ export default function CallActionModal({ isOpen, onClose }: CallActionModalProp
         }
       }
     } catch (_) {}
-  }, [isOpen]);
+    if (isOpen && initialTab) {
+      setActiveTab(initialTab);
+    }
+  }, [isOpen, initialTab]);
 
   if (!isOpen) return null;
 
@@ -108,6 +112,13 @@ export default function CallActionModal({ isOpen, onClose }: CallActionModalProp
         reason: reason.trim(),
         status: 'pending',
         createdAt: new Date().toLocaleDateString('bn-BD', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        }),
+        requestedAt: new Date().toLocaleDateString('bn-BD', {
           year: 'numeric',
           month: 'short',
           day: 'numeric',

@@ -3,6 +3,7 @@ import {
   WebsiteDemo, WebsiteDeliveryCredentials, PasswordResetRequest, AdminConfig, UserReport,
   BrandLogoConfig, EmailRecoveryRequest, CallBackRequest
 } from '../types';
+export type { CallBackRequest };
 import { WEBSITE_DEMOS } from '../data/mockData';
 import { 
   collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, onSnapshot 
@@ -943,7 +944,7 @@ export function isStrictGmail(email: string): boolean {
 // Strict 11-digit Bangladeshi Phone Validator: Rejects fake, temporary, or non-11-digit numbers
 export function validateStrictBangladeshiPhone(rawPhone: string): { valid: boolean; error?: string; cleanPhone?: string } {
   if (!rawPhone) {
-    return { valid: false, error: 'অনুগ্রহ করে আপনার ১১-ডিজিটের মোবাইল নম্বর দিন।' };
+    return { valid: false, error: 'অনুগ্রহ করে আপনার ১১-ডিজিটের সচল মোবাইল নম্বর দিন।' };
   }
   let clean = rawPhone.replace(/\D/g, '');
   if (clean.startsWith('8801') && clean.length === 13) {
@@ -952,7 +953,7 @@ export function validateStrictBangladeshiPhone(rawPhone: string): { valid: boole
   if (clean.length !== 11) {
     return { 
       valid: false, 
-      error: `মোবাইল নম্বরটি অবশ্যই ঠিক ১১ ডিজিটের হতে হবে (বর্তমানে ${clean.length} ডিজিট)।` 
+      error: `মোবাইল নম্বরটি অবশ্যই ঠিক ১১ ডিজিটের হতে হবে (বর্তমানে ${clean.length} ডিজিট)। কোনো কম বা বেশি ডিজিট গ্রহণযোগ্য নয়।` 
     };
   }
   const validPrefixes = ['013', '014', '015', '016', '017', '018', '019'];
@@ -964,26 +965,50 @@ export function validateStrictBangladeshiPhone(rawPhone: string): { valid: boole
     };
   }
   const suffix = clean.substring(3);
+  
+  // All identical digits in suffix (e.g., 01700000000, 01811111111, 01999999999)
   const allSame = suffix.split('').every(ch => ch === suffix[0]);
   if (allSame) {
     return { 
       valid: false, 
-      error: 'কোনো অস্থায়ী বা ফেক নম্বর গ্রহণযোগ্য নয়। অনুগ্রহ করে আপনার আসল সক্রিয় নম্বর দিন।' 
+      error: 'কোনো অস্থায়ী, ভার্চুয়াল বা ফেক নম্বর গ্রহণযোগ্য নয়। অনুগ্রহ করে আপনার আসল ব্যক্তিগত নম্বর দিন।' 
     };
   }
-  if (suffix === '12345678' || suffix === '87654321' || suffix === '01234567' || clean === '01234567890') {
+
+  // Common repetitive or dummy patterns
+  const dummyPatterns = [
+    '12345678', '87654321', '01234567', '76543210',
+    '11223344', '22334455', '33445566', '44556677',
+    '12121212', '10101010', '00112233', '12312312',
+    '00000000', '11111111', '22222222', '33333333',
+    '44444444', '55555555', '66666666', '77777777',
+    '88888888', '99999999', '00001111', '12344321'
+  ];
+  if (dummyPatterns.includes(suffix) || clean === '01234567890' || clean === '01987654321') {
     return { 
       valid: false, 
-      error: 'ফেক বা ডামি নম্বর গ্রহণযোগ্য নয়। অনুগ্রহ করে আপনার আসল মোবাইল নম্বর দিন।' 
+      error: 'ফেক বা ডামি মোবাইল নম্বর গ্রহণযোগ্য নয়। অনুগ্রহ করে আপনার সচল আসল নম্বর দিন।' 
     };
   }
-  const knownTempPrefixes = ['010', '011', '012'];
-  if (knownTempPrefixes.includes(prefix)) {
+
+  // Refuse known temporary SMS receiver and non-standard prefix codes
+  const knownTempPrefixes = ['010', '011', '012', '0100', '0111', '0122'];
+  if (knownTempPrefixes.some(p => clean.startsWith(p))) {
     return {
       valid: false,
-      error: 'অস্থায়ী বা অবৈধ নম্বর গ্রহণযোগ্য নয়।'
+      error: 'অস্থায়ী (Temporary/Disposable) নম্বর কোনোভাবেই গ্রহণযোগ্য নয়।'
     };
   }
+
+  // Check unique digit variety: a genuine 11-digit phone number has at least 4 unique digits
+  const uniqueDigits = new Set(clean.split('')).size;
+  if (uniqueDigits < 4) {
+    return {
+      valid: false,
+      error: 'অস্বাভাবিক বা ফেক মোবাইল নম্বর সনাক্ত হয়েছে। অনুগ্রহ করে আপনার আসল ১১ ডিজিটের মোবাইল নম্বর দিন।'
+    };
+  }
+
   return { valid: true, cleanPhone: clean };
 }
 
@@ -2951,22 +2976,29 @@ export async function apiGetCallBackRequests(): Promise<CallBackRequest[]> {
 }
 
 export async function apiSubmitCallBackRequest(params: {
+  id?: string;
   name: string;
   phone: string;
   reason: string;
-}): Promise<CallBackRequest> {
+  preferredTime?: string;
+  createdAt?: string;
+  requestedAt?: string;
+  status?: 'pending' | 'approved' | 'rejected';
+} | CallBackRequest): Promise<CallBackRequest> {
   const cleanPhone = String(params.phone || '').trim();
   const cleanName = String(params.name || '').trim();
   const cleanReason = String(params.reason || '').trim();
   const nowFormatted = new Date().toLocaleString('bn-BD');
 
   const newReq: CallBackRequest = {
-    id: `CALL-${Date.now()}`,
+    id: (params as any).id || `CALL-${Date.now()}`,
     name: cleanName,
     phone: cleanPhone,
     reason: cleanReason,
-    requestedAt: nowFormatted,
-    status: 'pending'
+    preferredTime: (params as any).preferredTime,
+    createdAt: (params as any).createdAt || nowFormatted,
+    requestedAt: (params as any).requestedAt || (params as any).createdAt || nowFormatted,
+    status: (params as any).status || 'pending'
   };
 
   const cleanId = newReq.id.replace(/[^a-zA-Z0-9_-]/g, '_');
@@ -3009,6 +3041,8 @@ export async function apiSubmitCallBackRequest(params: {
 
   return newReq;
 }
+
+export const apiSaveCallBackRequest = apiSubmitCallBackRequest;
 
 export async function apiApproveCallBackRequest(id: string): Promise<CallBackRequest[]> {
   const safeId = String(id || '').trim();
