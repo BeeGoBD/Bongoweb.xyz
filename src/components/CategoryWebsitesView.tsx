@@ -72,7 +72,19 @@ export default function CategoryWebsitesView({
   }, []);
 
   const allDemos = useMemo(() => {
-    return [...WEBSITE_DEMOS, ...customWebsites];
+    const map = new Map<string, WebsiteDemo>();
+    // 1. Initial base demos
+    WEBSITE_DEMOS.forEach((site) => {
+      const key = String(site.fourDigitCode || site.id).replace('#', '').trim().toLowerCase();
+      map.set(key, site);
+    });
+    // 2. Custom/persisted demos (overwrite or add new)
+    (customWebsites || []).forEach((site) => {
+      if (!site) return;
+      const key = String(site.fourDigitCode || site.id).replace('#', '').trim().toLowerCase();
+      map.set(key, site);
+    });
+    return Array.from(map.values());
   }, [customWebsites]);
 
   // Filter logic
@@ -206,16 +218,20 @@ export default function CategoryWebsitesView({
             </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-5 md:gap-6">
-              {filteredDemos.map((demo) => {
+              {filteredDemos.map((demo, idx) => {
                 const categoryLabel = 
                   demo.category === 'ecommerce' ? 'Ecommerce' :
                   demo.category === 'restaurant' ? 'Restaurant & Fast Food' :
                   demo.category === 'landing' || demo.category === 'blogging' ? 'Landing Page' :
                   demo.category === 'grocery' ? 'Grocery' : 'Portfolio';
 
+                const uniqueKey = demo.fourDigitCode 
+                  ? `template-${String(demo.fourDigitCode).replace('#', '')}-${demo.id || idx}`
+                  : `template-${demo.id || idx}`;
+
                 return (
                   <div
-                    key={demo.id}
+                    key={uniqueKey}
                     className="group bg-[#FFFFFF] rounded-2xl border border-[#EDE4F5] shadow-soft hover:shadow-soft-lg transition-all duration-200 overflow-hidden flex flex-col justify-between"
                   >
                     <div>

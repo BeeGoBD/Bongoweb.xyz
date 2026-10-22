@@ -461,11 +461,6 @@ export default function App() {
             onBack={handleBackFromWebsite}
             onGoToOrder={handleOpenOrder}
           />
-          <FixedBottomNav
-            activeTab={getActiveBottomTab()}
-            onTabChange={handleTabChange}
-            unreadChatCount={unreadNotifications}
-          />
         </div>
       )}
 

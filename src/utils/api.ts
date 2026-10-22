@@ -1402,16 +1402,36 @@ export async function apiReopenChat(phone: string): Promise<void> {
   } catch (_) {}
 }
 
+// Helper to merge default stock websites with custom websites cleanly
+function getMergedWebsites(existingCustom: WebsiteDemo[] = []): WebsiteDemo[] {
+  const map = new Map<string, WebsiteDemo>();
+  // 1. Base stock websites
+  WEBSITE_DEMOS.forEach(site => {
+    const key = String(site.fourDigitCode || site.id).replace('#', '').trim().toLowerCase();
+    map.set(key, site);
+  });
+  // 2. Overlay / append custom websites (latest custom websites override or add new entries)
+  (existingCustom || []).forEach(site => {
+    if (!site) return;
+    const key = String(site.fourDigitCode || site.id).replace('#', '').trim().toLowerCase();
+    map.set(key, site);
+  });
+  return Array.from(map.values());
+}
+
 // ---------------- WEBSITES CATALOG & STOCKS ----------------
 export async function apiGetWebsites(): Promise<WebsiteDemo[]> {
   try {
     const snap = await getDocs(collection(db, 'customWebsites'));
     if (!snap.empty) {
       const sites = snap.docs.map(d => d.data() as WebsiteDemo);
-      localCache.customWebsites = sites;
-      localStorage.setItem('bongoweb_custom_catalog', JSON.stringify(sites));
-      localStorage.setItem('bongoweb_custom_websites', JSON.stringify(sites));
-      return sites;
+      const merged = getMergedWebsites(sites);
+      localCache.customWebsites = merged;
+      try {
+        localStorage.setItem('bongoweb_custom_catalog', JSON.stringify(merged));
+        localStorage.setItem('bongoweb_custom_websites', JSON.stringify(merged));
+      } catch (_) {}
+      return merged;
     }
   } catch (_) {}
 
@@ -1420,10 +1440,13 @@ export async function apiGetWebsites(): Promise<WebsiteDemo[]> {
     if (res.ok) {
       const sites = await res.json();
       if (Array.isArray(sites) && sites.length > 0) {
-        localCache.customWebsites = sites;
-        localStorage.setItem('bongoweb_custom_catalog', JSON.stringify(sites));
-        localStorage.setItem('bongoweb_custom_websites', JSON.stringify(sites));
-        return sites;
+        const merged = getMergedWebsites(sites);
+        localCache.customWebsites = merged;
+        try {
+          localStorage.setItem('bongoweb_custom_catalog', JSON.stringify(merged));
+          localStorage.setItem('bongoweb_custom_websites', JSON.stringify(merged));
+        } catch (_) {}
+        return merged;
       }
     }
   } catch (_) {}
@@ -1438,14 +1461,16 @@ export async function apiGetWebsites(): Promise<WebsiteDemo[]> {
     if (stored) {
       const parsed = JSON.parse(stored);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        localCache.customWebsites = parsed;
-        return parsed;
+        const merged = getMergedWebsites(parsed);
+        localCache.customWebsites = merged;
+        return merged;
       }
     }
   } catch (_) {}
 
-  // Default to full catalog of 4 base websites
-  return WEBSITE_DEMOS;
+  // Default to full catalog
+  localCache.customWebsites = [...WEBSITE_DEMOS];
+  return localCache.customWebsites;
 }
 
 export async function apiAddWebsite(website: WebsiteDemo): Promise<WebsiteDemo[]> {
@@ -1456,6 +1481,11 @@ export async function apiAddWebsite(website: WebsiteDemo): Promise<WebsiteDemo[]
     await setDoc(doc(db, 'customWebsites', cleanCode), cleanData);
   } catch (err) {
     console.warn('Firestore add website notice:', err);
+  }
+
+  // Ensure localCache has baseline catalog if empty so existing products aren't wiped out
+  if (!Array.isArray(localCache.customWebsites) || localCache.customWebsites.length === 0) {
+    localCache.customWebsites = getMergedWebsites([]);
   }
 
   const cleanCodeKey = String(website.fourDigitCode || website.id).replace('#', '').trim().toLowerCase();
@@ -1469,8 +1499,13 @@ export async function apiAddWebsite(website: WebsiteDemo): Promise<WebsiteDemo[]
     localCache.customWebsites.unshift(website);
   }
 
-  localStorage.setItem('bongoweb_custom_catalog', JSON.stringify(localCache.customWebsites));
-  localStorage.setItem('bongoweb_custom_websites', JSON.stringify(localCache.customWebsites));
+  try {
+    localStorage.setItem('bongoweb_custom_catalog', JSON.stringify(localCache.customWebsites));
+    localStorage.setItem('bongoweb_custom_websites', JSON.stringify(localCache.customWebsites));
+  } catch (e) {
+    console.warn('LocalStorage save notice (safe fallback in memory & server):', e);
+  }
+
   try {
     window.dispatchEvent(new CustomEvent('bongoweb_websites_updated', { detail: localCache.customWebsites }));
     window.dispatchEvent(new CustomEvent('bongoweb_custom_websites_updated', { detail: localCache.customWebsites }));

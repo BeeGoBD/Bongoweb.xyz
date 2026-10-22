@@ -299,7 +299,7 @@ function getInitialDb(): DatabaseSchema {
     users: [],
     orders: [],
     supportChats: [],
-    customWebsites: [],
+    customWebsites: [...INITIAL_OFFICIAL_WEBSITES],
     deliveredCredentials: [],
     resetRequests: [],
     reports: [],
@@ -323,8 +323,8 @@ function readDb(): DatabaseSchema {
     if (fs.existsSync(DB_FILE)) {
       const content = fs.readFileSync(DB_FILE, 'utf-8');
       const parsed: DatabaseSchema = JSON.parse(content);
-      if (!Array.isArray(parsed.customWebsites)) {
-        parsed.customWebsites = [];
+      if (!Array.isArray(parsed.customWebsites) || parsed.customWebsites.length === 0) {
+        parsed.customWebsites = [...INITIAL_OFFICIAL_WEBSITES];
         writeDb(parsed);
       }
       return parsed;

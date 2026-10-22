@@ -617,9 +617,9 @@ export default function LiveBrowserPage({
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredDemos.map((demo) => (
+                {filteredDemos.map((demo, idx) => (
                   <div
-                    key={demo.id}
+                    key={demo.fourDigitCode ? `live-${demo.fourDigitCode.replace('#', '')}-${demo.id || idx}` : (demo.id || `live-${idx}`)}
                     onClick={() => handleOpenDemo(demo)}
                     className="group bg-white rounded-3xl border border-[#E7E0D6] shadow-xs hover:border-[#800020]/40 hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col justify-between cursor-pointer hover:-translate-y-1"
                   >

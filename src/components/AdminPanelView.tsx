@@ -160,6 +160,20 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
   const [newSiteThumbnail, setNewSiteThumbnail] = useState('');
   const [newSiteSecretUrl, setNewSiteSecretUrl] = useState('');
 
+  // Gallery image and upload state for Add New Product
+  const [isUploadingProduct, setIsUploadingProduct] = useState(false);
+  const [productUploadError, setProductUploadError] = useState('');
+  const [imageCompressing, setImageCompressing] = useState(false);
+  const [galleryImageName, setGalleryImageName] = useState('');
+  const [imageInputMode, setImageInputMode] = useState<'gallery' | 'url'>('gallery');
+  const galleryFileInputRef = useRef<HTMLInputElement>(null);
+
+  // Gallery image upload state for Edit Website
+  const [editImageInputMode, setEditImageInputMode] = useState<'gallery' | 'url'>('gallery');
+  const [editImageCompressing, setEditImageCompressing] = useState(false);
+  const [editGalleryImageName, setEditGalleryImageName] = useState('');
+  const editGalleryFileInputRef = useRef<HTMLInputElement>(null);
+
   // Password Reset Manual Resolution State
   const [activeResetRequest, setActiveResetRequest] = useState<PasswordResetRequest | null>(null);
   const [manualNewPassword, setManualNewPassword] = useState('');
@@ -1506,6 +1520,71 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
     }
   };
 
+  // Gallery image processor with Canvas downscaling to guarantee unlimited product additions
+  const processGalleryImage = (
+    file: File, 
+    onSuccess: (dataUrl: string, fileName: string) => void, 
+    onError: (msg: string) => void, 
+    setCompressing: (b: boolean) => void
+  ) => {
+    if (!file.type.startsWith('image/')) {
+      onError('অনুগ্রহ করে শুধুমাত্র ছবি ফাইল (JPG, PNG, WEBP ইত্যাদি) নির্বাচন করুন।');
+      return;
+    }
+    setCompressing(true);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const rawData = e.target?.result as string;
+      const img = new window.Image();
+      img.onload = () => {
+        try {
+          const canvas = document.createElement('canvas');
+          const MAX_WIDTH = 1200;
+          const MAX_HEIGHT = 800;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height = Math.round((height * MAX_WIDTH) / width);
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width = Math.round((width * MAX_HEIGHT) / height);
+              height = MAX_HEIGHT;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            const compressed = canvas.toDataURL('image/jpeg', 0.82);
+            onSuccess(compressed, file.name);
+          } else {
+            onSuccess(rawData, file.name);
+          }
+        } catch {
+          onSuccess(rawData, file.name);
+        } finally {
+          setCompressing(false);
+        }
+      };
+      img.onerror = () => {
+        setCompressing(false);
+        onError('ছবি প্রসেস করতে ব্যর্থ হয়েছে। অনুগ্রহ করে অন্য ছবি নির্বাচন করুন।');
+      };
+      img.src = rawData;
+    };
+    reader.onerror = () => {
+      setCompressing(false);
+      onError('গ্যালারি থেকে ছবি পড়া সম্ভব হয়নি।');
+    };
+    reader.readAsDataURL(file);
+  };
+
   // Edit Existing Website Stock / Details
   const handleOpenEditSite = (site: WebsiteDemo) => {
     setEditingSite(site);
@@ -1515,6 +1594,8 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
     setEditThumbnail(site.previewImage);
     setEditSecretUrl(site.demoUrl);
     setEditPriceTag(site.priceTag);
+    setEditGalleryImageName('');
+    setEditImageInputMode(site.previewImage && site.previewImage.startsWith('data:') ? 'gallery' : 'url');
   };
 
   const handleSaveEditedWebsite = async (e: React.FormEvent) => {
@@ -1538,84 +1619,107 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
     loadAllDatabaseCollections();
   };
 
-  // Add New Product / Website to Inventory (Requirement 15)
+  // Add New Product / Website to Inventory (Unlimited Uploads & Glitch-Free)
   const handleCreateNewWebsite = async (e: React.FormEvent) => {
     e.preventDefault();
+    setProductUploadError('');
     const title = (newProductTitle || newSiteTitle).trim();
-    if (!title) return;
-
-    const randomCode = `#${Math.floor(1000 + Math.random() * 9000)}`;
-    const effectivePrice = newProductPricing.trim() || '৳999';
-    const effectiveLink = (newProductLink || newSiteSecretUrl).trim() || 'demo.bongoweb.site';
-    const effectiveDesc = (newProductDesc || newSiteDesc).trim() || 'উচ্চগতির আধুনিক ওয়েবসাইট ডেমো।';
-    const effectiveThumbnail = newSiteThumbnail.trim() || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80';
-
-    let effectiveCategory = newSiteCategory as any;
-    if (effectiveCategory === 'newspaper' || effectiveCategory === 'news' || effectiveCategory === 'blog') {
-      effectiveCategory = 'blogging';
+    if (!title) {
+      setProductUploadError('অনুগ্রহ করে প্রোডাক্ট টাইটেল (Title) লিখুন।');
+      return;
     }
 
-    const friendlyLabel = 
-      effectiveCategory === 'ecommerce' ? '🛍️ E-Commerce' :
-      effectiveCategory === 'restaurant' ? '🍽️ Restaurant & Cafe' :
-      effectiveCategory === 'blogging' ? '📰 Blog & Media' :
-      effectiveCategory === 'grocery' ? '🌿 Grocery & Organic' :
-      effectiveCategory === 'corporate' ? '💼 Corporate' :
-      effectiveCategory === 'fashion' ? '👗 Fashion' :
-      effectiveCategory === 'portfolio' ? '🎨 Portfolio' :
-      String(newSiteCategory).toUpperCase();
+    setIsUploadingProduct(true);
 
-    const newDemo: WebsiteDemo = {
-      id: `custom-${Date.now()}`,
-      fourDigitCode: randomCode,
-      title: `${randomCode} ${title}`,
-      banglaTitle: `${randomCode} ${title}`,
-      category: effectiveCategory,
-      categoryLabel: friendlyLabel,
-      description: effectiveDesc,
-      priceTag: effectivePrice,
-      demoUrl: effectiveLink,
-      accentColor: 'from-[#6B46C1]/20 to-[#7C3AED]/5',
-      rating: 5.0,
-      ordersCount: '24h Launch',
-      previewImage: effectiveThumbnail,
-      heroHeadline: title,
-      features: ['মোবাইল অপ্টিমাইজড', 'বিকাশ ও নগদ পেমেন্ট', 'ক্লাউড হোস্টিং', '২৪ ঘণ্টা ডেলিভারি'],
-      mockData: {
-        heroSub: effectiveDesc,
-        items: []
+    try {
+      // Collision-free unique 4-digit code allowing unlimited products
+      const existingCodes = new Set((customWebsites || []).map(s => String(s.fourDigitCode || '').replace('#', '')));
+      let codeNum = Math.floor(1000 + Math.random() * 9000);
+      let attempts = 0;
+      while (existingCodes.has(String(codeNum)) && attempts < 100) {
+        codeNum = Math.floor(1000 + Math.random() * 9000);
+        attempts++;
       }
-    };
+      const randomCode = `#${codeNum}`;
+      const effectivePrice = newProductPricing.trim() || '৳999';
+      const effectiveLink = (newProductLink || newSiteSecretUrl).trim() || 'demo.bongoweb.site';
+      const effectiveDesc = (newProductDesc || newSiteDesc).trim() || 'উচ্চগতির আধুনিক ওয়েবসাইট ডেমো।';
+      const effectiveThumbnail = newSiteThumbnail.trim() || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80';
 
-    const updated = await apiAddWebsite(newDemo);
-    setCustomWebsites(updated);
+      let effectiveCategory = newSiteCategory as any;
+      if (effectiveCategory === 'newspaper' || effectiveCategory === 'news' || effectiveCategory === 'blog') {
+        effectiveCategory = 'blogging';
+      }
 
-    // Details send option: if enabled, send product details to client(s)
-    if (sendDetailsToClient) {
-      const discountText = newDiscountPrice && newDiscountPrice !== '৳0' ? ` (ডিসকাউন্ট: ${newDiscountPrice})` : '';
-      const notificationMsg = `🎉 নতুন ওয়েবসাইট প্রোডাক্ট যুক্ত হয়েছে: "${title}" | প্যাকেজ মূল্য: ${effectivePrice}${discountText} | লিংক: ${effectiveLink}। অর্ডার বা বিস্তারিত দেখতে যোগাযোগ করুন।`;
-      
-      for (const th of chatThreads) {
-        if (th.userPhone) {
-          handleSendAdminReplyText(th.userPhone, notificationMsg);
+      const friendlyLabel = 
+        effectiveCategory === 'ecommerce' ? '🛍️ E-Commerce' :
+        effectiveCategory === 'restaurant' ? '🍽️ Restaurant & Cafe' :
+        effectiveCategory === 'blogging' ? '📰 Blog & Media' :
+        effectiveCategory === 'grocery' ? '🌿 Grocery & Organic' :
+        effectiveCategory === 'corporate' ? '💼 Corporate' :
+        effectiveCategory === 'fashion' ? '👗 Fashion' :
+        effectiveCategory === 'portfolio' ? '🎨 Portfolio' :
+        String(newSiteCategory).toUpperCase();
+
+      const newDemo: WebsiteDemo = {
+        id: `custom-${Date.now()}-${codeNum}`,
+        fourDigitCode: randomCode,
+        title: `${randomCode} ${title}`,
+        banglaTitle: `${randomCode} ${title}`,
+        category: effectiveCategory,
+        categoryLabel: friendlyLabel,
+        description: effectiveDesc,
+        priceTag: effectivePrice,
+        demoUrl: effectiveLink,
+        accentColor: 'from-[#6B46C1]/20 to-[#7C3AED]/5',
+        rating: 5.0,
+        ordersCount: '24h Launch',
+        previewImage: effectiveThumbnail,
+        heroHeadline: title,
+        features: ['মোবাইল অপ্টিমাইজড', 'বিকাশ ও নগদ পেমেন্ট', 'ক্লাউড হোস্টিং', '২৪ ঘণ্টা ডেলিভারি'],
+        mockData: {
+          heroSub: effectiveDesc,
+          items: []
+        }
+      };
+
+      const updated = await apiAddWebsite(newDemo);
+      setCustomWebsites(updated);
+
+      // Details send option: if enabled, send product details to client(s)
+      if (sendDetailsToClient) {
+        const discountText = newDiscountPrice && newDiscountPrice !== '৳0' ? ` (ডিসকাউন্ট: ${newDiscountPrice})` : '';
+        const notificationMsg = `🎉 নতুন ওয়েবসাইট প্রোডাক্ট যুক্ত হয়েছে: "${title}" | প্যাকেজ মূল্য: ${effectivePrice}${discountText} | লিংক: ${effectiveLink}। অর্ডার বা বিস্তারিত দেখতে যোগাযোগ করুন।`;
+        
+        for (const th of chatThreads) {
+          if (th.userPhone) {
+            handleSendAdminReplyText(th.userPhone, notificationMsg);
+          }
         }
       }
-    }
 
-    setMasterSuccessMsg(`প্রোডাক্ট "${title}" সফলভাবে ক্যাটালগে যুক্ত হয়েছে!`);
-    setTimeout(() => setMasterSuccessMsg(''), 4000);
-    setShowAddWebsiteModal(false);
-    setNewProductTitle('');
-    setNewProductDesc('');
-    setNewProductPricing('৳999');
-    setNewDiscountPrice('৳0');
-    setNewProductLink('');
-    setSendDetailsToClient(false);
-    setNewSiteTitle('');
-    setNewSiteDesc('');
-    setNewSiteThumbnail('');
-    setNewSiteSecretUrl('');
-    loadAllDatabaseCollections();
+      setMasterSuccessMsg(`প্রোডাক্ট "${title}" (${randomCode}) সফলভাবে ক্যাটালগে যুক্ত হয়েছে!`);
+      setTimeout(() => setMasterSuccessMsg(''), 4000);
+      setShowAddWebsiteModal(false);
+      setNewProductTitle('');
+      setNewProductDesc('');
+      setNewProductPricing('৳999');
+      setNewDiscountPrice('৳0');
+      setNewProductLink('');
+      setSendDetailsToClient(false);
+      setNewSiteTitle('');
+      setNewSiteDesc('');
+      setNewSiteThumbnail('');
+      setNewSiteSecretUrl('');
+      setGalleryImageName('');
+      setProductUploadError('');
+      loadAllDatabaseCollections();
+    } catch (err: any) {
+      console.error('Product upload error:', err);
+      setProductUploadError(err?.message || 'প্রোডাক্ট আপলোড করতে সমস্যা হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।');
+    } finally {
+      setIsUploadingProduct(false);
+    }
   };
 
   // Single Complete Website Backup (100% Data Preservation Across All Devices)
@@ -5042,14 +5146,115 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold text-[#A8D7BD] mb-1">থাম্বনেইল ইমেজ URL</label>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <label className="text-xs font-bold text-[#A8D7BD]">প্রিভিউ ইমেজ (থাম্বনেইল)</label>
+                        <div className="flex rounded-lg bg-[#0B0F19] p-0.5 border border-[#1E293B]">
+                          <button
+                            type="button"
+                            onClick={() => setEditImageInputMode('gallery')}
+                            className={`px-2 py-0.5 text-[10px] rounded-md font-bold transition-all cursor-pointer ${
+                              editImageInputMode === 'gallery'
+                                ? 'bg-[#7C3AED] text-white'
+                                : 'text-[#94A3B8] hover:text-white'
+                            }`}
+                          >
+                            গ্যালারি
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setEditImageInputMode('url')}
+                            className={`px-2 py-0.5 text-[10px] rounded-md font-bold transition-all cursor-pointer ${
+                              editImageInputMode === 'url'
+                                ? 'bg-[#7C3AED] text-white'
+                                : 'text-[#94A3B8] hover:text-white'
+                            }`}
+                          >
+                            অনলাইন লিংক
+                          </button>
+                        </div>
+                      </div>
+
                       <input
-                        type="url"
-                        required
-                        value={editThumbnail}
-                        onChange={(e) => setEditThumbnail(e.target.value)}
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-white text-xs focus:outline-none focus:border-[#7C3AED]"
+                        type="file"
+                        ref={editGalleryFileInputRef}
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const f = e.target.files?.[0];
+                          if (f) {
+                            processGalleryImage(
+                              f,
+                              (dataUrl, name) => {
+                                setEditThumbnail(dataUrl);
+                                setEditGalleryImageName(name);
+                              },
+                              (err) => alert(err),
+                              setEditImageCompressing
+                            );
+                          }
+                        }}
                       />
+
+                      {editImageInputMode === 'gallery' ? (
+                        <div className="space-y-2">
+                          {editThumbnail ? (
+                            <div className="relative rounded-xl overflow-hidden border border-[#1E293B] bg-[#0B0F19] p-2 flex items-center gap-3">
+                              <img
+                                src={editThumbnail}
+                                alt="Preview"
+                                className="w-16 h-14 rounded-lg object-cover border border-white/10 shrink-0"
+                              />
+                              <div className="flex-1 min-w-0">
+                                <p className="text-xs text-white font-medium truncate">
+                                  {editGalleryImageName || 'ছবি নির্বাচন করা হয়েছে'}
+                                </p>
+                                <div className="flex items-center gap-2 mt-1">
+                                  <button
+                                    type="button"
+                                    onClick={() => editGalleryFileInputRef.current?.click()}
+                                    className="text-[11px] text-[#A5B4FC] hover:underline cursor-pointer"
+                                  >
+                                    ছবি পরিবর্তন
+                                  </button>
+                                  <span className="text-zinc-600">•</span>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setEditThumbnail('');
+                                      setEditGalleryImageName('');
+                                    }}
+                                    className="text-[11px] text-red-400 hover:underline cursor-pointer"
+                                  >
+                                    মুছুন
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => editGalleryFileInputRef.current?.click()}
+                              disabled={editImageCompressing}
+                              className="w-full py-4 border-2 border-dashed border-[#1E293B] hover:border-[#7C3AED] rounded-xl flex flex-col items-center justify-center gap-1.5 bg-[#0B0F19]/50 hover:bg-[#0B0F19] transition-all cursor-pointer group"
+                            >
+                              <UploadCloud className="w-6 h-6 text-[#A5B4FC] group-hover:scale-110 transition-transform" />
+                              <span className="text-xs text-[#CBD5E1] font-bold">
+                                {editImageCompressing ? 'ছবি লোড হচ্ছে...' : 'গ্যালারি থেকে ছবি আপলোড করুন'}
+                              </span>
+                              <span className="text-[10px] text-[#94A3B8]">JPG, PNG, WEBP ইত্যাদি</span>
+                            </button>
+                          )}
+                        </div>
+                      ) : (
+                        <input
+                          type="text"
+                          required
+                          placeholder="https://... বা ইমেজ লিংক"
+                          value={editThumbnail}
+                          onChange={(e) => setEditThumbnail(e.target.value)}
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-white text-xs focus:outline-none focus:border-[#7C3AED]"
+                        />
+                      )}
                     </div>
 
                     <div>
@@ -5092,16 +5297,25 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
               </div>
             )}
 
-            {/* Modal: Upload New Product / Website (Requirement 15) */}
+            {/* Modal: Upload New Product / Website (Requirement 15: Unlimited Products & Gallery Upload) */}
             {showAddWebsiteModal && (
               <div className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 animate-fadeIn overflow-hidden">
-                <div className="w-full h-full sm:h-auto sm:max-h-[90vh] sm:max-w-lg bg-[#111827] border-0 sm:border-2 sm:border-[#AB55F7]/70 rounded-none sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden relative">
+                <div className="w-full h-full sm:h-auto sm:max-h-[92vh] sm:max-w-xl bg-[#111827] border-0 sm:border-2 sm:border-[#AB55F7]/70 rounded-none sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden relative">
                   {/* Top Bar / Header */}
-                  <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-b border-[#1E293B] flex items-center justify-between shrink-0 bg-[#111827]">
-                    <h3 className="text-sm sm:text-base font-black text-white flex items-center gap-2">
-                      <Plus className="w-5 h-5 text-[#AB55F7]" />
-                      <span>নতুন প্রোডাক্ট / ওয়েবসাইট আপলোড</span>
-                    </h3>
+                  <div className="px-4 sm:px-6 py-3.5 sm:py-4 border-b border-[#1E293B] flex items-center justify-between shrink-0 bg-[#0F172A]">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#AB55F7]/30 to-[#7C3AED]/20 border border-[#AB55F7]/40 flex items-center justify-center text-[#AB55F7]">
+                        <Plus className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h3 className="text-sm sm:text-base font-black text-white flex items-center gap-2">
+                          <span>নতুন প্রোডাক্ট / ওয়েবসাইট আপলোড</span>
+                        </h3>
+                        <p className="text-[10px] sm:text-xs text-[#94A3B8]">
+                          আনলিমিটেড প্রোডাক্ট যুক্ত করুন ও গ্যালারি থেকে প্রিভিউ ছবি আপলোড করুন
+                        </p>
+                      </div>
+                    </div>
                     <button
                       type="button"
                       onClick={() => setShowAddWebsiteModal(false)}
@@ -5112,7 +5326,24 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                   </div>
 
                   <form onSubmit={handleCreateNewWebsite} className="flex-1 flex flex-col min-h-0 overflow-hidden">
-                    <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 space-y-3.5 overscroll-contain">
+                    <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 space-y-4 overscroll-contain">
+                      {/* Error Alert Banner */}
+                      {productUploadError && (
+                        <div className="p-3 rounded-xl bg-red-950/70 border border-red-500/50 flex items-start justify-between gap-2 text-red-200 text-xs animate-shake">
+                          <div className="flex items-center gap-2">
+                            <AlertTriangle className="w-4 h-4 text-red-400 shrink-0" />
+                            <span>{productUploadError}</span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setProductUploadError('')}
+                            className="text-red-400 hover:text-white"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      )}
+
                       {/* 1. Product Title */}
                       <div>
                         <label className="block text-xs font-bold text-[#CBD5E1] mb-1">
@@ -5148,106 +5379,271 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                         </select>
                       </div>
 
-                    {/* 3. Description */}
-                    <div>
-                      <label className="block text-xs font-bold text-[#CBD5E1] mb-1">
-                        Description (বিবরণ)
-                      </label>
-                      <textarea
-                        rows={2}
-                        placeholder="ওয়েবসাইটের মূল সুবিধাসমূহ ও বিবরণ লিখুন..."
-                        value={newProductDesc}
-                        onChange={(e) => setNewProductDesc(e.target.value)}
-                        className="w-full px-3.5 py-2 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-xs text-white resize-none focus:outline-none focus:border-[#AB55F7]"
-                      />
-                    </div>
-
-                    {/* 4. Product Pricing (Packages: ৳999, ৳1499, ৳2499) */}
-                    <div>
-                      <label className="block text-xs font-bold text-[#CBD5E1] mb-1">
-                        Product Pricing (প্যাকেজ মূল্য)
-                      </label>
-                      <div className="grid grid-cols-3 gap-2 mb-2">
-                        {['৳999', '৳1499', '৳2499'].map((pkg) => (
-                          <button
-                            key={pkg}
-                            type="button"
-                            onClick={() => setNewProductPricing(pkg)}
-                            className={`py-2 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
-                              newProductPricing === pkg
-                                ? 'bg-gradient-to-r from-[#AB55F7] to-[#7C3AED] border-[#AB55F7] text-white shadow-xs'
-                                : 'bg-[#0B0F19] border-[#1E293B] text-[#94A3B8] hover:text-white hover:border-[#AB55F7]/50'
-                            }`}
-                          >
-                            {pkg}
-                          </button>
-                        ))}
+                      {/* 3. Description */}
+                      <div>
+                        <label className="block text-xs font-bold text-[#CBD5E1] mb-1">
+                          Description (বিবরণ)
+                        </label>
+                        <textarea
+                          rows={2}
+                          placeholder="ওয়েবসাইটের মূল সুবিধাসমূহ ও বিবরণ লিখুন..."
+                          value={newProductDesc}
+                          onChange={(e) => setNewProductDesc(e.target.value)}
+                          className="w-full px-3.5 py-2 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-xs text-white resize-none focus:outline-none focus:border-[#AB55F7]"
+                        />
                       </div>
-                      <input
-                        type="text"
-                        placeholder="অন্যান্য কাস্টম মূল্য (যেমন: ৳1499)"
-                        value={newProductPricing}
-                        onChange={(e) => setNewProductPricing(e.target.value)}
-                        className="w-full px-3.5 py-2 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-white text-xs font-mono focus:outline-none focus:border-[#AB55F7]"
-                      />
-                    </div>
 
-                    {/* 5. Discount Price */}
-                    <div>
-                      <label className="block text-xs font-bold text-[#CBD5E1] mb-1">
-                        Discount Price (ডিসকাউন্ট মূল্য)
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="যেমন: ৳199 বা ৳0"
-                        value={newDiscountPrice}
-                        onChange={(e) => setNewDiscountPrice(e.target.value)}
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-white text-xs font-mono focus:outline-none focus:border-[#AB55F7]"
-                      />
-                    </div>
+                      {/* 4. Product Pricing (Packages: ৳999, ৳1499, ৳2499) */}
+                      <div>
+                        <label className="block text-xs font-bold text-[#CBD5E1] mb-1">
+                          Product Pricing (প্যাকেজ মূল্য)
+                        </label>
+                        <div className="grid grid-cols-3 gap-2 mb-2">
+                          {['৳999', '৳1499', '৳2499'].map((pkg) => (
+                            <button
+                              key={pkg}
+                              type="button"
+                              onClick={() => setNewProductPricing(pkg)}
+                              className={`py-2 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
+                                newProductPricing === pkg
+                                  ? 'bg-gradient-to-r from-[#AB55F7] to-[#7C3AED] border-[#AB55F7] text-white shadow-xs'
+                                  : 'bg-[#0B0F19] border-[#1E293B] text-[#94A3B8] hover:text-white hover:border-[#AB55F7]/50'
+                              }`}
+                            >
+                              {pkg}
+                            </button>
+                          ))}
+                        </div>
+                        <input
+                          type="text"
+                          placeholder="অন্যান্য কাস্টম মূল্য (যেমন: ৳1499)"
+                          value={newProductPricing}
+                          onChange={(e) => setNewProductPricing(e.target.value)}
+                          className="w-full px-3.5 py-2 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-white text-xs font-mono focus:outline-none focus:border-[#AB55F7]"
+                        />
+                      </div>
 
-                    {/* 6. Product Link */}
-                    <div>
-                      <label className="block text-xs font-bold text-[#CBD5E1] mb-1">
-                        Product Link (প্রোডাক্ট / ডেমো লিংক)
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="demo.bongoweb.site অথবা https://..."
-                        value={newProductLink}
-                        onChange={(e) => setNewProductLink(e.target.value)}
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-white text-xs font-mono focus:outline-none focus:border-[#AB55F7]"
-                      />
-                    </div>
+                      {/* 5. Discount Price */}
+                      <div>
+                        <label className="block text-xs font-bold text-[#CBD5E1] mb-1">
+                          Discount Price (ডিসকাউন্ট মূল্য)
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="যেমন: ৳199 বা ৳0"
+                          value={newDiscountPrice}
+                          onChange={(e) => setNewDiscountPrice(e.target.value)}
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-white text-xs font-mono focus:outline-none focus:border-[#AB55F7]"
+                        />
+                      </div>
 
-                    {/* 7. Thumbnail Image URL */}
-                    <div>
-                      <label className="block text-xs font-bold text-[#CBD5E1] mb-1">
-                        Thumbnail Image (ছবি বা স্ক্রিনশট লিংক)
-                      </label>
-                      <input
-                        type="url"
-                        placeholder="https://images.unsplash.com/... (বা ফাঁকা রাখুন ডিফল্টের জন্য)"
-                        value={newSiteThumbnail}
-                        onChange={(e) => setNewSiteThumbnail(e.target.value)}
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-white text-xs focus:outline-none focus:border-[#AB55F7]"
-                      />
-                    </div>
+                      {/* 6. Product Link */}
+                      <div>
+                        <label className="block text-xs font-bold text-[#CBD5E1] mb-1">
+                          Product Link (প্রোডাক্ট / ডেমো লিংক)
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="demo.bongoweb.site অথবা https://..."
+                          value={newProductLink}
+                          onChange={(e) => setNewProductLink(e.target.value)}
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-white text-xs font-mono focus:outline-none focus:border-[#AB55F7]"
+                        />
+                      </div>
+
+                      {/* 7. Preview Image (Gallery Upload & URL) */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <label className="text-xs font-bold text-[#CBD5E1] flex items-center gap-1.5">
+                            <span>প্রিভিউ ছবি (Preview Image)</span>
+                            <span className="text-[10px] text-emerald-400 font-semibold bg-emerald-950/60 border border-emerald-500/30 px-1.5 py-0.5 rounded-md">
+                              গ্যালারি সাপোর্ট
+                            </span>
+                          </label>
+
+                          {/* Image Mode Switcher */}
+                          <div className="flex rounded-lg bg-[#0B0F19] p-0.5 border border-[#1E293B]">
+                            <button
+                              type="button"
+                              onClick={() => setImageInputMode('gallery')}
+                              className={`px-2.5 py-1 text-[11px] rounded-md font-bold transition-all cursor-pointer ${
+                                imageInputMode === 'gallery'
+                                  ? 'bg-[#AB55F7] text-white shadow-xs'
+                                  : 'text-[#94A3B8] hover:text-white'
+                              }`}
+                            >
+                              📱 গ্যালারি
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setImageInputMode('url')}
+                              className={`px-2.5 py-1 text-[11px] rounded-md font-bold transition-all cursor-pointer ${
+                                imageInputMode === 'url'
+                                  ? 'bg-[#AB55F7] text-white shadow-xs'
+                                  : 'text-[#94A3B8] hover:text-white'
+                              }`}
+                            >
+                              🔗 অনলাইন লিংক
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Hidden File Input for Device Gallery */}
+                        <input
+                          type="file"
+                          ref={galleryFileInputRef}
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              processGalleryImage(
+                                file,
+                                (dataUrl, name) => {
+                                  setNewSiteThumbnail(dataUrl);
+                                  setGalleryImageName(name);
+                                },
+                                (err) => setProductUploadError(err),
+                                setImageCompressing
+                              );
+                            }
+                          }}
+                        />
+
+                        {imageInputMode === 'gallery' ? (
+                          <div className="space-y-2">
+                            {newSiteThumbnail ? (
+                              <div className="relative rounded-2xl overflow-hidden border border-[#AB55F7]/40 bg-[#0B0F19] p-2.5 flex items-center gap-3">
+                                <img
+                                  src={newSiteThumbnail}
+                                  alt="Preview"
+                                  className="w-20 h-16 rounded-xl object-cover border border-white/10 shrink-0"
+                                />
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-1.5 mb-1">
+                                    <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                                    <span className="text-[11px] font-bold text-emerald-400">গ্যালারি ছবি প্রস্তুত</span>
+                                  </div>
+                                  <p className="text-xs text-white font-medium truncate">
+                                    {galleryImageName || 'গ্যালারি থেকে সংগৃহীত প্রিভিউ ইমেজ'}
+                                  </p>
+                                  <div className="flex items-center gap-2 mt-1.5">
+                                    <button
+                                      type="button"
+                                      onClick={() => galleryFileInputRef.current?.click()}
+                                      className="text-xs text-[#AB55F7] font-bold hover:underline cursor-pointer"
+                                    >
+                                      অন্য ছবি পরিবর্তন
+                                    </button>
+                                    <span className="text-zinc-600">•</span>
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setNewSiteThumbnail('');
+                                        setGalleryImageName('');
+                                      }}
+                                      className="text-xs text-red-400 font-bold hover:underline cursor-pointer"
+                                    >
+                                      মুছে ফেলুন
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => galleryFileInputRef.current?.click()}
+                                disabled={imageCompressing}
+                                className="w-full py-5 border-2 border-dashed border-[#1E293B] hover:border-[#AB55F7] rounded-2xl flex flex-col items-center justify-center gap-2 bg-[#0B0F19]/60 hover:bg-[#0B0F19] transition-all cursor-pointer group"
+                              >
+                                <div className="w-12 h-12 rounded-2xl bg-[#AB55F7]/10 border border-[#AB55F7]/30 flex items-center justify-center text-[#AB55F7] group-hover:scale-110 transition-transform">
+                                  {imageCompressing ? (
+                                    <RefreshCw className="w-6 h-6 animate-spin" />
+                                  ) : (
+                                    <UploadCloud className="w-6 h-6" />
+                                  )}
+                                </div>
+                                <div className="text-center">
+                                  <p className="text-xs font-bold text-white">
+                                    {imageCompressing ? 'ছবি অপ্টিমাইজ হচ্ছে...' : 'গ্যালারি থেকে ছবি নির্বাচন করুন'}
+                                  </p>
+                                  <p className="text-[10px] text-[#94A3B8] mt-0.5">
+                                    মোবাইল ক্যামেরা বা ফটো লাইব্রেরি (JPG, PNG, WEBP)
+                                  </p>
+                                </div>
+                              </button>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="space-y-2">
+                            <input
+                              type="text"
+                              placeholder="https://images.unsplash.com/... অথবা ডিরেক্ট ছবি লিঙ্ক"
+                              value={newSiteThumbnail}
+                              onChange={(e) => {
+                                setNewSiteThumbnail(e.target.value);
+                                setGalleryImageName('');
+                              }}
+                              className="w-full px-3.5 py-2.5 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-white text-xs focus:outline-none focus:border-[#AB55F7]"
+                            />
+                            {newSiteThumbnail && (
+                              <div className="rounded-xl overflow-hidden border border-[#1E293B] bg-[#0B0F19] p-2 flex items-center gap-3">
+                                <img
+                                  src={newSiteThumbnail}
+                                  alt="Preview"
+                                  className="w-16 h-12 rounded-lg object-cover border border-white/10 shrink-0"
+                                />
+                                <span className="text-xs text-[#94A3B8] truncate">{newSiteThumbnail}</span>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* 8. Notification to clients */}
+                      <div className="p-3 rounded-xl bg-[#0B0F19] border border-[#1E293B] flex items-center gap-2.5">
+                        <input
+                          type="checkbox"
+                          id="sendDetailsCheck"
+                          checked={sendDetailsToClient}
+                          onChange={(e) => setSendDetailsToClient(e.target.checked)}
+                          className="w-4 h-4 rounded text-[#AB55F7] focus:ring-[#AB55F7] border-gray-700 bg-gray-900 cursor-pointer"
+                        />
+                        <label htmlFor="sendDetailsCheck" className="text-xs text-[#CBD5E1] cursor-pointer">
+                          নতুন প্রোডাক্ট পাবলিশের পর সক্রিয় গ্রাহকদের সাপোর্ট চ্যাটে নোটিফিকেশন পাঠান
+                        </label>
+                      </div>
 
                     </div>
 
                     {/* Bottom Sticky Action Bar */}
-                    <div className="px-4 sm:px-6 py-3 border-t border-[#1E293B] bg-[#0E1524] flex gap-2 shrink-0">
+                    <div className="px-4 sm:px-6 py-3.5 border-t border-[#1E293B] bg-[#0E1524] flex gap-2.5 shrink-0">
                       <button
                         type="submit"
-                        className="flex-1 py-3 rounded-xl bg-gradient-to-r from-[#AB55F7] via-[#9333EA] to-[#7C3AED] hover:from-[#9333EA] hover:to-[#6D28D9] text-white text-xs font-bold cursor-pointer shadow-md transition-all active:scale-95"
+                        disabled={isUploadingProduct || imageCompressing}
+                        className="flex-1 py-3 rounded-xl bg-gradient-to-r from-[#AB55F7] via-[#9333EA] to-[#7C3AED] hover:from-[#9333EA] hover:to-[#6D28D9] disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-bold cursor-pointer shadow-md transition-all active:scale-95 flex items-center justify-center gap-2"
                       >
-                        প্রোডাক্ট যুক্ত ও পাবলিশ করুন
+                        {isUploadingProduct ? (
+                          <>
+                            <RefreshCw className="w-4 h-4 animate-spin" />
+                            <span>পাবলিশ ও যুক্ত হচ্ছে...</span>
+                          </>
+                        ) : imageCompressing ? (
+                          <>
+                            <RefreshCw className="w-4 h-4 animate-spin" />
+                            <span>ছবি অপ্টিমাইজ হচ্ছে...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="w-4 h-4" />
+                            <span>প্রোডাক্ট যুক্ত ও পাবলিশ করুন</span>
+                          </>
+                        )}
                       </button>
                       <button
                         type="button"
                         onClick={() => setShowAddWebsiteModal(false)}
-                        className="px-4 py-3 rounded-xl bg-[#1E293B] text-xs text-[#94A3B8] hover:text-white cursor-pointer"
+                        className="px-4 py-3 rounded-xl bg-[#1E293B] text-xs text-[#94A3B8] hover:text-white cursor-pointer transition-colors"
                       >
                         বাতিল
                       </button>
