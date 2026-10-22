@@ -69,6 +69,24 @@ export default function CategoryWebsitesView({
         if (Array.isArray(sites) && sites.length > 0) setCustomWebsites(sites);
       })
       .catch(() => {});
+
+    const handleWebsitesUpdate = (e: any) => {
+      if (e?.detail && Array.isArray(e.detail)) {
+        setCustomWebsites(e.detail);
+      } else {
+        try {
+          const raw = localStorage.getItem('bongoweb_custom_websites') || localStorage.getItem('bongoweb_custom_catalog');
+          if (raw) setCustomWebsites(JSON.parse(raw));
+        } catch (_) {}
+      }
+    };
+
+    window.addEventListener('bongoweb_websites_updated', handleWebsitesUpdate);
+    window.addEventListener('bongoweb_custom_websites_updated', handleWebsitesUpdate);
+    return () => {
+      window.removeEventListener('bongoweb_websites_updated', handleWebsitesUpdate);
+      window.removeEventListener('bongoweb_custom_websites_updated', handleWebsitesUpdate);
+    };
   }, []);
 
   const allDemos = useMemo(() => {

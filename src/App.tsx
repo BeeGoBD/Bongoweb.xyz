@@ -39,6 +39,36 @@ type ViewMode =
   | 'refund'
   | 'not-found';
 
+// Helper to extract demo by code (e.g. 1042 or #1042 or custom uploaded websites)
+// Placed at module level so reference never causes infinite component re-renders
+function findDemoByCode(rawCode: string): WebsiteDemo | null {
+  const clean = decodeURIComponent(String(rawCode || '')).replace('#', '').trim().toLowerCase();
+  
+  // 1. Search in custom websites first (latest uploaded from admin panel)
+  try {
+    const storedCustom = localStorage.getItem('bongoweb_custom_websites') || localStorage.getItem('bongoweb_custom_catalog');
+    if (storedCustom) {
+      const parsed: WebsiteDemo[] = JSON.parse(storedCustom);
+      const foundCustom = parsed.find(
+        (d) => 
+          String(d?.fourDigitCode || '').replace('#', '').toLowerCase() === clean ||
+          String(d?.id || '').toLowerCase() === clean
+      );
+      if (foundCustom) return foundCustom;
+    }
+  } catch (_) {}
+
+  // 2. Search in static mock data
+  const foundStatic = WEBSITE_DEMOS.find(
+    (d) => 
+      String(d?.fourDigitCode || '').replace('#', '').toLowerCase() === clean ||
+      String(d?.id || '').toLowerCase() === clean
+  );
+  if (foundStatic) return foundStatic;
+
+  return WEBSITE_DEMOS[0];
+}
+
 export default function App() {
   const [viewMode, setViewMode] = useState<ViewMode>(() => {
     if (typeof window !== 'undefined') {
@@ -80,32 +110,8 @@ export default function App() {
     }
   });
 
-  // Helper to extract demo by code (e.g. 1042 or #1042 or custom uploaded websites)
-  const findDemoByCode = (rawCode: string): WebsiteDemo | null => {
-    const clean = decodeURIComponent(String(rawCode || '')).replace('#', '').trim().toLowerCase();
-    
-    // 1. Search in static mock data
-    const foundStatic = WEBSITE_DEMOS.find(
-      (d) => String(d?.fourDigitCode || '').replace('#', '').toLowerCase() === clean
-    );
-    if (foundStatic) return foundStatic;
-
-    // 2. Search in custom websites from storage/vault
-    try {
-      const storedCustom = localStorage.getItem('bongoweb_custom_websites');
-      if (storedCustom) {
-        const parsed: WebsiteDemo[] = JSON.parse(storedCustom);
-        const foundCustom = parsed.find(
-          (d) => String(d?.fourDigitCode || '').replace('#', '').toLowerCase() === clean
-        );
-        if (foundCustom) return foundCustom;
-      }
-    } catch (_) {}
-
-    return WEBSITE_DEMOS[0];
-  };
-
   // Parse path from window.location.pathname, hash, or search
+  // Using functional updaters with equality guards to guarantee zero duplicate re-renders
   const parseCurrentUrl = useCallback(() => {
     let rawPath = window.location.pathname || '/';
 
@@ -130,108 +136,110 @@ export default function App() {
     const path = decodeURIComponent(rawPath).replace(/\/+$/, '') || '/';
 
     if (path === '/admin' || path.startsWith('/admin')) {
-      setViewMode('admin');
+      setViewMode(prev => prev === 'admin' ? prev : 'admin');
       return;
     }
 
     if (path.startsWith('/website')) {
       const code = path.replace(/^\/website\/?/, '').split('/')[0].split('?')[0];
       const demo = findDemoByCode(code) || WEBSITE_DEMOS[0];
-      setActiveDemo(demo);
-      setViewMode('website-detail');
+      setActiveDemo(prev => prev?.id === demo.id ? prev : demo);
+      setViewMode(prev => prev === 'website-detail' ? prev : 'website-detail');
       return;
     }
 
     if (path.startsWith('/order')) {
       const code = path.replace(/^\/order\/?/, '').split('/')[0].split('?')[0];
       const demo = findDemoByCode(code) || WEBSITE_DEMOS[0];
-      setActiveDemo(demo);
-      setViewMode('order-page');
+      setActiveDemo(prev => prev?.id === demo.id ? prev : demo);
+      setViewMode(prev => prev === 'order-page' ? prev : 'order-page');
       return;
     }
 
     if (path === '/after-order' || path.startsWith('/after-order')) {
-      setViewMode('after-order');
+      setViewMode(prev => prev === 'after-order' ? prev : 'after-order');
       return;
     }
 
     if (path === '/live-chat' || path.startsWith('/live-chat')) {
-      setViewMode('live-chat');
+      setViewMode(prev => prev === 'live-chat' ? prev : 'live-chat');
       return;
     }
 
     if (path === '/account' || path.startsWith('/account') || path === '/recover-email' || path.startsWith('/recover-email')) {
-      setViewMode('account');
+      setViewMode(prev => prev === 'account' ? prev : 'account');
       return;
     }
 
     if (path.startsWith('/category')) {
       const cat = path.replace(/^\/category\/?/, '').split('/')[0].split('?')[0];
       if (cat) {
-        setSelectedCategory(cat as WebsiteCategory);
+        setSelectedCategory(prev => prev === (cat as WebsiteCategory) ? prev : (cat as WebsiteCategory));
       }
-      setViewMode('category-websites');
+      setViewMode(prev => prev === 'category-websites' ? prev : 'category-websites');
       return;
     }
 
     if (path === '/templates' || path.startsWith('/templates')) {
-      setSelectedCategory('all');
-      setViewMode('category-websites');
+      setSelectedCategory(prev => prev === 'all' ? prev : 'all');
+      setViewMode(prev => prev === 'category-websites' ? prev : 'category-websites');
       return;
     }
 
     if (path === '/preview' || path.startsWith('/preview')) {
-      if (!activeDemo) setActiveDemo(WEBSITE_DEMOS[0]);
-      setViewMode('website-detail');
+      setActiveDemo(prev => prev ? prev : WEBSITE_DEMOS[0]);
+      setViewMode(prev => prev === 'website-detail' ? prev : 'website-detail');
       return;
     }
 
     if (path === '/help' || path.startsWith('/help')) {
-      setViewMode('live-chat');
+      setViewMode(prev => prev === 'live-chat' ? prev : 'live-chat');
       return;
     }
 
     if (path === '/privacy' || path === '/privacy-policy' || path.startsWith('/privacy')) {
-      setViewMode('privacy');
+      setViewMode(prev => prev === 'privacy' ? prev : 'privacy');
       return;
     }
 
     if (path === '/terms' || path === '/terms-and-conditions' || path.startsWith('/terms')) {
-      setViewMode('terms');
+      setViewMode(prev => prev === 'terms' ? prev : 'terms');
       return;
     }
 
     if (path === '/cookies' || path === '/cookie-policy' || path.startsWith('/cookies')) {
-      setViewMode('cookies');
+      setViewMode(prev => prev === 'cookies' ? prev : 'cookies');
       return;
     }
 
     if (path === '/refund' || path === '/refund-policy' || path.startsWith('/refund')) {
-      setViewMode('refund');
+      setViewMode(prev => prev === 'refund' ? prev : 'refund');
       return;
     }
 
     if (path === '/404') {
-      setViewMode('not-found');
+      setViewMode(prev => prev === 'not-found' ? prev : 'not-found');
       return;
     }
 
     if (path === '/dashboard' || path.startsWith('/dashboard')) {
-      setViewMode('dashboard');
+      setViewMode(prev => prev === 'dashboard' ? prev : 'dashboard');
       return;
     }
 
     // Default root path "/"
     if (path === '/' || path === '') {
       const savedCategory = sessionStorage.getItem('bongoweb_chosen_category') || localStorage.getItem('bongoweb_chosen_category');
-      if (savedCategory) setSelectedCategory(savedCategory as WebsiteCategory);
-      setViewMode('dashboard');
+      if (savedCategory) {
+        setSelectedCategory(prev => prev === (savedCategory as WebsiteCategory) ? prev : (savedCategory as WebsiteCategory));
+      }
+      setViewMode(prev => prev === 'dashboard' ? prev : 'dashboard');
       return;
     }
 
     // Any other unrecognized route -> 404 Custom Not Found View
-    setViewMode('not-found');
-  }, [findDemoByCode]);
+    setViewMode(prev => prev === 'not-found' ? prev : 'not-found');
+  }, []);
 
   // Synchronize current view mode to storage
   useEffect(() => {

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { 
   ArrowLeft, ArrowRight, ShoppingBag, CheckCircle2, 
   MessageCircle, ChevronDown, Sparkles, Phone, ArrowDown, X,
-  ExternalLink, Globe, Layout, Image as ImageIcon
+  ExternalLink, Globe, Layout, Image as ImageIcon, RefreshCw, AlertCircle
 } from 'lucide-react';
 import { WebsiteDemo } from '../types';
 import Card3D from './Card3D';
@@ -31,6 +31,8 @@ export default function WebsiteDetailPage({
   const [addedItem, setAddedItem] = useState<string | null>(null);
   const [cartCount, setCartCount] = useState<number>(0);
   const [screenViewMode, setScreenViewMode] = useState<'live' | 'image'>('live');
+  const [iframeLoading, setIframeLoading] = useState(true);
+  const [iframeKey, setIframeKey] = useState(0);
 
   // Formats URL without ever displaying domain link to user
   const getEmbedUrl = (rawUrl?: string) => {
@@ -155,7 +157,7 @@ export default function WebsiteDetailPage({
             </button>
           </div>
 
-          {/* Right: 3) Open Site Link + "Buy It" Action Button */}
+          {/* Right: Open Site Link */}
           <div className="flex items-center gap-2 shrink-0">
             {/* Direct Open Website in New Tab */}
             <a
@@ -164,26 +166,11 @@ export default function WebsiteDetailPage({
               rel="noopener noreferrer"
               onClick={playClickSound}
               title={t('নতুন ট্যাবে ওয়েবসাইটটি ওপেন করুন', 'Open website in new tab')}
-              className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 active:bg-white/30 text-white text-xs font-bold border border-white/20 transition-all cursor-pointer group"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 active:bg-white/30 text-white text-xs font-bold border border-white/20 transition-all cursor-pointer group"
             >
               <ExternalLink className="w-3.5 h-3.5 text-emerald-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
               <span>{t('সাইট ওপেন করুন', 'Open Site')}</span>
             </a>
-
-            <button
-              type="button"
-              onClick={() => onGoToOrder(demo)}
-              aria-label={t('এখনই কিনুন', 'Buy Now')}
-              className="px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 active:from-emerald-700 active:to-teal-700 text-white text-xs sm:text-sm font-black shadow-[0_4px_16px_rgba(16,185,129,0.45)] hover:shadow-[0_6px_22px_rgba(16,185,129,0.6)] border border-emerald-300/40 transition-all duration-200 flex items-center gap-1.5 sm:gap-2 cursor-pointer hover:scale-105 active:scale-95 shrink-0 group"
-            >
-              <span className="hidden xs:inline-block px-1.5 py-0.5 rounded-md bg-white/25 text-white font-mono font-bold text-[11px] sm:text-xs tracking-tight shadow-2xs">
-                {demo.fourDigitCode}
-              </span>
-              <span className="text-white font-black tracking-wide">
-                {t('এখনই কিনুন', 'Buy Now')}
-              </span>
-              <ArrowRight className="w-4 h-4 text-white stroke-[2.5] group-hover:translate-x-0.5 transition-transform duration-200" />
-            </button>
           </div>
         </div>
       </header>
@@ -472,197 +459,92 @@ export default function WebsiteDetailPage({
               )}
             </div>
           ) : (
-            /* Mode 2: Live Interactive Website Simulator */
-            <div className="w-full bg-[#FAFAFC] text-slate-900 flex flex-col min-h-[700px] sm:min-h-[850px] select-none font-sans">
-              {/* Added to cart toast banner */}
-              {addedItem && (
-                <div className="sticky top-0 z-50 w-full py-2.5 px-4 bg-emerald-600 text-white text-xs sm:text-sm font-bold flex items-center justify-center gap-2 shadow-md animate-fadeIn">
-                  <CheckCircle2 className="w-4 h-4 shrink-0 text-white" />
-                  <span>"{addedItem}" {t('কার্টে সফলভাবে যুক্ত হয়েছে!', 'added to cart successfully!')}</span>
+            /* Mode 2: Live Website Viewer (Opens the exact link from website upload) */
+            <div className="w-full bg-slate-900 flex flex-col min-h-[650px] sm:min-h-[800px] md:min-h-[920px] relative overflow-hidden select-none font-sans">
+              {/* Iframe Loading Overlay */}
+              {iframeLoading && (
+                <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-slate-950/90 text-white gap-3 p-6 text-center animate-fadeIn">
+                  <div className="w-12 h-12 rounded-2xl bg-[#5B2C8A]/30 border border-[#AB55F7]/40 flex items-center justify-center text-[#AB55F7]">
+                    <RefreshCw className="w-6 h-6 animate-spin text-purple-400" />
+                  </div>
+                  <div>
+                    <h5 className="text-sm sm:text-base font-bold text-white">
+                      {t('লাইভ ওয়েবসাইট লোড হচ্ছে...', 'Loading live website...')}
+                    </h5>
+                    <p className="text-xs text-purple-200/80 font-mono mt-1 max-w-md truncate">
+                      {getEmbedUrl(demo.demoUrl)}
+                    </p>
+                  </div>
+                  <span className="text-[11px] text-slate-400">
+                    {t('প্রিভিউ স্ক্রিনে সরাসরি ওয়েবসাইটটি প্রদর্শিত হচ্ছে', 'Rendering the website directly inside the preview screen')}
+                  </span>
                 </div>
               )}
 
-              {/* Website Simulator Navigation */}
-              <nav className="w-full bg-white border-b border-slate-200 px-4 sm:px-6 py-3 flex items-center justify-between gap-4 shadow-xs sticky top-0 z-30">
-                <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-                  <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#5B2C8A] to-[#7C3AED] text-white flex items-center justify-center font-bold text-sm shadow-xs shrink-0">
-                    🛍️
-                  </div>
-                  <div className="min-w-0">
-                    <span className="font-extrabold text-xs sm:text-sm text-slate-900 truncate block">
-                      {demo.title}
-                    </span>
-                    <span className="text-[10px] text-emerald-600 font-bold block">
-                      ● Verified 100% Live
-                    </span>
-                  </div>
+              {/* Embedded Live Website Iframe */}
+              <iframe
+                key={iframeKey}
+                id="real-live-website-preview-frame"
+                src={getEmbedUrl(demo.demoUrl)}
+                title={demo.title}
+                onLoad={() => setIframeLoading(false)}
+                className="w-full flex-1 min-h-[650px] sm:min-h-[800px] md:min-h-[920px] border-0 bg-white"
+                sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                loading="eager"
+              />
+
+              {/* Bottom Interactive Control & Fallback Bar */}
+              <div className="w-full px-3 sm:px-5 py-3 bg-[#110D1E] border-t border-purple-900/40 flex flex-wrap items-center justify-between gap-3 text-white text-xs select-none">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                  <span className="text-[11px] sm:text-xs font-semibold text-slate-300 truncate">
+                    {t('লাইভ ওয়েবসাইট ইন্টারঅ্যাক্টিভ প্রিভিউ', 'Live Interactive Website Preview')}
+                  </span>
+                  <span className="hidden sm:inline-block font-mono text-[10px] text-purple-300 bg-purple-950/60 px-2 py-0.5 rounded border border-purple-500/30 truncate max-w-[200px]">
+                    {getEmbedUrl(demo.demoUrl)}
+                  </span>
                 </div>
 
-                <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-                  {/* Cart Button */}
+                <div className="flex items-center gap-2 shrink-0">
+                  {/* Refresh Iframe */}
                   <button
                     type="button"
                     onClick={() => {
                       playClickSound();
-                      onGoToOrder(demo);
+                      setIframeLoading(true);
+                      setIframeKey(k => k + 1);
                     }}
-                    className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer relative"
+                    title={t('পুনরায় লোড করুন', 'Reload website')}
+                    className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-slate-200 hover:text-white transition-all cursor-pointer flex items-center gap-1 text-[11px] font-bold"
                   >
-                    <ShoppingBag className="w-4 h-4 text-[#5B2C8A]" />
-                    <span className="hidden xs:inline">{t('কার্ট', 'Cart')}</span>
-                    <span className="w-5 h-5 rounded-full bg-[#5B2C8A] text-white text-[10px] font-bold flex items-center justify-center">
-                      {cartCount}
-                    </span>
+                    <RefreshCw className="w-3.5 h-3.5" />
+                    <span className="hidden xs:inline">{t('রিলোড', 'Reload')}</span>
                   </button>
 
-                  {/* Buy Now directly from simulator */}
+                  {/* Switch to Image */}
                   <button
                     type="button"
                     onClick={() => {
                       playClickSound();
-                      onGoToOrder(demo);
+                      setScreenViewMode('image');
                     }}
-                    className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all flex items-center gap-1 cursor-pointer shadow-xs"
+                    className="px-2.5 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-purple-200 hover:text-white transition-all cursor-pointer text-[11px] font-bold"
                   >
-                    <span>{t('এখনই কিনুন', 'Buy Now')}</span>
+                    {t('প্রিভিউ ছবি', 'Preview Image')}
                   </button>
-                </div>
-              </nav>
 
-              {/* Hero Banner Section */}
-              <div className="w-full bg-gradient-to-br from-purple-900 via-[#5B2C8A] to-indigo-900 text-white px-4 sm:px-8 py-8 sm:py-12 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
-                <div className="max-w-xl space-y-3 z-10 text-center md:text-left">
-                  <span className="px-3 py-1 rounded-full bg-white/20 text-white font-mono text-[11px] font-bold inline-block border border-white/30 backdrop-blur-xs">
-                    {demo.categoryLabel || 'Exclusive Store'} • {demo.fourDigitCode}
-                  </span>
-                  <h3 className="text-xl sm:text-3xl font-black text-white leading-tight">
-                    {demo.heroHeadline || demo.title}
-                  </h3>
-                  <p className="text-xs sm:text-sm text-purple-100/90 leading-relaxed">
-                    {demo.mockData?.heroSub || demo.description}
-                  </p>
-                  <div className="pt-2 flex flex-wrap items-center justify-center md:justify-start gap-3">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        playClickSound();
-                        onGoToOrder(demo);
-                      }}
-                      className="px-4 sm:px-5 py-2.5 rounded-xl bg-white text-[#5B2C8A] hover:bg-slate-100 text-xs sm:text-sm font-extrabold shadow-md transition-all cursor-pointer flex items-center gap-1.5"
-                    >
-                      <span>{t('অর্ডার করুন', 'Order Now')}</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
-                    <a
-                      href={getEmbedUrl(demo.demoUrl)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="px-4 py-2.5 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-bold border border-white/25 transition-all flex items-center gap-1.5 cursor-pointer"
-                    >
-                      <ExternalLink className="w-3.5 h-3.5" />
-                      <span>{t('লাইভ সাইট ভিজিট', 'Visit Live Site')}</span>
-                    </a>
-                  </div>
-                </div>
-
-                {/* Hero Showcase Image */}
-                <div className="w-full md:w-80 rounded-2xl overflow-hidden shadow-2xl border-2 border-white/20 aspect-4/3 relative shrink-0">
-                  <img
-                    src={demo.previewImage}
-                    alt={demo.title}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-3">
-                    <span className="text-[11px] font-bold text-white font-mono bg-[#5B2C8A]/80 px-2 py-0.5 rounded-md backdrop-blur-xs">
-                      100% Mobile Ready
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Trust Badges Strip */}
-              <div className="w-full bg-white border-b border-slate-200 py-3 px-4 sm:px-6">
-                <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-3 text-xs font-semibold text-slate-700">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>১ বছর ফ্রি ডোমেইন ও হোস্টিং</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>বিকাশ/নগদ অটো পেমেন্ট</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>কুরিয়ার অটো ট্র্যাকিং API</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>২৪ ঘণ্টায় লাইভ ডেলিভারি</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Interactive Store Items Showcase */}
-              <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-4">
-                <div className="flex items-center justify-between border-b border-slate-200 pb-3">
-                  <div>
-                    <h4 className="text-sm sm:text-base font-extrabold text-slate-900">
-                      {t('স্টোরের প্রোডাক্ট ক্যাটালগ', 'Store Products & Catalog')}
-                    </h4>
-                    <p className="text-xs text-slate-500">
-                      {t('কার্টে যোগ করে লাইভ ওয়েবসাইট অভিজ্ঞতা পরীক্ষা করুন', 'Add products to cart to test live website functionality')}
-                    </p>
-                  </div>
-                  <span className="text-xs font-bold text-[#5B2C8A] bg-purple-50 px-2.5 py-1 rounded-lg border border-purple-200">
-                    {demo.mockData?.items?.length || 3} {t('টি আইটেম', 'Items')}
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {(demo.mockData?.items || [
-                    { name: 'Wireless Active Noise-Canceling Earbuds', price: '1,650 BDT', tag: 'Sale', image: demo.previewImage },
-                    { name: 'Ultra Smartwatch Series 8 Pro', price: '2,190 BDT', tag: 'Top Rated', image: demo.previewImage },
-                    { name: 'Fast-Charging Powerbank 20,000 mAh', price: '1,100 BDT', tag: 'Popular', image: demo.previewImage }
-                  ]).map((item, idx) => (
-                    <div
-                      key={idx}
-                      className="p-3.5 rounded-2xl bg-white border border-slate-200 hover:border-purple-300 shadow-xs hover:shadow-md transition-all flex flex-col justify-between"
-                    >
-                      <div>
-                        <div className="w-full h-36 rounded-xl overflow-hidden bg-slate-100 mb-2.5 relative">
-                          <img
-                            src={item.image || demo.previewImage}
-                            alt={item.name}
-                            className="w-full h-full object-cover"
-                          />
-                          {item.tag && (
-                            <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-emerald-600 text-white text-[10px] font-bold shadow-xs">
-                              {item.tag}
-                            </span>
-                          )}
-                        </div>
-                        <h5 className="text-xs sm:text-sm font-bold text-slate-900 line-clamp-1">
-                          {item.name}
-                        </h5>
-                        <p className="text-xs font-mono font-bold text-[#5B2C8A] mt-1">
-                          {item.price}
-                        </p>
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={() => {
-                          playClickSound();
-                          setCartCount(prev => prev + 1);
-                          handleTestAddToCart(item.name);
-                        }}
-                        className="mt-3 w-full py-2 rounded-xl bg-slate-900 hover:bg-[#5B2C8A] text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
-                      >
-                        <ShoppingBag className="w-3.5 h-3.5" />
-                        <span>{t('কার্টে যোগ করুন', 'Add to Cart')}</span>
-                      </button>
-                    </div>
-                  ))}
+                  {/* Open Fullsite in new tab */}
+                  <a
+                    href={getEmbedUrl(demo.demoUrl)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={playClickSound}
+                    className="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold text-[11px] transition-all flex items-center gap-1.5 cursor-pointer shadow-md"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    <span>{t('নতুন ট্যাবে খুলুন', 'Open in New Tab')}</span>
+                  </a>
                 </div>
               </div>
             </div>
@@ -733,6 +615,72 @@ export default function WebsiteDetailPage({
           <a href="tel:+8801955570912" className="hover:text-[#5B2C8A] underline font-mono">01955570912</a>
         </div>
       </footer>
+
+      {/* 5. Stitched Right-Wall Floating "Buy Now" Button (Cart/Shop Style Side Drawer Dock) */}
+      <aside
+        id="floating-right-wall-buy-now-dock"
+        aria-label={t('এখনই কিনুন - সাইড বাটন', 'Floating Buy Now')}
+        className="fixed right-0 top-1/2 -translate-y-1/2 z-50 select-none group"
+      >
+        <button
+          type="button"
+          onClick={() => {
+            playClickSound();
+            onGoToOrder(demo);
+          }}
+          aria-label={`${t('এখনই কিনুন', 'Buy Now')} ${demo.title}`}
+          title={`${t('এখনই ওয়েবসাইটটি কিনুন', 'Buy this website now')} (${demo.fourDigitCode})`}
+          className="relative flex flex-col items-center justify-center py-4 px-2 sm:px-3 rounded-l-2xl sm:rounded-l-3xl rounded-r-none bg-gradient-to-b from-emerald-500 via-teal-600 to-[#03543e] text-white shadow-[-8px_4px_30px_rgba(16,185,129,0.5)] hover:shadow-[-14px_8px_40px_rgba(16,185,129,0.7)] border-y-2 border-l-2 border-r-0 border-emerald-300/80 cursor-pointer transition-all duration-300 ease-out transform hover:-translate-x-2 sm:hover:-translate-x-3 active:scale-95"
+        >
+          {/* Subtle tactile grip notches stitched flat to the screen's right wall */}
+          <div className="absolute right-0.5 top-3 bottom-3 w-1 flex flex-col justify-between items-center opacity-40">
+            <span className="w-1 h-1 rounded-full bg-white block" />
+            <span className="w-1 h-1 rounded-full bg-white block" />
+            <span className="w-1 h-1 rounded-full bg-white block" />
+            <span className="w-1 h-1 rounded-full bg-white block" />
+          </div>
+
+          {/* Glowing pulse beacon & Shopping Bag Icon */}
+          <div className="relative mb-2 flex items-center justify-center">
+            <span className="animate-ping absolute inline-flex h-4 w-4 rounded-full bg-emerald-200 opacity-80" />
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/20 backdrop-blur-xs border border-white/50 flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:bg-white text-emerald-800 transition-all duration-300">
+              <ShoppingBag className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-white group-hover:text-emerald-700 transition-colors stroke-[2.4]" />
+            </div>
+          </div>
+
+          {/* Primary "Buy Now" CTA Typography */}
+          <div className="flex flex-col items-center text-center font-black tracking-wider uppercase leading-none drop-shadow-md">
+            <span className="text-[11px] sm:text-xs text-white">
+              {language === 'bn' ? 'এখনই' : 'BUY'}
+            </span>
+            <span className="text-[11px] sm:text-xs text-amber-300 mt-0.5">
+              {language === 'bn' ? 'কিনুন' : 'NOW'}
+            </span>
+          </div>
+
+          {/* Price Tag Pill */}
+          <div className="mt-2.5 px-1.5 sm:px-2 py-0.5 rounded-lg bg-black/40 border border-white/30 text-[10px] sm:text-[11px] font-mono font-black text-white text-center whitespace-nowrap shadow-xs">
+            {demo.priceTag || '৳১,৯৯০'}
+          </div>
+
+          {/* Website Code Badge */}
+          <span className="mt-1 px-1 rounded bg-white/15 text-[9px] font-mono font-bold text-emerald-100 tracking-tight">
+            {demo.fourDigitCode}
+          </span>
+
+          {/* Hover interactive Arrow trigger */}
+          <div className="mt-2 w-5 h-5 rounded-full bg-white/20 group-hover:bg-white text-white group-hover:text-emerald-700 flex items-center justify-center transition-all duration-200 shadow-2xs">
+            <ArrowRight className="w-3 h-3 stroke-[3] group-hover:translate-x-0.5 transition-transform" />
+          </div>
+
+          {/* Floating Slide-out Hover Tooltip Tag on Left */}
+          <div className="absolute right-full top-1/2 -translate-y-1/2 mr-2.5 hidden group-hover:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 text-white text-xs font-bold whitespace-nowrap shadow-xl border border-emerald-400/40 pointer-events-none animate-fadeIn">
+            <Sparkles className="w-3.5 h-3.5 text-amber-300 shrink-0" />
+            <span>{language === 'bn' ? '১-ক্লিকে এখনই অর্ডার করুন' : '1-Click Instant Order'}</span>
+            <div className="w-2 h-2 bg-slate-900 rotate-45 absolute -right-1 top-1/2 -translate-y-1/2 border-r border-t border-emerald-400/40" />
+          </div>
+        </button>
+      </aside>
     </div>
   );
 }

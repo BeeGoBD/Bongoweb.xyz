@@ -1013,6 +1013,69 @@ export default function LiveBrowserPage({
               </div>
             </footer>
           </main>
+
+          {/* Floating Stitched Right-Wall "Buy Now" Button (Cart/Drawer Style Dock) */}
+          <aside
+            id="live-browser-floating-right-buy-btn"
+            aria-label="এখনই কিনুন - সাইড বাটন"
+            className="fixed right-0 top-1/2 -translate-y-1/2 z-50 select-none group"
+          >
+            <button
+              type="button"
+              onClick={() => onSelectForOrder(activeDemo)}
+              aria-label={`এখনই কিনুন ${activeDemo.title}`}
+              title={`এখনই এই ওয়েবসাইটটি কিনুন (${activeDemo.fourDigitCode})`}
+              className="relative flex flex-col items-center justify-center py-4 px-2 sm:px-3 rounded-l-2xl sm:rounded-l-3xl rounded-r-none bg-gradient-to-b from-[#800020] via-[#9e1b32] to-[#5a0016] text-white shadow-[-8px_4px_30px_rgba(128,0,32,0.45)] hover:shadow-[-14px_8px_40px_rgba(128,0,32,0.65)] border-y-2 border-l-2 border-r-0 border-amber-300/60 cursor-pointer transition-all duration-300 ease-out transform hover:-translate-x-2 sm:hover:-translate-x-3 active:scale-95"
+            >
+              {/* Stitched grip notches */}
+              <div className="absolute right-0.5 top-3 bottom-3 w-1 flex flex-col justify-between items-center opacity-40">
+                <span className="w-1 h-1 rounded-full bg-white block" />
+                <span className="w-1 h-1 rounded-full bg-white block" />
+                <span className="w-1 h-1 rounded-full bg-white block" />
+                <span className="w-1 h-1 rounded-full bg-white block" />
+              </div>
+
+              {/* Glowing radar beacon + Shopping Bag */}
+              <div className="relative mb-2 flex items-center justify-center">
+                <span className="animate-ping absolute inline-flex h-4 w-4 rounded-full bg-amber-200 opacity-80" />
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/20 backdrop-blur-xs border border-white/50 flex items-center justify-center shadow-inner group-hover:scale-110 group-hover:bg-white text-[#800020] transition-all duration-300">
+                  <ShoppingBag className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-white group-hover:text-[#800020] transition-colors stroke-[2.4]" />
+                </div>
+              </div>
+
+              {/* Primary Call to Action */}
+              <div className="flex flex-col items-center text-center font-black tracking-wider uppercase leading-none drop-shadow-md">
+                <span className="text-[11px] sm:text-xs text-white">
+                  এখনই
+                </span>
+                <span className="text-[11px] sm:text-xs text-amber-300 mt-0.5">
+                  কিনুন
+                </span>
+              </div>
+
+              {/* Price pill */}
+              <div className="mt-2.5 px-1.5 sm:px-2 py-0.5 rounded-lg bg-black/40 border border-white/30 text-[10px] sm:text-[11px] font-mono font-black text-amber-200 text-center whitespace-nowrap shadow-xs">
+                {activeDemo.priceTag || '৳১,৯৯০'}
+              </div>
+
+              {/* Code badge */}
+              <span className="mt-1 px-1 rounded bg-white/15 text-[9px] font-mono font-bold text-white/90 tracking-tight">
+                {activeDemo.fourDigitCode}
+              </span>
+
+              {/* Hover arrow */}
+              <div className="mt-2 w-5 h-5 rounded-full bg-white/20 group-hover:bg-white text-white group-hover:text-[#800020] flex items-center justify-center transition-all duration-200 shadow-2xs">
+                <ArrowRight className="w-3 h-3 stroke-[3] group-hover:translate-x-0.5 transition-transform" />
+              </div>
+
+              {/* Floating Slide-out Tooltip */}
+              <div className="absolute right-full top-1/2 -translate-y-1/2 mr-2.5 hidden group-hover:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 text-white text-xs font-bold whitespace-nowrap shadow-xl border border-amber-400/40 pointer-events-none animate-fadeIn">
+                <Sparkles className="w-3.5 h-3.5 text-amber-300 shrink-0" />
+                <span>১-ক্লিকে ওয়েবসাইটটি কিনুন</span>
+                <div className="w-2 h-2 bg-slate-900 rotate-45 absolute -right-1 top-1/2 -translate-y-1/2 border-r border-t border-amber-400/40" />
+              </div>
+            </button>
+          </aside>
         </div>
       )}
     </div>
