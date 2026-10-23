@@ -91,16 +91,18 @@ export default function CategoryWebsitesView({
 
   const allDemos = useMemo(() => {
     const map = new Map<string, WebsiteDemo>();
-    // 1. Initial base demos
-    WEBSITE_DEMOS.forEach((site) => {
-      const key = String(site.fourDigitCode || site.id).replace('#', '').trim().toLowerCase();
-      map.set(key, site);
-    });
-    // 2. Custom/persisted demos (overwrite or add new)
+    // 1. Put custom/uploaded demos FIRST so newly uploaded products appear right at the top
     (customWebsites || []).forEach((site) => {
       if (!site) return;
       const key = String(site.fourDigitCode || site.id).replace('#', '').trim().toLowerCase();
       map.set(key, site);
+    });
+    // 2. Add base stock demos for any not already present
+    WEBSITE_DEMOS.forEach((site) => {
+      const key = String(site.fourDigitCode || site.id).replace('#', '').trim().toLowerCase();
+      if (!map.has(key)) {
+        map.set(key, site);
+      }
     });
     return Array.from(map.values());
   }, [customWebsites]);
@@ -113,7 +115,8 @@ export default function CategoryWebsitesView({
         const matchesCategory = 
           demo.category === selectedFilter ||
           (selectedFilter === 'landing' && (demo.category === 'landing' || demo.category === 'blogging')) ||
-          (selectedFilter === 'portfolio' && (demo.category === 'portfolio' || demo.category === 'corporate'));
+          (selectedFilter === 'portfolio' && (demo.category === 'portfolio' || demo.category === 'corporate')) ||
+          (selectedFilter === 'ecommerce' && (demo.category === 'ecommerce' || demo.category === 'fashion'));
         if (!matchesCategory) return false;
       }
 
@@ -210,7 +213,7 @@ export default function CategoryWebsitesView({
           </div>
         </section>
 
-        {/* 4. Template Grid (2 columns on mobile, 3 on tablet/laptop, 4 on desktop) */}
+        {/* 4. Template Display: Mobile keeps full-width showcase; Laptop uses the clean, responsive multi-column grid */}
         <section className="w-full pt-1">
           {filteredDemos.length === 0 ? (
             <div className="bg-[#FFFFFF] border border-[#EDE4F5] rounded-2xl p-8 text-center max-w-md mx-auto my-6 shadow-xs">
@@ -235,7 +238,7 @@ export default function CategoryWebsitesView({
               </button>
             </div>
           ) : (
-            <div className="flex flex-col gap-6 sm:gap-8 max-w-4xl mx-auto w-full">
+            <div className="flex flex-col gap-6 max-w-xl mx-auto md:max-w-none md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-6 lg:gap-8 w-full">
               {filteredDemos.map((demo, idx) => {
                 const categoryLabel = 
                   demo.category === 'ecommerce' ? 'Ecommerce' :
@@ -252,118 +255,119 @@ export default function CategoryWebsitesView({
                 return (
                   <article
                     key={uniqueKey}
-                    className="group bg-[#FFFFFF] rounded-2xl sm:rounded-3xl border border-[#EDE4F5] shadow-soft hover:shadow-soft-lg hover:border-[#5B2C8A]/40 transition-all duration-300 overflow-hidden flex flex-col"
+                    className="group bg-[#FFFFFF] rounded-2xl md:rounded-3xl border border-[#EDE4F5] shadow-soft hover:shadow-soft-lg hover:border-[#5B2C8A]/40 transition-all duration-300 overflow-hidden flex flex-col justify-between"
                   >
-                    {/* Realistic Browser Window Header Bar */}
-                    <div className="px-4 py-2.5 sm:py-3 bg-[#FAF7F2] border-b border-[#EDE4F5] flex items-center justify-between select-none shrink-0">
-                      <div className="flex items-center gap-2 min-w-0">
-                        {/* macOS Traffic Dots */}
+                    <div>
+                      {/* Realistic Browser Window Header Bar */}
+                      <div className="px-3.5 py-2 sm:px-4 sm:py-2.5 bg-[#FAF7F2] border-b border-[#EDE4F5] flex items-center justify-between select-none shrink-0">
+                        <div className="flex items-center gap-2 min-w-0">
+                          {/* macOS Traffic Dots */}
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <span className="w-2.5 h-2.5 rounded-full bg-[#EF4444]/80 inline-block" />
+                            <span className="w-2.5 h-2.5 rounded-full bg-[#F59E0B]/80 inline-block" />
+                            <span className="w-2.5 h-2.5 rounded-full bg-[#10B981]/80 inline-block" />
+                          </div>
+                          {/* Simulated Browser Address Pill */}
+                          <div className="hidden xs:flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-white border border-[#EDE4F5] text-[10px] md:text-[11px] font-mono text-[#5B2C8A] font-semibold truncate max-w-[140px] md:max-w-[130px] lg:max-w-[160px]">
+                            <span className="text-emerald-600 font-bold">https://</span>
+                            <span className="truncate">{cleanDemoCode.toLowerCase()}.bongoweb.site</span>
+                          </div>
+                        </div>
+
                         <div className="flex items-center gap-1.5 shrink-0">
-                          <span className="w-2.5 h-2.5 rounded-full bg-[#EF4444]/80 inline-block" />
-                          <span className="w-2.5 h-2.5 rounded-full bg-[#F59E0B]/80 inline-block" />
-                          <span className="w-2.5 h-2.5 rounded-full bg-[#10B981]/80 inline-block" />
-                        </div>
-                        {/* Simulated Browser Address Pill */}
-                        <div className="hidden xs:flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white border border-[#EDE4F5] text-[11px] font-mono text-[#5B2C8A] font-semibold truncate">
-                          <span className="text-emerald-600 font-bold">https://</span>
-                          <span className="truncate">{cleanDemoCode.toLowerCase()}.bongoweb.site</span>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2 shrink-0">
-                        <span className="font-mono text-xs font-bold px-2.5 py-0.5 rounded-md bg-[#5B2C8A] text-white shadow-2xs">
-                          {demo.fourDigitCode}
-                        </span>
-                        <span className="text-[11px] font-bold text-[#5B2C8A] bg-purple-50 px-2.5 py-0.5 rounded-full border border-purple-200">
-                          {categoryLabel}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Long, Tall Webpage Preview Window ("long long" so customers get preview before clicking) */}
-                    <div 
-                      onClick={() => onOpenWebsiteDetail(demo)}
-                      className="relative w-full h-[280px] xs:h-[340px] sm:h-[440px] md:h-[520px] overflow-hidden bg-[#F8F5FC] cursor-pointer group/preview"
-                    >
-                      <img
-                        src={demo.previewImage}
-                        alt={demo.title}
-                        loading="lazy"
-                        className="w-full h-full object-cover object-top group-hover/preview:scale-[1.02] transition-transform duration-500"
-                      />
-
-                      {/* Bottom Gradient Scrim with preview hint */}
-                      <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/60 via-black/20 to-transparent pointer-events-none flex items-end p-4 sm:p-5">
-                        <span className="text-white text-xs sm:text-sm font-bold flex items-center gap-2 drop-shadow-sm">
-                          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                          <span>{language === 'bn' ? 'সম্পূর্ণ লাইভ ওয়েবসাইট দেখতে ক্লিক করুন' : 'Click to inspect full live website'}</span>
-                        </span>
-                      </div>
-
-                      {/* Hover Overlay preview action */}
-                      <div className="absolute inset-0 bg-[#5B2C8A]/15 opacity-0 group-hover/preview:opacity-100 transition-opacity flex items-center justify-center">
-                        <span className="px-5 py-2.5 rounded-2xl bg-white text-[#5B2C8A] font-bold text-xs sm:text-sm shadow-xl border border-[#EDE4F5] flex items-center gap-2 transform translate-y-2 group-hover/preview:translate-y-0 transition-transform">
-                          <Eye className="w-4 h-4 stroke-[2.2]" />
-                          <span>{language === 'bn' ? 'আগে দেখুন (Live Preview)' : 'See First (Live Preview)'}</span>
-                          <ArrowRight className="w-3.5 h-3.5" />
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Card Content & Details (Title, Price, Actions) */}
-                    <div className="p-4 sm:p-5 space-y-3">
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-                        <div className="min-w-0 flex-1">
-                          <h2 
-                            onClick={() => onOpenWebsiteDetail(demo)}
-                            className="text-base sm:text-xl font-extrabold text-[#1F1F2E] hover:text-[#5B2C8A] transition-colors cursor-pointer leading-snug"
-                            title={demo.title}
-                          >
-                            {demo.title}
-                          </h2>
-                        </div>
-
-                        {/* Price Badge */}
-                        <div className="sm:text-right shrink-0">
-                          <span className="text-[10px] sm:text-[11px] text-[#6B7280] block font-medium">
-                            {language === 'bn' ? 'প্যাকেজ মূল্য' : 'Setup Price'}
+                          <span className="font-mono text-[11px] md:text-xs font-bold px-2 py-0.5 rounded-md bg-[#5B2C8A] text-white shadow-2xs">
+                            {demo.fourDigitCode}
                           </span>
-                          <span className="text-lg sm:text-2xl font-black font-mono text-[#5B2C8A]">
-                            {demo.priceTag || '১,৯৯০ ৳'}
+                          <span className="text-[10px] md:text-[11px] font-bold text-[#5B2C8A] bg-purple-50 px-2 py-0.5 rounded-full border border-purple-200 truncate max-w-[100px]">
+                            {categoryLabel}
                           </span>
                         </div>
                       </div>
 
-                      {/* Bottom Action Area: "Buy Now" (solid purple) and "See First" button */}
-                      <div className="pt-3 border-t border-[#EDE4F5] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-                        <div className="flex items-center gap-2.5">
-                          {/* Solid Purple "Buy Now" Button */}
-                          <button
-                            type="button"
-                            onClick={() => onOpenOrder(demo)}
-                            className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl bg-[#5B2C8A] hover:bg-[#4A1F6E] active:bg-[#3C165C] text-white text-xs sm:text-sm font-bold transition-all cursor-pointer text-center shadow-xs flex items-center justify-center gap-2 active:scale-95"
-                          >
-                            <ShoppingBag className="w-4 h-4" />
-                            <span>{language === 'bn' ? 'এখনই কিনুন (Buy Now)' : 'Buy Now'}</span>
-                          </button>
+                      {/* Webpage Preview Window: Full height on mobile; clean proportional height on laptop */}
+                      <div 
+                        onClick={() => onOpenWebsiteDetail(demo)}
+                        className="relative w-full h-[280px] xs:h-[340px] sm:h-[400px] md:h-[210px] lg:h-[235px] overflow-hidden bg-[#F8F5FC] cursor-pointer group/preview"
+                      >
+                        <img
+                          src={demo.previewImage}
+                          alt={demo.title}
+                          loading="lazy"
+                          className="w-full h-full object-cover object-top group-hover/preview:scale-[1.03] transition-transform duration-500"
+                        />
 
-                          {/* "See First" Button */}
-                          <button
-                            type="button"
-                            onClick={() => onOpenWebsiteDetail(demo)}
-                            className="flex-1 sm:flex-none px-5 py-2.5 rounded-xl bg-white hover:bg-[#F8F5FC] text-[#5B2C8A] hover:text-[#4A1F6E] border border-[#EDE4F5] hover:border-[#5B2C8A]/40 text-xs sm:text-sm font-bold inline-flex items-center justify-center gap-1.5 cursor-pointer transition-all shadow-2xs active:scale-95"
-                          >
-                            <Eye className="w-4 h-4" />
-                            <span>{language === 'bn' ? 'আগে দেখুন (See First)' : 'See First'}</span>
+                        {/* Bottom Gradient Scrim with preview hint */}
+                        <div className="absolute inset-x-0 bottom-0 h-16 md:h-14 bg-gradient-to-t from-black/60 via-black/20 to-transparent pointer-events-none flex items-end p-3 sm:p-4">
+                          <span className="text-white text-xs font-bold flex items-center gap-1.5 drop-shadow-sm truncate">
+                            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                            <span className="truncate">{language === 'bn' ? 'সম্পূর্ণ লাইভ ওয়েবসাইট দেখুন' : 'Click to inspect full live website'}</span>
+                          </span>
+                        </div>
+
+                        {/* Hover Overlay preview action */}
+                        <div className="absolute inset-0 bg-[#5B2C8A]/15 opacity-0 group-hover/preview:opacity-100 transition-opacity flex items-center justify-center">
+                          <span className="px-4 py-2 rounded-xl bg-white text-[#5B2C8A] font-bold text-xs sm:text-sm shadow-xl border border-[#EDE4F5] flex items-center gap-1.5 transform translate-y-2 group-hover/preview:translate-y-0 transition-transform">
+                            <Eye className="w-4 h-4 stroke-[2.2]" />
+                            <span>{language === 'bn' ? 'আগে দেখুন' : 'Live Preview'}</span>
                             <ArrowRight className="w-3.5 h-3.5" />
-                          </button>
+                          </span>
                         </div>
+                      </div>
 
-                        {/* Guarantee Label */}
-                        <span className="text-[11px] text-slate-500 font-medium flex items-center gap-1 justify-center sm:justify-end">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                          <span>{language === 'bn' ? '২৪ ঘণ্টার মধ্যে রেডি ওয়েবসাইট ডেলিভারি' : 'Ready website delivery within 24 hours'}</span>
-                        </span>
+                      {/* Card Content & Details (Title & Price) */}
+                      <div className="p-4 sm:p-4.5 space-y-2.5">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="min-w-0 flex-1">
+                            <h2 
+                              onClick={() => onOpenWebsiteDetail(demo)}
+                              className="text-base sm:text-lg font-extrabold text-[#1F1F2E] hover:text-[#5B2C8A] transition-colors cursor-pointer leading-snug line-clamp-1"
+                              title={demo.title}
+                            >
+                              {demo.title}
+                            </h2>
+                          </div>
+
+                          {/* Price Badge */}
+                          <div className="text-right shrink-0">
+                            <span className="text-[10px] text-[#6B7280] block font-medium leading-none mb-0.5">
+                              {language === 'bn' ? 'প্যাকেজ' : 'Price'}
+                            </span>
+                            <span className="text-base sm:text-xl font-black font-mono text-[#5B2C8A]">
+                              {demo.priceTag || '১,৯৯০ ৳'}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Bottom Action Area: "Buy Now" and "See First" buttons side-by-side */}
+                    <div className="px-4 pb-4 sm:px-4.5 sm:pb-4.5 space-y-2.5">
+                      <div className="pt-2.5 border-t border-[#EDE4F5] flex items-center gap-2">
+                        {/* Solid Purple "Buy Now" Button */}
+                        <button
+                          type="button"
+                          onClick={() => onOpenOrder(demo)}
+                          className="flex-1 py-2.5 px-3 rounded-xl bg-[#5B2C8A] hover:bg-[#4A1F6E] active:bg-[#3C165C] text-white text-xs sm:text-sm font-bold transition-all cursor-pointer text-center shadow-xs flex items-center justify-center gap-1.5 active:scale-95"
+                        >
+                          <ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+                          <span className="truncate">{language === 'bn' ? 'এখনই কিনুন' : 'Buy Now'}</span>
+                        </button>
+
+                        {/* "See First" Button */}
+                        <button
+                          type="button"
+                          onClick={() => onOpenWebsiteDetail(demo)}
+                          className="flex-1 py-2.5 px-3 rounded-xl bg-white hover:bg-[#F8F5FC] text-[#5B2C8A] hover:text-[#4A1F6E] border border-[#EDE4F5] hover:border-[#5B2C8A]/40 text-xs sm:text-sm font-bold inline-flex items-center justify-center gap-1.5 cursor-pointer transition-all shadow-2xs active:scale-95"
+                        >
+                          <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+                          <span className="truncate">{language === 'bn' ? 'আগে দেখুন' : 'See First'}</span>
+                        </button>
+                      </div>
+
+                      {/* Guarantee Label */}
+                      <div className="text-[10px] sm:text-[11px] text-slate-500 font-medium flex items-center gap-1 justify-center">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                        <span className="truncate">{language === 'bn' ? '২৪ ঘণ্টার মধ্যে রেডি ওয়েবসাইট ডেলিভারি' : 'Ready website delivery within 24 hours'}</span>
                       </div>
                     </div>
 

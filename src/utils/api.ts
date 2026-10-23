@@ -1435,18 +1435,21 @@ export async function apiReopenChat(phone: string): Promise<void> {
 }
 
 // Helper to merge default stock websites with custom websites cleanly
+// Custom uploaded websites take priority and appear at the TOP of the inventory
 function getMergedWebsites(existingCustom: WebsiteDemo[] = []): WebsiteDemo[] {
   const map = new Map<string, WebsiteDemo>();
-  // 1. Base stock websites
-  WEBSITE_DEMOS.forEach(site => {
-    const key = String(site.fourDigitCode || site.id).replace('#', '').trim().toLowerCase();
-    map.set(key, site);
-  });
-  // 2. Overlay / append custom websites (latest custom websites override or add new entries)
+  // 1. Custom / newly uploaded websites first so latest uploads appear right at the front
   (existingCustom || []).forEach(site => {
     if (!site) return;
     const key = String(site.fourDigitCode || site.id).replace('#', '').trim().toLowerCase();
     map.set(key, site);
+  });
+  // 2. Base stock websites added for any categories not overridden
+  WEBSITE_DEMOS.forEach(site => {
+    const key = String(site.fourDigitCode || site.id).replace('#', '').trim().toLowerCase();
+    if (!map.has(key)) {
+      map.set(key, site);
+    }
   });
   return Array.from(map.values());
 }
@@ -1508,6 +1511,24 @@ export async function apiGetWebsites(): Promise<WebsiteDemo[]> {
 export async function apiAddWebsite(website: WebsiteDemo): Promise<WebsiteDemo[]> {
   const cleanCode = (website.fourDigitCode || website.id).replace(/[^a-zA-Z0-9_-]/g, '_');
 
+  // 1. Immediately persist to Express backend and await completion
+  try {
+    const res = await fetch('/api/websites', {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(website)
+    });
+    if (res.ok) {
+      const serverWebsites = await res.json();
+      if (Array.isArray(serverWebsites) && serverWebsites.length > 0) {
+        localCache.customWebsites = getMergedWebsites(serverWebsites);
+      }
+    }
+  } catch (err) {
+    console.warn('Server add website notice:', err);
+  }
+
+  // 2. Persist to Firestore
   try {
     const cleanData = cleanFirestoreData(website);
     await setDoc(doc(db, 'customWebsites', cleanCode), cleanData);
@@ -1515,22 +1536,22 @@ export async function apiAddWebsite(website: WebsiteDemo): Promise<WebsiteDemo[]
     console.warn('Firestore add website notice:', err);
   }
 
-  // Ensure localCache has baseline catalog if empty so existing products aren't wiped out
+  // 3. Ensure localCache has baseline catalog if empty, with new website at the top
   if (!Array.isArray(localCache.customWebsites) || localCache.customWebsites.length === 0) {
-    localCache.customWebsites = getMergedWebsites([]);
-  }
-
-  const cleanCodeKey = String(website.fourDigitCode || website.id).replace('#', '').trim().toLowerCase();
-  const existingIdx = localCache.customWebsites.findIndex(
-    s => String(s.fourDigitCode || s.id).replace('#', '').trim().toLowerCase() === cleanCodeKey
-  );
-
-  if (existingIdx !== -1) {
-    localCache.customWebsites[existingIdx] = website;
+    localCache.customWebsites = getMergedWebsites([website]);
   } else {
-    localCache.customWebsites.unshift(website);
+    const cleanCodeKey = String(website.fourDigitCode || website.id).replace('#', '').trim().toLowerCase();
+    const existingIdx = localCache.customWebsites.findIndex(
+      s => String(s.fourDigitCode || s.id).replace('#', '').trim().toLowerCase() === cleanCodeKey
+    );
+    if (existingIdx !== -1) {
+      localCache.customWebsites[existingIdx] = website;
+    } else {
+      localCache.customWebsites.unshift(website);
+    }
   }
 
+  // 4. Safe localStorage persistence with error guard
   try {
     localStorage.setItem('bongoweb_custom_catalog', JSON.stringify(localCache.customWebsites));
     localStorage.setItem('bongoweb_custom_websites', JSON.stringify(localCache.customWebsites));
@@ -1538,17 +1559,10 @@ export async function apiAddWebsite(website: WebsiteDemo): Promise<WebsiteDemo[]
     console.warn('LocalStorage save notice (safe fallback in memory & server):', e);
   }
 
+  // 5. Broadcast to all active views
   try {
     window.dispatchEvent(new CustomEvent('bongoweb_websites_updated', { detail: localCache.customWebsites }));
     window.dispatchEvent(new CustomEvent('bongoweb_custom_websites_updated', { detail: localCache.customWebsites }));
-  } catch (_) {}
-
-  try {
-    fetch('/api/websites', {
-      method: 'POST',
-      headers: getAuthHeaders(),
-      body: JSON.stringify(website)
-    }).catch(() => {});
   } catch (_) {}
 
   return localCache.customWebsites;

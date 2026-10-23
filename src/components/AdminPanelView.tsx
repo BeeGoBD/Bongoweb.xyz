@@ -1539,8 +1539,8 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
       img.onload = () => {
         try {
           const canvas = document.createElement('canvas');
-          const MAX_WIDTH = 1200;
-          const MAX_HEIGHT = 800;
+          const MAX_WIDTH = 800;
+          const MAX_HEIGHT = 520;
           let width = img.width;
           let height = img.height;
 
@@ -1561,13 +1561,13 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
           const ctx = canvas.getContext('2d');
           if (ctx) {
             ctx.drawImage(img, 0, 0, width, height);
-            const compressed = canvas.toDataURL('image/jpeg', 0.82);
+            const compressed = canvas.toDataURL('image/jpeg', 0.72);
             onSuccess(compressed, file.name);
           } else {
-            onSuccess(rawData, file.name);
+            onSuccess(rawData.length < 300000 ? rawData : '', file.name);
           }
         } catch {
-          onSuccess(rawData, file.name);
+          onSuccess(rawData.length < 300000 ? rawData : '', file.name);
         } finally {
           setCompressing(false);
         }
@@ -5863,8 +5863,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                     <label className="block text-xs font-bold text-white flex items-center justify-between">
                       <span className="flex items-center gap-1.5">
                         <Globe className="w-4 h-4 text-emerald-400" />
-                        <span>Website / Demo Link (ওয়েবসাইট লিংক)</span>
-                        <span className="text-[#E53935]">*</span>
+                        <span>Website / Demo Link (ওয়েবসাইট লিংক - ঐচ্ছিক)</span>
                       </span>
                       <span className="text-[10px] text-emerald-400 font-bold bg-emerald-950/70 border border-emerald-500/40 px-2 py-0.5 rounded-md">
                         প্রিভিউতে ওপেন হবে
@@ -5872,8 +5871,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                     </label>
                     <input
                       type="text"
-                      required
-                      placeholder="যেমন: https://daraz.com.bd অথবা https://mybrand.com অথবা mystore.com"
+                      placeholder="যেমন: https://daraz.com.bd অথবা খালি রাখুন"
                       value={newProductLink}
                       onChange={(e) => setNewProductLink(e.target.value)}
                       className="w-full px-4 py-3 rounded-xl bg-[#111827] border border-[#1E293B] text-white text-xs sm:text-sm font-mono focus:outline-none focus:border-emerald-400 transition-colors"

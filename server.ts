@@ -1463,18 +1463,49 @@ async function startServer() {
   });
 
   app.post('/api/websites', (req: Request, res: Response) => {
-    const db = readDb();
-    const newSite = req.body;
-    db.customWebsites.unshift(newSite);
-    writeDb(db);
+    try {
+      const db = readDb();
+      const newSite = req.body;
+      if (!newSite || (!newSite.title && !newSite.name)) {
+        return res.status(400).json({ error: 'Website title is required' });
+      }
 
-    broadcast({
-      type: 'catalog:updated',
-      websites: db.customWebsites,
-      timestamp: Date.now()
-    });
+      if (!newSite.id) {
+        newSite.id = `custom-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`;
+      }
+      if (!newSite.fourDigitCode) {
+        newSite.fourDigitCode = `#${Math.floor(1000 + Math.random() * 9000)}`;
+      }
+      if (!Array.isArray(db.customWebsites)) {
+        db.customWebsites = [...INITIAL_OFFICIAL_WEBSITES];
+      }
 
-    res.status(201).json(db.customWebsites);
+      const cleanCode = String(newSite.fourDigitCode).replace('#', '').trim().toLowerCase();
+      const existingIdx = db.customWebsites.findIndex(
+        s => String(s.fourDigitCode || s.id).replace('#', '').trim().toLowerCase() === cleanCode
+      );
+
+      if (existingIdx !== -1) {
+        db.customWebsites[existingIdx] = { ...db.customWebsites[existingIdx], ...newSite };
+      } else {
+        db.customWebsites.unshift(newSite);
+      }
+
+      writeDb(db);
+
+      broadcast({
+        type: 'catalog:updated',
+        websites: db.customWebsites,
+        newSite,
+        timestamp: Date.now()
+      });
+
+      console.log(`[Website Uploaded] ${newSite.title} (${newSite.fourDigitCode})`);
+      return res.status(201).json(db.customWebsites);
+    } catch (err: any) {
+      console.error('Error adding website to server DB:', err);
+      return res.status(500).json({ error: err?.message || 'Failed to save website' });
+    }
   });
 
   app.put('/api/websites/:code', (req: Request, res: Response) => {
