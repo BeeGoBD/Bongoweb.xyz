@@ -95,7 +95,7 @@ export default function LivePreviewModal({
           <div
             className={`transition-all duration-300 bg-[#0e0e12] rounded-2xl border border-white/[0.08] shadow-dark-card overflow-y-auto max-h-full ${
               deviceMode === 'mobile'
-                ? 'w-[360px] h-[640px] rounded-3xl border-4 border-white/[0.1] shadow-2xl'
+                ? 'w-full max-w-[360px] h-[640px] rounded-3xl border-4 border-white/[0.1] shadow-2xl'
                 : 'w-full h-full'
             }`}
           >
@@ -104,7 +104,12 @@ export default function LivePreviewModal({
               <img
                 src={demo.previewImage}
                 alt={demo.title}
-                className="w-full h-full object-cover"
+                onError={(e) => {
+                  const target = e.currentTarget;
+                  target.onerror = null;
+                  target.src = 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80';
+                }}
+                className="w-full h-full object-cover object-top"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0e0e12] via-[#0e0e12]/60 to-transparent p-6 sm:p-8 flex flex-col justify-end text-white">
                 <span className="px-3 py-1 rounded-full bg-white/[0.1] backdrop-blur-md border border-white/[0.15] text-[#f5f5f7] text-xs font-medium w-fit mb-2">

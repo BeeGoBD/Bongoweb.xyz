@@ -278,15 +278,20 @@ export default function CategoryWebsitesView({
                         </div>
                       </div>
 
-                      {/* Webpage Preview Window: Full height on mobile; clean proportional height on laptop */}
+                      {/* Webpage Preview Window: Responsive 16:10 browser proportion on laptop & mobile to prevent clipping */}
                       <div 
                         onClick={() => onOpenWebsiteDetail(demo)}
-                        className="relative w-full h-[280px] xs:h-[340px] sm:h-[400px] md:h-[210px] lg:h-[235px] overflow-hidden bg-[#F8F5FC] cursor-pointer group/preview"
+                        className="relative w-full aspect-[16/10] overflow-hidden bg-slate-950 cursor-pointer group/preview flex items-center justify-center select-none"
                       >
                         <img
                           src={demo.previewImage}
                           alt={demo.title}
                           loading="lazy"
+                          onError={(e) => {
+                            const target = e.currentTarget;
+                            target.onerror = null;
+                            target.src = 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80';
+                          }}
                           className="w-full h-full object-cover object-top group-hover/preview:scale-[1.03] transition-transform duration-500"
                         />
 

@@ -638,11 +638,16 @@ export default function LiveBrowserPage({
                       </div>
 
                       {/* Image Preview with Hover Lift */}
-                      <div className="relative overflow-hidden aspect-16/10 bg-[#FAF7F2]">
+                      <div className="relative overflow-hidden aspect-16/10 bg-slate-950">
                         <img
                           src={demo.previewImage}
                           alt={demo.title}
-                          className="w-full h-full object-cover group-hover:scale-104 transition-transform duration-500"
+                          onError={(e) => {
+                            const target = e.currentTarget;
+                            target.onerror = null;
+                            target.src = 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80';
+                          }}
+                          className="w-full h-full object-cover object-top group-hover:scale-104 transition-transform duration-500"
                         />
 
                         <div className="absolute inset-0 bg-[#000000]/0 group-hover:bg-[#000000]/30 transition-colors flex items-center justify-center">
@@ -842,11 +847,16 @@ export default function LiveBrowserPage({
                 </div>
 
                 <div className="lg:col-span-5 hidden lg:block">
-                  <div className="rounded-2xl overflow-hidden shadow-xl border border-[#E7E0D6] aspect-4/3 relative">
+                  <div className="rounded-2xl overflow-hidden shadow-xl border border-[#E7E0D6] aspect-4/3 relative bg-slate-950">
                     <img 
                       src={activeDemo.previewImage} 
                       alt={activeDemo.title} 
-                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        const target = e.currentTarget;
+                        target.onerror = null;
+                        target.src = 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80';
+                      }}
+                      className="w-full h-full object-cover object-top"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-4">
                       <span className="font-mono text-xs font-bold bg-white text-[#800020] px-3 py-1 rounded-md shadow-sm border border-[#E7E0D6]">

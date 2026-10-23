@@ -5138,11 +5138,18 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                   className="p-4 rounded-2xl bg-[#0F172A] border border-[#1E293B] flex flex-col justify-between space-y-3"
                 >
                   <div>
-                    <img
-                      src={site.previewImage}
-                      alt={site.title}
-                      className="w-full h-36 rounded-xl object-cover border border-[#1E293B] mb-3"
-                    />
+                    <div className="w-full aspect-[16/10] rounded-xl overflow-hidden bg-slate-950 border border-[#1E293B] mb-3 flex items-center justify-center">
+                      <img
+                        src={site.previewImage}
+                        alt={site.title}
+                        onError={(e) => {
+                          const target = e.currentTarget;
+                          target.onerror = null;
+                          target.src = 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80';
+                        }}
+                        className="w-full h-full object-cover object-top"
+                      />
+                    </div>
                     <div className="flex items-center justify-between">
                       <span className="px-2 py-0.5 rounded-md bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] text-white text-[10px] font-mono font-bold">
                         {site.fourDigitCode}

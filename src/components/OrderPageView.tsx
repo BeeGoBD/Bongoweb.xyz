@@ -596,6 +596,37 @@ export default function OrderPageView({
 
       {/* Main Checkout View Container */}
       <main className="flex-1 w-full max-w-4xl lg:max-w-6xl xl:max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+        {/* Mobile Product Summary Header (Visible on Mobile only, perfectly fits viewport) */}
+        {currentStep !== 'receipt' && (
+          <div className="lg:hidden mb-4 p-3 bg-white rounded-2xl border border-slate-200/90 shadow-xs flex items-center gap-3">
+            <div className="w-14 h-12 rounded-xl overflow-hidden bg-slate-950 border border-slate-200 shrink-0">
+              <img 
+                src={demoObj.previewImage} 
+                alt={demoTitle}
+                onError={(e) => {
+                  const target = e.currentTarget;
+                  target.onerror = null;
+                  target.src = 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80';
+                }}
+                className="w-full h-full object-cover object-top" 
+              />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2">
+                <span className="px-2 py-0.5 rounded-md bg-purple-100 text-purple-700 font-mono text-[10px] font-bold">
+                  {demoCode}
+                </span>
+                <span className="text-xs font-black text-purple-700 font-mono">
+                  {demoObj.priceTag || '৳১,৯৯০'}
+                </span>
+              </div>
+              <h3 className="text-xs font-bold text-slate-900 truncate mt-0.5">
+                {demoTitle}
+              </h3>
+            </div>
+          </div>
+        )}
+
         {/* Easy-to-Understand 3-Step Order Progress Bar (ONLY shown before order completion, NOT shown on receipt) */}
         {currentStep !== 'receipt' && (
           <div className="mb-6 sm:mb-8 max-w-xl mx-auto">
@@ -689,11 +720,16 @@ export default function OrderPageView({
               <div className="bg-white border border-slate-200/90 rounded-3xl p-6 shadow-md space-y-5 text-slate-900">
                 {/* Product Thumbnail & Details */}
                 <div className="flex items-start gap-4 pb-4 border-b border-slate-100">
-                  <div className="w-20 h-16 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 shrink-0">
+                  <div className="w-20 h-16 rounded-xl overflow-hidden bg-slate-950 border border-slate-200 shrink-0">
                     <img 
                       src={demoObj.previewImage} 
                       alt={demoTitle}
-                      className="w-full h-full object-cover" 
+                      onError={(e) => {
+                        const target = e.currentTarget;
+                        target.onerror = null;
+                        target.src = 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80';
+                      }}
+                      className="w-full h-full object-cover object-top" 
                     />
                   </div>
                   <div className="min-w-0 flex-1">
