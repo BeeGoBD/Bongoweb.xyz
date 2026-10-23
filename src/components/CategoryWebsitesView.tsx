@@ -235,7 +235,7 @@ export default function CategoryWebsitesView({
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-5 md:gap-6">
+            <div className="grid grid-cols-2 gap-3 sm:gap-5 md:gap-6 lg:gap-8 max-w-7xl mx-auto w-full">
               {filteredDemos.map((demo, idx) => {
                 const categoryLabel = 
                   demo.category === 'ecommerce' ? 'Ecommerce' :
@@ -247,83 +247,127 @@ export default function CategoryWebsitesView({
                   ? `template-${String(demo.fourDigitCode).replace('#', '')}-${demo.id || idx}`
                   : `template-${demo.id || idx}`;
 
-                return (
-                  <div
-                    key={uniqueKey}
-                    className="group bg-[#FFFFFF] rounded-2xl border border-[#EDE4F5] shadow-soft hover:shadow-soft-lg transition-all duration-200 overflow-hidden flex flex-col justify-between"
-                  >
-                    <div>
-                      {/* Realistic website preview image on top */}
-                      <div 
-                        onClick={() => onOpenWebsiteDetail(demo)}
-                        className="relative aspect-[16/10] overflow-hidden bg-[#F8F5FC] cursor-pointer"
-                      >
-                        <img
-                          src={demo.previewImage}
-                          alt={demo.title}
-                          loading="lazy"
-                          className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-300"
-                        />
+                const cleanDemoCode = String(demo.fourDigitCode || '2085').replace('#', '');
 
-                        {/* Top corner code badge */}
-                        <span className="absolute top-2 right-2 font-mono text-[10px] font-bold px-2 py-0.5 rounded-md bg-white/95 text-[#1F1F2E] shadow-xs border border-[#EDE4F5]">
+                return (
+                  <article
+                    key={uniqueKey}
+                    className="group bg-[#FFFFFF] rounded-2xl sm:rounded-3xl border border-[#EDE4F5] shadow-soft hover:shadow-soft-lg hover:border-[#5B2C8A]/40 transition-all duration-300 overflow-hidden flex flex-col"
+                  >
+                    {/* Realistic Browser Window Header Bar */}
+                    <div className="px-3 sm:px-4 py-2 sm:py-2.5 bg-[#FAF7F2] border-b border-[#EDE4F5] flex items-center justify-between select-none shrink-0 gap-1.5">
+                      <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                        {/* macOS Traffic Dots */}
+                        <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+                          <span className="w-2 sm:w-2.5 h-2 sm:h-2.5 rounded-full bg-[#EF4444]/80 inline-block" />
+                          <span className="w-2 sm:w-2.5 h-2 sm:h-2.5 rounded-full bg-[#F59E0B]/80 inline-block" />
+                          <span className="w-2 sm:w-2.5 h-2 sm:h-2.5 rounded-full bg-[#10B981]/80 inline-block" />
+                        </div>
+                        {/* Simulated Browser Address Pill */}
+                        <div className="hidden sm:flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-white border border-[#EDE4F5] text-[10px] sm:text-[11px] font-mono text-[#5B2C8A] font-semibold truncate">
+                          <span className="text-emerald-600 font-bold">https://</span>
+                          <span className="truncate">{cleanDemoCode.toLowerCase()}.bongoweb.site</span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <span className="font-mono text-[10px] sm:text-xs font-bold px-2 sm:px-2.5 py-0.5 rounded-md bg-[#5B2C8A] text-white shadow-2xs">
                           {demo.fourDigitCode}
                         </span>
+                        <span className="text-[9px] sm:text-[11px] font-bold text-[#5B2C8A] bg-purple-50 px-2 sm:px-2.5 py-0.5 rounded-full border border-purple-200 truncate max-w-[85px] sm:max-w-none">
+                          {categoryLabel}
+                        </span>
+                      </div>
+                    </div>
 
-                        {/* Hover Overlay preview icon */}
-                        <div className="absolute inset-0 bg-[#5B2C8A]/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                          <span className="px-3 py-1.5 rounded-xl bg-white text-[#5B2C8A] font-bold text-xs shadow-md border border-[#EDE4F5] flex items-center gap-1.5">
-                            <Eye className="w-3.5 h-3.5" />
-                            <span>{language === 'bn' ? 'আগে দেখুন' : 'See First'}</span>
+                    {/* Long, Tall Webpage Preview Window (Elongated up-and-down so customers get full preview before clicking) */}
+                    <div 
+                      onClick={() => onOpenWebsiteDetail(demo)}
+                      className="relative w-full h-[380px] xs:h-[460px] sm:h-[560px] md:h-[660px] lg:h-[740px] xl:h-[800px] overflow-hidden bg-[#F8F5FC] cursor-pointer group/preview"
+                    >
+                      <img
+                        src={demo.previewImage}
+                        alt={demo.title}
+                        loading="lazy"
+                        className="w-full h-full object-cover object-top group-hover/preview:scale-[1.02] transition-transform duration-500"
+                      />
+
+                      {/* Bottom Gradient Scrim with preview hint */}
+                      <div className="absolute inset-x-0 bottom-0 h-16 sm:h-20 bg-gradient-to-t from-black/60 via-black/20 to-transparent pointer-events-none flex items-end p-2.5 sm:p-4">
+                        <span className="text-white text-[10px] sm:text-xs font-bold flex items-center gap-1.5 drop-shadow-sm">
+                          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                          <span className="truncate">{language === 'bn' ? 'সম্পূর্ণ লাইভ ওয়েবসাইট দেখুন' : 'Click to preview live website'}</span>
+                        </span>
+                      </div>
+
+                      {/* Hover Overlay preview action */}
+                      <div className="absolute inset-0 bg-[#5B2C8A]/15 opacity-0 group-hover/preview:opacity-100 transition-opacity flex items-center justify-center p-2">
+                        <span className="px-3 sm:px-5 py-2 sm:py-2.5 rounded-2xl bg-white text-[#5B2C8A] font-bold text-[11px] sm:text-sm shadow-xl border border-[#EDE4F5] flex items-center gap-1.5 transform translate-y-2 group-hover/preview:translate-y-0 transition-transform">
+                          <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.2] shrink-0" />
+                          <span>{language === 'bn' ? 'আগে দেখুন' : 'See First'}</span>
+                          <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Card Content & Details (Title, Price, Actions) */}
+                    <div className="p-3 sm:p-4 md:p-5 space-y-2.5 sm:space-y-3 flex-1 flex flex-col justify-between">
+                      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-1.5 sm:gap-2.5">
+                        <div className="min-w-0 flex-1">
+                          <h2 
+                            onClick={() => onOpenWebsiteDetail(demo)}
+                            className="text-xs sm:text-base md:text-lg font-extrabold text-[#1F1F2E] hover:text-[#5B2C8A] transition-colors cursor-pointer leading-snug line-clamp-2"
+                            title={demo.title}
+                          >
+                            {demo.title}
+                          </h2>
+                        </div>
+
+                        {/* Price Badge */}
+                        <div className="shrink-0 flex sm:flex-col items-baseline sm:items-end justify-between sm:justify-start gap-0.5">
+                          <span className="text-[9px] sm:text-[11px] text-[#6B7280] font-medium">
+                            {language === 'bn' ? 'প্যাকেজ মূল্য' : 'Setup Price'}
+                          </span>
+                          <span className="text-sm sm:text-xl md:text-2xl font-black font-mono text-[#5B2C8A]">
+                            {demo.priceTag || '১,৯৯০ ৳'}
                           </span>
                         </div>
                       </div>
 
-                      {/* Card Content */}
-                      <div className="p-3 sm:p-4 pb-2">
-                        {/* Small category pill */}
-                        <span className="inline-block text-[10px] sm:text-[11px] font-semibold text-[#5B2C8A] bg-[#F8F5FC] border border-[#EDE4F5] px-2.5 py-0.5 rounded-full mb-1.5">
-                          {categoryLabel}
+                      {/* Bottom Action Area: "Buy Now" (solid purple) and "See First" button */}
+                      <div className="pt-2 sm:pt-3 border-t border-[#EDE4F5] flex flex-col gap-2">
+                        <div className="flex flex-col xs:flex-row items-stretch gap-1.5 sm:gap-2.5">
+                          {/* Solid Purple "Buy Now" Button */}
+                          <button
+                            type="button"
+                            onClick={() => onOpenOrder(demo)}
+                            className="flex-1 px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-[#5B2C8A] hover:bg-[#4A1F6E] active:bg-[#3C165C] text-white text-[11px] sm:text-sm font-bold transition-all cursor-pointer text-center shadow-xs flex items-center justify-center gap-1.5 active:scale-95"
+                          >
+                            <ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+                            <span className="truncate">{language === 'bn' ? 'এখনই কিনুন' : 'Buy Now'}</span>
+                          </button>
+
+                          {/* "See First" Button */}
+                          <button
+                            type="button"
+                            onClick={() => onOpenWebsiteDetail(demo)}
+                            className="flex-1 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-white hover:bg-[#F8F5FC] text-[#5B2C8A] hover:text-[#4A1F6E] border border-[#EDE4F5] hover:border-[#5B2C8A]/40 text-[11px] sm:text-sm font-bold inline-flex items-center justify-center gap-1 cursor-pointer transition-all shadow-2xs active:scale-95"
+                          >
+                            <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+                            <span className="truncate">{language === 'bn' ? 'আগে দেখুন' : 'See First'}</span>
+                            <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
+                          </button>
+                        </div>
+
+                        {/* Guarantee Label */}
+                        <span className="text-[10px] sm:text-[11px] text-slate-500 font-medium flex items-center gap-1 justify-center">
+                          <CheckCircle2 className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-600 shrink-0" />
+                          <span className="truncate">{language === 'bn' ? '২৪ ঘণ্টায় রেডি ওয়েবসাইট' : 'Ready in 24 hours'}</span>
                         </span>
-
-                        {/* Template Name (Bold) */}
-                        <h2 
-                          onClick={() => onOpenWebsiteDetail(demo)}
-                          className="text-xs sm:text-base font-bold text-[#1F1F2E] group-hover:text-[#5B2C8A] transition-colors line-clamp-1 cursor-pointer"
-                          title={demo.title}
-                        >
-                          {demo.title}
-                        </h2>
-
-                        <p className="text-[11px] text-[#6B7280] mt-1 line-clamp-2 leading-relaxed hidden sm:block">
-                          {demo.description}
-                        </p>
                       </div>
                     </div>
 
-                    {/* Bottom Action Area: Two buttons: “Buy Now” (solid purple) and “See First →” (text link) */}
-                    <div className="p-3 sm:p-4 pt-2 border-t border-[#EDE4F5] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
-                      {/* Solid Purple "Buy Now" Button */}
-                      <button
-                        type="button"
-                        onClick={() => onOpenOrder(demo)}
-                        className="w-full sm:w-auto px-3.5 py-2 rounded-xl bg-[#5B2C8A] hover:bg-[#4A1F6E] active:bg-[#3C165C] text-white text-xs font-bold transition-all cursor-pointer text-center shadow-xs"
-                      >
-                        {language === 'bn' ? 'এখনই কিনুন' : 'Buy Now'}
-                      </button>
-
-                      {/* "See First →" Text Link */}
-                      <button
-                        type="button"
-                        onClick={() => onOpenWebsiteDetail(demo)}
-                        className="text-[#5B2C8A] hover:text-[#7C3AED] text-xs font-bold inline-flex items-center justify-center gap-1 cursor-pointer transition-colors py-1 sm:py-0"
-                      >
-                        <span>{language === 'bn' ? 'আগে দেখুন' : 'See First'}</span>
-                        <ArrowRight className="w-3.5 h-3.5 stroke-[2.2]" />
-                      </button>
-                    </div>
-
-                  </div>
+                  </article>
                 );
               })}
             </div>

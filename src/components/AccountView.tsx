@@ -201,21 +201,32 @@ export default function AccountView({ onGoToDashboard, onOpenAdminPanel }: Accou
     return () => clearInterval(timer);
   }, []);
 
-  // Automatic Descope session detection and sync
+  // Automatic Descope session detection and sync with ref guard to avoid render loops
+  const descopeSyncedRef = useRef(false);
+  const descopeUserId = descopeUser?.userId || descopeUser?.email || descopeUser?.loginIds?.[0] || '';
+
   useEffect(() => {
-    if (isAuthenticated && descopeUser && !currentUser) {
-      const email = descopeUser.email || descopeUser.loginIds?.[0] || '';
-      const name = descopeUser.name || descopeUser.givenName || (email ? email.split('@')[0] : 'Descope User');
-      const phone = descopeUser.phone || '';
+    if (!isAuthenticated) {
+      descopeSyncedRef.current = false;
+      return;
+    }
+    if (isAuthenticated && descopeUserId && !currentUser && !descopeSyncedRef.current) {
+      descopeSyncedRef.current = true;
+      const email = descopeUser?.email || descopeUser?.loginIds?.[0] || '';
+      const name = descopeUser?.name || descopeUser?.givenName || (email ? email.split('@')[0] : 'Descope User');
+      const phone = descopeUser?.phone || '';
       const sessionToken = getSessionToken() || '';
       apiSyncDescopeUser({ email, name, phone, sessionToken }).then((synced) => {
         setCurrentUser(synced);
         localStorage.setItem('bongoweb_user', JSON.stringify(synced));
         sessionStorage.setItem('bongoweb_user', JSON.stringify(synced));
         loadUserData();
-      }).catch(console.error);
+      }).catch((err) => {
+        console.error(err);
+        descopeSyncedRef.current = false;
+      });
     }
-  }, [isAuthenticated, descopeUser, currentUser]);
+  }, [isAuthenticated, descopeUserId, currentUser]);
 
   const navigateSubView = (target: AccountSubView) => {
     setSubView(target);

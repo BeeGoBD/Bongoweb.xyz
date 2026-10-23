@@ -12,6 +12,15 @@ import DescopeClient from '@descope/node-sdk';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Global safety handlers to prevent dev server crashes on unhandled events
+process.on('uncaughtException', (err) => {
+  console.error('[Uncaught Exception in Server]', err);
+});
+
+process.on('unhandledRejection', (reason) => {
+  console.error('[Unhandled Rejection in Server]', reason);
+});
+
 // Descope Authentication Client (Project ID: P3K6LwIDJRlYK19nBi2yewOjmo22)
 const DESCOPE_PROJECT_ID = process.env.DESCOPE_PROJECT_ID || 'P3K6LwIDJRlYK19nBi2yewOjmo22';
 const descopeClient = DescopeClient({ projectId: DESCOPE_PROJECT_ID });
@@ -354,6 +363,9 @@ async function startServer() {
 
   // Initialize WebSocket Server
   const wss = new WebSocketServer({ noServer: true });
+  wss.on('error', (err) => {
+    console.warn('[WebSocketServer Warning]', err.message);
+  });
 
   // Connected SSE clients set
   const sseClients: Set<Response> = new Set();
@@ -385,6 +397,9 @@ async function startServer() {
 
   // Handle HTTP -> WebSocket Upgrade on /ws
   server.on('upgrade', (request, socket, head) => {
+    socket.on('error', (err) => {
+      console.warn('[Socket Error during upgrade]', err.message);
+    });
     try {
       const parsedUrl = new URL(request.url || '', `http://${request.headers.host || 'localhost'}`);
       const pathname = parsedUrl.pathname;
@@ -393,14 +408,20 @@ async function startServer() {
         wss.handleUpgrade(request, socket, head, (ws) => {
           wss.emit('connection', ws, request);
         });
+      } else {
+        socket.destroy();
       }
     } catch (err) {
       console.error('WebSocket upgrade error:', err);
+      try { socket.destroy(); } catch (_) {}
     }
   });
 
   // WebSocket Connection Lifecycle
   wss.on('connection', (ws: WebSocket) => {
+    ws.on('error', (err) => {
+      console.warn('[WS Client error]', err.message);
+    });
     console.log(`[WebSocket] Client connected. Total clients: ${wss.clients.size}`);
 
     // Send initial snapshot on connect
@@ -1716,7 +1737,11 @@ async function startServer() {
 
   if (!isProduction) {
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      server: {
+        middlewareMode: true,
+        hmr: false,
+        watch: null
+      },
       appType: 'custom'
     });
     app.use(vite.middlewares);
@@ -1759,6 +1784,38 @@ async function startServer() {
       res.sendFile(path.resolve(__dirname, 'index.html'));
     });
   }
+
+  // Gracefully handle server-level errors like EADDRINUSE during dev server restarts
+  server.on('error', (err: any) => {
+    if (err.code === 'EADDRINUSE') {
+      console.warn(`[Server Warning] Port ${PORT} busy, retrying in 1s...`);
+      setTimeout(() => {
+        try {
+          server.close();
+        } catch (_) {}
+        server.listen(PORT, '0.0.0.0');
+      }, 1000);
+    } else {
+      console.error('[HTTP Server Error]', err);
+    }
+  });
+
+  // Clean shutdown on restart or termination signals
+  const gracefulShutdown = () => {
+    try {
+      wss.close();
+    } catch (_) {}
+    try {
+      server.close(() => {
+        process.exit(0);
+      });
+    } catch (_) {
+      process.exit(0);
+    }
+    setTimeout(() => process.exit(0), 2000).unref();
+  };
+  process.on('SIGTERM', gracefulShutdown);
+  process.on('SIGINT', gracefulShutdown);
 
   server.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 BongoWeb Realtime Full-Stack Server running on http://0.0.0.0:${PORT} (WS on /ws, SSE on /api/events)`);

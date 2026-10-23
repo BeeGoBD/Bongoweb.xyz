@@ -1,36 +1,39 @@
 export type WizardStep = 1 | 2 | 3 | 4 | 5;
+export type WebsiteCategory = 'all' | 'ecommerce' | 'restaurant' | 'landing' | 'grocery' | 'blogging' | 'corporate' | 'fashion' | 'portfolio' | 'newspaper' | 'education' | 'services';
+export type SubscriptionPlanId = 'starter' | 'pro' | 'enterprise' | 'custom';
 
-export type WebsiteCategory = 'all' | 'ecommerce' | 'restaurant' | 'landing' | 'grocery' | 'blogging' | 'corporate' | 'fashion' | 'portfolio';
+export interface WebsiteDemoItem {
+  name: string;
+  price: string;
+  tag?: string;
+  image: string;
+}
 
-export type SubscriptionPlanId = 'starter' | 'pro' | 'enterprise';
+export interface WebsiteDemoMockData {
+  heroSub: string;
+  items: WebsiteDemoItem[];
+}
 
 export interface WebsiteDemo {
   id: string;
-  fourDigitCode: string; // Special character 4-digit code e.g. '#4821'
+  fourDigitCode: string;
   title: string;
   englishTitle?: string;
   banglaTitle?: string;
   category: WebsiteCategory;
-  categoryLabel: string;
+  categoryLabel?: string;
   description: string;
   priceTag: string;
   demoUrl: string;
   badge?: string;
-  accentColor: string;
-  rating: number;
-  ordersCount: string;
+  accentColor?: string;
+  rating?: number;
+  ordersCount?: string;
   previewImage: string;
-  heroHeadline: string;
-  features: string[];
-  mockData: {
-    heroSub: string;
-    items: {
-      name: string;
-      price: string;
-      tag?: string;
-      image: string;
-    }[];
-  };
+  heroHeadline?: string;
+  features?: string[];
+  mockData: WebsiteDemoMockData;
+  [key: string]: any;
 }
 
 export interface PhotoMockup {
@@ -39,12 +42,13 @@ export interface PhotoMockup {
   title: string;
   description?: string;
   category: string;
-  categoryKey: WebsiteCategory;
-  domain: string;
+  categoryKey?: WebsiteCategory;
+  domain?: string;
   imageUrl: string;
-  ratio: string;
+  ratio?: string;
   features: string[];
-  colorTheme: string;
+  colorTheme?: string;
+  [key: string]: any;
 }
 
 export interface Testimonial {
@@ -88,11 +92,12 @@ export interface UserAccount {
   whatsapp?: string;
   numberVerified?: boolean;
   numberVerificationCallPending?: boolean;
+  [key: string]: any;
 }
 
 export interface ClientOrder {
   id?: string;
-  orderId: string; // e.g. '#BW-84920'
+  orderId: string;
   demoCode: string;
   demoTitle: string;
   clientName: string;
@@ -101,10 +106,10 @@ export interface ClientOrder {
   companyName: string;
   domainOption: 'have_domain' | 'no_domain' | 'dont_know';
   customDomain?: string;
-  paymentMethod: 'bkash' | 'nagad' | 'rocket' | 'upay';
+  paymentMethod: 'bkash' | 'nagad' | 'rocket' | 'upay' | string;
   transactionId: string;
-  makingCharge: number; // 1990
-  monthlyCost: number; // 120
+  makingCharge: number;
+  monthlyCost: number;
   status: 'pending' | 'processing' | 'completed' | 'verified' | 'cancelled' | 'bin';
   createdAt: string;
   screenshotName?: string;
@@ -119,6 +124,7 @@ export interface ClientOrder {
   deliveredAdminPass?: string;
   binnedAt?: string;
   originalStatus?: 'pending' | 'processing' | 'completed';
+  [key: string]: any;
 }
 
 export interface WebsiteDeliveryCredentials {
@@ -126,13 +132,20 @@ export interface WebsiteDeliveryCredentials {
   orderId?: string;
   userPhone: string;
   userEmail?: string;
+  customerPhone?: string;
+  customerEmail?: string;
   websiteTitle: string;
-  websiteCode: string;
+  websiteCode?: string;
   websiteAdminId: string;
   websiteAdminPass: string;
+  adminUsername?: string;
+  adminPassword?: string;
+  adminUrl?: string;
+  liveUrl?: string;
   notes?: string;
   deliveredAt: string;
   updatedAt?: number;
+  [key: string]: any;
 }
 
 export interface PasswordResetRequest {
@@ -143,7 +156,6 @@ export interface PasswordResetRequest {
   resolvedAt?: string;
   approvedAt?: string;
   newPasswordAssigned?: string;
-  // Detail Changes & Tagging Tracking
   userName?: string;
   oldEmail?: string;
   newEmail?: string;
@@ -154,6 +166,7 @@ export interface PasswordResetRequest {
   tag?: string;
   reason?: string;
   type?: 'reset' | 'call_back';
+  [key: string]: any;
 }
 
 export interface CallBackRequest {
@@ -164,10 +177,11 @@ export interface CallBackRequest {
   requestedAt: string;
   createdAt?: string;
   preferredTime?: string;
-  status: 'pending' | 'approved' | 'rejected';
+  status?: 'pending' | 'approved' | 'rejected';
   approvedAt?: string;
   rejectedAt?: string;
   notes?: string;
+  [key: string]: any;
 }
 
 export interface AdminConfig {
@@ -175,13 +189,15 @@ export interface AdminConfig {
   adminEntryPassword: string;
   adminActionPassword: string;
   masterKey: string;
+  [key: string]: any;
 }
 
 export interface SupportChatMessage {
   id: string;
-  sender: 'client' | 'admin';
+  sender: 'client' | 'admin' | string;
   text: string;
   timestamp: string;
+  [key: string]: any;
 }
 
 export interface SupportChatThread {
@@ -193,12 +209,13 @@ export interface SupportChatThread {
   lastUpdated: string;
   unreadAdminCount: number;
   unreadClientCount: number;
-  expiresAt?: number; // timestamp in ms when 5-min inactivity expires
+  expiresAt?: number;
   isClosed?: boolean;
   isArchived?: boolean;
   archivedAt?: string;
   additionalMinutesAdded?: number;
   messages: SupportChatMessage[];
+  [key: string]: any;
 }
 
 export interface UserReport {
@@ -211,26 +228,26 @@ export interface UserReport {
   subject?: string;
   message: string;
   createdAt: string;
-  status: 'pending' | 'in_progress' | 'resolved'; // strictly in pending/in_progress (পেন্ডিং/চলমান) until explicitly marked resolved
+  status: 'pending' | 'in_progress' | 'resolved';
   adminReply?: string;
   adminRepliedAt?: string;
   resolvedAt?: string;
+  [key: string]: any;
 }
 
 export interface BrandLogoConfig {
-  logoType: 'image' | 'text'; // 'image' = On, 'text' = Off
-  // Image mode settings:
-  imageUrl?: string; // base64, SVG, or URL. Empty string means official SVG insignia
+  logoType: 'image' | 'text';
+  imageUrl?: string;
   imageName?: string;
-  imageSizePx?: number; // icon size in px (e.g., 28, 36, 44, 52, 60)
-  showBrandTextWithImage?: boolean; // whether to show text next to image
-  // Text mode settings:
-  typedLogoText: string; // typed logo text e.g. "BongoWeb", "MyBrand"
-  typedSubtitle?: string; // e.g. ".xyz", "Solutions"
+  imageSizePx?: number;
+  showBrandTextWithImage?: boolean;
+  typedLogoText: string;
+  typedSubtitle?: string;
   textGradientTheme: 'royal' | 'violet' | 'sunset' | 'emerald' | 'monochrome';
   textFontSizePx?: number;
   textLetterSpacing?: string;
   updatedAt?: string;
+  [key: string]: any;
 }
 
 export interface EmailRecoveryRequest {
@@ -238,15 +255,12 @@ export interface EmailRecoveryRequest {
   gmailIssue: 'forgot' | 'disabled' | 'no_access' | 'others';
   gmailIssueLabel: string;
   customReason?: string;
-  purchasedBefore: boolean; // Yes or No
-  rememberPhone: boolean; // Yes or No
-  phoneNumber: string; // The phone number they entered
+  purchasedBefore: boolean;
+  rememberPhone: boolean;
+  phoneNumber: string;
   createdAt: string;
   status: 'pending' | 'completed';
   decisionNote?: string;
   decisionAt?: string;
+  [key: string]: any;
 }
-
-
-
-

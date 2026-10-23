@@ -47,6 +47,30 @@ let localCache: CompleteDatabaseState = {
   callBackRequests: []
 };
 
+// Admin token retriever for server-authoritative API calls
+export function getAdminToken(): string {
+  try {
+    return (typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('bongoweb_admin_token') : null) ||
+           (typeof localStorage !== 'undefined' ? localStorage.getItem('bongoweb_admin_token') : null) || '';
+  } catch (_) {
+    return '';
+  }
+}
+
+// Generates headers with Authorization Bearer if admin session exists
+export function getAuthHeaders(customHeaders: Record<string, string> = {}): Record<string, string> {
+  const token = getAdminToken();
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...customHeaders
+  };
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+    headers['x-admin-token'] = token;
+  }
+  return headers;
+}
+
 // Helper to strip undefined fields so Firestore writes never fail
 export function cleanFirestoreData<T extends Record<string, any>>(obj: T): T {
   if (!obj || typeof obj !== 'object') return obj;
@@ -188,7 +212,9 @@ export async function pullFromCloudVault(): Promise<{
   } catch (err) {
     console.warn('Firestore fetch notice, trying local/server fallback:', err);
     try {
-      const res = await fetch('/api/data');
+      const res = await fetch('/api/data', {
+        headers: getAuthHeaders()
+      });
       if (res.ok) {
         const data = await res.json();
         if (Array.isArray(data.orders)) localCache.orders = data.orders;
@@ -215,7 +241,7 @@ export async function pullFromCloudVault(): Promise<{
 }
 
 // ---------------- ORDERS ----------------
-export async function apiGetOrders(): Promise<ClientOrder[]> {
+export async function apiGetOrders(filterPhone?: string, filterEmail?: string): Promise<ClientOrder[]> {
   try {
     const snap = await getDocs(collection(db, 'orders'));
     if (!snap.empty) {
@@ -232,7 +258,13 @@ export async function apiGetOrders(): Promise<ClientOrder[]> {
   } catch (_) {}
 
   try {
-    const res = await fetch('/api/orders');
+    const params = new URLSearchParams();
+    if (filterPhone) params.append('phone', filterPhone);
+    if (filterEmail) params.append('email', filterEmail);
+    const qs = params.toString() ? `?${params.toString()}` : '';
+    const res = await fetch(`/api/orders${qs}`, {
+      headers: getAuthHeaders()
+    });
     if (res.ok) {
       const orders = await res.json();
       localCache.orders = orders;
@@ -384,7 +416,7 @@ export async function apiUpdateOrderStatus(
     try {
       fetch(`/api/orders/${encodeURIComponent(targetId)}/status`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         body: JSON.stringify({ status: effectiveStatus, extraData })
       }).catch(() => {});
     } catch (_) {}
@@ -1514,7 +1546,7 @@ export async function apiAddWebsite(website: WebsiteDemo): Promise<WebsiteDemo[]
   try {
     fetch('/api/websites', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAuthHeaders(),
       body: JSON.stringify(website)
     }).catch(() => {});
   } catch (_) {}
@@ -1562,7 +1594,7 @@ export async function apiUpdateWebsite(code: string, updateData: Partial<Website
   try {
     fetch(`/api/websites/${encodeURIComponent(code)}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAuthHeaders(),
       body: JSON.stringify(updateData)
     }).catch(() => {});
   } catch (_) {}
@@ -1592,7 +1624,8 @@ export async function apiDeleteWebsite(code: string): Promise<WebsiteDemo[]> {
 
   try {
     fetch(`/api/websites/${encodeURIComponent(code)}`, {
-      method: 'DELETE'
+      method: 'DELETE',
+      headers: getAuthHeaders()
     }).catch(() => {});
   } catch (_) {}
 
@@ -1600,7 +1633,7 @@ export async function apiDeleteWebsite(code: string): Promise<WebsiteDemo[]> {
 }
 
 // ---------------- DELIVERED CREDENTIALS ----------------
-export async function apiGetDeliveredCredentials(): Promise<WebsiteDeliveryCredentials[]> {
+export async function apiGetDeliveredCredentials(filterPhone?: string, filterOrderId?: string): Promise<WebsiteDeliveryCredentials[]> {
   let creds: WebsiteDeliveryCredentials[] = [];
   try {
     const snap = await getDocs(collection(db, 'deliveredCredentials'));
@@ -1611,7 +1644,13 @@ export async function apiGetDeliveredCredentials(): Promise<WebsiteDeliveryCrede
 
   if (creds.length === 0) {
     try {
-      const res = await fetch('/api/credentials');
+      const params = new URLSearchParams();
+      if (filterPhone) params.append('phone', filterPhone);
+      if (filterOrderId) params.append('orderId', filterOrderId);
+      const qs = params.toString() ? `?${params.toString()}` : '';
+      const res = await fetch(`/api/credentials${qs}`, {
+        headers: getAuthHeaders()
+      });
       if (res.ok) {
         creds = await res.json();
       }
@@ -1783,7 +1822,7 @@ export async function apiAddDeliveredCredentials(cred: WebsiteDeliveryCredential
   try {
     fetch('/api/credentials', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getAuthHeaders(),
       body: JSON.stringify(safeCred)
     }).catch(() => {});
   } catch (_) {}
@@ -1812,7 +1851,8 @@ export async function apiDeleteCredentials(id: string): Promise<WebsiteDeliveryC
 
   try {
     fetch(`/api/credentials/${encodeURIComponent(safeId)}`, {
-      method: 'DELETE'
+      method: 'DELETE',
+      headers: getAuthHeaders()
     }).catch(() => {});
   } catch (_) {}
 
@@ -2827,7 +2867,7 @@ export async function apiCreateEmailRecovery(
     id: `REC-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`,
     status: 'pending',
     createdAt: new Date().toLocaleString('bn-BD')
-  };
+  } as EmailRecoveryRequest;
 
   const safe = cleanFirestoreData(newReq);
   const cleanId = String(safe.id).replace(/[^a-zA-Z0-9_-]/g, '_');
