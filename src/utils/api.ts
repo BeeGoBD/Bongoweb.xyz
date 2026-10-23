@@ -195,9 +195,14 @@ export async function pullFromCloudVault(): Promise<{
       localCache.resetRequests = resetsSnap.empty ? [] : resetsSnap.docs.map(d => d.data() as PasswordResetRequest);
       localStorage.setItem('bongoweb_reset_requests', JSON.stringify(localCache.resetRequests));
     }
-    if (sitesSnap && !sitesSnap.empty) {
-      localCache.customWebsites = sitesSnap.docs.map(d => d.data() as WebsiteDemo);
-      localStorage.setItem('bongoweb_custom_catalog', JSON.stringify(localCache.customWebsites));
+    if (sitesSnap) {
+      const sites = sitesSnap.empty ? [] : sitesSnap.docs.map(d => d.data() as WebsiteDemo);
+      const merged = getMergedWebsites(sites);
+      localCache.customWebsites = merged;
+      try {
+        localStorage.setItem('bongoweb_custom_catalog', JSON.stringify(merged));
+        localStorage.setItem('bongoweb_custom_websites', JSON.stringify(merged));
+      } catch (_) {}
     }
     if (callBackSnap) {
       localCache.callBackRequests = callBackSnap.empty ? [] : callBackSnap.docs.map(d => d.data() as CallBackRequest);
@@ -1434,28 +1439,93 @@ export async function apiReopenChat(phone: string): Promise<void> {
   } catch (_) {}
 }
 
+// Helper to retrieve and persist deleted website keys across all devices
+function getDeletedWebsiteKeys(): Set<string> {
+  try {
+    const raw = typeof localStorage !== 'undefined' ? localStorage.getItem('bongoweb_deleted_websites') : null;
+    if (raw) {
+      const arr = JSON.parse(raw);
+      if (Array.isArray(arr)) {
+        return new Set(arr.map(k => String(k).replace('#', '').trim().toLowerCase()));
+      }
+    }
+  } catch (_) {}
+  return new Set();
+}
+
+function saveDeletedWebsiteKey(key: string) {
+  try {
+    const clean = String(key || '').replace('#', '').trim().toLowerCase();
+    if (!clean) return;
+    const set = getDeletedWebsiteKeys();
+    set.add(clean);
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('bongoweb_deleted_websites', JSON.stringify(Array.from(set)));
+    }
+  } catch (_) {}
+}
+
+function removeDeletedWebsiteKey(key: string) {
+  try {
+    const clean = String(key || '').replace('#', '').trim().toLowerCase();
+    if (!clean) return;
+    const set = getDeletedWebsiteKeys();
+    set.delete(clean);
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('bongoweb_deleted_websites', JSON.stringify(Array.from(set)));
+    }
+  } catch (_) {}
+}
+
 // Helper to merge default stock websites with custom websites cleanly
 // Custom uploaded websites take priority and appear at the TOP of the inventory
-function getMergedWebsites(existingCustom: WebsiteDemo[] = []): WebsiteDemo[] {
+// Deleted items are strictly filtered out
+export function getMergedWebsites(existingCustom: WebsiteDemo[] = []): WebsiteDemo[] {
+  const deletedKeys = getDeletedWebsiteKeys();
   const map = new Map<string, WebsiteDemo>();
+
   // 1. Custom / newly uploaded websites first so latest uploads appear right at the front
   (existingCustom || []).forEach(site => {
     if (!site) return;
-    const key = String(site.fourDigitCode || site.id).replace('#', '').trim().toLowerCase();
-    map.set(key, site);
-  });
-  // 2. Base stock websites added for any categories not overridden
-  WEBSITE_DEMOS.forEach(site => {
-    const key = String(site.fourDigitCode || site.id).replace('#', '').trim().toLowerCase();
-    if (!map.has(key)) {
+    const codeKey = String(site.fourDigitCode || '').replace('#', '').trim().toLowerCase();
+    const idKey = String(site.id || '').replace('#', '').trim().toLowerCase();
+    const key = codeKey || idKey;
+    if (key && !deletedKeys.has(codeKey) && !deletedKeys.has(idKey)) {
       map.set(key, site);
     }
   });
+
+  // 2. Base stock websites added for any categories not overridden or deleted
+  WEBSITE_DEMOS.forEach(site => {
+    const codeKey = String(site.fourDigitCode || '').replace('#', '').trim().toLowerCase();
+    const idKey = String(site.id || '').replace('#', '').trim().toLowerCase();
+    const key = codeKey || idKey;
+    if (key && !deletedKeys.has(codeKey) && !deletedKeys.has(idKey) && !map.has(key)) {
+      map.set(key, site);
+    }
+  });
+
   return Array.from(map.values());
 }
 
 // ---------------- WEBSITES CATALOG & STOCKS ----------------
 export async function apiGetWebsites(): Promise<WebsiteDemo[]> {
+  // Sync deleted websites list from Firestore if available
+  try {
+    const delSnap = await getDoc(doc(db, 'systemSettings', 'deletedWebsites'));
+    if (delSnap.exists()) {
+      const delData = delSnap.data();
+      if (Array.isArray(delData?.keys)) {
+        const set = getDeletedWebsiteKeys();
+        delData.keys.forEach((k: string) => set.add(String(k).replace('#', '').trim().toLowerCase()));
+        if (typeof localStorage !== 'undefined') {
+          localStorage.setItem('bongoweb_deleted_websites', JSON.stringify(Array.from(set)));
+        }
+      }
+    }
+  } catch (_) {}
+
+  // 1. Check Cloud Firestore (authoritative across all domains including bongoweb.xyz)
   try {
     const snap = await getDocs(collection(db, 'customWebsites'));
     if (!snap.empty) {
@@ -1468,8 +1538,11 @@ export async function apiGetWebsites(): Promise<WebsiteDemo[]> {
       } catch (_) {}
       return merged;
     }
-  } catch (_) {}
+  } catch (err) {
+    console.warn('Firestore get websites notice:', err);
+  }
 
+  // 2. Check server endpoint
   try {
     const res = await fetch('/api/websites');
     if (res.ok) {
@@ -1487,10 +1560,10 @@ export async function apiGetWebsites(): Promise<WebsiteDemo[]> {
   } catch (_) {}
 
   if (localCache.customWebsites && localCache.customWebsites.length > 0) {
-    return localCache.customWebsites;
+    return getMergedWebsites(localCache.customWebsites);
   }
 
-  // Fallback to locally stored websites if any
+  // 3. Fallback to locally stored websites if any
   try {
     const stored = localStorage.getItem('bongoweb_custom_websites') || localStorage.getItem('bongoweb_custom_catalog');
     if (stored) {
@@ -1503,66 +1576,72 @@ export async function apiGetWebsites(): Promise<WebsiteDemo[]> {
     }
   } catch (_) {}
 
-  // Default to full catalog
-  localCache.customWebsites = [...WEBSITE_DEMOS];
+  // 4. Default to full filtered catalog
+  localCache.customWebsites = getMergedWebsites([]);
   return localCache.customWebsites;
 }
 
 export async function apiAddWebsite(website: WebsiteDemo): Promise<WebsiteDemo[]> {
-  const cleanCode = (website.fourDigitCode || website.id).replace(/[^a-zA-Z0-9_-]/g, '_');
+  const rawCode = String(website.fourDigitCode || website.id || '').trim();
+  const cleanCodeKey = rawCode.replace('#', '').trim().toLowerCase();
+  const cleanDocId = (website.fourDigitCode || website.id).replace(/[^a-zA-Z0-9_-]/g, '_');
+  const codeDigits = rawCode.replace(/\D/g, '');
 
-  // 1. Immediately persist to Express backend and await completion
+  // Unmark from deleted list if re-adding
+  removeDeletedWebsiteKey(cleanCodeKey);
+  if (codeDigits) removeDeletedWebsiteKey(codeDigits);
+
+  const cleanData = cleanFirestoreData(website);
+
+  // 1. Immediately persist to Firestore (Primary universal storage)
   try {
-    const res = await fetch('/api/websites', {
-      method: 'POST',
-      headers: getAuthHeaders(),
-      body: JSON.stringify(website)
-    });
-    if (res.ok) {
-      const serverWebsites = await res.json();
-      if (Array.isArray(serverWebsites) && serverWebsites.length > 0) {
-        localCache.customWebsites = getMergedWebsites(serverWebsites);
-      }
+    await setDoc(doc(db, 'customWebsites', cleanDocId), cleanData);
+    if (codeDigits && cleanDocId !== `_${codeDigits}` && cleanDocId !== codeDigits) {
+      // Also alias with clean digits doc ID to ensure zero retrieval misses
+      await setDoc(doc(db, 'customWebsites', `site_${codeDigits}`), cleanData).catch(() => {});
     }
-  } catch (err) {
-    console.warn('Server add website notice:', err);
-  }
-
-  // 2. Persist to Firestore
-  try {
-    const cleanData = cleanFirestoreData(website);
-    await setDoc(doc(db, 'customWebsites', cleanCode), cleanData);
   } catch (err) {
     console.warn('Firestore add website notice:', err);
   }
 
-  // 3. Ensure localCache has baseline catalog if empty, with new website at the top
-  if (!Array.isArray(localCache.customWebsites) || localCache.customWebsites.length === 0) {
-    localCache.customWebsites = getMergedWebsites([website]);
-  } else {
-    const cleanCodeKey = String(website.fourDigitCode || website.id).replace('#', '').trim().toLowerCase();
-    const existingIdx = localCache.customWebsites.findIndex(
-      s => String(s.fourDigitCode || s.id).replace('#', '').trim().toLowerCase() === cleanCodeKey
-    );
-    if (existingIdx !== -1) {
-      localCache.customWebsites[existingIdx] = website;
-    } else {
-      localCache.customWebsites.unshift(website);
-    }
+  // 2. Persist to Express backend in background (no blocking delay on live domain)
+  try {
+    fetch('/api/websites', {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(cleanData)
+    }).catch(() => {});
+  } catch (err) {
+    console.warn('Server add website notice:', err);
   }
 
-  // 4. Safe localStorage persistence with error guard
+  // 3. Ensure localCache has new website right at the top
+  const currentList = Array.isArray(localCache.customWebsites) ? [...localCache.customWebsites] : [];
+  const existingIdx = currentList.findIndex(
+    s => String(s.fourDigitCode || s.id).replace('#', '').trim().toLowerCase() === cleanCodeKey
+  );
+  if (existingIdx !== -1) {
+    currentList[existingIdx] = website;
+  } else {
+    currentList.unshift(website);
+  }
+  localCache.customWebsites = getMergedWebsites(currentList);
+
+  // 4. Safe localStorage persistence with quota error guard
   try {
     localStorage.setItem('bongoweb_custom_catalog', JSON.stringify(localCache.customWebsites));
     localStorage.setItem('bongoweb_custom_websites', JSON.stringify(localCache.customWebsites));
   } catch (e) {
-    console.warn('LocalStorage save notice (safe fallback in memory & server):', e);
+    console.warn('LocalStorage save notice:', e);
   }
 
-  // 5. Broadcast to all active views
+  // 5. Broadcast to all active components and realtime channels
   try {
-    window.dispatchEvent(new CustomEvent('bongoweb_websites_updated', { detail: localCache.customWebsites }));
-    window.dispatchEvent(new CustomEvent('bongoweb_custom_websites_updated', { detail: localCache.customWebsites }));
+    realtimeManager.emit('catalog:updated', { websites: localCache.customWebsites, newSite: website });
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('bongoweb_websites_updated', { detail: localCache.customWebsites }));
+      window.dispatchEvent(new CustomEvent('bongoweb_custom_websites_updated', { detail: localCache.customWebsites }));
+    }
   } catch (_) {}
 
   return localCache.customWebsites;
@@ -1571,15 +1650,19 @@ export async function apiAddWebsite(website: WebsiteDemo): Promise<WebsiteDemo[]
 export async function apiUpdateWebsite(code: string, updateData: Partial<WebsiteDemo>): Promise<WebsiteDemo[]> {
   const cleanCode = code.replace(/[^a-zA-Z0-9_-]/g, '_');
   const cleanCodeKey = code.replace('#', '').trim().toLowerCase();
+  const codeDigits = code.replace(/\D/g, '');
 
   try {
     const cleanData = cleanFirestoreData(updateData);
     await setDoc(doc(db, 'customWebsites', cleanCode), cleanData, { merge: true });
+    if (codeDigits) {
+      await setDoc(doc(db, 'customWebsites', `site_${codeDigits}`), cleanData, { merge: true }).catch(() => {});
+    }
   } catch (err) {
     console.warn('Firestore update website notice:', err);
   }
 
-  const existingIdx = localCache.customWebsites.findIndex(
+  const existingIdx = (localCache.customWebsites || []).findIndex(
     s => String(s.fourDigitCode || s.id || '').replace('#', '').trim().toLowerCase() === cleanCodeKey
   );
 
@@ -1598,9 +1681,13 @@ export async function apiUpdateWebsite(code: string, updateData: Partial<Website
     localCache.customWebsites.unshift(newSite);
   }
 
-  localStorage.setItem('bongoweb_custom_catalog', JSON.stringify(localCache.customWebsites));
-  localStorage.setItem('bongoweb_custom_websites', JSON.stringify(localCache.customWebsites));
   try {
+    localStorage.setItem('bongoweb_custom_catalog', JSON.stringify(localCache.customWebsites));
+    localStorage.setItem('bongoweb_custom_websites', JSON.stringify(localCache.customWebsites));
+  } catch (_) {}
+
+  try {
+    realtimeManager.emit('catalog:updated', { websites: localCache.customWebsites });
     window.dispatchEvent(new CustomEvent('bongoweb_websites_updated', { detail: localCache.customWebsites }));
     window.dispatchEvent(new CustomEvent('bongoweb_custom_websites_updated', { detail: localCache.customWebsites }));
   } catch (_) {}
@@ -1616,28 +1703,59 @@ export async function apiUpdateWebsite(code: string, updateData: Partial<Website
   return localCache.customWebsites;
 }
 
-export async function apiDeleteWebsite(code: string): Promise<WebsiteDemo[]> {
-  const cleanCode = code.replace(/[^a-zA-Z0-9_-]/g, '_');
-  const cleanCodeKey = code.replace('#', '').trim().toLowerCase();
+export async function apiDeleteWebsite(codeOrId: string): Promise<WebsiteDemo[]> {
+  const raw = String(codeOrId || '').trim();
+  const cleanCodeKey = raw.replace('#', '').trim().toLowerCase();
+  const cleanDocId = raw.replace(/[^a-zA-Z0-9_-]/g, '_');
+  const codeDigits = raw.replace(/\D/g, '');
 
+  // 1. Permanently track in deleted keys
+  saveDeletedWebsiteKey(cleanCodeKey);
+  if (codeDigits) saveDeletedWebsiteKey(codeDigits);
+
+  // 2. Delete from Firestore customWebsites collection
   try {
-    await deleteDoc(doc(db, 'customWebsites', cleanCode));
+    await deleteDoc(doc(db, 'customWebsites', cleanDocId)).catch(() => {});
+    if (codeDigits) {
+      await deleteDoc(doc(db, 'customWebsites', `site_${codeDigits}`)).catch(() => {});
+      await deleteDoc(doc(db, 'customWebsites', `_${codeDigits}`)).catch(() => {});
+      await deleteDoc(doc(db, 'customWebsites', codeDigits)).catch(() => {});
+    }
+    // Sync deleted set to Firestore systemSettings for multi-device cross-browser deletion enforcement
+    await setDoc(doc(db, 'systemSettings', 'deletedWebsites'), {
+      keys: Array.from(getDeletedWebsiteKeys()),
+      updatedAt: new Date().toISOString()
+    }, { merge: true }).catch(() => {});
   } catch (err) {
     console.warn('Firestore delete website notice:', err);
   }
 
-  localCache.customWebsites = localCache.customWebsites.filter(
-    s => String(s.fourDigitCode || s.id || '').replace('#', '').trim().toLowerCase() !== cleanCodeKey
-  );
-  localStorage.setItem('bongoweb_custom_catalog', JSON.stringify(localCache.customWebsites));
-  localStorage.setItem('bongoweb_custom_websites', JSON.stringify(localCache.customWebsites));
+  // 3. Remove from memory and re-merge
+  localCache.customWebsites = (localCache.customWebsites || []).filter(s => {
+    const sCode = String(s.fourDigitCode || '').replace('#', '').trim().toLowerCase();
+    const sId = String(s.id || '').trim().toLowerCase();
+    return sCode !== cleanCodeKey && sId !== cleanCodeKey && sId !== raw.toLowerCase();
+  });
+  localCache.customWebsites = getMergedWebsites(localCache.customWebsites);
+
+  // 4. Update localStorage
   try {
-    window.dispatchEvent(new CustomEvent('bongoweb_websites_updated', { detail: localCache.customWebsites }));
-    window.dispatchEvent(new CustomEvent('bongoweb_custom_websites_updated', { detail: localCache.customWebsites }));
+    localStorage.setItem('bongoweb_custom_catalog', JSON.stringify(localCache.customWebsites));
+    localStorage.setItem('bongoweb_custom_websites', JSON.stringify(localCache.customWebsites));
   } catch (_) {}
 
+  // 5. Broadcast deletion to all UI views
   try {
-    fetch(`/api/websites/${encodeURIComponent(code)}`, {
+    realtimeManager.emit('catalog:updated', { websites: localCache.customWebsites, deletedCode: raw });
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('bongoweb_websites_updated', { detail: localCache.customWebsites }));
+      window.dispatchEvent(new CustomEvent('bongoweb_custom_websites_updated', { detail: localCache.customWebsites }));
+    }
+  } catch (_) {}
+
+  // 6. Delete from Express backend
+  try {
+    fetch(`/api/websites/${encodeURIComponent(raw)}`, {
       method: 'DELETE',
       headers: getAuthHeaders()
     }).catch(() => {});
@@ -2635,11 +2753,13 @@ export function subscribeToWebsites(callback: (websites: WebsiteDemo[]) => void)
   try {
     return onSnapshot(collection(db, 'customWebsites'), (snapshot) => {
       const websites = snapshot.docs.map(d => d.data() as WebsiteDemo);
-      if (websites.length > 0) {
-        localCache.customWebsites = websites;
-        localStorage.setItem('bongoweb_custom_catalog', JSON.stringify(websites));
-        callback(websites);
-      }
+      const merged = getMergedWebsites(websites);
+      localCache.customWebsites = merged;
+      try {
+        localStorage.setItem('bongoweb_custom_catalog', JSON.stringify(merged));
+        localStorage.setItem('bongoweb_custom_websites', JSON.stringify(merged));
+      } catch (_) {}
+      callback(merged);
     }, (err) => {
       console.warn('Websites onSnapshot notice:', err);
     });

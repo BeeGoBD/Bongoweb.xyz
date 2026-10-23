@@ -23,6 +23,7 @@ import NotFoundView from './components/NotFoundView';
 import AppFooter from './components/AppFooter';
 import CookieConsentBanner from './components/CookieConsentBanner';
 import { updatePageSEO } from './utils/seo';
+import { apiGetWebsites, subscribeToWebsites } from './utils/api';
 
 type ViewMode = 
   | 'dashboard' 
@@ -279,12 +280,11 @@ export default function App() {
     parseCurrentUrl();
 
     // 2. Fetch custom websites from database so direct URLs or page reloads resolve instantly
-    fetch('/api/websites')
-      .then(res => res.ok ? res.json() : [])
+    apiGetWebsites()
       .then((customWebsites: WebsiteDemo[]) => {
         if (Array.isArray(customWebsites) && customWebsites.length > 0) {
           localStorage.setItem('bongoweb_custom_websites', JSON.stringify(customWebsites));
-          // If user loaded on a website or order page, re-parse to ensure the exact custom website object is bound
+          localStorage.setItem('bongoweb_custom_catalog', JSON.stringify(customWebsites));
           const path = window.location.pathname || '';
           if (path.startsWith('/website') || path.startsWith('/order')) {
             parseCurrentUrl();
@@ -292,6 +292,18 @@ export default function App() {
         }
       })
       .catch(() => {});
+
+    // 3. Multi-device realtime subscription to Firestore customWebsites
+    const unsubWebsites = subscribeToWebsites((updatedWebsites) => {
+      if (Array.isArray(updatedWebsites)) {
+        localStorage.setItem('bongoweb_custom_websites', JSON.stringify(updatedWebsites));
+        localStorage.setItem('bongoweb_custom_catalog', JSON.stringify(updatedWebsites));
+        const path = window.location.pathname || '';
+        if (path.startsWith('/website') || path.startsWith('/order')) {
+          parseCurrentUrl();
+        }
+      }
+    });
 
     const handleNavigation = () => {
       parseCurrentUrl();
@@ -301,6 +313,7 @@ export default function App() {
     const handleWebsitesUpdated = (e: any) => {
       if (e.detail && Array.isArray(e.detail)) {
         localStorage.setItem('bongoweb_custom_websites', JSON.stringify(e.detail));
+        localStorage.setItem('bongoweb_custom_catalog', JSON.stringify(e.detail));
         parseCurrentUrl();
       }
     };
@@ -308,10 +321,13 @@ export default function App() {
     window.addEventListener('popstate', handleNavigation);
     window.addEventListener('hashchange', handleNavigation);
     window.addEventListener('bongoweb_websites_updated', handleWebsitesUpdated);
+    window.addEventListener('bongoweb_custom_websites_updated', handleWebsitesUpdated);
     return () => {
+      unsubWebsites();
       window.removeEventListener('popstate', handleNavigation);
       window.removeEventListener('hashchange', handleNavigation);
       window.removeEventListener('bongoweb_websites_updated', handleWebsitesUpdated);
+      window.removeEventListener('bongoweb_custom_websites_updated', handleWebsitesUpdated);
     };
   }, [parseCurrentUrl]);
 

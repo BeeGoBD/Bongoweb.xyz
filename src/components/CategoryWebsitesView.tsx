@@ -15,7 +15,7 @@ import {
 import { WebsiteCategory, WebsiteDemo } from '../types';
 import { WEBSITE_DEMOS } from '../data/mockData';
 import { useLanguage } from '../utils/LanguageContext';
-import { apiGetWebsites } from '../utils/api';
+import { apiGetWebsites, subscribeToWebsites, getMergedWebsites } from '../utils/api';
 
 interface CategoryWebsitesViewProps {
   category: WebsiteCategory;
@@ -70,6 +70,13 @@ export default function CategoryWebsitesView({
       })
       .catch(() => {});
 
+    // Multi-device real-time subscription to customWebsites collection
+    const unsubWebsites = subscribeToWebsites((updatedSites) => {
+      if (Array.isArray(updatedSites)) {
+        setCustomWebsites(updatedSites);
+      }
+    });
+
     const handleWebsitesUpdate = (e: any) => {
       if (e?.detail && Array.isArray(e.detail)) {
         setCustomWebsites(e.detail);
@@ -84,27 +91,14 @@ export default function CategoryWebsitesView({
     window.addEventListener('bongoweb_websites_updated', handleWebsitesUpdate);
     window.addEventListener('bongoweb_custom_websites_updated', handleWebsitesUpdate);
     return () => {
+      unsubWebsites();
       window.removeEventListener('bongoweb_websites_updated', handleWebsitesUpdate);
       window.removeEventListener('bongoweb_custom_websites_updated', handleWebsitesUpdate);
     };
   }, []);
 
   const allDemos = useMemo(() => {
-    const map = new Map<string, WebsiteDemo>();
-    // 1. Put custom/uploaded demos FIRST so newly uploaded products appear right at the top
-    (customWebsites || []).forEach((site) => {
-      if (!site) return;
-      const key = String(site.fourDigitCode || site.id).replace('#', '').trim().toLowerCase();
-      map.set(key, site);
-    });
-    // 2. Add base stock demos for any not already present
-    WEBSITE_DEMOS.forEach((site) => {
-      const key = String(site.fourDigitCode || site.id).replace('#', '').trim().toLowerCase();
-      if (!map.has(key)) {
-        map.set(key, site);
-      }
-    });
-    return Array.from(map.values());
+    return getMergedWebsites(customWebsites);
   }, [customWebsites]);
 
   // Filter logic

@@ -167,6 +167,11 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
   const [galleryImageName, setGalleryImageName] = useState('');
   const [imageInputMode, setImageInputMode] = useState<'gallery' | 'url'>('gallery');
   const galleryFileInputRef = useRef<HTMLInputElement>(null);
+  const uploadTabFileInputRef = useRef<HTMLInputElement>(null);
+
+  // Product Deletion State & Confirmation Modal
+  const [productToDelete, setProductToDelete] = useState<WebsiteDemo | null>(null);
+  const [isDeletingProduct, setIsDeletingProduct] = useState(false);
 
   // Gallery image upload state for Edit Website
   const [editImageInputMode, setEditImageInputMode] = useState<'gallery' | 'url'>('gallery');
@@ -412,7 +417,10 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
         if (Array.isArray(vault.orders)) setOrders(vault.orders);
         if (Array.isArray(vault.credentials)) setDeliveredCreds(vault.credentials);
         if (Array.isArray(vault.resets)) setResetRequests(vault.resets);
-        if (Array.isArray(vault.customWebsites) && vault.customWebsites.length > 0) {
+        const sites = await apiGetWebsites();
+        if (Array.isArray(sites) && sites.length > 0) {
+          setCustomWebsites(sites);
+        } else if (Array.isArray(vault.customWebsites) && vault.customWebsites.length > 0) {
           setCustomWebsites(vault.customWebsites);
         }
         if (Array.isArray(vault.chats)) {
@@ -1619,15 +1627,40 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
     loadAllDatabaseCollections();
   };
 
+  // Product Delete Confirmation Handler
+  const handleConfirmDeleteProduct = async () => {
+    if (!productToDelete) return;
+    setIsDeletingProduct(true);
+    const codeToDelete = productToDelete.fourDigitCode || productToDelete.id;
+    const titleToDelete = productToDelete.title;
+    try {
+      const updated = await apiDeleteWebsite(codeToDelete);
+      setCustomWebsites(updated);
+      setMasterSuccessMsg(`✓ প্রোডাক্ট "${titleToDelete}" সফলভাবে ওয়েবসাইট থেকে মুছে ফেলা হয়েছে!`);
+      setTimeout(() => setMasterSuccessMsg(''), 4500);
+      setProductToDelete(null);
+      if (editingSite && (editingSite.fourDigitCode === productToDelete.fourDigitCode || editingSite.id === productToDelete.id)) {
+        setEditingSite(null);
+      }
+      loadAllDatabaseCollections();
+    } catch (err: any) {
+      console.error('Delete product error:', err);
+      alert('প্রোডাক্ট মুছতে সমস্যা হয়েছে: ' + (err?.message || ''));
+    } finally {
+      setIsDeletingProduct(false);
+    }
+  };
+
   // Add New Product / Website to Inventory (Unlimited Uploads & Glitch-Free)
   const handleCreateNewWebsite = async (e: React.FormEvent) => {
     e.preventDefault();
     setProductUploadError('');
-    const title = (newProductTitle || newSiteTitle).trim();
-    if (!title) {
+    const rawTitle = (newProductTitle || newSiteTitle).trim();
+    if (!rawTitle) {
       setProductUploadError('অনুগ্রহ করে প্রোডাক্ট টাইটেল (Title) লিখুন।');
       return;
     }
+    const cleanTitle = rawTitle.replace(/^#\d+\s*/, '').trim() || rawTitle;
 
     setIsUploadingProduct(true);
 
@@ -1675,8 +1708,8 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
       const newDemo: WebsiteDemo = {
         id: `custom-${Date.now()}-${codeNum}`,
         fourDigitCode: randomCode,
-        title: `${randomCode} ${title}`,
-        banglaTitle: `${randomCode} ${title}`,
+        title: `${randomCode} ${cleanTitle}`,
+        banglaTitle: `${randomCode} ${cleanTitle}`,
         category: effectiveCategory,
         categoryLabel: friendlyLabel,
         description: effectiveDesc,
@@ -1686,7 +1719,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
         rating: 5.0,
         ordersCount: '24h Launch',
         previewImage: effectiveThumbnail,
-        heroHeadline: title,
+        heroHeadline: cleanTitle,
         features: ['মোবাইল অপ্টিমাইজড', 'বিকাশ ও নগদ পেমেন্ট', 'ক্লাউড হোস্টিং', '২৪ ঘণ্টা ডেলিভারি'],
         mockData: {
           heroSub: effectiveDesc,
@@ -1707,7 +1740,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
       // Details send option: if enabled, send product details to client(s)
       if (sendDetailsToClient) {
         const discountText = newDiscountPrice && newDiscountPrice !== '৳0' ? ` (ডিসকাউন্ট: ${newDiscountPrice})` : '';
-        const notificationMsg = `🎉 নতুন ওয়েবসাইট প্রোডাক্ট যুক্ত হয়েছে: "${title}" | প্যাকেজ মূল্য: ${effectivePrice}${discountText} | লিংক: ${effectiveLink}। অর্ডার বা বিস্তারিত দেখতে যোগাযোগ করুন।`;
+        const notificationMsg = `🎉 নতুন ওয়েবসাইট প্রোডাক্ট যুক্ত হয়েছে: "${cleanTitle}" | প্যাকেজ মূল্য: ${effectivePrice}${discountText} | লিংক: ${effectiveLink}। অর্ডার বা বিস্তারিত দেখতে যোগাযোগ করুন।`;
         
         for (const th of chatThreads) {
           if (th.userPhone) {
@@ -1716,7 +1749,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
         }
       }
 
-      setMasterSuccessMsg(`✓ ওয়েবসাইট "${title}" (${randomCode}) সফলভাবে পাবলিশ হয়েছে! লিংকটি মূল ড্যাশবোর্ডে লাইভ প্রিভিউ হবে।`);
+      setMasterSuccessMsg(`✓ ওয়েবসাইট "${cleanTitle}" (${randomCode}) সফলভাবে পাবলিশ হয়েছে! লিংকটি মূল ড্যাশবোর্ডে লাইভ প্রিভিউ হবে।`);
       setTimeout(() => setMasterSuccessMsg(''), 5000);
       setShowAddWebsiteModal(false);
       setNewProductTitle('');
@@ -5125,14 +5158,27 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                   <div className="pt-2 border-t border-[#1E293B] flex items-center justify-between gap-2">
                     <span className="font-mono text-white text-xs font-bold">{site.priceTag}</span>
                     
-                    {/* Clear Edit Button */}
-                    <button
-                      onClick={() => handleOpenEditSite(site)}
-                      className="px-3 py-1.5 rounded-xl bg-[#1E293B] hover:bg-[#6B46C1] text-[#A5B4FC] hover:text-white border border-[#7C3AED]/30 text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
-                    >
-                      <Edit3 className="w-3.5 h-3.5" />
-                      <span>এডিট করুন</span>
-                    </button>
+                    <div className="flex items-center gap-1.5">
+                      {/* Trash Bin Delete Button - triggers confirmation modal */}
+                      <button
+                        type="button"
+                        onClick={() => setProductToDelete(site)}
+                        className="p-1.5 rounded-xl bg-red-500/15 hover:bg-red-500/25 text-red-400 hover:text-red-300 border border-red-500/30 transition-all cursor-pointer flex items-center justify-center group"
+                        title="এই প্রোডাক্টটি ডিলিট করুন (Delete Product)"
+                      >
+                        <Trash2 className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
+                      </button>
+
+                      {/* Clear Edit Button */}
+                      <button
+                        type="button"
+                        onClick={() => handleOpenEditSite(site)}
+                        className="px-3 py-1.5 rounded-xl bg-[#1E293B] hover:bg-[#6B46C1] text-[#A5B4FC] hover:text-white border border-[#7C3AED]/30 text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
+                      >
+                        <Edit3 className="w-3.5 h-3.5" />
+                        <span>এডিট করুন</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -5315,6 +5361,17 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                     </div>
 
                     <div className="flex gap-2 pt-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setProductToDelete(editingSite);
+                        }}
+                        className="px-3.5 py-2.5 rounded-xl bg-red-500/15 hover:bg-red-500/25 text-red-400 hover:text-red-300 border border-red-500/30 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+                        title="এই প্রোডাক্টটি ডিলিট করুন"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        <span>মুছে ফেলুন</span>
+                      </button>
                       <button
                         type="submit"
                         className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-[#6B46C1] to-[#7C3AED] hover:from-[#5B21B6] hover:to-[#6D28D9] text-white text-xs font-bold transition-all cursor-pointer shadow-xs"
@@ -5915,6 +5972,28 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                       </div>
                     </div>
 
+                    {/* Hidden File Input for Device Gallery in Dedicated Upload Tab */}
+                    <input
+                      type="file"
+                      ref={uploadTabFileInputRef}
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          processGalleryImage(
+                            file,
+                            (dataUrl, name) => {
+                              setNewSiteThumbnail(dataUrl);
+                              setGalleryImageName(name);
+                            },
+                            (err) => setProductUploadError(err),
+                            setImageCompressing
+                          );
+                        }
+                      }}
+                    />
+
                     {imageInputMode === 'gallery' ? (
                       <div className="space-y-2">
                         {newSiteThumbnail ? (
@@ -5935,7 +6014,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                               <div className="flex items-center gap-2 mt-2">
                                 <button
                                   type="button"
-                                  onClick={() => galleryFileInputRef.current?.click()}
+                                  onClick={() => uploadTabFileInputRef.current?.click()}
                                   className="text-xs text-[#AB55F7] font-bold hover:underline cursor-pointer"
                                 >
                                   ছবি পরিবর্তন
@@ -5957,7 +6036,7 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                         ) : (
                           <button
                             type="button"
-                            onClick={() => galleryFileInputRef.current?.click()}
+                            onClick={() => uploadTabFileInputRef.current?.click()}
                             disabled={imageCompressing}
                             className="w-full py-6 border-2 border-dashed border-[#1E293B] hover:border-[#AB55F7] rounded-2xl flex flex-col items-center justify-center gap-2 bg-[#0B0F19]/60 hover:bg-[#0B0F19] transition-all cursor-pointer group"
                           >
@@ -7283,6 +7362,102 @@ export default function AdminPanelView({ onBackToApp }: AdminPanelViewProps) {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Product Delete Confirmation Modal */}
+      {productToDelete && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fadeIn">
+          <div className="w-full max-w-md bg-[#0F172A] border-2 border-red-500/50 rounded-3xl p-6 sm:p-7 shadow-2xl space-y-4 animate-scaleUp relative">
+            <button
+              type="button"
+              disabled={isDeletingProduct}
+              onClick={() => setProductToDelete(null)}
+              className="absolute top-5 right-5 text-[#94A3B8] hover:text-white p-1 rounded-lg hover:bg-white/10 transition-colors cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {/* Warning Header */}
+            <div className="flex items-center gap-3.5">
+              <div className="w-12 h-12 rounded-2xl bg-red-500/20 text-red-400 flex items-center justify-center border border-red-500/30 shadow-lg shadow-red-500/20 shrink-0">
+                <Trash2 className="w-6 h-6 animate-pulse" />
+              </div>
+              <div>
+                <h3 className="text-base sm:text-lg font-black text-white">
+                  প্রোডাক্ট ডিলিট নিশ্চিতকরণ
+                </h3>
+                <p className="text-xs text-red-300 font-medium mt-0.5">
+                  Confirm Permanent Product Deletion
+                </p>
+              </div>
+            </div>
+
+            {/* Prompt Question */}
+            <div className="p-3.5 rounded-2xl bg-red-950/40 border border-red-500/30 text-xs text-red-200 leading-relaxed">
+              <p className="font-bold text-white mb-1">
+                আপনি কি নিশ্চিতভাবে এই প্রোডাক্টটি স্থায়ীভাবে মুছে ফেলতে চান?
+              </p>
+              <p className="text-[11px] text-zinc-300">
+                মুছে ফেললে ওয়েবসাইট ক্যাটালগ ও মেনু থেকে প্রোডাক্টটি তৎক্ষণাৎ সম্পূর্ণভাবে রিমুভ হয়ে যাবে।
+              </p>
+            </div>
+
+            {/* Target Product Summary Card */}
+            <div className="p-3 rounded-2xl bg-[#0B0F19] border border-[#1E293B] flex items-center gap-3">
+              <img
+                src={productToDelete.previewImage}
+                alt={productToDelete.title}
+                className="w-16 h-14 rounded-xl object-cover border border-white/10 shrink-0"
+              />
+              <div className="flex-1 min-w-0 space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="px-2 py-0.5 rounded-md bg-[#6B46C1] text-white text-[10px] font-mono font-bold">
+                    {productToDelete.fourDigitCode}
+                  </span>
+                  <span className="text-[10px] text-[#A5B4FC] font-bold uppercase truncate">
+                    {productToDelete.categoryLabel || productToDelete.category}
+                  </span>
+                </div>
+                <h4 className="text-xs font-bold text-white truncate">
+                  {productToDelete.title}
+                </h4>
+                <p className="text-[11px] font-mono font-bold text-emerald-400">
+                  {productToDelete.priceTag}
+                </p>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-2.5 pt-2">
+              <button
+                type="button"
+                disabled={isDeletingProduct}
+                onClick={handleConfirmDeleteProduct}
+                className="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-red-600 via-rose-600 to-red-700 hover:from-red-500 hover:to-rose-600 active:scale-95 text-white text-xs sm:text-sm font-black transition-all shadow-lg shadow-red-600/30 border border-red-400/40 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+              >
+                {isDeletingProduct ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    <span>মুছে ফেলা হচ্ছে...</span>
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-4 h-4" />
+                    <span>হ্যাঁ, মুছে ফেলুন • Delete</span>
+                  </>
+                )}
+              </button>
+              <button
+                type="button"
+                disabled={isDeletingProduct}
+                onClick={() => setProductToDelete(null)}
+                className="py-3 px-4 rounded-xl bg-[#1E293B] hover:bg-[#334155] text-[#94A3B8] hover:text-white text-xs font-bold transition-all cursor-pointer"
+              >
+                বাতিল
+              </button>
+            </div>
           </div>
         </div>
       )}
